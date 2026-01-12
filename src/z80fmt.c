@@ -200,6 +200,44 @@ static void replace_operand_labels(const char *operand,
     size_t len = strlen(operand);
 
     while (i < len && out_len + 1 < out_size) {
+        /* Check for sub_XXXXh pattern */
+        if (i + 9 <= len && 
+            operand[i] == 's' && operand[i+1] == 'u' && operand[i+2] == 'b' &&
+            operand[i+3] == '_') {
+            
+            char tmp[5];
+            int ok = 1;
+            
+            for (int k = 0; k < 4; k++) {
+                char c = operand[i + 4 + k];
+                if (!isxdigit((unsigned char)c)) {
+                    ok = 0;
+                    break;
+                }
+                tmp[k] = c;
+            }
+            tmp[4] = '\0';
+
+            if (ok && operand[i + 8] == 'h') {
+                int before_ok = (i == 0) || !isalnum((unsigned char)operand[i - 1]);
+                int after_ok = (i + 9 >= len) || !isalnum((unsigned char)operand[i + 9]);
+
+                if (before_ok && after_ok) {
+                    upper_hex(tmp);
+                    const char *sym = lookup_symbol(tmp);
+                    if (sym) {
+                        size_t sl = strlen(sym);
+                        if (out_len + sl >= out_size)
+                            sl = out_size - 1 - out_len;
+                        memcpy(out + out_len, sym, sl);
+                        out_len += sl;
+                        i += 9;
+                        continue;
+                    }
+                }
+            }
+        }
+
         /* Check for hex address patterns: 0XXXXh or just lXXXXh */
         if ((operand[i] == '0' || operand[i] == 'l') && i + 5 < len) {
             char tmp[5];

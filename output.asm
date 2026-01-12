@@ -12,10 +12,10 @@
 
 
 
-0000:  f3            RESET:       di               ;disable interrupts
-0001:  af            l0001h:      xor a            ;clear A register (faster than ld a,0)
-0002:  32 00 68                   ld (IOREG),a     ;clear I/O Register
-0005:  c3 74 06      l0005h:      jp BASINIT1      ;Jump to Basic init 1 at 0674h
+0000:  f3            RESET:       di
+0001:  af            l0001h:      xor a
+0002:  32 00 68                   ld (IOREG),a
+0005:  c3 74 06      l0005h:      jp l0674h
 0008:  c3 00 78      HNDLRES08:   jp RESET08
 000B:  e1            l000bh:      pop hl
 000C:  e9                         jp (hl)
@@ -70,52 +70,39 @@
 006D:  fe 02                      cp 002h
 006F:  d2 00 00                   jp nc,RESET
 0072:  c3 cc 06                   jp l06cch
-
-;*******************************************************************************
-;*Basic init 2                                                                 *
-;*75h                                                                          * 
-;*******************************************************************************
-
-; io copy
-0075:  11 80 78      BASINIT2:    ld de,07880h     ;Subroutines for Divide, Out, Inp In RAM
-0078:  21 f7 18                   ld hl,l18f7h     ;Subroutines for Divide, Out, Inp in ROM
-007B:  01 27 00                   ld bc,00027h	   ;copy 27h bytes (39 bytes)
+0075:  11 80 78      l0075h:      ld de,07880h
+0078:  21 f7 18                   ld hl,l18f7h
+007B:  01 27 00                   ld bc,00027h
 007E:  ed b0                      ldir
-0080:  21 e5 79                   ld hl,079e5h     ; Start of IO Buffer
-0083:  36 3a                      ld (hl),03ah     ; Character ':'
+0080:  21 e5 79                   ld hl,079e5h
+0083:  36 3a                      ld (hl),03ah
 0085:  23                         inc hl
-0086:  70                         ld (hl),b        ; B = 0 after block copy
+0086:  70                         ld (hl),b
 0087:  23                         inc hl
-0088:  36 2c                      ld (hl),02ch     ; Character ','
+0088:  36 2c                      ld (hl),02ch
 008A:  23                         inc hl
-008B:  22 a7 78                   ld (078a7h),hl   ; Store IO buffer address (79E8H)
-
-; Disk – manually assemble default disk‑command vectors in RAM
-008E:  11 2d 01                   ld de,l012d      ; Address of the default "Disk Command Error" handler
-0091:  06 1c                      ld b,01ch        ; Number of disk command vectors to initialize (28 entries)
-0093:  21 52 79                   ld hl,07952h     ; Start of the disk command vector table in RAM
-0096:  36 c3         l0096h:      ld (hl),0c3h     ; Write opcode for JP, 0C3h
-0098:  23                         inc hl		
-0099:  73                         ld (hl),e        ; Low byte of jp target address 2dh
+008B:  22 a7 78                   ld (078a7h),hl
+008E:  11 2d 01                   ld de,l012dh
+0091:  06 1c                      ld b,01ch
+0093:  21 52 79                   ld hl,07952h
+0096:  36 c3         l0096h:      ld (hl),0c3h
+0098:  23                         inc hl
+0099:  73                         ld (hl),e
 009A:  23                         inc hl
-009B:  72                         ld (hl),d        ; High byte of jp target address 01h
-009C:  23                         inc hl           ; advance to next vector set
-009D:  10 f7                      djnz l0096h      ; repeat until all vectors contain the jp instruction
-
-; BASIC – manually assemble command extension vector slots with default RET instructions
-009F:  06 15                      ld b,015h        ; Number of extension slots to initialize (21 entries)
-00A1:  36 c9         l00a1h:      ld (hl),0c9h     ; Store RET opcode (C9h) in current slot
-00A3:  23                         inc hl           ; 3 bytes per slot (opcode + 2 byte address)
+009B:  72                         ld (hl),d
+009C:  23                         inc hl
+009D:  10 f7                      djnz l0096h
+009F:  06 15                      ld b,015h
+00A1:  36 c9         l00a1h:      ld (hl),0c9h
+00A3:  23                         inc hl
 00A4:  23                         inc hl
 00A5:  23                         inc hl
-00A6:  10 f9                      djnz l00a1h      ; repeat until all slots contain the ret instruction
-
-; BASIC - finalize startup state and prepare exicution envioronment  
-00A8:  21 e8 7a                   ld hl,07ae8h     ; Mark program start location
-00AB:  70                         ld (hl),b        ; Store 00h at 7AE8h (B was 00h from last djnz)
-00AC:  31 f8 79                   ld sp,079f8h     ; set up stack pointer at top of basic RAM Work Area
-00AF:  cd 8f 1b                   call INITRT	   ; init runtime enviornment from NEW command
-00B2:  cd c9 01                   call CLRSCR      ; clear screen
+00A6:  10 f9                      djnz l00a1h
+00A8:  21 e8 7a                   ld hl,07ae8h
+00AB:  70                         ld (hl),b
+00AC:  31 f8 79                   ld sp,079f8h
+00AF:  cd 8f 1b                   call sub_1b8fh
+00B2:  cd c9 01                   call CLRSCR
 00B5:  00            l00b5h:      nop
 00B6:  00                         nop
 00B7:  00                         nop
@@ -126,11 +113,9 @@
 00BC:  00                         nop
 00BD:  00                         nop
 00BE:  18 04                      jr l00c4h
-
-; unreachable data level II BASIC artifact
-00C0:  d7 b7 20 12                db 0D7h,0B7h,020h,012h
-
-
+00C0:  d7                         rst 10h
+00C1:  b7                         or a
+00C2:  20 12                      jr nz,l00d6h
 00C4:  21 4c 7b      l00c4h:      ld hl,07b4ch
 00C7:  23            l00c7h:      inc hl
 00C8:  7c                         ld a,h
@@ -163,7 +148,7 @@
 00F2:  22 b1 78                   ld (MEMTOP),hl
 00F5:  19                         add hl,de
 00F6:  22 a0 78                   ld (STRINGS),hl
-00F9:  cd 4d 1b                   call NEWCLRP
+00F9:  cd 4d 1b                   call sub_1b4dh
 00FC:  cd 84 34                   call sub_3484h
 00FF:  21 0f 01      l00ffh:      ld hl,l010fh
 0102:  cd a7 28                   call OUTSTR
@@ -288,7 +273,6 @@
 01C4:  32 af 78                   ld (078afh),a
 01C7:  e1                         pop hl
 01C8:  c9                         ret
-
 01C9:  3e 1c         CLRSCR:      ld a,01ch
 01CB:  cd 3a 03                   call CHOUT
 01CE:  3e 1f                      ld a,01fh
@@ -296,7 +280,6 @@
 01D3:  ed 5f                      ld a,r
 01D5:  32 ab 78      l01d5h:      ld (078abh),a
 01D8:  c9                         ret
-
 01D9:  54            l01d9h:      ld d,h
 01DA:  47                         ld b,a
 01DB:  42                         ld b,d
@@ -1023,41 +1006,20 @@
 066B:  32 36 78                   ld (07836h),a
 066E:  18 f3                      jr l0663h
 0670:  dd cb 09                   set 2,(ix+009h)
-
-;*******************************************************************************
-;*Basic init 1                                                                 *
-;*0674h                                                                        * 
-;*******************************************************************************
-
-0674:  00            BASINIT1:    nop              ; Level II basic fragment for alignment??                   
-0675:  00                         nop			   ; Below relocates ROM into RAM area	
-0676:  21 d2 06      l0676h:      ld hl,l06d2h     ; ROM 6d2h to 707h - RESET08 IN ROM	
-0679:  11 00 78                   ld de,RESET08	   ; RAM 7800h to 7835 - RESET08 IN RAM
-067C:  01 36 00                   ld bc,l0036h     ; Length 36h bytes (54 bytes)
+0674:  00            l0674h:      nop
+0675:  00                         nop
+0676:  21 d2 06      l0676h:      ld hl,l06d2h
+0679:  11 00 78                   ld de,RESET08
+067C:  01 36 00                   ld bc,l0036h
 067F:  ed b0                      ldir
-0681:  3d                         dec a			   ; this happens 128x 
-0682:  3d                         dec a			   ; to fill each workspace
-0683:  20 f1                      jr nz,l0676h     ; copy until done
-
-; ******************************************************************************
-; * clear workspace area stub from de (in basic intit 1 this is 7836h to       *
-; * 785ch) always jumps to 0075h after completion, regardless of caller.       *
-; * this has outside callers.                                                  *
-; * 685h                                                                       *
-; ******************************************************************************
-
-
-0685:  06 27         CLRSTUB1:    ld b,027h		   ; clear workspace 27h bytes (39 bytes)
-0687:  12            l0687h:      ld (de),a		   ; this is bytes 7836h to 785Ch in init  1	
+0681:  3d                         dec a
+0682:  3d                         dec a
+0683:  20 f1                      jr nz,l0676h
+0685:  06 27         l0685h:      ld b,027h
+0687:  12            l0687h:      ld (de),a
 0688:  13                         inc de
-0689:  10 fc                      djnz l0687h      ; loop until its cleared
-068B:  c3 75 00                   jp BASINIT2      ; to basic init 2
-
-;******************************************************************************
-;*Basic init 3                                                                *
-;*068Eh                                                                       *
-;******************************************************************************
-
+0689:  10 fc                      djnz l0687h
+068B:  c3 75 00                   jp l0075h
 068E:  21 00 40      l068eh:      ld hl,04000h
 0691:  cd a4 06                   call sub_06a4h
 0694:  21 00 60                   ld hl,06000h
@@ -1088,7 +1050,7 @@
 06BA:  cd 59 1a                   call 01a59h
 06BD:  cd b8 34                   call sub_34b8h
 06C0:  cd e3 18                   call sub_18e3h
-06C3:  28 c0                      jr z,CLRSTUB1
+06C3:  28 c0                      jr z,l0685h
 06C5:  ef                         rst 28h
 06C6:  2c                         inc l
 06C7:  28 14                      jr z,$+22
@@ -4168,7 +4130,7 @@
 1960:  2b                         dec hl
 1961:  18 f8                      jr l195bh
 1963:  e5            sub_1963h:   push hl
-1964:  2a fd 78      l1964h:      ld hl,(MTRIXTAB)
+1964:  2a fd 78      l1964h:      ld hl,(078fdh)
 1967:  06 00                      ld b,000h
 1969:  09                         add hl,bc
 196A:  09                         add hl,bc
@@ -4190,7 +4152,7 @@
 1982:  a5                         and l
 1983:  3c                         inc a
 1984:  28 08                      jr z,l198eh
-1986:  3a f2 78                   ld a,(TRAPFLAG)
+1986:  3a f2 78                   ld a,(078f2h)
 1989:  b7                         or a
 198A:  1e 22                      ld e,022h
 198C:  20 14                      jr nz,l19a2h
@@ -4205,8 +4167,8 @@
 19A5:  22 ea 78                   ld (078eah),hl
 19A8:  22 ec 78                   ld (078ech),hl
 19AB:  01 b4 19      l19abh:      ld bc,l19b4h
-19AE:  2a e8 78      l19aeh:      ld hl,(STSTACK)
-19B1:  c3 9a 1b                   jp INITRTSP
+19AE:  2a e8 78      l19aeh:      ld hl,(078e8h)
+19B1:  c3 9a 1b                   jp l1b9ah
 19B4:  c1            l19b4h:      pop bc
 19B5:  7b                         ld a,e
 19B6:  4b                         ld c,e
@@ -4221,12 +4183,12 @@
 19C7:  28 07                      jr z,l19d0h
 19C9:  22 f5 78                   ld (078f5h),hl
 19CC:  eb                         ex de,hl
-19CD:  22 f7 78                   ld (CONTPNT),hl
-19D0:  2a f0 78      l19d0h:      ld hl,(ERRLOC)
+19CD:  22 f7 78                   ld (078f7h),hl
+19D0:  2a f0 78      l19d0h:      ld hl,(078f0h)
 19D3:  7c                         ld a,h
 19D4:  b5                         or l
 19D5:  eb                         ex de,hl
-19D6:  21 f2 78                   ld hl,TRAPFLAG
+19D6:  21 f2 78                   ld hl,078f2h
 19D9:  28 08                      jr z,l19e3h
 19DB:  a6                         and (hl)
 19DC:  20 05                      jr nz,l19e3h
@@ -4257,7 +4219,7 @@
 1A09:  e1                         pop hl
 1A0A:  11 fe ff                   ld de,0fffeh
 1A0D:  df                         rst 18h
-1A0E:  ca 74 06                   jp z,BASINIT1
+1A0E:  ca 74 06                   jp z,l0674h
 1A11:  7c                         ld a,h
 1A12:  a5                         and l
 1A13:  3c                         inc a
@@ -4385,7 +4347,7 @@
 1AE8:  d1            l1ae8h:      pop de
 1AE9:  cd fc 1a                   call sub_1afch
 1AEC:  cd b5 79                   call 079b5h
-1AEF:  cd 5d 1b                   call NWPRGST
+1AEF:  cd 5d 1b                   call sub_1b5dh
 1AF2:  cd b8 79                   call 079b8h
 1AF5:  c3 33 1a                   jp l1a33h
 1AF8:  2a a4 78                   ld hl,(PROGST)
@@ -4452,76 +4414,57 @@
 1B45:  3f                         ccf
 1B46:  d0                         ret nc
 1B47:  18 e6                      jr l1b2fh
-
-;********************************************************************************
-;* NEW – Command                                                                *
-;* Reset all variables and pointers                                             *
-;* (the string area definition remains unchanged)                               *
-;********************************************************************************
-
-1B49:  c0                         ret nz           ; Paramiter? Yes -> syntax error
-1B4A:  cd c9 01                   call CLRSCR   ; call Clear Screen 
-1B4D:  2a a4 78      NEWCLRP:     ld hl,(PROGST)   ; Load start of program text into HL
-1B50:  cd f8 1d                   call 01df8h	   ; call TROFF
-1B53:  32 e1 78                   ld (078e1h),a	   ; clear AUTO Mode
-1B56:  77                         ld (hl),a		   ; set line pointer to zero
+1B49:  c0                         ret nz
+1B4A:  cd c9 01                   call CLRSCR
+1B4D:  2a a4 78      sub_1b4dh:   ld hl,(PROGST)
+1B50:  cd f8 1d                   call 01df8h
+1B53:  32 e1 78                   ld (078e1h),a
+1B56:  77                         ld (hl),a
 1B57:  23                         inc hl
-1B58:  77                         ld (hl),a		   
-1B59:  23                         inc hl           ; Pointer after: 0000h, HL = 78a6h
-1B5A:  22 f9 78                   ld (PROGEND),hl  ; Progend to 1 byte after line pointer(78a6h)
-1B5D:  2a a4 78      NWPRGST:     ld hl,(PROGST)   ; Load Program start address
-1B60:  2b                         dec hl           ; point to continuation of line pointer PROGST+1
-1B61:  22 df 78      STPCPTR:     ld (PROGCNT),hl  ; set continuation pointer
-
-; Typecode table = single precision floating point
-1B64:  06 1a                      ld b,01ah        ; Table has 26 entries (A-Z)
-1B66:  21 01 79                   ld hl,TYPETAB    ; HL = address of Typecode table	 
-1B69:  36 04         l1b69h:      ld (hl),004h	   ; set typecode to single precision floating point
-1B6B:  23                         inc hl           
-1B6C:  10 fb                      djnz l1b69h      ; loop for all 26 entries
-
-; trapflag reset, clear string variables and pointers
-1B6E:  af                         xor a			   ; clear A (and trapflag)
-1B6F:  32 f2 78                   ld (TRAPFLAG),a  ; clear trapflag	
-1B72:  6f                         ld l,a           ; clear HL
+1B58:  77                         ld (hl),a
+1B59:  23                         inc hl
+1B5A:  22 f9 78                   ld (PROGEND),hl
+1B5D:  2a a4 78      sub_1b5dh:   ld hl,(PROGST)
+1B60:  2b                         dec hl
+1B61:  22 df 78      l1b61h:      ld (078dfh),hl
+1B64:  06 1a                      ld b,01ah
+1B66:  21 01 79                   ld hl,07901h
+1B69:  36 04         l1b69h:      ld (hl),004h
+1B6B:  23                         inc hl
+1B6C:  10 fb                      djnz l1b69h
+1B6E:  af                         xor a
+1B6F:  32 f2 78                   ld (078f2h),a
+1B72:  6f                         ld l,a
 1B73:  67                         ld h,a
-1B74:  22 f0 78                   ld (ERRLOC),hl   ; clear error routine address
-1B77:  22 f7 78                   ld (CONTPNT),hl  ; clear continuation pointer
-1B7A:  2a b1 78                   ld hl,(MEMTOP)   ; load memory top to HL
-1B7D:  22 d6 78                   ld (STRAPNT),hl  ; set string area pointer to memory top
-
-; variable reset
-1B80:  cd 91 1d                   call sub_1d91h   ; call RESTORE
-1B83:  2a f9 78                   ld hl,(PROGEND)  ; Load program end address
-1B86:  22 fb 78                   ld (DIMVAR),hl   ; = end addres of variable table
-1B89:  22 fd 78                   ld (MTRIXTAB),hl ; = end addres of matrix table. 
-1B8C:  cd bb 79                   call 079bbh      ; call RAM expansion exit
-
-; stack pointer reset / init runtime enviornment
-1B8F:  c1            INITRT:      pop bc           ; load return address (from caller)
-1B90:  2a a0 78                   ld hl,(STRINGS)  ; load address of string area
-1B93:  2b                         dec hl           ; SUB 4	
+1B74:  22 f0 78                   ld (078f0h),hl
+1B77:  22 f7 78                   ld (078f7h),hl
+1B7A:  2a b1 78                   ld hl,(MEMTOP)
+1B7D:  22 d6 78                   ld (078d6h),hl
+1B80:  cd 91 1d                   call sub_1d91h
+1B83:  2a f9 78                   ld hl,(PROGEND)
+1B86:  22 fb 78                   ld (DIMVAR),hl
+1B89:  22 fd 78                   ld (078fdh),hl
+1B8C:  cd bb 79                   call 079bbh
+1B8F:  c1            sub_1b8fh:   pop bc
+1B90:  2a a0 78                   ld hl,(STRINGS)
+1B93:  2b                         dec hl
 1B94:  2b                         dec hl
-1B95:  22 e8 78                   ld (STSTACK),hl  ; save as start of stack address 
-1B98:  23                         inc hl		   ; ADD 4	
+1B95:  22 e8 78                   ld (078e8h),hl
+1B98:  23                         inc hl
 1B99:  23                         inc hl
-
-; init runtime stack pointer (string buffer will be overwritten as needed)
-1B9A:  f9            INITRTSP:    ld sp,hl		   ; make it the stack pointer (fall through or caller)
-1B9B:  21 b5 78                   ld hl,STRBUFP    ; HL = Start of string buffer
-1B9E:  22 b3 78                   ld (WORKPNT),hl  ; set as workspace pointer
-1BA1:  cd 8b 03                   call sub_038bh   ; output flag to screen, CR to printer if needed 
-1BA4:  cd 69 21                   call sub_2169h   ; final check
-1BA7:  af                         xor a			   ; clear a
-1BA8:  67                         ld h,a		   ; clear hl
+1B9A:  f9            l1b9ah:      ld sp,hl
+1B9B:  21 b5 78                   ld hl,078b5h
+1B9E:  22 b3 78                   ld (078b3h),hl
+1BA1:  cd 8b 03                   call sub_038bh
+1BA4:  cd 69 21                   call sub_2169h
+1BA7:  af                         xor a
+1BA8:  67                         ld h,a
 1BA9:  6f                         ld l,a
-1BAA:  32 dc 78                   ld (IDXLOCK),a   ; clear indexing lock 
-1BAD:  e5                         push hl          ; push 0000 to stack as end marker
-1BAE:  c5                         push bc          ; pus return address back to stack
-1BAF:  2a df 78                   ld hl,(PROGCNT)  ; HL = program continuation pointer
+1BAA:  32 dc 78                   ld (078dch),a
+1BAD:  e5                         push hl
+1BAE:  c5                         push bc
+1BAF:  2a df 78                   ld hl,(078dfh)
 1BB2:  c9                         ret
-
-
 1BB3:  3e 3f         sub_1bb3h:   ld a,03fh
 1BB5:  cd 2a 03                   call sub_032ah
 1BB8:  3e 20                      ld a,020h
@@ -4677,7 +4620,7 @@
 1C9B:  ca 78 1d                   jp z,CHKCHR
 1C9E:  c3 97 19                   jp l1997h
 1CA1:  3e 64                      ld a,064h
-1CA3:  32 dc 78                   ld (IDXLOCK),a
+1CA3:  32 dc 78                   ld (078dch),a
 1CA6:  cd 21 1f                   call l1f21h
 1CA9:  e3                         ex (sp),hl
 1CAA:  cd 36 19                   call sub_1936h
@@ -4685,7 +4628,7 @@
 1CAE:  20 05                      jr nz,l1cb5h
 1CB0:  09                         add hl,bc
 1CB1:  f9                         ld sp,hl
-1CB2:  22 e8 78                   ld (STSTACK),hl
+1CB2:  22 e8 78                   ld (078e8h),hl
 1CB5:  eb            l1cb5h:      ex de,hl
 1CB6:  0e 08                      ld c,008h
 1CB8:  cd 63 19                   call sub_1963h
@@ -4741,7 +4684,7 @@
 1D13:  47                         ld b,a
 1D14:  c5                         push bc
 1D15:  e5                         push hl
-1D16:  2a df 78                   ld hl,(PROGCNT)
+1D16:  2a df 78                   ld hl,(078dfh)
 1D19:  e3                         ex (sp),hl
 1D1A:  06 81         l1d1ah:      ld b,081h
 1D1C:  c5                         push bc
@@ -4750,7 +4693,7 @@
 1D21:  b7                         or a
 1D22:  c4 a0 1d                   call nz,sub_1da0h
 1D25:  22 e6 78                   ld (078e6h),hl
-1D28:  ed 73 e8                   ld (STSTACK),sp
+1D28:  ed 73 e8                   ld (078e8h),sp
 1D2C:  7e                         ld a,(hl)
 1D2D:  fe 3a                      cp 03ah
 1D2F:  28 29                      jr z,l1d5ah
@@ -4836,8 +4779,8 @@
 1DB0:  cc bb 79                   call z,079bbh
 1DB3:  f1                         pop af
 1DB4:  22 e6 78      l1db4h:      ld (078e6h),hl
-1DB7:  21 b5 78                   ld hl,STRBUFP
-1DBA:  22 b3 78                   ld (WORKPNT),hl
+1DB7:  21 b5 78                   ld hl,078b5h
+1DBA:  22 b3 78                   ld (078b3h),hl
 1DBD:  21 f6 ff                   ld hl,0fff6h
 1DC0:  c1                         pop bc
 1DC1:  2a a2 78      l1dc1h:      ld hl,(078a2h)
@@ -4849,14 +4792,14 @@
 1DC9:  28 09                      jr z,l1dd4h
 1DCB:  22 f5 78                   ld (078f5h),hl
 1DCE:  2a e6 78                   ld hl,(078e6h)
-1DD1:  22 f7 78                   ld (CONTPNT),hl
+1DD1:  22 f7 78                   ld (078f7h),hl
 1DD4:  cd 8b 03      l1dd4h:      call sub_038bh
 1DD7:  cd f9 20                   call sub_20f9h
 1DDA:  f1                         pop af
 1DDB:  21 30 19                   ld hl,l1930h
 1DDE:  c2 06 1a                   jp nz,l1a06h
 1DE1:  c3 18 1a                   jp 01a18h
-1DE4:  2a f7 78                   ld hl,(CONTPNT)
+1DE4:  2a f7 78                   ld hl,(078f7h)
 1DE7:  7c                         ld a,h
 1DE8:  b5                         or l
 1DE9:  1e 20                      ld e,020h
@@ -4897,7 +4840,7 @@
 1E27:  d8                         ret c
 1E28:  3c                         inc a
 1E29:  e3                         ex (sp),hl
-1E2A:  21 01 79                   ld hl,TYPETAB
+1E2A:  21 01 79                   ld hl,07901h
 1E2D:  06 00                      ld b,000h
 1E2F:  09                         add hl,bc
 1E30:  73            l1e30h:      ld (hl),e
@@ -4950,7 +4893,7 @@
 1E76:  eb                         ex de,hl
 1E77:  e1                         pop hl
 1E78:  18 e4                      jr l1e5eh
-1E7A:  ca 61 1b                   jp z,STPCPTR
+1E7A:  ca 61 1b                   jp z,l1b61h
 1E7D:  cd 46 1e                   call sub_1e46h
 1E80:  2b                         dec hl
 1E81:  d7                         rst 10h
@@ -4972,10 +4915,10 @@
 1E9B:  eb                         ex de,hl
 1E9C:  22 a0 78                   ld (STRINGS),hl
 1E9F:  e1                         pop hl
-1EA0:  c3 61 1b                   jp STPCPTR
-1EA3:  ca 5d 1b                   jp z,NWPRGST
+1EA0:  c3 61 1b                   jp l1b61h
+1EA3:  ca 5d 1b                   jp z,sub_1b5dh
 1EA6:  cd c7 79                   call 079c7h
-1EA9:  cd 61 1b                   call STPCPTR
+1EA9:  cd 61 1b                   call l1b61h
 1EAC:  01 1e 1d                   ld bc,l1d1eh
 1EAF:  18 10                      jr l1ec1h
 1EB1:  0e 03                      ld c,003h
@@ -5008,7 +4951,7 @@
 1EDF:  16 ff                      ld d,0ffh
 1EE1:  cd 36 19                   call sub_1936h
 1EE4:  f9                         ld sp,hl
-1EE5:  22 e8 78                   ld (STSTACK),hl
+1EE5:  22 e8 78                   ld (078e8h),hl
 1EE8:  fe 91                      cp 091h
 1EEA:  1e 04                      ld e,004h
 1EEC:  c2 a2 19                   jp nz,l19a2h
@@ -5048,7 +4991,7 @@
 1F24:  cf                         rst 8
 1F25:  d5                         push de
 1F26:  eb                         ex de,hl
-1F27:  22 df 78                   ld (PROGCNT),hl
+1F27:  22 df 78                   ld (078dfh),hl
 1F2A:  eb                         ex de,hl
 1F2B:  d5                         push de
 1F2C:  e7                         rst 20h
@@ -5102,10 +5045,10 @@
 1F7F:  e1                         pop hl
 1F80:  d2 d9 1e                   jp nc,l1ed9h
 1F83:  eb            l1f83h:      ex de,hl
-1F84:  22 f0 78                   ld (ERRLOC),hl
+1F84:  22 f0 78                   ld (078f0h),hl
 1F87:  eb                         ex de,hl
 1F88:  d8                         ret c
-1F89:  3a f2 78                   ld a,(TRAPFLAG)
+1F89:  3a f2 78                   ld a,(078f2h)
 1F8C:  b7                         or a
 1F8D:  c8                         ret z
 1F8E:  3a 9a 78                   ld a,(0789ah)
@@ -5127,7 +5070,7 @@
 1FAA:  fe 2c                      cp 02ch
 1FAC:  c0                         ret nz
 1FAD:  18 f3                      jr l1fa2h
-1FAF:  11 f2 78                   ld de,TRAPFLAG
+1FAF:  11 f2 78                   ld de,078f2h
 1FB2:  1a                         ld a,(de)
 1FB3:  b7                         or a
 1FB4:  ca a0 19                   jp z,019a0h
@@ -5551,11 +5494,11 @@
 22B3:  c3 2d 22                   jp l222dh
 22B6:  11 00 00                   ld de,RESET
 22B9:  c4 0d 26      sub_22b9h:   call nz,0260dh
-22BC:  22 df 78                   ld (PROGCNT),hl
+22BC:  22 df 78                   ld (078dfh),hl
 22BF:  cd 36 19                   call sub_1936h
 22C2:  c2 9d 19                   jp nz,0199dh
 22C5:  f9                         ld sp,hl
-22C6:  22 e8 78                   ld (STSTACK),hl
+22C6:  22 e8 78                   ld (078e8h),hl
 22C9:  d5                         push de
 22CA:  7e                         ld a,(hl)
 22CB:  23                         inc hl
@@ -5619,8 +5562,8 @@
 2320:  60                         ld h,b
 2321:  c3 1a 1d                   jp l1d1ah
 2324:  f9            l2324h:      ld sp,hl
-2325:  22 e8 78                   ld (STSTACK),hl
-2328:  2a df 78                   ld hl,(PROGCNT)
+2325:  22 e8 78                   ld (078e8h),hl
+2328:  2a df 78                   ld hl,(078dfh)
 232B:  7e                         ld a,(hl)
 232C:  fe 2c                      cp 02ch
 232E:  c2 1e 1d                   jp nz,l1d1eh
@@ -6085,7 +6028,7 @@
 2646:  5f                         ld e,a
 2647:  16 00                      ld d,000h
 2649:  e5                         push hl
-264A:  21 01 79                   ld hl,TYPETAB
+264A:  21 01 79                   ld hl,07901h
 264D:  19                         add hl,de
 264E:  56                         ld d,(hl)
 264F:  e1                         pop hl
@@ -6094,14 +6037,14 @@
 2652:  7a            l2652h:      ld a,d
 2653:  32 af 78                   ld (078afh),a
 2656:  d7                         rst 10h
-2657:  3a dc 78                   ld a,(IDXLOCK)
+2657:  3a dc 78                   ld a,(078dch)
 265A:  b7                         or a
 265B:  c2 64 26                   jp nz,l2664h
 265E:  7e                         ld a,(hl)
 265F:  d6 28                      sub 028h
 2661:  ca e9 26                   jp z,l26e9h
 2664:  af            l2664h:      xor a
-2665:  32 dc 78                   ld (IDXLOCK),a
+2665:  32 dc 78                   ld (078dch),a
 2668:  e5                         push hl
 2669:  d5                         push de
 266A:  2a f9 78                   ld hl,(PROGEND)
@@ -6150,14 +6093,14 @@
 26A8:  03                         inc bc
 26A9:  03                         inc bc
 26AA:  03                         inc bc
-26AB:  2a fd 78                   ld hl,(MTRIXTAB)
+26AB:  2a fd 78                   ld hl,(078fdh)
 26AE:  e5                         push hl
 26AF:  09                         add hl,bc
 26B0:  c1                         pop bc
 26B1:  e5                         push hl
 26B2:  cd 55 19                   call sub_1955h
 26B5:  e1                         pop hl
-26B6:  22 fd 78                   ld (MTRIXTAB),hl
+26B6:  22 fd 78                   ld (078fdh),hl
 26B9:  60                         ld h,b
 26BA:  69                         ld l,c
 26BB:  22 fb 78                   ld (DIMVAR),hl
@@ -6220,7 +6163,7 @@
 270B:  2a fb 78                   ld hl,(DIMVAR)
 270E:  3e 19                      ld a,019h
 2710:  eb            l2710h:      ex de,hl
-2711:  2a fd 78                   ld hl,(MTRIXTAB)
+2711:  2a fd 78                   ld hl,(078fdh)
 2714:  eb                         ex de,hl
 2715:  df                         rst 18h
 2716:  3a af 78                   ld a,(078afh)
@@ -6289,7 +6232,7 @@
 2773:  19                         add hl,de
 2774:  38 c7                      jr c,l273dh
 2776:  cd 6c 19                   call 0196ch
-2779:  22 fd 78                   ld (MTRIXTAB),hl
+2779:  22 fd 78                   ld (078fdh),hl
 277C:  2b            l277ch:      dec hl
 277D:  36 00                      ld (hl),000h
 277F:  df                         rst 18h
@@ -6354,7 +6297,7 @@
 27D1:  e1                         pop hl
 27D2:  d7                         rst 10h
 27D3:  c9                         ret
-27D4:  2a fd 78      sub_27d4h:   ld hl,(MTRIXTAB)
+27D4:  2a fd 78      sub_27d4h:   ld hl,(078fdh)
 27D7:  eb                         ex de,hl
 27D8:  21 00 00                   ld hl,RESET
 27DB:  39                         add hl,sp
@@ -6364,7 +6307,7 @@
 27E2:  cd e6 28                   call sub_28e6h
 27E5:  2a a0 78                   ld hl,(STRINGS)
 27E8:  eb                         ex de,hl
-27E9:  2a d6 78                   ld hl,(STRAPNT)
+27E9:  2a d6 78                   ld hl,(078d6h)
 27EC:  7d            l27ech:      ld a,l
 27ED:  93                         sub e
 27EE:  6f                         ld l,a
@@ -6461,14 +6404,14 @@
 2881:  cd 5a 28                   call sub_285ah
 2884:  11 d3 78      l2884h:      ld de,078d3h
 2887:  3e d5                      ld a,0d5h
-2889:  2a b3 78                   ld hl,(WORKPNT)
+2889:  2a b3 78                   ld hl,(078b3h)
 288C:  22 21 79                   ld (07921h),hl
 288F:  3e 03                      ld a,003h
 2891:  32 af 78                   ld (078afh),a
 2894:  cd d3 09                   call l09d3h
-2897:  11 d6 78                   ld de,STRAPNT
+2897:  11 d6 78                   ld de,078d6h
 289A:  df                         rst 18h
-289B:  22 b3 78                   ld (WORKPNT),hl
+289B:  22 b3 78                   ld (078b3h),hl
 289E:  e1                         pop hl
 289F:  7e                         ld a,(hl)
 28A0:  c0                         ret nz
@@ -6492,7 +6435,7 @@
 28C2:  f5                         push af
 28C3:  2a a0 78                   ld hl,(STRINGS)
 28C6:  eb                         ex de,hl
-28C7:  2a d6 78                   ld hl,(STRAPNT)
+28C7:  2a d6 78                   ld hl,(078d6h)
 28CA:  2f                         cpl
 28CB:  4f                         ld c,a
 28CC:  06 ff                      ld b,0ffh
@@ -6500,7 +6443,7 @@
 28CF:  23                         inc hl
 28D0:  df                         rst 18h
 28D1:  38 07                      jr c,l28dah
-28D3:  22 d6 78                   ld (STRAPNT),hl
+28D3:  22 d6 78                   ld (078d6h),hl
 28D6:  23                         inc hl
 28D7:  eb                         ex de,hl
 28D8:  f1            l28d8h:      pop af
@@ -6513,14 +6456,14 @@
 28E2:  01 c1 28                   ld bc,028c1h
 28E5:  c5                         push bc
 28E6:  2a b1 78      sub_28e6h:   ld hl,(MEMTOP)
-28E9:  22 d6 78      l28e9h:      ld (STRAPNT),hl
+28E9:  22 d6 78      l28e9h:      ld (078d6h),hl
 28EC:  21 00 00                   ld hl,RESET
 28EF:  e5                         push hl
 28F0:  2a a0 78                   ld hl,(STRINGS)
 28F3:  e5                         push hl
-28F4:  21 b5 78                   ld hl,STRBUFP
+28F4:  21 b5 78                   ld hl,078b5h
 28F7:  eb            l28f7h:      ex de,hl
-28F8:  2a b3 78                   ld hl,(WORKPNT)
+28F8:  2a b3 78                   ld hl,(078b3h)
 28FB:  eb                         ex de,hl
 28FC:  df                         rst 18h
 28FD:  01 f7 28                   ld bc,l28f7h
@@ -6545,7 +6488,7 @@
 291E:  18 e6                      jr l2906h
 2920:  c1            l2920h:      pop bc
 2921:  eb            l2921h:      ex de,hl
-2922:  2a fd 78                   ld hl,(MTRIXTAB)
+2922:  2a fd 78                   ld hl,(078fdh)
 2925:  eb                         ex de,hl
 2926:  df                         rst 18h
 2927:  ca 6b 29                   jp z,l296bh
@@ -6580,7 +6523,7 @@
 2952:  c8                         ret z
 2953:  44                         ld b,h
 2954:  4d                         ld c,l
-2955:  2a d6 78                   ld hl,(STRAPNT)
+2955:  2a d6 78                   ld hl,(078d6h)
 2958:  df                         rst 18h
 2959:  60                         ld h,b
 295A:  69                         ld l,c
@@ -6619,7 +6562,7 @@
 297C:  2b                         dec hl
 297D:  44                         ld b,h
 297E:  4d                         ld c,l
-297F:  2a d6 78                   ld hl,(STRAPNT)
+297F:  2a d6 78                   ld hl,(078d6h)
 2982:  cd 58 19                   call sub_1958h
 2985:  e1                         pop hl
 2986:  71                         ld (hl),c
@@ -6684,15 +6627,15 @@
 29E5:  59                         ld e,c
 29E6:  1b                         dec de
 29E7:  4e                         ld c,(hl)
-29E8:  2a d6 78                   ld hl,(STRAPNT)
+29E8:  2a d6 78                   ld hl,(078d6h)
 29EB:  df                         rst 18h
 29EC:  20 05                      jr nz,l29f3h
 29EE:  47                         ld b,a
 29EF:  09                         add hl,bc
-29F0:  22 d6 78                   ld (STRAPNT),hl
+29F0:  22 d6 78                   ld (078d6h),hl
 29F3:  e1            l29f3h:      pop hl
 29F4:  c9                         ret
-29F5:  2a b3 78      sub_29f5h:   ld hl,(WORKPNT)
+29F5:  2a b3 78      sub_29f5h:   ld hl,(078b3h)
 29F8:  2b                         dec hl
 29F9:  46                         ld b,(hl)
 29FA:  2b                         dec hl
@@ -6700,7 +6643,7 @@
 29FC:  2b                         dec hl
 29FD:  df                         rst 18h
 29FE:  c0                         ret nz
-29FF:  22 b3 78                   ld (WORKPNT),hl
+29FF:  22 b3 78                   ld (078b3h),hl
 2A02:  c9                         ret
 2A03:  01 f8 27                   ld bc,sub_27f8h
 2A06:  c5                         push bc
@@ -8539,7 +8482,7 @@
 36E8:  d1                         pop de
 36E9:  cd fc 1a                   call sub_1afch
 36EC:  cd b5 79                   call 079b5h
-36EF:  cd 5d 1b                   call NWPRGST
+36EF:  cd 5d 1b                   call sub_1b5dh
 36F2:  cd b8 79                   call 079b8h
 36F5:  21 ff ff                   ld hl,0ffffh
 36F8:  22 a2 78                   ld (078a2h),hl
