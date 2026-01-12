@@ -115,7 +115,7 @@
 00AB:  70                         ld (hl),b        ; Store 00h at 7AE8h (B was 00h from last djnz)
 00AC:  31 f8 79                   ld sp,079f8h     ; set up stack pointer at top of basic RAM Work Area
 00AF:  cd 8f 1b                   call INITRT	   ; init runtime enviornment from NEW command
-00B2:  cd c9 01                   call sub_01c9h
+00B2:  cd c9 01                   call CLRSCR      ; clear screen
 00B5:  00            l00b5h:      nop
 00B6:  00                         nop
 00B7:  00                         nop
@@ -288,6 +288,7 @@
 01C4:  32 af 78                   ld (078afh),a
 01C7:  e1                         pop hl
 01C8:  c9                         ret
+
 01C9:  3e 1c         CLRSCR:      ld a,01ch
 01CB:  cd 3a 03                   call sub_033ah
 01CE:  3e 1f                      ld a,01fh
@@ -295,6 +296,7 @@
 01D3:  ed 5f                      ld a,r
 01D5:  32 ab 78      l01d5h:      ld (078abh),a
 01D8:  c9                         ret
+
 01D9:  54            l01d9h:      ld d,h
 01DA:  47                         ld b,a
 01DB:  42                         ld b,d
@@ -3912,7 +3914,7 @@
 1825:  1c                         inc e
 1826:  38 01                      jr c,l1829h
 1828:  35                         dec (hl)
-1829:  01 c9 01      l1829h:      ld bc,sub_01c9h
+1829:  01 c9 01      l1829h:      ld bc,CLRSCR
 182C:  73                         ld (hl),e
 182D:  79                         ld a,c
 182E:  d3 01                      out (001h),a
@@ -4458,7 +4460,7 @@
 ;********************************************************************************
 
 1B49:  c0                         ret nz           ; Paramiter? Yes -> syntax error
-1B4A:  cd c9 01                   call sub_01c9h   ; call Clear Screen 
+1B4A:  cd c9 01                   call CLRSCR   ; call Clear Screen 
 1B4D:  2a a4 78      NEWCLRP:     ld hl,(PROGST)   ; Load start of program text into HL
 1B50:  cd f8 1d                   call 01df8h	   ; call TROFF
 1B53:  32 e1 78                   ld (078e1h),a	   ; clear AUTO Mode
@@ -9956,7 +9958,7 @@
 3FAB:  32 18 78                   ld (07818h),a
 3FAE:  32 19 78                   ld (07819h),a
 3FB1:  32 3c 78      l3fb1h:      ld (0783ch),a
-3FB4:  c3 c9 01                   jp sub_01c9h
+3FB4:  c3 c9 01                   jp CLRSCR
 3FB7:  00                         nop
 3FB8:  00                         nop
 3FB9:  00                         nop
