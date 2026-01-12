@@ -79,7 +79,7 @@
 ; io copy
 0075:  11 80 78      BASINIT2:    ld de,07880h     ;Subroutines for Divide, Out, Inp In RAM
 0078:  21 f7 18                   ld hl,l18f7h     ;Subroutines for Divide, Out, Inp in ROM
-007B:  01 27 00                   ld bc,00027h	   ;copy 27h bytes (39 bytes)
+007B:  01 27 00                   ld bc,00027h     ;copy 27h bytes (39 bytes)
 007E:  ed b0                      ldir
 0080:  21 e5 79                   ld hl,079e5h     ; Start of IO Buffer
 0083:  36 3a                      ld (hl),03ah     ; Character ':'
@@ -114,9 +114,9 @@
 00A8:  21 e8 7a                   ld hl,07ae8h     ; Mark program start location
 00AB:  70                         ld (hl),b        ; Store 00h at 7AE8h (B was 00h from last djnz)
 00AC:  31 f8 79                   ld sp,079f8h     ; set up stack pointer at top of basic RAM Work Area
-00AF:  cd 8f 1b                   call INITRT	   ; init runtime enviornment from NEW command
-00B2:  cd c9 01                   call CLRSCR      ; clear screen
-00B5:  00            l00b5h:      nop
+00AF:  cd 8f 1b                   call INITRT      ; init runtime enviornment from NEW command
+00B2:  cd c9 01                   call CLRSCR      ; clear screen (TODO: pick up from here)
+00B5:  00            l00b5h:      nop              ; artifact from Level II Basic (also delay of 13.4uS)
 00B6:  00                         nop
 00B7:  00                         nop
 00B8:  00                         nop
