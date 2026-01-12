@@ -1,27 +1,3 @@
-/* 
-    This is a z80dasm formatter, its kind of crap but it works
-    It reads z80dasm output and reformats it into a cleaner listing,
-    with optional symbol replacement and label columns.
-
-    why i don't just use ghedra or something fancier? because this is a
-    simple standalone tool that can be easily integrated into existing
-    workflows without heavy dependencies.
-
-    this will just dump to stdout, so you can redirect it to a file as needed.
-    2024-06-04  v1.0  Initial version
-    2024-06-10  v1.1  Added label column support and improved symbol replacement
-
-    License: Public Domain
-    disclaimer: use at your own risk, no warranty expressed or implied.
-    copyright 2024 by D. Collins (really - honestly mostly ai generated)
-
-    Usage:
-      z80fmt <input.asm>
-      z80fmt <symbols.txt> <input.asm>
-      cat input.asm | z80fmt
-*/
-
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -424,8 +400,8 @@ int main(int argc, char **argv) {
             /* New symbol starts here - always show it */
             label_to_use = sym_for_addr;
             safe_copy(current_label, sizeof(current_label), sym_for_addr);
-            have_current_label = 1;
-            label_printed = 0;
+            have_current_label = 0;  /* Clear pending label */
+            label_printed = 1;  /* Mark as already shown */
         } else if (have_current_label && !label_printed) {
             /* First instruction of a local label - show it once */
             label_to_use = current_label;

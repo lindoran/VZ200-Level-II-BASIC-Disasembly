@@ -12,10 +12,10 @@
 
 
 
-0000:  f3            RESET:       di
-0001:  af            l0001h:      xor a
-0002:  32 00 68                   ld (IOREG),a
-0005:  c3 74 06      l0005h:      jp l0674h
+0000:  f3            RESET:       di               ;disable interrupts
+0001:  af            l0001h:      xor a            ;clear A register (faster than ld a,0)
+0002:  32 00 68                   ld (IOREG),a     ;clear I/O Register
+0005:  c3 74 06      l0005h:      jp BASINIT1      ;Jump to Basic init 1 at 0674h
 0008:  c3 00 78      HNDLRES08:   jp RESET08
 000B:  e1            l000bh:      pop hl
 000C:  e9                         jp (hl)
@@ -49,7 +49,7 @@
 0045:  00                         nop
 0046:  c3 c2 03      l0046h:      jp l03c2h
 0049:  cd 2b 00      KBGET:       call sub_002bh
-004C:  b7            KBGET:       or a
+004C:  b7                         or a
 004D:  c0                         ret nz
 004E:  18 f9                      jr KBGET
 0050:  2a 20 78      SCRGET:      ld hl,(CURPOS)
@@ -70,28 +70,38 @@
 006D:  fe 02                      cp 002h
 006F:  d2 00 00                   jp nc,RESET
 0072:  c3 cc 06                   jp l06cch
-0075:  11 80 78      l0075h:      ld de,07880h
-0078:  21 f7 18                   ld hl,l18f7h
-007B:  01 27 00                   ld bc,00027h
+
+;*******************************************************************************
+;*Basic init 2                                                                 *
+;*75h                                                                          * 
+;*******************************************************************************
+
+; io copy
+0075:  11 80 78      BASINIT2:    ld de,07880h     ;Subroutines for Divide, Out, Inp In RAM
+0078:  21 f7 18                   ld hl,l18f7h     ;Subroutines for Divide, Out, Inp in ROM
+007B:  01 27 00                   ld bc,00027h	   ;copy 27h bytes (39 bytes)
 007E:  ed b0                      ldir
-0080:  21 e5 79                   ld hl,079e5h
-0083:  36 3a                      ld (hl),03ah
+0080:  21 e5 79                   ld hl,079e5h     ; Start of IO Buffer
+0083:  36 3a                      ld (hl),03ah     ; Character ':'
 0085:  23                         inc hl
-0086:  70                         ld (hl),b
+0086:  70                         ld (hl),b        ; B = 0 after block copy
 0087:  23                         inc hl
-0088:  36 2c                      ld (hl),02ch
+0088:  36 2c                      ld (hl),02ch     ; Character ','
 008A:  23                         inc hl
-008B:  22 a7 78                   ld (078a7h),hl
-008E:  11 2d 01                   ld de,l012dh
-0091:  06 1c                      ld b,01ch
-0093:  21 52 79                   ld hl,07952h
-0096:  36 c3         l0096h:      ld (hl),0c3h
-0098:  23                         inc hl
-0099:  73                         ld (hl),e
+008B:  22 a7 78                   ld (078a7h),hl   ; Store IO buffer address (79E8H)
+
+; Disk – manually assemble default disk‑command vectors in RAM
+008E:  11 2d 01                   ld de,l012d      ; Address of the default "Disk Command Error" handler
+0091:  06 1c                      ld b,01ch        ; Number of disk command vectors to initialize (28 entries)
+0093:  21 52 79                   ld hl,07952h     ; Start of the disk command vector table in RAM
+0096:  36 c3         l0096h:      ld (hl),0c3h     ; Write opcode for JP, 0C3h
+0098:  23                         inc hl		
+0099:  73                         ld (hl),e        ; Low byte of jp target address 2dh
 009A:  23                         inc hl
-009B:  72                         ld (hl),d
-009C:  23                         inc hl
-009D:  10 f7                      djnz l0096h
+009B:  72                         ld (hl),d        ; High byte of jp target address 01h
+009C:  23                         inc hl           ; advance to next vector set
+009D:  10 f7                      djnz l0096h      ; repeat until all vectors contain the jp instruction
+
 009F:  06 15                      ld b,015h
 00A1:  36 c9         l00a1h:      ld (hl),0c9h
 00A3:  23                         inc hl
@@ -274,7 +284,7 @@
 01C7:  e1                         pop hl
 01C8:  c9                         ret
 01C9:  3e 1c         CLRSCR:      ld a,01ch
-01CB:  cd 3a 03      CLRSCR:      call sub_033ah
+01CB:  cd 3a 03                   call sub_033ah
 01CE:  3e 1f                      ld a,01fh
 01D0:  c3 3a 03                   jp sub_033ah
 01D3:  ed 5f                      ld a,r
@@ -550,7 +560,7 @@
 0335:  fa 54 3b                   jp m,l3b54h
 0338:  20 62                      jr nz,l039ch
 033A:  d5            CHOUT:       push de
-033B:  f5            CHOUT:       push af
+033B:  f5                         push af
 033C:  c5                         push bc
 033D:  e5                         push hl
 033E:  cd 8b 30                   call sub_308bh
@@ -917,7 +927,7 @@
 05BF:  dd 36 04      l05bfh:      ld (ix+004h),000h
 05C3:  c9                         ret
 05C4:  db 00         CHKPRT:      in a,(000h)
-05C6:  e6 01         CHKPRT:      and 001h
+05C6:  e6 01                      and 001h
 05C8:  c9                         ret
 05C9:  c5            sub_05c9h:   push bc
 05CA:  e5                         push hl
@@ -1006,20 +1016,41 @@
 066B:  32 36 78                   ld (07836h),a
 066E:  18 f3                      jr l0663h
 0670:  dd cb 09                   set 2,(ix+009h)
-0674:  00            l0674h:      nop
-0675:  00                         nop
-0676:  21 d2 06      l0676h:      ld hl,l06d2h
-0679:  11 00 78                   ld de,RESET08
-067C:  01 36 00                   ld bc,l0036h
+
+;*******************************************************************************
+;*Basic init 1                                                                 *
+;*0674h                                                                        * 
+;*******************************************************************************
+
+0674:  00            BASINIT1:    nop              ; Level II basic fragment for alignment??                   
+0675:  00                         nop			   ; Below relocates ROM into RAM area	
+0676:  21 d2 06      l0676h:      ld hl,l06d2h     ; ROM 6d2h to 707h - RESET08 IN ROM	
+0679:  11 00 78                   ld de,RESET08	   ; RAM 7800h to 7835 - RESET08 IN RAM
+067C:  01 36 00                   ld bc,l0036h     ; Length 36h bytes (54 bytes)
 067F:  ed b0                      ldir
-0681:  3d                         dec a
-0682:  3d                         dec a
-0683:  20 f1                      jr nz,l0676h
-0685:  06 27         l0685h:      ld b,027h
-0687:  12            l0687h:      ld (de),a
+0681:  3d                         dec a			   ; this happens 128x 
+0682:  3d                         dec a			   ; to fill each workspace
+0683:  20 f1                      jr nz,l0676h     ; copy until done
+
+; ******************************************************************************
+; * clear workspace area stub from de (in basic intit 1 this is 7836h to       *
+; * 785ch) always jumps to 0075h after completion, regardless of caller.       *
+; * this has outside callers.                                                  *
+; * 685h                                                                       *
+; ******************************************************************************
+
+
+0685:  06 27         CLRSTUB1:    ld b,027h		   ; clear workspace 27h bytes (39 bytes)
+0687:  12            l0687h:      ld (de),a		   ; this is bytes 7836h to 785Ch in init  1	
 0688:  13                         inc de
-0689:  10 fc                      djnz l0687h
-068B:  c3 75 00                   jp l0075h
+0689:  10 fc                      djnz l0687h      ; loop until its cleared
+068B:  c3 75 00                   jp BASINIT2      ; to basic init 2
+
+;******************************************************************************
+;*Basic init 3                                                                *
+;*068Eh                                                                       *
+;******************************************************************************
+
 068E:  21 00 40      l068eh:      ld hl,04000h
 0691:  cd a4 06                   call sub_06a4h
 0694:  21 00 60                   ld hl,06000h
@@ -1027,7 +1058,7 @@
 069A:  21 00 80                   ld hl,08000h
 069D:  cd a4 06                   call sub_06a4h
 06A0:  fb            EIENTBAS:    ei
-06A1:  c3 19 1a      EIENTBAS:    jp BASENT
+06A1:  c3 19 1a                   jp BASENT
 06A4:  3e aa         sub_06a4h:   ld a,0aah
 06A6:  be                         cp (hl)
 06A7:  23                         inc hl
@@ -1050,7 +1081,7 @@
 06BA:  cd 59 1a                   call 01a59h
 06BD:  cd b8 34                   call sub_34b8h
 06C0:  cd e3 18                   call sub_18e3h
-06C3:  28 c0                      jr z,l0685h
+06C3:  28 c0                      jr z,CLRSTUB1
 06C5:  ef                         rst 28h
 06C6:  2c                         inc l
 06C7:  28 14                      jr z,$+22
@@ -4219,14 +4250,14 @@
 1A09:  e1                         pop hl
 1A0A:  11 fe ff                   ld de,0fffeh
 1A0D:  df                         rst 18h
-1A0E:  ca 74 06                   jp z,l0674h
+1A0E:  ca 74 06                   jp z,BASINIT1
 1A11:  7c                         ld a,h
 1A12:  a5                         and l
 1A13:  3c                         inc a
 1A14:  c4 a7 0f                   call nz,sub_0fa7h
 1A17:  3e c1                      ld a,0c1h
 1A19:  cd 8b 03      BASENT:      call sub_038bh
-1A1C:  cd ac 79      BASENT:      call 079ach
+1A1C:  cd ac 79                   call 079ach
 1A1F:  00                         nop
 1A20:  00                         nop
 1A21:  00                         nop
@@ -4607,13 +4638,13 @@
 1C8E:  12                         ld (de),a
 1C8F:  c9                         ret
 1C90:  7c            CMPHLDE:     ld a,h
-1C91:  92            CMPHLDE:     sub d
+1C91:  92                         sub d
 1C92:  c0                         ret nz
 1C93:  7d                         ld a,l
 1C94:  93                         sub e
 1C95:  c9                         ret
 1C96:  7e            EXSTR:       ld a,(hl)
-1C97:  e3            EXSTR:       ex (sp),hl
+1C97:  e3                         ex (sp),hl
 1C98:  be                         cp (hl)
 1C99:  23                         inc hl
 1C9A:  e3                         ex (sp),hl
@@ -4741,7 +4772,7 @@
 1D76:  c5                         push bc
 1D77:  eb                         ex de,hl
 1D78:  23            CHKCHR:      inc hl
-1D79:  7e            CHKCHR:      ld a,(hl)
+1D79:  7e                         ld a,(hl)
 1D7A:  fe 3a                      cp 03ah
 1D7C:  d0                         ret nc
 1D7D:  fe 20                      cp 020h
@@ -7399,7 +7430,7 @@
 2EB5:  c8                         ret z
 2EB6:  18 f1                      jr l2ea9h
 2EB8:  f5            SYSIHAND:    push af
-2EB9:  c5            SYSIHAND:    push bc
+2EB9:  c5                         push bc
 2EBA:  d5                         push de
 2EBB:  e5                         push hl
 2EBC:  cd 7d 78                   call LOCIHAND
@@ -7432,12 +7463,12 @@
 2EF2:  77                         ld (hl),a
 2EF3:  c9                         ret
 2EF4:  cd fd 2e      SCANKEYB:    call ONEKBSCAN
-2EF7:  f5            SCANKEYB:    push af
+2EF7:  f5                         push af
 2EF8:  cd 0e 2f                   call sub_2f0eh
 2EFB:  f1                         pop af
 2EFC:  c9                         ret
 2EFD:  3a 00 68      ONEKBSCAN:   ld a,(IOREG)
-2F00:  f6 c0         ONEKBSCAN:   or 0c0h
+2F00:  f6 c0                      or 0c0h
 2F02:  2f                         cpl
 2F03:  fe 00                      cp 000h
 2F05:  28 07                      jr z,sub_2f0eh
@@ -7644,7 +7675,7 @@
 3089:  23                         inc hl
 308A:  c9                         ret
 308B:  f5            INTCHOUT:    push af
-308C:  3a 3b 78      INTCHOUT:    ld a,(CPIOREG)
+308C:  3a 3b 78                   ld a,(CPIOREG)
 308F:  cb 5f                      bit 3,a
 3091:  28 17                      jr z,l30aah
 3093:  e6 f7                      and 0f7h
@@ -8164,7 +8195,7 @@
 344C:  cb d6                      set 2,(hl)
 344E:  cb c6         l344eh:      set 0,(hl)
 3450:  e5            BEEP:        push hl
-3451:  21 a0 00      BEEP:        ld hl,000a0h
+3451:  21 a0 00                   ld hl,000a0h
 3454:  01 06 00                   ld bc,l0005h+1
 3457:  cd 5c 34                   call sub_345ch
 345A:  e1                         pop hl
@@ -9040,7 +9071,7 @@
 3ADD:  e6 3f                      and 03fh
 3ADF:  c3 56 39                   jp sub_3956h
 3AE2:  3e 0d         PRNCLRF:     ld a,00dh
-3AE4:  cd ba 3a      PRNCLRF:     call sub_3abah
+3AE4:  cd ba 3a                   call sub_3abah
 3AE7:  c9                         ret
 3AE8:  b7            sub_3ae8h:   or a
 3AE9:  3a fd 68                   ld a,(KBROW1)
