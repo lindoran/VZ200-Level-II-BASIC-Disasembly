@@ -7493,10 +7493,10 @@
 2EF8:  cd 0e 2f                   call sub_2f0eh
 2EFB:  f1                         pop af
 2EFC:  c9                         ret
-2EFD:  3a 00 68      ONEKBSCAN:   ld a,(IOREG)
-2F00:  f6 c0                      or 0c0h
-2F02:  2f                         cpl
-2F03:  fe 00                      cp 000h
+2EFD:  3a 00 68      ONEKBSCAN:   ld a,(IOREG)     ; Scan IO range base 6800h (check for keypress)
+2F00:  f6 c0                      or 0c0h          ; mask the top 2 bits (only bits 0-5 used for key data)
+2F02:  2f                         cpl              ; invert bits (any key bit will be a 1)
+2F03:  fe 00                      cp 000h          ; if zero, no key pressed
 2F05:  28 07                      jr z,sub_2f0eh
 2F07:  cd 28 2f                   call sub_2f28h
 2F0A:  b7                         or a
