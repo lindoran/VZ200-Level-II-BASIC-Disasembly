@@ -115,7 +115,7 @@
 00AB:  70                         ld (hl),b        ; Store 00h at 7AE8h (B was 00h from last djnz)
 00AC:  31 f8 79                   ld sp,079f8h     ; set up stack pointer at top of basic RAM Work Area
 00AF:  cd 8f 1b                   call INITRT      ; init runtime enviornment from NEW command
-00B2:  cd c9 01                   call CLRSCR      ; clear screen (TODO: pick up from here)
+00B2:  cd c9 01                   call CLRSCR      ; clear screen 
 00B5:  00            l00b5h:      nop              ; artifact from Level II Basic (also delay of 13.4uS)
 00B6:  00                         nop
 00B7:  00                         nop
@@ -289,7 +289,9 @@
 01C7:  e1                         pop hl
 01C8:  c9                         ret
 
-01C9:  3e 1c         CLRSCR:      ld a,01ch
+; CLS Command
+; Clear Screen subroutine 
+01C9:  3e 1c         CLRSCR:      ld a,01ch        ; Cursor Home
 01CB:  cd 3a 03                   call CHOUT
 01CE:  3e 1f                      ld a,01fh
 01D0:  c3 3a 03                   jp CHOUT
@@ -556,7 +558,7 @@
 0324:  04                         inc b
 0325:  06 08                      ld b,008h
 0327:  0c                         inc c
-0328:  10 18                      djnz l0342h
+0328:  10 18                      djnz POPRET      ; rest. BC,AF,DE and return
 032A:  c5            sub_032ah:   push bc
 032B:  4f                         ld c,a
 032C:  cd c1 79                   call 079c1h
@@ -566,18 +568,24 @@
 0334:  c1                         pop bc
 0335:  fa 54 3b                   jp m,l3b54h
 0338:  20 62                      jr nz,l039ch
-033A:  d5            CHOUT:       push de
+
+;******************************************************************************
+;CHOUT:  Output character in register A to the streen
+033A:  d5            CHOUT:       push de          ;save registers
 033B:  f5                         push af
 033C:  c5                         push bc
 033D:  e5                         push hl
-033E:  cd 8b 30                   call INTCHOUT
-0341:  e1                         pop hl
-0342:  c1            l0342h:      pop bc
+033E:  cd 8b 30                   call INTCHOUT    ;char output routine
+0341:  e1                         pop hl           ;restore registers
+0342:  c1            POPRET:      pop bc	
 0343:  00                         nop
 0344:  00                         nop
 0345:  f1                         pop af
 0346:  d1                         pop de
 0347:  c9                         ret
+
+;******************************************************************************
+
 0348:  3a 3d 78                   ld a,(0783dh)
 034B:  e6 08                      and 008h
 034D:  3a 20 78                   ld a,(CURPOS)
@@ -4460,7 +4468,7 @@
 ;********************************************************************************
 
 1B49:  c0                         ret nz           ; Paramiter? Yes -> syntax error
-1B4A:  cd c9 01                   call CLRSCR   ; call Clear Screen 
+1B4A:  cd c9 01                   call CLRSCR      ; call Clear Screen 
 1B4D:  2a a4 78      NEWCLRP:     ld hl,(PROGST)   ; Load start of program text into HL
 1B50:  cd f8 1d                   call 01df8h	   ; call TROFF
 1B53:  32 e1 78                   ld (078e1h),a	   ; clear AUTO Mode
@@ -7700,15 +7708,18 @@
 3088:  e1                         pop hl
 3089:  23                         inc hl
 308A:  c9                         ret
-308B:  f5            INTCHOUT:    push af
-308C:  3a 3b 78                   ld a,(CPIOREG)
-308F:  cb 5f                      bit 3,a
-3091:  28 17                      jr z,l30aah
-3093:  e6 f7                      and 0f7h
-3095:  32 3b 78                   ld (CPIOREG),a
-3098:  32 00 68                   ld (IOREG),a
-309B:  01 00 02                   ld bc,l0200h
-309E:  21 00 70                   ld hl,VRAMBASE
+
+;******************************************************************************
+;Buffered output of characters
+308B:  f5            INTCHOUT:    push af           ; Save the character to stack
+308C:  3a 3b 78                   ld a,(CPIOREG)    ; read the I/O Latch byte
+308F:  cb 5f                      bit 3,a           ; is bit 3 set (character mode)
+3091:  28 17                      jr z,l30aah       ; if set jump ahead, else continue
+3093:  e6 f7                      and 0f7h			; clear bit 3 (set to text mode)
+3095:  32 3b 78                   ld (CPIOREG),a    ; store to latch byte variable
+3098:  32 00 68                   ld (IOREG),a      ; switch to text mode
+309B:  01 00 02                   ld bc,0200h       ; bytes text mode vram 512
+309E:  21 00 70                   ld hl,VRAMBASE    ; start of vram 7000h
 30A1:  cd be 3e      l30a1h:      call sub_3ebeh
 30A4:  23                         inc hl
 30A5:  0b                         dec bc
