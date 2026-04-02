@@ -1,12 +1,12 @@
 ; z80bench export — .
-; Generated: Wed Apr  1 22:38:18 2026
+; Generated: Thu Apr  2 08:35:49 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
         ORG     0x0000
 
 
-; Initialisierung des Rechners
+; Initialisation of the computer
 ; START: (defined in symbols.sym)
               di                   ; Main entry point from RESET
               xor   a              ; Clear A (color index 0)
@@ -20,7 +20,7 @@
 ; RST10_VEC: (defined in symbols.sym)
               jp    0x7803         ; RST 10H: Jump to RAM hook at 7803H (CHRGOT)
 
-; Einlesen eines Zeichens über Device-Control-Block (DCB)
+; Reading a character via Device Control Block (DCB)
 ; GET_CHAR_DCB: (defined in symbols.sym)
               push  bc             ; Read character via DCB
               ld    b,0x01         ; Set B for DCB check
@@ -28,7 +28,7 @@
 ; RST18_VEC: (defined in symbols.sym)
               jp    0x7806         ; RST 18H: Jump to RAM hook at 7806H (CMPHDE)
 
-; Ausgabe eines Zeichens über Device-Control-Block (DCB)
+; Output of a character via Device Control Block (DCB)
 ; PUT_CHAR_DCB: (defined in symbols.sym)
               push  bc             ; Output character via DCB
               ld    b,0x02         ; Set B for DCB check
@@ -41,21 +41,21 @@
 ; RST28_VEC: (defined in symbols.sym)
               jp    0x780C         ; RST 28H: Jump to RAM hook at 780CH
 
-; Tastatur-Abfrage
+; Keyboard query
 ; KBD_QUERY: (defined in symbols.sym)
               ld    de,0x7815      ; Load keyboard DCB address
               jr    $-27           ; Continue keyboard routine
 ; RST30_VEC: (defined in symbols.sym)
               jp    0x780F         ; RST 30H: Jump to RAM hook at 780FH
 
-; Bildschirmausgabe über DCB
+; Screen output via DCB
 ; SCR_OUT_DCB: (defined in symbols.sym)
               ld    de,0x781D      ; Load screen DCB address
               jr    $-27           ; Continue output routine
 ; RST38_VEC: (defined in symbols.sym)
               jp    0x2EB8         ; RST 38H: Jump to Interrupt Service Routine (2EB8H)
 
-; Druckerausgabe über Device-Control-Block (DCB)
+; Printer output via Device Control Block (DCB)
 ; PRN_OUT_DCB: (defined in symbols.sym)
               ld    de,0x7825      ; Load printer DCB address
               jr    $-35           ; Continue output routine
@@ -65,14 +65,14 @@
 ; DCB_CALL: (defined in symbols.sym)
               jp    0x03C2         ; Jump to DCB dispatcher (0674H)
 
-; Tastaturabfrage wartet, bis eine Taste gedrückt wird
+; Keyboard query waits until a key is pressed
 ; KBD_WAIT: (defined in symbols.sym)
               call  KBD_QUERY      ; Call keyboard scan (002BH)
               or    a              ; Key pressed?
               ret   nz             ; Yes, return
               jr    $-5            ; No, wait
 
-; Zeichen aus Cursor-Position sichern
+; Save character from cursor position
 ; GET_CURSOR_CHAR: (defined in symbols.sym)
               ld    hl,(0x7820)    ; Load cursor address (7820H)
               ld    a,(hl)         ; Load character from cursor position
@@ -81,7 +81,7 @@
               DEFB  0x4C,0xFE,0x54,0x20
               DEFB  0xD6,0xFD,0x21,0xF1
 
-; Zeitschleife (Eing.: Reg. BC bestimmt Dauer)
+; Delay loop (input: register BC determines duration)
 ; DELAY_LOOP: (defined in symbols.sym)
               dec   bc             ; Decrement BC
               ld    a,b            ; B = 0?
@@ -89,7 +89,7 @@
               jr    nz,$-3         ; No, continue loop
               ret                  ; Yes, return
 
-; Interrupt-Vektor für 'Non maskable interrupts'
+; Interupt vector for 'Non maskable interrupts'
 ; NMI_VEC: (defined in symbols.sym)
               ld    sp,0x0600      ; Set stack pointer to 6000H
               ld    a,(0x68EC)     ; Load latch byte from 68ECH
@@ -98,14 +98,14 @@
               jp    nc,START       ; Jump if NC to cold start (0000H)
               jp    0x06CC         ; Jump to warm start (06CCH)
 
-; BASIC-Initialisierung Teil 2
+; BASIC initialisation part 2
 ; BASIC_INIT_2: (defined in symbols.sym)
               ld    de,0x7880      ; Destination: 7880H (RAM hooks)
               ld    hl,0x18F7      ; Source: 18F7H
               ld    bc,0x0027      ; Length: 27H bytes
               ldir                 ; Copy routines to RAM
 
-; IO-Buffer einrichten
+; Set up I/O buffer
 ; INIT_IO_BUF: (defined in symbols.sym)
               ld    hl,0x79E5      ; Load I/O buffer start (79E5H)
               ld    (hl),0x3A      ; Store ':' prompt
@@ -116,7 +116,7 @@
               inc   hl             ; Increment HL
               ld    (0x78A7),hl    ; Save I/O buffer pointer to 78A7H
 
-; Initialisierung der DOS-Error-Hooks (RAM: 7952H)
+; Initialisation of the DOS error hooks (RAM: 7952H)
 INIT_DOS_HOOKS:
               ld    de,ERROR_L3    ; Address of L3 error handler (012DH)
               ld    b,0x1C         ; 28 DOS commands to initialize
@@ -130,7 +130,7 @@ INIT_DOS_LOOP:
               inc   hl             ; Increment RAM pointer
               djnz  $-7            ; Loop for 28 entries
 
-; Initialisierung der DOS-Exits mit RET (RAM: 79A6H)
+; Initialisation of the DOS exits with RET (RAM: 79A6H)
 INIT_DOS_EXITS:
               ld    b,0x15         ; 21 DOS exits to initialize
 INIT_EXIT_LOOP:
@@ -140,7 +140,7 @@ INIT_EXIT_LOOP:
               inc   hl
               djnz  $-5            ; Loop for 21 entries
 
-; Ende der BASIC-Initialisierung
+; End of BASIC initialisation
 INIT_BASIC_FINISH:
               ld    hl,0x7AE8      ; Load start of user RAM (7AE8H)
               ld    (hl),b         ; Initialize it to zero
@@ -157,14 +157,14 @@ INIT_BASIC_FINISH:
               nop   
               nop   
 
-; Speicher-Test überspringen
+; Skip memory test
 SKIP_MEM_TEST:
               jr    $+6            ; Jump to memory test routine
               rst   0x10
               or    a
               jr    nz,$+20
 
-; Speicher-Test (Memory Size Check)
+; Memory test (memory size check)
 MEM_TEST:
               ld    hl,0x7B4C      ; Start of RAM check (7B4CH)
 MEM_TEST_LOOP:
@@ -212,16 +212,8 @@ INIT_VARS_2:
               inc   hl
               cp    0x0D
 
-; Banner-Text: VIDEOTECHNOLOGY BASIC V2.0
-              DEFB  0x56,0x49,0x44,0x45
-              DEFB  0x4F,0x20,0x54,0x45
-              DEFB  0x43,0x48,0x4E,0x4F
-              DEFB  0x4C,0x4F,0x47,0x59
-              DEFB  0x0D,0x42,0x41,0x53
-              DEFB  0x49,0x43,0x20,0x56
-              DEFB  0x32,0x2E,0x30,0x0D
-              DEFB  0x0D
-              nop   
+; Banner-Text: VIDEO TECHNOLOGY BASIC V2.0
+              DEFM  "VIDEO TECHNOLOGY\0DBASIC V2.0\0D\0D\00"
 
 ; L3 Error Handler (?L3 ERROR)
 ; ERROR_L3: (defined in symbols.sym)
