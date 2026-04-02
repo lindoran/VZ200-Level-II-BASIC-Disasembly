@@ -9,8 +9,12 @@
 0001  AF       .                   xor   a              ; Clear A (color index 0)
 0002  320068   2.h                 ld    (0x6800),a     ; Set background color (black)
 0005  C37406   .t.                 jp    0x0674         ; Jump to RESET part 1 (at 0674H)
+                     ;
+                     ; *****************************************************************
                      RST08_VEC:
 0008  C30078   ..x                 jp    0x7800         ; RST 08H: Jump to RAM hook at 7800H (SYNCHR
+                     ;
+                     ; Not used in VZ200
 000B  E1       .                   pop   hl             ; Pop return address to HL
 000C  E9       .                   jp    (hl)           ; Jump to HL (return to caller)
 000D  000000   ...                 DEFB  0x00,0x00,0x00
@@ -62,14 +66,19 @@
 004C  B7       .                   or    a              ; Key pressed?
 004D  C0       .                   ret   nz             ; Yes, return
 004E  18F9     ..                  jr    $-5            ; No, wait
+                     ;
+                     ; *****************************************************************
+                     ;
                      ; Save character from cursor position
                      GET_CURSOR_CHAR:
 0050  2A2078   * x                 ld    hl,(0x7820)    ; Load cursor address (7820H)
 0053  7E       ~                   ld    a,(hl)         ; Load character from cursor position
 0054  323C78   2<x                 ld    (0x783C),a     ; Save character to 783CH
 0057  C9       .                   ret                  ; Return
+                     ; not used in vz200
 0058  4CFE5420 L.T                 DEFB  0x4C,0xFE,0x54,0x20
 005C  D6FD21F1 ..!.                DEFB  0xD6,0xFD,0x21,0xF1
+                     ;
                      ; Delay loop (input: register BC determines duration)
                      DELAY_LOOP:
 0060  0B       .                   dec   bc             ; Decrement BC
@@ -161,6 +170,14 @@
 00D1  70       p                   ld    (hl),b         ; Restore original byte
 00D2  28F3     (.                  jr    z,$-11         ; Loop back if memory exists
 00D4  1811     ..                  jr    $+19
+                     ;
+                     ; ***********************************************************
+                     ; unused code in VZ200 pr. G. Wolf book
+                     ;
+                     ; Symbol name from Level II listing for TRS 80  
+                     ;
+                     ; TODO: Document from TRS 80 listing.
+                     ; ***********************************************************
                      MEM_SIZE_INPUT:
 00D6  CD5A1E   .Z.                 call  0x1E5A         ; Handle memory size input
 00D9  B7       .                   or    a
@@ -173,34 +190,37 @@
 00E3  BE       .                   cp    (hl)
 00E4  70       p                   ld    (hl),b
 00E5  20CE      .                  jr    nz,$-48
-00E7  2B       +                   dec   hl
-00E8  11147C   ..|                 ld    de,0x7C14
-00EB  DF       .                   rst   0x18
-00EC  DA7A19   .z.                 jp    c,0x197A
-00EF  11CEFF   ...                 ld    de,0xFFCE
-00F2  22B178   ".x                 ld    (0x78B1),hl
-00F5  19       .                   add   hl,de
-00F6  22A078   ".x                 ld    (0x78A0),hl
+                     ;
+                     ; ***********************************************************
+                     ;
+                     ; Set end of memory for BASIC
+00E7  2B       +                   dec   hl             ; address of the last byte
+00E8  11147C   ..|                 ld    de,0x7C14      ; at least 1868 bytes must be free
+00EB  DF       .                   rst   0x18           ; check free memory
+00EC  DA7A19   .z.                 jp    c,0x197A       ; otherwise: OUT OF MEMORY error (197AH)
+00EF  11CEFF   ...                 ld    de,0xFFCE      ; DE = -50 (FFCE is 2s comp. -50)
+00F2  22B178   ".x                 ld    (0x78B1),hl    ; store end-of-memory address (@ 78B1H)
+00F5  19       .                   add   hl,de          ; HL = end of memory - 50
+00F6  22A078   ".x                 ld    (0x78A0),hl    ; = start of string space - 1
                      INIT_VARS_2:
-00F9  CD4D1B   .M.                 call  0x1B4D         ; Initialize more pointers (1B4DH)
-00FC  CD8434   ..4                 call  0x3484         ; Set sound/timer? (3484H)
+00F9  CD4D1B   .M.                 call  0x1B4D         ; call the NEW routine (1B4DH)
+00FC  CD8434   ..4                 call  0x3484         ; initialize counters and pointers (3484H)
 00FF  210F01   !..                 ld    hl,0x010F      ; Load banner string address (010FH)
 0102  CDA728   ..(                 call  OUTSTR         ; Print banner string (OUTSTR)
 0105  ED56     .V                  im    1              ; Set Interrupt Mode 1
 0107  C38E06   ...                 jp    0x068E         ; Jump to memory expansion check (068EH)
-010A  00       .                   nop   
-010B  7E       ~                   ld    a,(hl)
-010C  23       #                   inc   hl
-010D  FE0D     ..                  cp    0x0D
+010A  007E23FE .~#.                DEFB  0x00,0x7E,0x23,0xFE ; Artifact? No caller
+010E  0D       .                   DEFB  0x0D
                      ; Banner-Text: VIDEO TECHNOLOGY BASIC V2.0
-010F  56494445 VIDE                DEFM  "VIDEO TECHNOLOGY\0DBASIC V2.0\0D\0D\00"
+010F  56494445 VIDE                DEFM  "VIDEO TECHNOLOGY"
       4F205445 O TE  
       43484E4F CHNO  
       4C4F4759 LOGY  
-      0D424153 .BAS  
-      49432056 IC V  
-      322E300D 2.0.  
-      0D00     ..    
+011F  0D       .                   DEFB  0x0D
+0120  42415349 BASI                DEFM  "BASIC V2.0"
+      43205632 C V2  
+      2E30     .0    
+012A  0D0D00   ...                 DEFB  0x0D,0x0D,0x00 ; term with 00
                      ; L3 Error Handler (?L3 ERROR)
                      ERROR_L3:
 012D  1E2C     .,                  ld    e,0x2C         ; Load error code 44 (L3 Error)

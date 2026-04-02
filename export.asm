@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Thu Apr  2 08:35:49 2026
+; Generated: Thu Apr  2 12:56:48 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -12,8 +12,14 @@
               xor   a              ; Clear A (color index 0)
               ld    (0x6800),a     ; Set background color (black)
               jp    0x0674         ; Jump to RESET part 1 (at 0674H)
+
+;
+; *****************************************************************
 ; RST08_VEC: (defined in symbols.sym)
               jp    0x7800         ; RST 08H: Jump to RAM hook at 7800H (SYNCHR)
+
+;
+; Not used in VZ200
               pop   hl             ; Pop return address to HL
               jp    (hl)           ; Jump to HL (return to caller)
               DEFB  0x00,0x00,0x00
@@ -72,15 +78,21 @@
               ret   nz             ; Yes, return
               jr    $-5            ; No, wait
 
+;
+; *****************************************************************
+;
 ; Save character from cursor position
 ; GET_CURSOR_CHAR: (defined in symbols.sym)
               ld    hl,(0x7820)    ; Load cursor address (7820H)
               ld    a,(hl)         ; Load character from cursor position
               ld    (0x783C),a     ; Save character to 783CH
               ret                  ; Return
+
+; not used in vz200
               DEFB  0x4C,0xFE,0x54,0x20
               DEFB  0xD6,0xFD,0x21,0xF1
 
+;
 ; Delay loop (input: register BC determines duration)
 ; DELAY_LOOP: (defined in symbols.sym)
               dec   bc             ; Decrement BC
@@ -180,6 +192,15 @@ MEM_TEST_LOOP:
               ld    (hl),b         ; Restore original byte
               jr    z,$-11         ; Loop back if memory exists
               jr    $+19
+
+;
+; ***********************************************************
+; unused code in VZ200 pr. G. Wolf book
+;
+; Symbol name from Level II listing for TRS 80  
+;
+; TODO: Document from TRS 80 listing.
+; ***********************************************************
 MEM_SIZE_INPUT:
               call  0x1E5A         ; Handle memory size input
               or    a
@@ -192,28 +213,34 @@ MEM_SIZE_INPUT:
               cp    (hl)
               ld    (hl),b
               jr    nz,$-48
-              dec   hl
-              ld    de,0x7C14
-              rst   0x18
-              jp    c,0x197A
-              ld    de,0xFFCE
-              ld    (0x78B1),hl
-              add   hl,de
-              ld    (0x78A0),hl
+
+;
+; ***********************************************************
+;
+; Set end of memory for BASIC
+              dec   hl             ; address of the last byte
+              ld    de,0x7C14      ; at least 1868 bytes must be free
+              rst   0x18           ; check free memory
+              jp    c,0x197A       ; otherwise: OUT OF MEMORY error (197AH)
+              ld    de,0xFFCE      ; DE = -50 (FFCE is 2s comp. -50)
+              ld    (0x78B1),hl    ; store end-of-memory address (@ 78B1H)
+              add   hl,de          ; HL = end of memory - 50
+              ld    (0x78A0),hl    ; = start of string space - 1
 INIT_VARS_2:
-              call  0x1B4D         ; Initialize more pointers (1B4DH)
-              call  0x3484         ; Set sound/timer? (3484H)
+              call  0x1B4D         ; call the NEW routine (1B4DH)
+              call  0x3484         ; initialize counters and pointers (3484H)
               ld    hl,0x010F      ; Load banner string address (010FH)
               call  OUTSTR         ; Print banner string (OUTSTR)
               im    1              ; Set Interrupt Mode 1
               jp    0x068E         ; Jump to memory expansion check (068EH)
-              nop   
-              ld    a,(hl)
-              inc   hl
-              cp    0x0D
+              DEFB  0x00,0x7E,0x23,0xFE ; Artifact? No caller
+              DEFB  0x0D
 
 ; Banner-Text: VIDEO TECHNOLOGY BASIC V2.0
-              DEFM  "VIDEO TECHNOLOGY\0DBASIC V2.0\0D\0D\00"
+              DEFM  "VIDEO TECHNOLOGY"
+              DEFB  0x0D
+              DEFM  "BASIC V2.0"
+              DEFB  0x0D,0x0D,0x00 ; term with 00
 
 ; L3 Error Handler (?L3 ERROR)
 ; ERROR_L3: (defined in symbols.sym)
