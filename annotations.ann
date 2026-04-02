@@ -20,9 +20,29 @@ end = 95
 type = DATA_BYTE
 
 [region]
+offset = 266
+end = 270
+type = DATA_BYTE
+
+[region]
 offset = 271
-end = 300
+end = 286
 type = DATA_STRING
+
+[region]
+offset = 287
+end = 287
+type = DATA_BYTE
+
+[region]
+offset = 288
+end = 297
+type = DATA_STRING
+
+[region]
+offset = 298
+end = 300
+type = DATA_BYTE
 
 [label]
 offset = 0
@@ -529,12 +549,44 @@ offset = 214
 text = Handle memory size input
 
 [comment]
+offset = 231
+text = address of the last byte
+
+[comment]
+offset = 232
+text = at least 1868 bytes must be free
+
+[comment]
+offset = 235
+text = check free memory
+
+[comment]
+offset = 236
+text = otherwise: OUT OF MEMORY error (197AH)
+
+[comment]
+offset = 239
+text = DE = -50 (FFCE is 2s comp. -50)
+
+[comment]
+offset = 242
+text = store end-of-memory address (@ 78B1H)
+
+[comment]
+offset = 245
+text = HL = end of memory - 50
+
+[comment]
+offset = 246
+text = = start of string space - 1
+
+[comment]
 offset = 249
-text = Initialize more pointers (1B4DH)
+text = call the NEW routine (1B4DH)
 
 [comment]
 offset = 252
-text = Set sound/timer? (3484H)
+text = initialize counters and pointers (3484H)
 
 [comment]
 offset = 255
@@ -553,6 +605,14 @@ offset = 263
 text = Jump to memory expansion check (068EH)
 
 [comment]
+offset = 266
+text = Artifact? No caller
+
+[comment]
+offset = 298
+text = term with 00
+
+[comment]
 offset = 301
 text = Load error code 44 (L3 Error)
 
@@ -563,6 +623,16 @@ text = Jump to main error handler
 [block]
 offset = 0
 text = Initialisation of the computer
+
+[block]
+offset = 8
+text = 
+              *****************************************************************
+
+[block]
+offset = 11
+text = 
+              Not used in VZ200
 
 [block]
 offset = 19
@@ -590,11 +660,19 @@ text = Keyboard query waits until a key is pressed
 
 [block]
 offset = 80
-text = Save character from cursor position
+text = 
+              *****************************************************************
+              
+              Save character from cursor position
+
+[block]
+offset = 88
+text = not used in vz200
 
 [block]
 offset = 96
-text = Delay loop (input: register BC determines duration)
+text = 
+              Delay loop (input: register BC determines duration)
 
 [block]
 offset = 102
@@ -627,6 +705,24 @@ text = Skip memory test
 [block]
 offset = 196
 text = Memory test (memory size check)
+
+[block]
+offset = 214
+text = 
+              ***********************************************************
+              unused code in VZ200 pr. G. Wolf book
+              
+              Symbol name from Level II listing for TRS 80  
+              
+              TODO: Document from TRS 80 listing.
+              ***********************************************************
+
+[block]
+offset = 231
+text = 
+              ***********************************************************
+              
+              Set end of memory for BASIC
 
 [block]
 offset = 271
