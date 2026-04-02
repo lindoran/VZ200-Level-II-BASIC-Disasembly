@@ -1,0 +1,138 @@
+annotation set 0x0000 block "Initialisierung des Rechners"
+annotation set 0x0000 label START
+annotation set 0x0000 comment "Main entry point from RESET"
+annotation set 0x0001 comment "Clear A (color index 0)"
+annotation set 0x0002 comment "Set background color (black)"
+annotation set 0x0005 comment "Jump to RESET part 1 (at 0674H)"
+symbol add START 0x0000 VECTOR "Main RESET entry"
+
+annotation set 0x0008 label RST08_VEC
+annotation set 0x0008 comment "RST 08H: Jump to RAM hook at 7800H (SYNCHR)"
+annotation set 0x000B comment "Pop return address to HL"
+annotation set 0x000C comment "Jump to HL (return to caller)"
+symbol add RST08_VEC 0x0008 VECTOR "RST 08H Vector"
+segment add 0x000D 0x000F DIRECT_BYTE "Unused_000D"
+
+annotation set 0x0010 label RST10_VEC
+annotation set 0x0010 comment "RST 10H: Jump to RAM hook at 7803H (CHRGOT)"
+symbol add RST10_VEC 0x0010 VECTOR "RST 10H Vector"
+
+annotation set 0x0013 block "Einlesen eines Zeichens über Device-Control-Block (DCB)"
+annotation set 0x0013 label GET_CHAR_DCB
+annotation set 0x0013 comment "Read character via DCB"
+annotation set 0x0014 comment "Set B for DCB check"
+annotation set 0x0016 comment "Jump to DCB dispatcher"
+symbol add GET_CHAR_DCB 0x0013 ROM_CALL "Read character via DCB"
+
+annotation set 0x0018 label RST18_VEC
+annotation set 0x0018 comment "RST 18H: Jump to RAM hook at 7806H (CMPHDE)"
+symbol add RST18_VEC 0x0018 VECTOR "RST 18H Vector"
+
+annotation set 0x001B block "Ausgabe eines Zeichens über Device-Control-Block (DCB)"
+annotation set 0x001B label PUT_CHAR_DCB
+annotation set 0x001B comment "Output character via DCB"
+annotation set 0x001C comment "Set B for DCB check"
+annotation set 0x001E comment "Jump to DCB dispatcher"
+symbol add PUT_CHAR_DCB 0x001B ROM_CALL "Output character via DCB"
+
+annotation set 0x0020 label RST20_VEC
+annotation set 0x0020 comment "RST 20H: Jump to RAM hook at 7809H (TSTTYP)"
+symbol add RST20_VEC 0x0020 VECTOR "RST 20H Vector"
+
+annotation set 0x0023 comment "Unused code path (GET_CHAR skip)"
+annotation set 0x0024 comment "Set B for DCB check"
+annotation set 0x0026 comment "Jump to DCB dispatcher"
+
+annotation set 0x0028 label RST28_VEC
+annotation set 0x0028 comment "RST 28H: Jump to RAM hook at 780CH"
+symbol add RST28_VEC 0x0028 VECTOR "RST 28H Vector"
+
+annotation set 0x002B block "Tastatur-Abfrage"
+annotation set 0x002B label KBD_QUERY
+annotation set 0x002B comment "Load keyboard DCB address"
+annotation set 0x002E comment "Continue keyboard routine"
+symbol add KBD_QUERY 0x002B ROM_CALL "Keyboard query"
+
+annotation set 0x0030 label RST30_VEC
+annotation set 0x0030 comment "RST 30H: Jump to RAM hook at 780FH"
+symbol add RST30_VEC 0x0030 VECTOR "RST 30H Vector"
+
+annotation set 0x0033 block "Bildschirmausgabe über DCB"
+annotation set 0x0033 label SCR_OUT_DCB
+annotation set 0x0033 comment "Load screen DCB address"
+annotation set 0x0036 comment "Continue output routine"
+symbol add SCR_OUT_DCB 0x0033 ROM_CALL "Screen output via DCB"
+
+annotation set 0x0038 label RST38_VEC
+annotation set 0x0038 comment "RST 38H: Jump to Interrupt Service Routine (2EB8H)"
+symbol add RST38_VEC 0x0038 VECTOR "RST 38H Vector"
+
+annotation set 0x003B block "Druckerausgabe über Device-Control-Block (DCB)"
+annotation set 0x003B label PRN_OUT_DCB
+annotation set 0x003B comment "Load printer DCB address"
+annotation set 0x003E comment "Continue output routine"
+symbol add PRN_OUT_DCB 0x003B ROM_CALL "Printer output via DCB"
+
+annotation set 0x0040 comment "Jump to keyboard read routine (2EFDH)"
+annotation set 0x0043 comment "Return from unused path"
+segment add 0x0044 0x0045 DIRECT_BYTE "Unused_0044"
+
+annotation set 0x0046 label DCB_CALL
+annotation set 0x0046 comment "Jump to DCB dispatcher (0674H)"
+symbol add DCB_CALL 0x0046 JUMP_LABEL "DCB call dispatcher"
+
+annotation set 0x0049 block "Tastaturabfrage wartet, bis eine Taste gedrückt wird"
+annotation set 0x0049 label KBD_WAIT
+annotation set 0x0049 comment "Call keyboard scan (002BH)"
+annotation set 0x004C comment "Key pressed?"
+annotation set 0x004D comment "Yes, return"
+annotation set 0x004E comment "No, wait"
+symbol add KBD_WAIT 0x0049 ROM_CALL "Wait for keypress"
+
+annotation set 0x0050 block "Zeichen aus Cursor-Position sichern"
+annotation set 0x0050 label GET_CURSOR_CHAR
+annotation set 0x0050 comment "Load cursor address (7820H)"
+annotation set 0x0053 comment "Load character from cursor position"
+annotation set 0x0054 comment "Save character to 783CH"
+annotation set 0x0057 comment "Return"
+symbol add GET_CURSOR_CHAR 0x0050 ROM_CALL "Get character at cursor"
+segment add 0x0058 0x005F DIRECT_BYTE "Unused_0058"
+
+annotation set 0x0060 block "Zeitschleife (Eing.: Reg. BC bestimmt Dauer)"
+annotation set 0x0060 label DELAY_LOOP
+annotation set 0x0060 comment "Decrement BC"
+annotation set 0x0061 comment "B = 0?"
+annotation set 0x0062 comment "C = 0?"
+annotation set 0x0063 comment "No, continue loop"
+annotation set 0x0065 comment "Yes, return"
+symbol add DELAY_LOOP 0x0060 ROM_CALL "Delay loop"
+
+annotation set 0x0066 block "Interrupt-Vektor für 'Non maskable interrupts'"
+annotation set 0x0066 label NMI_VEC
+annotation set 0x0066 comment "Set stack pointer to 6000H"
+annotation set 0x0069 comment "Load latch byte from 68ECH"
+annotation set 0x006C comment "Increment A"
+annotation set 0x006D comment "CP 2"
+annotation set 0x006F comment "Jump if NC to cold start (0000H)"
+annotation set 0x0072 comment "Jump to warm start (06CCH)"
+symbol add NMI_VEC 0x0066 VECTOR "NMI Vector"
+
+annotation set 0x0075 block "BASIC-Initialisierung Teil 2"
+annotation set 0x0075 label BASIC_INIT_2
+annotation set 0x0075 comment "Destination: 7880H (RAM hooks)"
+annotation set 0x0078 comment "Source: 18F7H"
+annotation set 0x007B comment "Length: 27H bytes"
+annotation set 0x007E comment "Copy routines to RAM"
+symbol add BASIC_INIT_2 0x0075 JUMP_LABEL "BASIC initialization part 2"
+
+annotation set 0x0080 block "IO-Buffer einrichten"
+annotation set 0x0080 label INIT_IO_BUF
+annotation set 0x0080 comment "Load I/O buffer start (79E5H)"
+annotation set 0x0083 comment "Store ':' prompt"
+annotation set 0x0085 comment "Increment HL"
+annotation set 0x0086 comment "Store character from B"
+annotation set 0x0087 comment "Increment HL"
+annotation set 0x0088 comment "Store ',' character"
+annotation set 0x008A comment "Increment HL"
+annotation set 0x008B comment "Save I/O buffer pointer to 78A7H"
+symbol add INIT_IO_BUF 0x0080 JUMP_LABEL "Setup I/O buffer"

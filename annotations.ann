@@ -1,0 +1,638 @@
+# z80bench annotation file
+
+[meta]
+name = .
+load_addr = 0x0000
+
+[region]
+offset = 13
+end = 15
+type = DATA_BYTE
+
+[region]
+offset = 68
+end = 69
+type = DATA_BYTE
+
+[region]
+offset = 88
+end = 95
+type = DATA_BYTE
+
+[region]
+offset = 271
+end = 299
+type = DATA_BYTE
+
+[label]
+offset = 0
+name = START
+
+[label]
+offset = 8
+name = RST08_VEC
+
+[label]
+offset = 16
+name = RST10_VEC
+
+[label]
+offset = 19
+name = GET_CHAR_DCB
+
+[label]
+offset = 24
+name = RST18_VEC
+
+[label]
+offset = 27
+name = PUT_CHAR_DCB
+
+[label]
+offset = 32
+name = RST20_VEC
+
+[label]
+offset = 40
+name = RST28_VEC
+
+[label]
+offset = 43
+name = KBD_QUERY
+
+[label]
+offset = 48
+name = RST30_VEC
+
+[label]
+offset = 51
+name = SCR_OUT_DCB
+
+[label]
+offset = 56
+name = RST38_VEC
+
+[label]
+offset = 59
+name = PRN_OUT_DCB
+
+[label]
+offset = 70
+name = DCB_CALL
+
+[label]
+offset = 73
+name = KBD_WAIT
+
+[label]
+offset = 80
+name = GET_CURSOR_CHAR
+
+[label]
+offset = 96
+name = DELAY_LOOP
+
+[label]
+offset = 102
+name = NMI_VEC
+
+[label]
+offset = 117
+name = BASIC_INIT_2
+
+[label]
+offset = 128
+name = INIT_IO_BUF
+
+[label]
+offset = 142
+name = INIT_DOS_HOOKS
+
+[label]
+offset = 150
+name = INIT_DOS_LOOP
+
+[label]
+offset = 159
+name = INIT_DOS_EXITS
+
+[label]
+offset = 161
+name = INIT_EXIT_LOOP
+
+[label]
+offset = 168
+name = INIT_BASIC_FINISH
+
+[label]
+offset = 190
+name = SKIP_MEM_TEST
+
+[label]
+offset = 196
+name = MEM_TEST
+
+[label]
+offset = 199
+name = MEM_TEST_LOOP
+
+[label]
+offset = 214
+name = MEM_SIZE_INPUT
+
+[label]
+offset = 249
+name = INIT_VARS_2
+
+[label]
+offset = 301
+name = ERROR_L3
+
+[comment]
+offset = 0
+text = Main entry point from RESET
+
+[comment]
+offset = 1
+text = Clear A (color index 0)
+
+[comment]
+offset = 2
+text = Set background color (black)
+
+[comment]
+offset = 5
+text = Jump to RESET part 1 (at 0674H)
+
+[comment]
+offset = 8
+text = RST 08H: Jump to RAM hook at 7800H (SYNCHR)
+
+[comment]
+offset = 11
+text = Pop return address to HL
+
+[comment]
+offset = 12
+text = Jump to HL (return to caller)
+
+[comment]
+offset = 16
+text = RST 10H: Jump to RAM hook at 7803H (CHRGOT)
+
+[comment]
+offset = 19
+text = Read character via DCB
+
+[comment]
+offset = 20
+text = Set B for DCB check
+
+[comment]
+offset = 22
+text = Jump to DCB dispatcher
+
+[comment]
+offset = 24
+text = RST 18H: Jump to RAM hook at 7806H (CMPHDE)
+
+[comment]
+offset = 27
+text = Output character via DCB
+
+[comment]
+offset = 28
+text = Set B for DCB check
+
+[comment]
+offset = 30
+text = Jump to DCB dispatcher
+
+[comment]
+offset = 32
+text = RST 20H: Jump to RAM hook at 7809H (TSTTYP)
+
+[comment]
+offset = 35
+text = Unused code path (GET_CHAR skip)
+
+[comment]
+offset = 36
+text = Set B for DCB check
+
+[comment]
+offset = 38
+text = Jump to DCB dispatcher
+
+[comment]
+offset = 40
+text = RST 28H: Jump to RAM hook at 780CH
+
+[comment]
+offset = 43
+text = Load keyboard DCB address
+
+[comment]
+offset = 46
+text = Continue keyboard routine
+
+[comment]
+offset = 48
+text = RST 30H: Jump to RAM hook at 780FH
+
+[comment]
+offset = 51
+text = Load screen DCB address
+
+[comment]
+offset = 54
+text = Continue output routine
+
+[comment]
+offset = 56
+text = RST 38H: Jump to Interrupt Service Routine (2EB8H)
+
+[comment]
+offset = 59
+text = Load printer DCB address
+
+[comment]
+offset = 62
+text = Continue output routine
+
+[comment]
+offset = 64
+text = Jump to keyboard read routine (2EFDH)
+
+[comment]
+offset = 67
+text = Return from unused path
+
+[comment]
+offset = 70
+text = Jump to DCB dispatcher (0674H)
+
+[comment]
+offset = 73
+text = Call keyboard scan (002BH)
+
+[comment]
+offset = 76
+text = Key pressed?
+
+[comment]
+offset = 77
+text = Yes, return
+
+[comment]
+offset = 78
+text = No, wait
+
+[comment]
+offset = 80
+text = Load cursor address (7820H)
+
+[comment]
+offset = 83
+text = Load character from cursor position
+
+[comment]
+offset = 84
+text = Save character to 783CH
+
+[comment]
+offset = 87
+text = Return
+
+[comment]
+offset = 96
+text = Decrement BC
+
+[comment]
+offset = 97
+text = B = 0?
+
+[comment]
+offset = 98
+text = C = 0?
+
+[comment]
+offset = 99
+text = No, continue loop
+
+[comment]
+offset = 101
+text = Yes, return
+
+[comment]
+offset = 102
+text = Set stack pointer to 6000H
+
+[comment]
+offset = 105
+text = Load latch byte from 68ECH
+
+[comment]
+offset = 108
+text = Increment A
+
+[comment]
+offset = 109
+text = CP 2
+
+[comment]
+offset = 111
+text = Jump if NC to cold start (0000H)
+
+[comment]
+offset = 114
+text = Jump to warm start (06CCH)
+
+[comment]
+offset = 117
+text = Destination: 7880H (RAM hooks)
+
+[comment]
+offset = 120
+text = Source: 18F7H
+
+[comment]
+offset = 123
+text = Length: 27H bytes
+
+[comment]
+offset = 126
+text = Copy routines to RAM
+
+[comment]
+offset = 128
+text = Load I/O buffer start (79E5H)
+
+[comment]
+offset = 131
+text = Store ':' prompt
+
+[comment]
+offset = 133
+text = Increment HL
+
+[comment]
+offset = 134
+text = Store character from B
+
+[comment]
+offset = 135
+text = Increment HL
+
+[comment]
+offset = 136
+text = Store ',' character
+
+[comment]
+offset = 138
+text = Increment HL
+
+[comment]
+offset = 139
+text = Save I/O buffer pointer to 78A7H
+
+[comment]
+offset = 142
+text = Address of L3 error handler (012DH)
+
+[comment]
+offset = 145
+text = 28 DOS commands to initialize
+
+[comment]
+offset = 147
+text = RAM hook table address (7952H)
+
+[comment]
+offset = 150
+text = Store JP opcode (0xC3)
+
+[comment]
+offset = 152
+text = Increment RAM pointer
+
+[comment]
+offset = 153
+text = Low byte of L3 handler
+
+[comment]
+offset = 154
+text = Increment RAM pointer
+
+[comment]
+offset = 155
+text = High byte of L3 handler
+
+[comment]
+offset = 156
+text = Increment RAM pointer
+
+[comment]
+offset = 157
+text = Loop for 28 entries
+
+[comment]
+offset = 159
+text = 21 DOS exits to initialize
+
+[comment]
+offset = 161
+text = Store RET opcode (0xC9)
+
+[comment]
+offset = 163
+text = Advance 3 bytes (unused JP slot)
+
+[comment]
+offset = 166
+text = Loop for 21 entries
+
+[comment]
+offset = 168
+text = Load start of user RAM (7AE8H)
+
+[comment]
+offset = 171
+text = Initialize it to zero
+
+[comment]
+offset = 172
+text = Set temporary stack pointer (79F8H)
+
+[comment]
+offset = 175
+text = Initialize stack and variables (STKINI)
+
+[comment]
+offset = 178
+text = Clear screen and home cursor (CLRSCR)
+
+[comment]
+offset = 190
+text = Jump to memory test routine
+
+[comment]
+offset = 196
+text = Start of RAM check (7B4CH)
+
+[comment]
+offset = 199
+text = Next ram location
+
+[comment]
+offset = 200
+text = Get MSB
+
+[comment]
+offset = 201
+text = Get LSB
+
+[comment]
+offset = 202
+text = End of memory if zero (HIMEM)
+
+[comment]
+offset = 204
+text = Get byte from memory
+
+[comment]
+offset = 205
+text = Save original byte in B
+
+[comment]
+offset = 206
+text = Complement byte for test
+
+[comment]
+offset = 207
+text = Write to memory
+
+[comment]
+offset = 208
+text = Check if it was stored correctly
+
+[comment]
+offset = 209
+text = Restore original byte
+
+[comment]
+offset = 210
+text = Loop back if memory exists
+
+[comment]
+offset = 214
+text = Handle memory size input
+
+[comment]
+offset = 249
+text = Initialize more pointers (1B4DH)
+
+[comment]
+offset = 252
+text = Set sound/timer? (3484H)
+
+[comment]
+offset = 255
+text = Load banner string address (010FH)
+
+[comment]
+offset = 258
+text = Print banner string (OUTSTR)
+
+[comment]
+offset = 261
+text = Set Interrupt Mode 1
+
+[comment]
+offset = 263
+text = Jump to memory expansion check (068EH)
+
+[comment]
+offset = 301
+text = Load error code 44 (L3 Error)
+
+[comment]
+offset = 303
+text = Jump to main error handler
+
+[block]
+offset = 0
+text = Initialisierung des Rechners
+
+[block]
+offset = 19
+text = Einlesen eines Zeichens über Device-Control-Block (DCB)
+
+[block]
+offset = 27
+text = Ausgabe eines Zeichens über Device-Control-Block (DCB)
+
+[block]
+offset = 43
+text = Tastatur-Abfrage
+
+[block]
+offset = 51
+text = Bildschirmausgabe über DCB
+
+[block]
+offset = 59
+text = Druckerausgabe über Device-Control-Block (DCB)
+
+[block]
+offset = 73
+text = Tastaturabfrage wartet, bis eine Taste gedrückt wird
+
+[block]
+offset = 80
+text = Zeichen aus Cursor-Position sichern
+
+[block]
+offset = 96
+text = Zeitschleife (Eing.: Reg. BC bestimmt Dauer)
+
+[block]
+offset = 102
+text = Interrupt-Vektor für 'Non maskable interrupts'
+
+[block]
+offset = 117
+text = BASIC-Initialisierung Teil 2
+
+[block]
+offset = 128
+text = IO-Buffer einrichten
+
+[block]
+offset = 142
+text = Initialisierung der DOS-Error-Hooks (RAM: 7952H)
+
+[block]
+offset = 159
+text = Initialisierung der DOS-Exits mit RET (RAM: 79A6H)
+
+[block]
+offset = 168
+text = Ende der BASIC-Initialisierung
+
+[block]
+offset = 190
+text = Speicher-Test überspringen
+
+[block]
+offset = 196
+text = Speicher-Test (Memory Size Check)
+
+[block]
+offset = 271
+text = Banner-Text: VIDEOTECHNOLOGY BASIC V2.0
+
+[block]
+offset = 301
+text = L3 Error Handler (?L3 ERROR)
+

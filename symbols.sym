@@ -1,0 +1,63 @@
+; z80bench symbol file
+; assembler: z88dk/z80asm
+
+
+; [VECTOR]
+START            EQU     0x0000      ;                                                                                                                                                                                   Main RESET entry
+RST08_VEC        EQU     0x0008      ;                                                                                                                                                                              RST 08H Vector
+RST10_VEC        EQU     0x0010      ;                                                                                                                                                                          RST 10H Vector
+
+; [ROM_CALL]
+GET_CHAR_DCB     EQU     0x0013      ;                                                                                                                                                                    Read character via DCB
+
+; [VECTOR]
+RST18_VEC        EQU     0x0018      ;                                                                                                                                                                 RST 18H Vector
+
+; [ROM_CALL]
+PUT_CHAR_DCB     EQU     0x001B      ;                                                                                                                                                           Output character via DCB
+
+; [VECTOR]
+RST20_VEC        EQU     0x0020      ;                                                                                                                                                        RST 20H Vector
+RST28_VEC        EQU     0x0028      ;                                                                                                                                                  RST 28H Vector
+
+; [ROM_CALL]
+KBD_QUERY        EQU     0x002B      ;                                                                                                                                             Keyboard query
+
+; [VECTOR]
+RST30_VEC        EQU     0x0030      ;                                                                                                                                          RST 30H Vector
+
+; [ROM_CALL]
+SCR_OUT_DCB      EQU     0x0033      ;                                                                                                                                     Screen output via DCB
+
+; [VECTOR]
+RST38_VEC        EQU     0x0038      ;                                                                                                                                  RST 38H Vector
+
+; [ROM_CALL]
+PRN_OUT_DCB      EQU     0x003B      ;                                                                                                                             Printer output via DCB
+
+; [JUMP_LABEL]
+DCB_CALL         EQU     0x0046      ;                                                                                                                       DCB call dispatcher
+
+; [ROM_CALL]
+KBD_WAIT         EQU     0x0049      ;                                                                                                                Wait for keypress
+GET_CURSOR_CHAR  EQU     0x0050      ;                                                                                                         Get character at cursor
+DELAY_LOOP       EQU     0x0060      ;                                                                                                Delay loop
+
+; [VECTOR]
+NMI_VEC          EQU     0x0066      ;                                                                                       NMI Vector
+
+; [JUMP_LABEL]
+BASIC_INIT_2     EQU     0x0075      ;                                                                                BASIC initialization part 2
+INIT_IO_BUF      EQU     0x0080      ;                                                                     Setup I/O buffer
+ERROR_L3         EQU     0x012D      ;        L3 error handler entry
+
+; [WRITABLE]
+ERCALL           EQU     0x7952      ;       DOS error hook table in RAM
+
+; [ROM_CALL]
+STKINI           EQU     0x1B8F      ;      Initialize stack and variables
+CLRSCR           EQU     0x01C9      ;     Clear screen and home cursor
+OUTSTR           EQU     0x28A7      ;    Output string pointed to by HL
+
+; [JUMP_LABEL]
+ERROR_HANDLER    EQU     0x19A2      ;   Main Error Handler entry
