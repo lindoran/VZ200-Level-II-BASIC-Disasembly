@@ -562,75 +562,75 @@ text = Jump to main error handler
 
 [block]
 offset = 0
-text = Initialisierung des Rechners
+text = Initialisation of the computer
 
 [block]
 offset = 19
-text = Einlesen eines Zeichens über Device-Control-Block (DCB)
+text = Reading a character via Device Control Block (DCB)
 
 [block]
 offset = 27
-text = Ausgabe eines Zeichens über Device-Control-Block (DCB)
+text = Output of a character via Device Control Block (DCB)
 
 [block]
 offset = 43
-text = Tastatur-Abfrage
+text = Keyboard query
 
 [block]
 offset = 51
-text = Bildschirmausgabe über DCB
+text = Screen output via DCB
 
 [block]
 offset = 59
-text = Druckerausgabe über Device-Control-Block (DCB)
+text = Printer output via Device Control Block (DCB)
 
 [block]
 offset = 73
-text = Tastaturabfrage wartet, bis eine Taste gedrückt wird
+text = Keyboard query waits until a key is pressed
 
 [block]
 offset = 80
-text = Zeichen aus Cursor-Position sichern
+text = Save character from cursor position
 
 [block]
 offset = 96
-text = Zeitschleife (Eing.: Reg. BC bestimmt Dauer)
+text = Delay loop (input: register BC determines duration)
 
 [block]
 offset = 102
-text = Interrupt-Vektor für 'Non maskable interrupts'
+text = Interupt vector for 'Non maskable interrupts'
 
 [block]
 offset = 117
-text = BASIC-Initialisierung Teil 2
+text = BASIC initialisation part 2
 
 [block]
 offset = 128
-text = IO-Buffer einrichten
+text = Set up I/O buffer
 
 [block]
 offset = 142
-text = Initialisierung der DOS-Error-Hooks (RAM: 7952H)
+text = Initialisation of the DOS error hooks (RAM: 7952H)
 
 [block]
 offset = 159
-text = Initialisierung der DOS-Exits mit RET (RAM: 79A6H)
+text = Initialisation of the DOS exits with RET (RAM: 79A6H)
 
 [block]
 offset = 168
-text = Ende der BASIC-Initialisierung
+text = End of BASIC initialisation
 
 [block]
 offset = 190
-text = Speicher-Test überspringen
+text = Skip memory test
 
 [block]
 offset = 196
-text = Speicher-Test (Memory Size Check)
+text = Memory test (memory size check)
 
 [block]
 offset = 271
-text = Banner-Text: VIDEOTECHNOLOGY BASIC V2.0
+text = Banner-Text: VIDEO TECHNOLOGY BASIC V2.0
 
 [block]
 offset = 301
