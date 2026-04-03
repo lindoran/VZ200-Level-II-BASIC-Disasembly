@@ -1,6 +1,3 @@
-[submodule "external/external/TRS-80-ROMS"]
-	path = external/external/TRS-80-ROMS
-	url = https://github.com/kiwisincebirth/TRS-80-ROMS
 [submodule "external/TRS-80-ROMS"]
 	path = external/TRS-80-ROMS
 	url = https://github.com/kiwisincebirth/TRS-80-ROMS
