@@ -44,6 +44,41 @@ offset = 298
 end = 300
 type = DATA_BYTE
 
+[region]
+offset = 308
+end = 308
+type = DATA_BYTE
+
+[region]
+offset = 311
+end = 311
+type = DATA_BYTE
+
+[region]
+offset = 401
+end = 412
+type = DATA_BYTE
+
+[region]
+offset = 401
+end = 412
+type = DATA_BYTE
+
+[region]
+offset = 473
+end = 639
+type = DATA_BYTE
+
+[region]
+offset = 865
+end = 899
+type = DATA_BYTE
+
+[region]
+offset = 900
+end = 906
+type = DATA_STRING
+
 [label]
 offset = 0
 name = START
@@ -167,6 +202,34 @@ name = INIT_VARS_2
 [label]
 offset = 301
 name = ERROR_L3
+
+[label]
+offset = 306
+name = POINT
+
+[label]
+offset = 309
+name = SET
+
+[label]
+offset = 312
+name = RESET
+
+[label]
+offset = 457
+name = CLRSCR_HOME
+
+[label]
+offset = 826
+name = OUTSTR_AUX
+
+[label]
+offset = 924
+name = OUT_CHAR_MAIN
+
+[label]
+offset = 962
+name = DCB_DISPATCH
 
 [comment]
 offset = 0
@@ -620,6 +683,434 @@ text = Load error code 44 (L3 Error)
 offset = 303
 text = Jump to main error handler
 
+[comment]
+offset = 306
+text = Get next character (RST 10H)
+
+[comment]
+offset = 307
+text = A = 0 (POINT flag)
+
+[comment]
+offset = 308
+text = Skip LD A,n (01 matches LD BC,nn)
+
+[comment]
+offset = 309
+text = A = 80H (SET flag)
+
+[comment]
+offset = 311
+text = Skip LD A,n
+
+[comment]
+offset = 312
+text = A = 1 (RESET flag)
+
+[comment]
+offset = 314
+text = Save command flag (POINT/SET/RESET)
+
+[comment]
+offset = 315
+text = Expect '(' (RST 08H)
+
+[comment]
+offset = 316
+text = JR Z, 010BH (GETBYT?)
+
+[comment]
+offset = 318
+text = INC E
+
+[comment]
+offset = 319
+text = DEC HL
+
+[comment]
+offset = 320
+text = X < 128?
+
+[comment]
+offset = 322
+text = JP NC, FCERR (1E4AH)
+
+[comment]
+offset = 325
+text = Save X
+
+[comment]
+offset = 326
+text = Expect ',' (RST 08H)
+
+[comment]
+offset = 327
+text = INC L
+
+[comment]
+offset = 328
+text = Call GETBYT (2B1CH?)
+
+[comment]
+offset = 331
+text = Y < 64?
+
+[comment]
+offset = 333
+text = JP NC, FCERR (1E4AH)
+
+[comment]
+offset = 336
+text = E = Y
+
+[comment]
+offset = 337
+text = A = 0
+
+[comment]
+offset = 338
+text = D = 0
+
+[comment]
+offset = 339
+text = DE <-> HL (HL = Y)
+
+[comment]
+offset = 340
+text = Y * 2
+
+[comment]
+offset = 341
+text = Y * 4
+
+[comment]
+offset = 342
+text = Y * 8
+
+[comment]
+offset = 343
+text = Y * 16
+
+[comment]
+offset = 344
+text = Y * 32
+
+[comment]
+offset = 345
+text = DE <-> HL (DE = Y * 32)
+
+[comment]
+offset = 346
+text = Get X
+
+[comment]
+offset = 347
+text = Save X
+
+[comment]
+offset = 348
+text = X / 2
+
+[comment]
+offset = 350
+text = X / 4
+
+[comment]
+offset = 352
+text = A = X/4 + (Y*32 mod 256)
+
+[comment]
+offset = 353
+text = E = A
+
+[comment]
+offset = 354
+text = A = D (high byte of Y*32)
+
+[comment]
+offset = 355
+text = OR 70H (Video RAM starts at 7000H)
+
+[comment]
+offset = 357
+text = D = A (DE = 7000H + Y*32 + X/4)
+
+[comment]
+offset = 358
+text = Get X again
+
+[comment]
+offset = 359
+text = X AND 03H (pixel position in byte)
+
+[comment]
+offset = 361
+text = A = pixel * 2
+
+[comment]
+offset = 362
+text = B = A
+
+[comment]
+offset = 363
+text = Get original command flag (POINT/SET/RESET)
+
+[comment]
+offset = 364
+text = Is it POINT (0)?
+
+[comment]
+offset = 365
+text = Yes, JP to POINT routine (38E7H)
+
+[comment]
+offset = 368
+text = Save Command flag
+
+[comment]
+offset = 369
+text = C = 3FH (Graphics mask?)
+
+[comment]
+offset = 371
+text = Get color mode latch?
+
+[comment]
+offset = 374
+text = SLA A
+
+[comment]
+offset = 376
+text = SLA A
+
+[comment]
+offset = 378
+text = RRC A
+
+[comment]
+offset = 380
+text = RRC C
+
+[comment]
+offset = 382
+text = DJNZ hBc2 (Shift bit into position)
+
+[comment]
+offset = 384
+text = JP to rest of SET/RESET (3903H)
+
+[comment]
+offset = 387
+text = Load 7839H (Cursor flags?)
+
+[comment]
+offset = 390
+text = Reset bit 3
+
+[comment]
+offset = 392
+text = Load address of 'ERROR' message
+
+[comment]
+offset = 395
+text = Print string (OUTSTR)
+
+[comment]
+offset = 398
+text = Jump to 36CFH
+
+[comment]
+offset = 413
+text = Get next character (RST 10H)
+
+[comment]
+offset = 414
+text = Save pointer
+
+[comment]
+offset = 415
+text = Get RAM byte 7899H
+
+[comment]
+offset = 418
+text = Zero?
+
+[comment]
+offset = 419
+text = No, skip next part
+
+[comment]
+offset = 421
+text = Call 0358H
+
+[comment]
+offset = 424
+text = Zero?
+
+[comment]
+offset = 425
+text = Yes, skip ahead
+
+[comment]
+offset = 433
+text = Call STRINI (2857H)
+
+[comment]
+offset = 437
+text = Get 78D4H
+
+[comment]
+offset = 441
+text = Jump to 2884H
+
+[comment]
+offset = 444
+text = Load 1928H into 7921H
+
+[comment]
+offset = 450
+text = Set 78AFH to 3
+
+[comment]
+offset = 455
+text = Restore HL
+
+[comment]
+offset = 456
+text = Return
+
+[comment]
+offset = 457
+text = Clear screen (1CH)
+
+[comment]
+offset = 462
+text = Move cursor home (1FH)
+
+[comment]
+offset = 467
+text = Get Refresh Register R
+
+[comment]
+offset = 469
+text = Store in 78ABH
+
+[comment]
+offset = 473
+text = Column 1: T, G, B, 5
+
+[comment]
+offset = 477
+text = Column 2: N, 6, Y, H
+
+[comment]
+offset = 481
+text = Column 3: W, S, X, 2
+
+[comment]
+offset = 485
+text = Column 4: ., 9, O, L
+
+[comment]
+offset = 489
+text = Column 5: (unused)
+
+[comment]
+offset = 493
+text = Column 6: (unused), -, CR, :
+
+[comment]
+offset = 497
+text = Column 7: E, D, C, 3
+
+[comment]
+offset = 501
+text = Column 8: ,, 8, I, K
+
+[comment]
+offset = 505
+text = Column 9: Q, A, Z, 1
+
+[comment]
+offset = 509
+text = Column 10: Space, 0, P, ;
+
+[comment]
+offset = 513
+text = Column 11: R, F, V, 4
+
+[comment]
+offset = 517
+text = Column 12: M, 7, U, J
+
+[comment]
+offset = 521
+text = Column 1: (shifted symbols)
+
+[comment]
+offset = 525
+text = Column 2: (shifted symbols)
+
+[comment]
+offset = 529
+text = Column 3: (shifted symbols)
+
+[comment]
+offset = 533
+text = Column 4: (shifted symbols)
+
+[comment]
+offset = 537
+text = Column 5: (unused)
+
+[comment]
+offset = 541
+text = Column 6-8: symbols
+
+[comment]
+offset = 549
+text = Column 9-11: symbols
+
+[comment]
+offset = 557
+text = Column 12: symbols
+
+[comment]
+offset = 782
+text = Load char at 783CH
+
+[comment]
+offset = 785
+text = Load cursor addr from 7820H
+
+[comment]
+offset = 788
+text = Store char at cursor
+
+[comment]
+offset = 795
+text = Subtract 32 (line length)
+
+[comment]
+offset = 797
+text = Save new cursor address
+
+[comment]
+offset = 1000
+text = Load cursor address (7820H)
+
+[comment]
+offset = 1007
+text = Compare H with 71H (End of Video RAM 7000-71FF?)
+
+[comment]
+offset = 1242
+text = Set bit 6 (ASCII to VDG mapping?)
+
+[comment]
+offset = 1255
+text = Set bit 6 (ASCII to VDG mapping?)
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -731,4 +1222,92 @@ text = Banner-Text: VIDEO TECHNOLOGY BASIC V2.0
 [block]
 offset = 301
 text = L3 Error Handler (?L3 ERROR)
+
+[block]
+offset = 306
+text = GRAPHICS ROUTINE - Common Code for SET, RESET and POINT
+              A will be 0 for POINT, 80H for SET and 1 for RESET.
+
+[block]
+offset = 387
+text = Set cursor to 7839H and reset bit 3
+
+[block]
+offset = 401
+text = 
+              *******************************************************
+              UNUSED BYTE ARTIFACT INSIDE VZ200 ROM
+              *******************************************************
+
+[block]
+offset = 413
+text = Parameter / Coordinate Parsing (for Graphics?)
+
+[block]
+offset = 457
+text = Clear Screen and Home Cursor
+
+[block]
+offset = 467
+text = Random Number Seed initialization
+
+[block]
+offset = 473
+text = Keyboard Table 1 (Normal)
+
+[block]
+offset = 521
+text = Keyboard Table 2 (Shifted)
+
+[block]
+offset = 541
+text = Keyboard Table 3 (Control/Other)
+
+[block]
+offset = 779
+text = Load cursor and char at cursor
+
+[block]
+offset = 791
+text = Move cursor left
+
+[block]
+offset = 826
+text = Auxiliary Output String Routine
+
+[block]
+offset = 840
+text = Check cursor position? (TAB/POS support)
+
+[block]
+offset = 856
+text = Wait for keypress / DCB routine
+
+[block]
+offset = 865
+text = Character conversion table / Control chars
+
+[block]
+offset = 924
+text = Main character output routine
+
+[block]
+offset = 962
+text = DCB Call Dispatcher
+
+[block]
+offset = 995
+text = Video RAM check and line wrap logic
+
+[block]
+offset = 1029
+text = Reset cursor flags and handle line wrap
+
+[block]
+offset = 1057
+text = Buffer processing (79E8H buffer?)
+
+[block]
+offset = 1198
+text = Character mapping/conversion to VDG
 
