@@ -68,6 +68,8 @@ Current UI behavior includes:
 - `listing.mnm` is regenerable cache data
 - Operand literals normalize to `0x` style
 - Symbol/label resolution is applied where available
+- Direct-byte segments (`DIRECT_BYTE`) format `DEFB` operands in 8-byte groups
+  while listing bytes/ascii columns still render in 4-byte visual rows
 
 ## Chatbot CLI Workflow
 
@@ -97,6 +99,7 @@ Notes:
 - Addresses can be decimal or `0x` hex.
 - `batch` lines omit the project directory (it is supplied once on the command line).
 - `annotation set` currently supports fields: `label`, `comment`, `block`.
+- `project export` accepts `lst` or `asm` (and also `both` when you want both files in one call).
 
 ## Historical Design/Iteration Docs
 
