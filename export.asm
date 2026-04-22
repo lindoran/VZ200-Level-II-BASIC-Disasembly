@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Wed Apr 22 12:31:57 2026
+; Generated: Wed Apr 22 13:51:01 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -460,35 +460,35 @@ CURSOR_LINE_BACK:
               DEFB  0x01,0x02,0x03,0x04,0x06,0x08,0x0C,0x10 ; A2-E3
               DEFB  0x18           ; Data bytes 0x18
 
-; Output character to screen/printer/cassette
+; Output character to screen, printer or cassette.
 CHAR_OUTPUT_DISPATCH:
-              push  bc             ; Push bc
-              ld    c,a            ; Load c from a
-              call  0x79C1         ; Call 0x79C1
-              ld    a,(0x789C)     ; Load output flag (0=screen,1=printer,0x80=cassette)
-              or    a              ; Test A
-              ld    a,c            ; Load a from c
-              pop   bc             ; Pop bc
-              jp    m,0x3B54
-              jr    nz,$+100       ; Relative jump if nz to $+100
+              push  bc             ; save BC
+              ld    c,a            ; store character in C
+              call  0x79C1         ; RAM expansion output (RET)
+              ld    a,(0x789C)     ; load output flag
+              or    a              ; and test
+              ld    a,c            ; character back to A
+              pop   bc             ; restore BC
+              jp    m,0x3B54       ; Cassette? yes - continue at 3B54H
+              jr    nz,$+100       ; Printer? yes - to printer output
 
-; Output one character to screen
+; Output a character to the screen
 SCREEN_OUT_CHAR:
-              push  de             ; Push de
+              push  de             ; save registers
               push  af             ; Push af
               push  bc             ; Push bc
               push  hl             ; Push hl
-              call  0x308B         ; Call 0x308B
-              pop   hl             ; Pop hl
+              call  0x308B         ; call output routine
+              pop   hl             ; restore registers
               pop   bc             ; Pop bc
               nop                  ; No operation
               nop                  ; No operation
               pop   af             ; Pop af
               pop   de             ; Pop de
-              ret                  ; Return
+              ret                  ; done
 
-; Get cursor column in line
-; (not used on Laser 110/210/310)
+; Determine cursor position in line
+; not used on LASER 110-310
 CURSOR_COL_GET:
               ld    a,(0x783D)     ; Load a from (0x783D)
               and   0x08           ; AND A with 0x08
@@ -499,327 +499,327 @@ CURSOR_COL_GET:
               and   0x1F           ; AND A with 0x1F
               ret                  ; Return
 
-; Keyboard query wrapper
+; Keyboard query
 KBD_QUERY_WRAP:
-              call  0x79C4         ; Call 0x79C4
-              push  de             ; Push de
-              call  KBD_QUERY      ; Call 0x002B
-              pop   de             ; Pop de
+              call  0x79C4         ; RAM expansion output (RET)
+              push  de             ; save DE
+              call  KBD_QUERY      ; evaluate keyboard
+              pop   de             ; restore DE
               ret                  ; Return
 
-; *******************************
-; SOUND base timing values
-; (per note)
-; *******************************
+; Table of basic time values for each individual note of the SOUND command.
               DEFB  0x0A,0x0B,0x0C,0x0C,0x0D,0x0E,0x0F,0x0F ; A2-E3
               DEFB  0x10,0x11,0x12,0x13,0x15,0x16,0x17,0x19 ; F3-C4
               DEFB  0x1A,0x1C,0x1D,0x1F,0x21,0x23,0x25,0x27 ; C#4-G#4
               DEFB  0x29,0x2C,0x2E,0x31,0x34,0x35,0x3A ; A4-D#5
 
-; VERIFY command messages
+; OK and error message of the VERIFY command
               DEFM  "OK"           ; \
               DEFB  0x0D,0x00      ; Data bytes 0x0D,0x00
               DEFM  "ERROR"        ; \
               DEFB  0x0D,0x00      ; Data bytes 0x0D,0x00
 
-; Set output flag to screen
-; Issue CR to printer if not at line start
+; Output flag to screen.
+; CR on printer, if not at start of line
 OUTPUT_SCREEN_SELECT:
-              xor   a              ; Clear A
+              xor   a              ; output flag to screen
               ld    (0x789C),a     ; Load (0x789C) from a
-              ld    a,(0x789B)     ; Load a from (0x789B)
-              or    a              ; Test A
-              ret   z              ; Return if z
-              ld    a,0x0D         ; Output carriage return to printer
-              push  de             ; Push de
-              call  PRINTER_OUT_CHAR ; Call 0x039C
-              pop   de             ; Pop de
+              ld    a,(0x789B)     ; printer position in line
+              or    a              ; = 0?
+              ret   z              ; yes - done
+
+; Output carriage return to printer
+              ld    a,0x0D         ; load CR
+              push  de             ; save DE
+              call  PRINTER_OUT_CHAR ; output CR
+              pop   de             ; restore DE
               ret                  ; Return
 
-; Output one character to printer
+; Output character to printer.
 PRINTER_OUT_CHAR:
-              push  af             ; Push af
+              push  af             ; save registers
               push  de             ; Push de
               push  bc             ; Push bc
-              ld    c,a            ; Load c from a
-              ld    e,0x00         ; Load e from 0x00
-              cp    0x0C           ; Compare A with 0x0C
-              jr    z,$+18         ; Relative jump if z to $+18
-              cp    0x0A           ; Compare A with 0x0A
-              jr    nz,$+5         ; Relative jump if nz to $+5
-              ld    a,0x0D         ; Load a from 0x0D
-              ld    c,a            ; Load c from a
-              cp    0x0D           ; Compare A with 0x0D
-              jr    z,$+7          ; Relative jump if z to $+7
-              ld    a,(0x789B)     ; Load a from (0x789B)
-              inc   a              ; Increment a
-              ld    e,a            ; Load e from a
-              ld    a,e            ; Load a from e
+              ld    c,a            ; character in C
+              ld    e,0x00         ; E = 0
+              cp    0x0C           ; is it a Form Feed?
+              jr    z,$+18         ; yes!
+              cp    0x0A           ; is it a Line Feed?
+              jr    nz,$+5         ; no!
+              ld    a,0x0D         ; yes, replace with carriage return
+              ld    c,a            ; and in C
+              cp    0x0D           ; is it a carriage return?
+              jr    z,$+7          ; yes!
+              ld    a,(0x789B)     ; load print head position
+              inc   a              ; +1
+              ld    e,a            ; in E
+              ld    a,e            ; save new position (CR=0)
               ld    (0x789B),a     ; Load (0x789B) from a
-              ld    a,c            ; Load a from c
-              call  PRN_OUT_DCB
-              pop   bc             ; Pop bc
+              ld    a,c            ; character to be output in A
+              call  PRN_OUT_DCB    ; print character
+              pop   bc             ; restore register contents
               pop   de             ; Pop de
               pop   af             ; Pop af
-              ret                  ; Return
+              ret                  ; done
 
-; Dispatch via device control block (DCB)
+; Call driver routines via the Device Control Block
 DCB_DISPATCH:
-              push  hl             ; Push hl
+              push  hl             ; save registers
               push  ix             ; Push ix
-              push  de             ; Push de
+              push  de             ; DCB address in IX
               pop   ix             ; Pop ix
-              push  de             ; Push de
-              ld    hl,0x03DD      ; Load hl from 0x03DD
+              push  de             ; and on stack
+              ld    hl,0x03DD      ; return address on stack
               push  hl             ; Push hl
-              ld    c,a            ; Load c from a
-              ld    a,(de)         ; Load a from (de)
-              and   b              ; AND A with b
-              cp    b              ; Compare A with b
-              jp    nz,0x7833      ; Jump if nz to 0x7833
-              cp    0x02           ; Compare A with 0x02
-              ld    l,(ix+0x01)    ; Load l from (ix+0x01)
+              ld    c,a            ; character to C
+              ld    a,(de)         ; load DCB identifier (1st byte)
+              and   b              ; AND with specified type
+              cp    b              ; correct type?
+              jp    nz,0x7833      ; no, return via RAM 7833H
+              cp    0x02           ; set carry for inputs
+              ld    l,(ix+0x01)    ; load driver address from DCB
               ld    h,(ix+0x02)    ; Load h from (ix+0x02)
-              jp    (hl)           ; Jump to (hl)
-              pop   de             ; Return from DCB driver
+              jp    (hl)           ; jump to driver
+              pop   de             ; restore registers
               pop   ix             ; Pop ix
               pop   hl             ; Pop hl
               pop   bc             ; Pop bc
-              ret                  ; Return
+              ret                  ; done
 
-; Read one line from keyboard
-; Echo to screen and copy to I/O buffer
+; Read a line from the keyboard.
+; The line is read until the RETURN or BREAK key is pressed, displayed on the 
+; screen and then transferred to the I/O buffer.
 INPUT_LINE_READ:
-              ld    hl,0x7839      ; Load hl from 0x7839
-              set   5,(hl)         ; Set bit 5 of (hl)
-              ld    hl,(0x7820)    ; Load hl from (0x7820)
-              call  0x0053         ; Call 0x0053
-              ld    a,h            ; Load a from h
+              ld    hl,0x7839      ; initialization flag for
+              set   5,(hl)         ; set buffered output.
+              ld    hl,(0x7820)    ; load cursor address
+              call  0x0053         ; save character at cursor position
+              ld    a,h            ; cursor at the beginning of the last line?
               cp    0x71           ; Compare A with 0x71
-              jr    nz,$+18        ; Relative jump if nz to $+18
+              jr    nz,$+18        ; no
               ld    a,l            ; Load a from l
               cp    0xE0           ; Compare A with 0xE0
-              jr    nz,$+13        ; Relative jump if nz to $+13
-              ld    a,(0x7AD7)     ; Load a from (0x7AD7)
-              or    a              ; Test A
-              jr    nz,$+7         ; Relative jump if nz to $+7
-              ld    a,0x0D         ; Load a from 0x0D
+              jr    nz,$+13        ; no
+              ld    a,(0x7AD7)     ; check status of 1st line
+              or    a              ; = continuation line?
+              jr    nz,$+7         ; no!
+              ld    a,0x0D         ; scroll image up one line
               call  0x308B         ; Call 0x308B
-              ld    b,c            ; Load b from c
-              push  bc             ; Push bc
-              ld    hl,0x7839      ; Load hl from 0x7839
-              res   0,(hl)         ; Reset bit 0 of (hl)
-              res   2,(hl)         ; Reset bit 2 of (hl)
-              bit   0,(hl)         ; Test bit 0 of (hl)
+              ld    b,c            ; length of leading text in B
+              push  bc             ; on stack (B=C)
+              ld    hl,0x7839      ; address Flag 2
+              res   0,(hl)         ; reset CR flag
+              res   2,(hl)         ; reset BREAK flag
+              bit   0,(hl)         ; wait until CR flag is set
               jr    z,$-2          ; Relative jump if z to $-2
 
-; Compute start address of input line
-              ld    a,(0x78A6)     ; Load a from (0x78A6)
-              ld    c,a            ; Load c from a
+; Determine starting address of input line
+              ld    a,(0x78A6)     ; load column in input line
+              ld    c,a            ; in BC
               xor   a              ; Clear A
-              ld    (0x78A6),a     ; Load (0x78A6) from a
+              ld    (0x78A6),a     ; column counter = 0 (start of line)
               ld    b,a            ; Load b from a
-              ld    hl,(0x7820)    ; Load hl from (0x7820)
-              sbc   hl,bc          ; Subtract bc with carry from hl
-              ld    (0x7820),hl    ; Load (0x7820) from hl
+              ld    hl,(0x7820)    ; load cursor address
+              sbc   hl,bc          ; - column = start of line
+              ld    (0x7820),hl    ; back to cursor pointer
 
-; Load buffer and line addresses
-              ld    de,0x79E8      ; Load de from 0x79E8
-              pop   bc             ; Pop bc
-              ld    hl,0x7839      ; Load hl from 0x7839
-              bit   4,(hl)         ; Test bit 4 of (hl)
-              ld    hl,(0x7820)    ; Load hl from (0x7820)
-              jr    z,$+68         ; Relative jump if z to $+68
+; Load buffer and line address
+              ld    de,0x79E8      ; starting address of I/O buffer
+              pop   bc             ; character counter of leading text
+              ld    hl,0x7839      ; address Flag 2
+              bit   4,(hl)         ; is this an INPUT command?
+              ld    hl,(0x7820)    ; load starting address of line
+              jr    z,$+68         ; no INPUT cmd, continue at 471H
 
-; INPUT command: skip prompt text in current line
-              push  bc             ; Push bc
+; For INPUT set text pointer after given text
+              push  bc             ; save registers
               push  hl             ; Push hl
-              call  0x33A8         ; Call 0x33A8
-              pop   hl             ; Pop hl
+              call  0x33A8         ; determine status of line
+              pop   hl             ; reload HL + BC
               pop   bc             ; Pop bc
-              or    a              ; Test A
-              jr    nz,$+10        ; Relative jump if nz to $+10
-              ld    a,l            ; Load a from l
+              or    a              ; continuation line? (status=00)
+              jr    nz,$+10        ; no!
+              ld    a,l            ; line address in HL - 1 line
               sub   0x20           ; Subtract 0x20 from A
               ld    l,a            ; Load l from a
               ld    a,h            ; Load a from h
               sbc   a,0x00         ; Subtract 0x00 with carry from a
               ld    h,a            ; Load h from a
-              ld    c,b            ; Load c from b
-              ld    a,(de)         ; Load a from (de)
-              cp    (hl)           ; Compare A with (hl)
-              jr    nz,$+9         ; Relative jump if nz to $+9
-              inc   hl             ; Increment hl
-              inc   de             ; Increment de
-              djnz  $-6            ; Decrement B and jump if not zero to $-6
-              push  bc             ; Push bc
-              jr    $+6            ; Relative jump to $+6
-              ld    bc,START       ; Load bc from 0x0000
-              push  bc             ; Push bc
-              push  hl             ; Push hl
-              call  0x33A8         ; Call 0x33A8
-              pop   hl             ; Pop hl
+              ld    c,b            ; number of leading characters
+              ld    a,(de)         ; pointer after leading text
+              cp    (hl)           ; compare if not changed
+              jr    nz,$+9         ; not equal, stop
+              inc   hl             ; screen pointer + 1
+              inc   de             ; buffer pointer + 1
+              djnz  $-6            ; done?
+              push  bc             ; if equal, remember length
+              jr    $+6            ; continue at 0451
+              ld    bc,START       ; unequal, length = 0
+              push  bc             ; on the stack
+              push  hl             ; save HL
+              call  0x33A8         ; read status of line
+              pop   hl             ; reload HL + BC
               pop   bc             ; Pop bc
-              push  bc             ; Push bc
-              cp    0x80           ; Compare A with 0x80
-              jr    z,$+12         ; Relative jump if z to $+12
-              ld    a,0x40         ; Load a from 0x40
+              push  bc             ; remember length again
+              cp    0x80           ; single line?
+              jr    z,$+12         ; yes!
+              ld    a,0x40         ; max characters = 64 - lead
               sub   c              ; Subtract c from A
               ld    b,a            ; Load b from a
-              pop   de             ; Pop de
-              ld    e,0x00         ; Load e from 0x00
+              pop   de             ; number of leading characters in stack
+              ld    e,0x00         ; set to 0
               push  de             ; Push de
-              jr    $+7            ; Relative jump to $+7
-              ld    b,0x20         ; Load b from 0x20
-              ld    hl,(0x7820)    ; Load hl from (0x7820)
-              ld    de,0x79E8      ; Load de from 0x79E8
-              jp    0x3EA8         ; Jump to 0x3EA8
+              jr    $+7            ; take 2 lines
+              ld    b,0x20         ; take 1 line
+              ld    hl,(0x7820)    ; load text start address
+              ld    de,0x79E8      ; I/O buffer address
+              jp    0x3EA8         ; check background color
 
-; Non-INPUT path: derive text start and max length
-              ld    bc,START       ; Load bc from 0x0000
-              push  bc             ; Push bc
-              push  hl             ; Push hl
-              call  0x33A8         ; Call 0x33A8
-              pop   hl             ; Pop hl
-              cp    0x80           ; Compare A with 0x80
-              jr    z,$+16         ; Relative jump if z to $+16
-              cp    0x81           ; Compare A with 0x81
-              jr    z,$+8          ; Relative jump if z to $+8
-              ld    bc,RST20_VEC   ; Load bc from 0x0020
+; Determine text starting address and max length, if not INPUT command
+              ld    bc,START       ; set leading text length = 0
+              push  bc             ; on stack
+              push  hl             ; save HL
+              call  0x33A8         ; determine status of line
+              pop   hl             ; reload HL
+              cp    0x80           ; single line?
+              jr    z,$+16         ; yes!
+              cp    0x81           ; 2 lines?
+              jr    z,$+8          ; yes!
+              ld    bc,RST20_VEC   ; for continuation line, back one line
               or    a              ; Test A
               sbc   hl,bc          ; Subtract bc with carry from hl
-              ld    b,0x40         ; Load b from 0x40
+              ld    b,0x40         ; take 2 lines
               jr    $+4            ; Relative jump to $+4
-              ld    b,0x20         ; Load b from 0x20
-              ld    a,(0x7818)     ; Load a from (0x7818)
-              or    a              ; Test A
-              jp    z,0x3E40       ; Jump if z to 0x3E40
+              ld    b,0x20         ; take 1 line
+              ld    a,(0x7818)     ; check background color
+              or    a              ; 0 = green, 1 = black
+              jp    z,0x3E40       ; if green continue at 3E40H
 
-; Transfer characters from screen line to I/O buffer
-              ld    a,(hl)         ; Load a from (hl)
-              cp    0x40           ; Compare A with 0x40
-              jp    c,0x04AE       ; Jump if c to 0x04AE
-              pop   bc             ; Pop bc
-              ld    de,0x04A4      ; Load de from 0x04A4
+; Transferring data from screen to I/O buffer
+              ld    a,(hl)         ; load character from screen
+              cp    0x40           ; graphics or inverse?
+              jp    c,0x04AE       ; no, take it
+              pop   bc             ; if not INPUT, then graphics and inverse are only allowed in str
+              ld    de,0x04A4      ; return address in stack
               push  de             ; Push de
               push  bc             ; Push bc
-              jp    0x0502         ; Jump to 0x0502
-              ret   c              ; Return if c
-              ld    hl,0x3E1A      ; Load hl from 0x3E1A
-              call  0x28A7         ; Call 0x28A7
-              jp    INPUT_LINE_READ ; Jump to 0x03E3
-              cp    0x22           ; Compare A with 0x22
-              jr    nz,$+51        ; Relative jump if nz to $+51
-              ld    (de),a         ; Load (de) from a
-              inc   hl             ; Increment hl
-              inc   de             ; Increment de
-              dec   b              ; Decrement b
-              jr    z,$+56         ; Relative jump if z to $+56
-              ld    a,(hl)         ; Load a from (hl)
-              cp    0x40           ; Compare A with 0x40
-              jp    c,0x04C9       ; Jump if c to 0x04C9
-              cp    0x80           ; Compare A with 0x80
-              jp    c,0x04C5       ; Jump if c to 0x04C5
-              and   0x8F           ; AND A with 0x8F
-              or    0x80           ; OR A with 0x80
+              jp    0x0502         ; check text end identifier (BREAK?)
+              ret   c              ; BREAK, back to BASIC
+              ld    hl,0x3E1A      ; text \
+              call  0x28A7         ; output
+              jp    INPUT_LINE_READ ; back to line entry
+              cp    0x22           ; string identifier?
+              jr    nz,$+51        ; no, continue
+              ld    (de),a         ; character in I/O buffer
+              inc   hl             ; screen address + 1
+              inc   de             ; buffer address + 1
+              dec   b              ; character counter -1
+              jr    z,$+56         ; if 0, end takeover
+              ld    a,(hl)         ; load character from screen
+              cp    0x40           ; normal text character?
+              jp    c,0x04C9       ; yes!
+              cp    0x80           ; inverse text character?
+              jp    c,0x04C5       ; yes!
+              and   0x8F           ; graphics character, clear bits 4,5,6
+              or    0x80           ; set bit 7
               jr    $+21           ; Relative jump to $+21
-              cp    0x22           ; Compare A with 0x22
-              jr    nz,$+11        ; Relative jump if nz to $+11
-              push  hl             ; Push hl
-              ld    hl,0x7839      ; Load hl from 0x7839
-              bit   4,(hl)         ; Test bit 4 of (hl)
-              pop   hl             ; Pop hl
-              jr    z,$+15         ; Relative jump if z to $+15
-              bit   5,a            ; Test bit 5 of a
-              jr    nz,$+4         ; Relative jump if nz to $+4
-              or    0x40           ; OR A with 0x40
-              ld    (de),a         ; Load (de) from a
-              inc   hl             ; Increment hl
-              inc   de             ; Increment de
-              djnz  $-39           ; Decrement B and jump if not zero to $-39
-              jr    $+13           ; Relative jump to $+13
-              bit   5,a            ; Test bit 5 of a
-              jr    nz,$+4         ; Relative jump if nz to $+4
-              or    0x40           ; OR A with 0x40
-              ld    (de),a         ; Load (de) from a
-              inc   hl             ; Increment hl
-              inc   de             ; Increment de
-              djnz  $-87           ; Decrement B and jump if not zero to $-87
+              cp    0x22           ; string delimiter '\
+              jr    nz,$+11        ; no!
+              push  hl             ; save HL
+              ld    hl,0x7839      ; address Flag 2
+              bit   4,(hl)         ; INPUT command?
+              pop   hl             ; reload HL
+              jr    z,$+15         ; no - from now on graphics and inverse not allowed.
+              bit   5,a            ; character in real ASCII code
+              jr    nz,$+4         ; convert, e.g. 'A' from 01 to 41
+              or    0x40           ; affects codes 00 - 1FH
+              ld    (de),a         ; character in I/O buffer
+              inc   hl             ; screen address + 1
+              inc   de             ; buffer address + 1
+              djnz  $-39           ; counter - 1
+              jr    $+13           ; = 0, then done
+              bit   5,a            ; character in real ASCII code
+              jr    nz,$+4         ; convert, e.g. 'C' from 03 to 43
+              or    0x40           ; affects codes 00 - 1FH
+              ld    (de),a         ; character in I/O buffer
+              inc   hl             ; screen address + 1
+              inc   de             ; buffer address + 1
+              djnz  $-87           ; counter - 1
 
 ; Finalize buffer after transfer
-              dec   de             ; Decrement de
-              ld    a,d            ; Load a from d
+              dec   de             ; eliminate blanks at buffer end
+              ld    a,d            ; at buffer start?
               cp    0x79           ; Compare A with 0x79
-              jr    nz,$+8         ; Relative jump if nz to $+8
+              jr    nz,$+8         ; no
               ld    a,e            ; Load a from e
               cp    0xE8           ; Compare A with 0xE8
-              jp    c,0x04FF       ; Jump if c to 0x04FF
-              ld    a,(de)         ; Load a from (de)
-              cp    0x20           ; Compare A with 0x20
-              jr    z,$-15         ; Relative jump if z to $-15
-              inc   de             ; Increment de
-              xor   a              ; Clear A
+              jp    c,0x04FF       ; yes, done
+              ld    a,(de)         ; load character
+              cp    0x20           ; = blank?
+              jr    z,$-15         ; yes, further back
+              inc   de             ; buffer end with X'00'
+              xor   a              ; mark it
               ld    (de),a         ; Load (de) from a
 
 ; Output one or two blank lines by line status
-              call  0x33A8         ; Call 0x33A8
-              ld    hl,(0x7820)    ; Load hl from (0x7820)
-              cp    0x81           ; Compare A with 0x81
-              call  0x0053         ; Call 0x0053
-              jr    nz,$+6         ; Relative jump if nz to $+6
-              xor   a              ; Clear A
+              call  0x33A8         ; determine line status
+              ld    hl,(0x7820)    ; load cursor pointer
+              cp    0x81           ; 2 lines?
+              call  0x0053         ; save character from cursor position.
+              jr    nz,$+6         ; single line
+              xor   a              ; 1 blank line output
               call  0x308B         ; Call 0x308B
-              xor   a              ; Clear A
+              xor   a              ; 1 blank line output
               call  0x308B         ; Call 0x308B
-              ld    a,(0x7838)     ; Load a from (0x7838)
-              and   0xFD           ; AND A with 0xFD
-              ld    (0x7838),a     ; Load (0x7838) from a
-              ld    hl,0x7839      ; Load hl from 0x7839
-              bit   2,(hl)         ; Test bit 2 of (hl)
-              jr    z,$+7          ; Relative jump if z to $+7
-              ld    a,0x01         ; Load a from 0x01
-              scf                  ; Set carry flag
+              ld    a,(0x7838)     ; load Flag 1
+              and   0xFD           ; reset INVERSE flag
+              ld    (0x7838),a     ; Flag 1 back
+              ld    hl,0x7839      ; address Flag 2
+              bit   2,(hl)         ; BREAK flag set?
+              jr    z,$+7          ; no!
+              ld    a,0x01         ; BREAK, A=1
+              scf                  ; + set carry
               jr    $+3            ; Relative jump to $+3
-              xor   a              ; Clear A
+              xor   a              ; no BREAK, A=0
 
 ; Reset input command flag and continue
-              ld    hl,0x7839      ; Load hl from 0x7839
-              res   4,(hl)         ; Reset bit 4 of (hl)
-              ld    hl,0x79E8      ; Load hl from 0x79E8
-              pop   bc             ; Pop bc
-              push  af             ; Push af
+              ld    hl,0x7839      ; address Flag 2
+              res   4,(hl)         ; reset INPUT-Cmd flag
+              ld    hl,0x79E8      ; address I/O buffer
+              pop   bc             ; to start of input
+              push  af             ; save BREAK identifier
               add   hl,bc          ; Add hl,bc
-              jp    0x3E29         ; Jump to 0x3E29
+              jp    0x3E29         ; continue at 3E29H
 
 ; INPUT helper: read one line into I/O buffer
-              ld    a,(0x7AAF)     ; Load a from (0x7AAF)
-              or    a              ; Test A
-              jr    nz,$-4         ; Relative jump if nz to $-4
-              ld    b,0x40         ; Load b from 0x40
-              ld    hl,0x79E8      ; Load hl from 0x79E8
-              ld    a,0x20         ; Load a from 0x20
-              ld    (hl),a         ; Load (hl) from a
-              inc   hl             ; Increment hl
-              djnz  $-2            ; Decrement B and jump if not zero to $-2
-              xor   a              ; Clear A
-              ld    (hl),a         ; Load (hl) from a
-              call  0x33A8         ; Call 0x33A8
-              or    a              ; Test A
-              ld    a,(0x78A6)     ; Load a from (0x78A6)
-              jr    nz,$+4         ; Relative jump if nz to $+4
-              add   a,0x20         ; Add 0x20 to A
-              ld    c,a            ; Load c from a
-              xor   a              ; Clear A
+              ld    a,(0x7AAF)     ; wait until text output finished.
+              or    a              ; 7AAFH contains number of characters in
+              jr    nz,$-4         ; print buffer; if 0 = empty
+              ld    b,0x40         ; clear I/O buffer (length 64)
+              ld    hl,0x79E8      ; buffer starting address
+              ld    a,0x20         ; space in A
+              ld    (hl),a         ; transfer to buffer
+              inc   hl             ; buffer address + 1
+              djnz  $-2            ; counter - 1, if 0 - done!
+              xor   a              ; 0 in A
+              ld    (hl),a         ; mark buffer end with X'00'.
+              call  0x33A8         ; determine line status
+              or    a              ; continuation line?
+              ld    a,(0x78A6)     ; load column counter
+              jr    nz,$+4         ; no continuation line!
+              add   a,0x20         ; add one line for continuation line.
+              ld    c,a            ; transfer column counter to BC
+              xor   a              ; set B = 0
               ld    b,a            ; Load b from a
-              ld    hl,(0x7820)    ; Load hl from (0x7820)
-              sbc   hl,bc          ; Subtract bc with carry from hl
-              ld    de,0x79E8      ; Load de from 0x79E8
-              push  bc             ; Push bc
-              ldir                 ; Execute ldir
-              pop   bc             ; Pop bc
-              ld    hl,0x7839      ; Load hl from 0x7839
-              set   4,(hl)         ; Set bit 4 of (hl)
-              call  INPUT_LINE_READ ; Call 0x03E3
+              ld    hl,(0x7820)    ; load cursor pointer
+              sbc   hl,bc          ; - column = start of line
+              ld    de,0x79E8      ; load I/O buffer address
+              push  bc             ; remember column counter
+              ldir                 ; existing text from line to buffer
+              pop   bc             ; reload column counter
+              ld    hl,0x7839      ; address Flag 2
+              set   4,(hl)         ; set INPUT-Cmd flag
+              call  INPUT_LINE_READ ; read line
               ret                  ; Return
 
 ; RUN command for CRUN auto-start
@@ -841,178 +841,190 @@ PRINTER_DRIVER:
               rst   0x28           ; Call restart vector 0x28
               ld    a,(0x0438)     ; Load a from (0x0438)
               defb  0x00DD,0x0079,0x00B7 ; Data bytes 0x00DD,0x0079,0x00B7
-              jr    z,$+53         ; Relative jump if z to $+53
-              cp    0x0B           ; Compare A with 0x0B
-              jr    z,$+12         ; Relative jump if z to $+12
-              cp    0x0C           ; Compare A with 0x0C
-              jr    nz,$+22        ; Relative jump if nz to $+22
-              xor   a              ; Clear A
-              or    (ix+0x03)      ; OR A with (ix+0x03)
-              jr    z,$+16         ; Relative jump if z to $+16
-              ld    a,(ix+0x03)    ; Load a from (ix+0x03)
-              sub   (ix+0x04)      ; Subtract (ix+0x04) from A
-              ld    b,a            ; Load b from a
-              call  0x3AE2         ; Call 0x3AE2
-              djnz  $-3            ; Decrement B and jump if not zero to $-3
+              jr    z,$+53         ; yes, just determine printer status
+              cp    0x0B           ; Page feed?
+              jr    z,$+12         ; yes - execute
+              cp    0x0C           ; conditional page feed?
+              jr    nz,$+22        ; no!
+              xor   a              ; only executed if number of
+              or    (ix+0x03)      ; lines/page is not 0
+              jr    z,$+16         ; else output 0C to printer
+              ld    a,(ix+0x03)    ; lines/page
+              sub   (ix+0x04)      ; - number of printed lines
+              ld    b,a            ; in B as skip counter
+              call  0x3AE2         ; output Carriage-Return + Line Feed
+              djnz  $-3            ; until new page
               jr    $+20           ; Relative jump to $+20
-              call  0x3AB6         ; Call 0x3AB6
-              ld    a,c            ; Load a from c
-              cp    0x0D           ; Compare A with 0x0D
-              ret   nz             ; Return if nz
-              inc   (ix+0x04)      ; Increment (ix+0x04)
-              ld    a,(ix+0x04)    ; Load a from (ix+0x04)
-              cp    (ix+0x03)      ; Compare A with (ix+0x03)
-              ld    a,c            ; Load a from c
-              ret   nz             ; Return if nz
-              ld    (ix+0x04),0x00 ; Load (ix+0x04) from 0x00
+              call  0x3AB6         ; character output
+              ld    a,c            ; reload character
+              cp    0x0D           ; was that a CR?
+              ret   nz             ; no, done
+              inc   (ix+0x04)      ; increment line counter in DCB
+              ld    a,(ix+0x04)    ; at the beginning of a new page?
+              cp    (ix+0x03)      ; (line counter - lines/page)
+              ld    a,c            ; character back in A
+              ret   nz             ; no new page - done
+              ld    (ix+0x04),0x00 ; line counter = 0
               ret                  ; Return
-              in    a,(0x00)       ; Read printer busy status
-              and   0x01           ; AND A with 0x01
+              in    a,(0x00)       ; determine printer status
+              and   0x01           ; only BUSY is checked
               ret                  ; Return
 
 ; Clear 4-byte graphics print buffer
 PRN_GFXBUF_CLEAR:
-              push  bc             ; Push bc
+              push  bc             ; save BC + HL
               push  hl             ; Push hl
-              ld    b,0x04         ; Load b from 0x04
-              ld    hl,0x7AD2      ; Load hl from 0x7AD2
-              ld    (hl),a         ; Load (hl) from a
-              inc   hl             ; Increment hl
-              djnz  $-2            ; Decrement B and jump if not zero to $-2
-              pop   hl             ; Pop hl
+              ld    b,0x04         ; counter = 4
+              ld    hl,0x7AD2      ; load buffer address
+              ld    (hl),a         ; transfer A to buffer
+              inc   hl             ; buffer address + 1
+              djnz  $-2            ; counter - 1 = 0? yes - done!
+              pop   hl             ; restore registers
               pop   bc             ; Pop bc
               ret                  ; Return
 
-; Keyboard rollover handler
-; (second key pressed before first release)
+; Part of the keyboard query
+; Handles the pressing of a second key before the first one has been released 
+; (Rollover)
+; In Flag 1 (7838H), bits 3 and 4 are used to indicate the status of the two 
+; keyboard buffers B1 (7836H) and B2 (7837H).
+; Bit4 Bit3 Status
+; 0 0 : B1 and B2 are not pressed
+; 0 1 : B1 pressed, B2 not pressed
+; 1 0 : B1 not pressed, B2 pressed
+; 1 1 : B1 and B2 pressed
 KBD_ROLLOVER:
-              ld    hl,0x7838      ; Load hl from 0x7838
-              bit   2,(hl)         ; Test bit 2 of (hl)
-              jr    z,$+23         ; Relative jump if z to $+23
-              ld    d,a            ; Load d from a
-              ld    a,(0x783A)     ; Load a from (0x783A)
-              or    a              ; Test A
-              jr    z,$+17         ; Relative jump if z to $+17
-              inc   a              ; Increment a
-              ld    (0x783A),a     ; Load (0x783A) from a
-              cp    0x2A           ; Compare A with 0x2A
-              jr    z,$+4          ; Relative jump if z to $+4
-              xor   a              ; Clear A
-              ret                  ; Return
-              res   2,(hl)         ; Reset bit 2 of (hl)
-              xor   a              ; Clear A
-              ret                  ; Return
-              ld    d,a            ; Load d from a
-              ld    hl,0x7838      ; Load hl from 0x7838
-              ld    a,(hl)         ; Load a from (hl)
-              and   0x18           ; AND A with 0x18
-              jr    nz,$+13        ; Relative jump if nz to $+13
-              set   3,(hl)         ; Set bit 3 of (hl)
-              xor   a              ; Clear A
+              ld    hl,0x7838      ; address Flag 1
+              bit   2,(hl)         ; function flag set?
+              jr    z,$+23         ; no - continue at 05F3H
+              ld    d,a            ; save key code
+              ld    a,(0x783A)     ; load timer value
+              or    a              ; = 0?
+              jr    z,$+17         ; yes - continue at 05F4H
+              inc   a              ; timer value + 1
+              ld    (0x783A),a     ; store back
+              cp    0x2A           ; time elapsed? (approx. 0.84 sec)
+              jr    z,$+4          ; yes!
+              xor   a              ; clear character
+              ret                  ; and back
+              res   2,(hl)         ; clear function flag
+              xor   a              ; clear character
+              ret                  ; back
+              ld    d,a            ; save character in D
+              ld    hl,0x7838      ; address Flag 1
+              ld    a,(hl)         ; load into A
+              and   0x18           ; test bits 3 and 4
+              jr    nz,$+13        ; bit 3 and/or bit 4 set
+              set   3,(hl)         ; set bit 3
+              xor   a              ; clear B2
               ld    (0x7837),a     ; Load (0x7837) from a
-              ld    a,d            ; Load a from d
-              ld    (0x7836),a     ; Load (0x7836) from a
-              ret                  ; Return
-              bit   4,(hl)         ; Test bit 4 of (hl)
-              jr    nz,$+44        ; Relative jump if nz to $+44
-              ld    a,(0x7836)     ; Load a from (0x7836)
-              cp    d              ; Compare A with d
-              jr    nz,$+35        ; Relative jump if nz to $+35
-              ld    bc,(0x7842)    ; Load bc from (0x7842)
-              ld    hl,(0x7844)    ; Load hl from (0x7844)
-              ld    a,e            ; Load a from e
-              call  0x2F35         ; Call 0x2F35
-              cp    d              ; Compare A with d
-              jp    z,0x2FD7       ; Jump if z to 0x2FD7
-              cp    0x00           ; Compare A with 0x00
-              jp    z,0x2FD7       ; Jump if z to 0x2FD7
-              ld    hl,0x7838      ; Load hl from 0x7838
-              set   3,(hl)         ; Set bit 3 of (hl)
+              ld    a,d            ; reload character
+              ld    (0x7836),a     ; and enter in B1
+              ret                  ; only one key pressed - done!
+
+; Key was held
+              bit   4,(hl)         ; already two keys in the buffer?
+              jr    nz,$+44        ; yes!
+              ld    a,(0x7836)     ; load character from B1
+              cp    d              ; = pressed key?
+              jr    nz,$+35        ; no, a new one
+              ld    bc,(0x7842)    ; load row/column counter
+              ld    hl,(0x7844)    ; load matrix address
+              ld    a,e            ; content of matrix row
+              call  0x2F35         ; check remaining keys
+              cp    d              ; same as before?
+              jp    z,0x2FD7       ; yes, for key repeat
+              cp    0x00           ; no further one?
+              jp    z,0x2FD7       ; yes, for key repeat
+              ld    hl,0x7838      ; address Flag 1
+              set   3,(hl)         ; set both status bits 3+4
               set   4,(hl)         ; Set bit 4 of (hl)
-              res   2,(hl)         ; Reset bit 2 of (hl)
+              res   2,(hl)         ; reset function flag
+              ld    (0x7837),a     ; character in B2
+              ret                  ; and back
+              ld    a,d            ; new key code in A
+              jr    $-14           ; enter in B2
+
+; Two keys already registered
+              ld    a,(0x7836)     ; load character from B1
+              cp    d              ; = new key code?
+              jr    z,$+10         ; yes!
+              ld    a,(0x7837)     ; load character from B2
+              cp    d              ; = new key code?
+              jr    z,$+4          ; yes!
+              xor   a              ; 3 keys - yuck
+              ret                  ; back with A = 0
+              ld    bc,(0x7842)    ; load row/column counter
+              ld    hl,(0x7844)    ; load matrix address
+              ld    a,e            ; load content of matrix row
+              call  0x2F35         ; continue searching matrix
+              cp    d              ; same key?
+              jr    z,$+7          ; yes!
+              cp    0x00           ; no further key?
+              jp    nz,0x2FD7      ; yes - for key repeat
+              ld    hl,0x7838      ; address Flag 1
+              set   3,(hl)         ; set status flag for B1
+              res   4,(hl)         ; clear status flag for B2
+              ld    a,(0x7836)     ; load character from B1
+              cp    d              ; = entered character?
+              jr    nz,$+7         ; no!
+              xor   a              ; clear B2
               ld    (0x7837),a     ; Load (0x7837) from a
-              ret                  ; Return
-              ld    a,d            ; Load a from d
-              jr    $-14           ; Relative jump to $-14
-              ld    a,(0x7836)     ; Load a from (0x7836)
-              cp    d              ; Compare A with d
-              jr    z,$+10         ; Relative jump if z to $+10
-              ld    a,(0x7837)     ; Load a from (0x7837)
-              cp    d              ; Compare A with d
-              jr    z,$+4          ; Relative jump if z to $+4
-              xor   a              ; Clear A
-              ret                  ; Return
-              ld    bc,(0x7842)    ; Load bc from (0x7842)
-              ld    hl,(0x7844)    ; Load hl from (0x7844)
-              ld    a,e            ; Load a from e
-              call  0x2F35         ; Call 0x2F35
-              cp    d              ; Compare A with d
-              jr    z,$+7          ; Relative jump if z to $+7
-              cp    0x00           ; Compare A with 0x00
-              jp    nz,0x2FD7      ; Jump if nz to 0x2FD7
-              ld    hl,0x7838      ; Load hl from 0x7838
-              set   3,(hl)         ; Set bit 3 of (hl)
-              res   4,(hl)         ; Reset bit 4 of (hl)
-              ld    a,(0x7836)     ; Load a from (0x7836)
-              cp    d              ; Compare A with d
-              jr    nz,$+7         ; Relative jump if nz to $+7
-              xor   a              ; Clear A
-              ld    (0x7837),a     ; Load (0x7837) from a
-              ret                  ; Return
-              ld    a,(0x7837)     ; Load a from (0x7837)
+              ret                  ; back
+              ld    a,(0x7837)     ; transfer B2 to B1
               ld    (0x7836),a     ; Load (0x7836) from a
-              jr    $-11           ; Relative jump to $-11
+              jr    $-11           ; clear B2
               set   2,(ix+0x09)    ; Set bit 2 of (ix+0x09)
 
-; *******************************
-; BASIC initialization part 1
-; *******************************
+; BASIC - Initialization Part 1
 BASIC_INIT_1:
+              nop                  ; starts well
               nop                  ; No operation
-              nop                  ; No operation
-              ld    hl,RAM_VECTOR_BLOCK ; Load hl from 0x06D2
-              ld    de,0x7800      ; Load de from 0x7800
-              ld    bc,0x0036      ; Load bc from 0x0036
+              ld    hl,RAM_VECTOR_BLOCK ; ROM 6D2 - 707 into
+              ld    de,0x7800      ; RAM 7800 - 7835
+              ld    bc,0x0036      ; transfer
               ldir                 ; Execute ldir
-              dec   a              ; Decrement a
-              dec   a              ; Decrement a
-              jr    nz,$-13        ; Relative jump if nz to $-13
-              ld    b,0x27         ; Load b from 0x27
-              ld    (de),a         ; Load (de) from a
+              dec   a              ; the whole 128x
+              dec   a              ; why ???????
+              jr    nz,$-13        ; probably burn-in !!!!!
+              ld    b,0x27         ; clear the next 39 bytes
+              ld    (de),a         ; (7836 - 785C)
               inc   de             ; Increment de
               djnz  $-2            ; Decrement B and jump if not zero to $-2
-              jp    BASIC_INIT_2   ; Jump to BASIC initialization part 2
+              jp    BASIC_INIT_2   ; to BASIC - initialization T. 2
 
-; BASIC initialization part 3
+; BASIC - Initialization Part 3
 ; Check for external ROM cassette
 BASIC_INIT_3:
-              ld    hl,0x4000      ; Load hl from 0x4000
-              call  ROM_CART_CHECK ; Call 0x06A4
-              ld    hl,0x6000      ; Load hl from 0x6000
-              call  ROM_CART_CHECK ; Call 0x06A4
-              ld    hl,0x8000      ; Load hl from 0x8000
-              call  ROM_CART_CHECK ; Call 0x06A4
-              ei                   ; Enable interrupts
-              jp    0x1A19         ; Jump to 0x1A19
+              ld    hl,0x4000      ; 1st possibility at 4000H
+              call  ROM_CART_CHECK ; check there
+              ld    hl,0x6000      ; 2nd possibility at 6000H
+              call  ROM_CART_CHECK ; check
+              ld    hl,0x8000      ; 3rd possibility at 8000H
+              call  ROM_CART_CHECK ; check
+              ei                   ; no insert - interrupts on
+              jp    0x1A19         ; to BASIC - main loop
+
+; ROM insert must begin with the byte sequence AA 55 E7 18
 ROM_CART_CHECK:
-              ld    a,0xAA         ; Check signature sequence AA 55 E7 18
-              cp    (hl)           ; Compare A with (hl)
-              inc   hl             ; Increment hl
-              ret   nz             ; Return if nz
-              cpl                  ; Complement A
-              cp    (hl)           ; Compare A with (hl)
-              inc   hl             ; Increment hl
-              ret   nz             ; Return if nz
-              ld    a,0xE7         ; Load a from 0xE7
-              cp    (hl)           ; Compare A with (hl)
-              inc   hl             ; Increment hl
-              ret   nz             ; Return if nz
-              cpl                  ; Complement A
-              cp    (hl)           ; Compare A with (hl)
-              inc   hl             ; Increment hl
-              ret   nz             ; Return if nz
-              ei                   ; Enable interrupts
-              jp    (hl)           ; Jump to (hl)
+              ld    a,0xAA         ; ROM insert must begin with the
+              cp    (hl)           ; byte sequence AA 55 E7 18
+              inc   hl             ; next byte
+              ret   nz             ; was nothing already
+              cpl                  ; form 2nd value (55)
+              cp    (hl)           ; equal?
+              inc   hl             ; next byte
+              ret   nz             ; unequal!
+              ld    a,0xE7         ; 3rd value = E7
+              cp    (hl)           ; is that correct?
+              inc   hl             ; next byte
+              ret   nz             ; no, not that either
+              cpl                  ; form 4th value (18)
+              cp    (hl)           ; is this one correct too?
+              inc   hl             ; next byte
+              ret   nz             ; no - no insert
+              ei                   ; interrupts on
+              jp    (hl)           ; jump to ROM insert
               ld    c,0x02         ; Load c from 0x02
               call  0x1A59         ; Call 0x1A59
               call  0x34B8         ; Call 0x34B8
@@ -1022,208 +1034,225 @@ ROM_CART_CHECK:
               inc   l              ; Increment l
               jr    z,$+22         ; Relative jump if z to $+22
               call  0x34F1         ; Call 0x34F1
-              ld    bc,0x1A18      ; Load bc from 0x1A18
-              jp    0x19AE         ; Jump to 0x19AE
+              ld    bc,0x1A18      ; load address of main loop
+              jp    0x19AE         ; init BASIC variables and pointers.
 
-; *******************************
-; Copied to RAM 0x7800-0x7835
-; Restart vectors and DCB tables
-; *******************************
+; The following area from 6D2 to 707 is transferred to the RAM area from 7800 
+; to 7835
+; Restart Vectors
 RAM_VECTOR_BLOCK:
-              jp    0x1C96         ; RST 08H: compare one character
-              jp    0x1D78         ; RST 10H: next character
-              jp    0x1C90         ; RST 18H: compare HL/DE
-              jp    0x25D9         ; RST 20H: test data type
+              jp    0x1C96         ; RST 8H (compare 1 character)
+              jp    0x1D78         ; RST 10H (next character)
+              jp    0x1C90         ; RST 18H (compare HL/DE)
+              jp    0x25D9         ; RST 20H (test data type)
               ret                  ; RST 28H
               nop                  ; No operation
               nop                  ; No operation
               ret                  ; RST 30H
               nop                  ; No operation
               nop                  ; No operation
-              ei                   ; RST 38H interrupt entry
+              ei                   ; RST 38H (Interrupt)
               ret                  ; Return
               nop                  ; No operation
 
-; Keyboard device control block (DCB)
-              DEFB  0x01,0xF4,0x2E,0x00,0x00,0x00 ; Keyboard DCB: type + driver address + reserved bytes
-              DEFM  "KI"           ; Name: KI
+; Keyboard - Device Control Block
+              DEFB  0x01           ; DCB type
+              DEFW  0x2EF4
+              DEFB  0x00,0x00,0x00
 
-; Screen device control block (DCB)
-              DEFB  0x00,0x00,0x00,0x00,0x70,0x00,0x00,0x00 ; Data bytes 0x00,0x00,0x00,0x00,0x70,0x00,0x00,0x00
+; Keyboard Name
+              DEFM  "KI"           ; Keyboard Name
 
-; Printer device control block (DCB)
-              DEFB  0x06,0x8D,0x05,0x43,0x00,0x00 ; Data bytes 0x06,0x8D,0x05,0x43,0x00,0x00
-              DEFM  "PR"           ; Name: PR
-              jp    0x5000         ; Jump to 0x5000
-              rst   0              ; Call restart vector 0
+; Screen - Device Control Block
+; not used except for the cursor address.
+              DEFB  0x00           ; DCB type (unknown)
+              DEFW  0x0000         ; used by SET, RESET and POINT.
+              DEFW  0x7000         ; cursor address pointer
+              DEFB  0x00,0x00,0x00
+
+; Printer - Device Control Block
+              DEFB  0x06           ; DCB type
+              DEFW  0x058D         ; driver address
+              DEFB  0x43           ; lines/page + 1
+              DEFB  0x00           ; line counter
+              DEFB  0x00
+              DEFM  "PR"           ; Printer Name
+              jp    0x5000         ; not used
+              rst   0              ; not used
               nop                  ; No operation
               nop                  ; No operation
 
-; Entry used on wrong DCB type
-              ld    a,0x00         ; Load a from 0x00
-              ret                  ; Return
+; Entry for wrong DCB type
+              ld    a,0x00         ; entry for wrong DCB type
+              ret                  ; in the DCB call routine
 
-; *******************************
-; Single-precision add/subtract
-; (entry points by requested operation)
-; *******************************
+; Addition and subtraction with single precision
+; Various entry points according to the required function.
 FP_ADD_HALF:
-              ld    hl,0x1380      ; Load hl from 0x1380
-              call  0x09C2         ; Load constant 0.5 into Y then add to X
-              jr    $+8            ; Relative jump to $+8
+              ld    hl,0x1380      ; address of constant 0.5
+              call  0x09C2         ; load constant into Y then add to X
+              jr    $+8            ; jump to addition
 FP_SUB_HALF:
-              call  0x09C2         ; Call 0x09C2
+              call  0x09C2         ; load constant into Y
 FP_SUB_Y_MINUS_X:
-              call  0x0982         ; Call 0x0982
+              call  0x0982         ; X = -X
 FP_ADD_X_PLUS_Y:
-              ld    a,b            ; Load a from b
+              ld    a,b            ; Y = 0? (Exp. Y = 0)
               or    a              ; Test A
-              ret   z              ; Return if z
-              ld    a,(0x7924)     ; Load a from (0x7924)
+              ret   z              ; yes, done
+              ld    a,(0x7924)     ; X = 0? (Exp. X = 0)
               or    a              ; Test A
-              jp    z,0x09B4       ; Jump if z to 0x09B4
-              sub   b              ; Subtract b from A
-              jr    nc,$+14        ; Relative jump if nc to $+14
-              cpl                  ; Complement A
-              inc   a              ; Increment a
-              ex    de,hl          ; Exchange de,hl
-              call  0x09A4         ; Call 0x09A4
-              ex    de,hl          ; Exchange de,hl
-              call  0x09B4         ; Call 0x09B4
-              pop   bc             ; Pop bc
+              jp    z,0x09B4       ; yes, done, X=Y
+              sub   b              ; Exp. Y <= Exp. X?
+              jr    nc,$+14        ; yes
+              cpl                  ; negate Exp.Diff
+              inc   a              ; exchange X with Y
+              ex    de,hl          ; save LSB Y
+              call  0x09A4         ; put X on stack
+              ex    de,hl          ; restore LSB Y
+              call  0x09B4         ; transfer Y to X
+              pop   bc             ; load stack to Y
               pop   de             ; Pop de
-              cp    0x19           ; Compare A with 0x19
-              ret   nc             ; Return if nc
-              push  af             ; Push af
-              call  0x09DF         ; Call 0x09DF
-              ld    h,a            ; Load h from a
-              pop   af             ; Pop af
-              call  0x07D7         ; Call 0x07D7
-              or    h              ; OR A with h
-              ld    hl,0x7921      ; Load hl from 0x7921
-              jp    p,0x0754       ; Jump if p to 0x0754
+              cp    0x19           ; Exp.Diff > mantissa (24 bits)
+              ret   nc             ; no, X = X, done
+              push  af             ; save Exp.Diff.
+              call  0x09DF         ; A(7) = 0 if different signs
+              ld    h,a            ; save sign flag
+              pop   af             ; reload Exp.Difference
+              call  0x07D7         ; shift Y right by this difference
+              or    h              ; signs equal?
+              ld    hl,0x7921      ; LSB X address in HL
+              jp    p,0x0754       ; no, subtract
 
 ; Mantissa addition
-              call  0x07B7         ; Call 0x07B7
-              jp    nc,0x0796      ; Jump if nc to 0x0796
-              inc   hl             ; Increment hl
-              inc   (hl)           ; Increment (hl)
-              jp    z,0x07B2       ; Jump if z to 0x07B2
-              ld    l,0x01         ; Load l from 0x01
-              call  0x07EB         ; Call 0x07EB
-              jr    $+68           ; Relative jump to $+68
+              call  0x07B7         ; add mantissas
+              jp    nc,0x0796      ; overflow? no=jump
+              inc   hl             ; pointer to Exp. X
+              inc   (hl)           ; Exp. X + 1
+              jp    z,0x07B2       ; overflow? yes=OV-Error
+              ld    l,0x01         ; shift mantissa of X by 1 bit
+              call  0x07EB         ; right
+              jr    $+68           ; done!
 
 ; Mantissa subtraction
-              xor   a              ; Clear A
-              sub   b              ; Subtract b from A
-              ld    b,a            ; Load b from a
-              ld    a,(hl)         ; Load a from (hl)
+              xor   a              ; Mant. Y - Mant. X to Mant. Y
+              sub   b              ; low order byte (created by shifting)
+              ld    b,a            ; result
+              ld    a,(hl)         ; LSB subtraction
               sbc   a,e            ; Subtract e with carry from a
               ld    e,a            ; Load e from a
-              inc   hl             ; Increment hl
-              ld    a,(hl)         ; Load a from (hl)
+              inc   hl             ; next byte
+              ld    a,(hl)         ; subtract
               sbc   a,d            ; Subtract d with carry from a
               ld    d,a            ; Load d from a
-              inc   hl             ; Increment hl
+              inc   hl             ; MSB subtract
               ld    a,(hl)         ; Load a from (hl)
               sbc   a,c            ; Subtract c with carry from a
-              ld    c,a            ; Load c from a
-              call  c,0x07C3       ; Call 0x07C3 if c
+              ld    c,a            ; underflow?
+              call  c,0x07C3       ; invert sign flag
 
-; Normalization
-              ld    l,b            ; Load l from b
+; Normalize
+              ld    l,b            ; res. mant. from CDEB to CDHL
               ld    h,e            ; Load h from e
-              xor   a              ; Clear A
+              xor   a              ; shift counter = 0
               ld    b,a            ; Load b from a
-              ld    a,c            ; Load a from c
+              ld    a,c            ; MSB Y = 0?
               or    a              ; Test A
-              jr    nz,$+26        ; Relative jump if nz to $+26
-              ld    c,d            ; Load c from d
-              ld    d,h            ; Load d from h
-              ld    h,l            ; Load h from l
-              ld    l,a            ; Load l from a
-              ld    a,b            ; Load a from b
+              jr    nz,$+26        ; no
+              ld    c,d            ; shift Y left by 1 byte
+              ld    d,h            ; H to D
+              ld    h,l            ; L to H
+              ld    l,a            ; L = 0
+              ld    a,b            ; shift counter - 8
               sub   0x08           ; Subtract 0x08 from A
-              cp    0xE0           ; Compare A with 0xE0
-              jr    nz,$-14        ; Relative jump if nz to $-14
-              xor   a              ; Set real value to zero
-              ld    (0x7924),a     ; Load (0x7924) from a
+              cp    0xE0           ; 32 left shifts? (number = 0)
+              jr    nz,$-14        ; no!
+
+; Set real value = 0
+              xor   a              ; exponent in X = 0
+              ld    (0x7924),a     ; i.e. X = 0
               ret                  ; Return
-              dec   b              ; Decrement b
-              add   hl,hl          ; Add hl,hl
-              ld    a,d            ; Load a from d
+
+; 2nd part of normalization
+              dec   b              ; shift counter - 1
+              add   hl,hl          ; CDHL one bit left (HL * 2)
+              ld    a,d            ; D * 2
               rla                  ; Rotate A left through carry
               ld    d,a            ; Load d from a
-              ld    a,c            ; Load a from c
+              ld    a,c            ; C * 2
               adc   a,a            ; Add a with carry to a
-              ld    c,a            ; Load c from a
-              jp    p,0x077D       ; Jump if p to 0x077D
-              ld    a,b            ; Load a from b
-              ld    e,h            ; Load e from h
+              ld    c,a            ; highest bit of Y set?
+              jp    p,0x077D       ; no, continue
+              ld    a,b            ; shift counter to A
+              ld    e,h            ; CDHL back to CDEB
               ld    b,l            ; Load b from l
-              or    a              ; Test A
-              jr    z,$+10         ; Relative jump if z to $+10
-              ld    hl,0x7924      ; Load hl from 0x7924
-              add   a,(hl)         ; Add (hl) to A
-              ld    (hl),a         ; Load (hl) from a
-              jr    nc,$-27        ; Relative jump if nc to $-27
-              ret   z              ; Return if z
-              ld    a,b            ; Finalize result: round and copy Y to X
-              ld    hl,0x7924      ; Load hl from 0x7924
-              or    a              ; Test A
-              call  m,0x07A8       ; Call 0x07A8 if m
-              ld    b,(hl)         ; Load b from (hl)
-              inc   hl             ; Increment hl
-              ld    a,(hl)         ; Load a from (hl)
-              and   0x80           ; AND A with 0x80
-              xor   c              ; XOR A with c
-              ld    c,a            ; Load c from a
-              jp    0x09B4         ; Jump to 0x09B4
+              or    a              ; no shift?
+              jr    z,$+10         ; yes
+              ld    hl,0x7924      ; address X exponent
+              add   a,(hl)         ; Exp. X + number of shifts
+              ld    (hl),a         ; = Exp. X. Underflow?
+              jr    nc,$-27        ; yes! X=0 and back
+              ret   z              ; number of shifts = Exp. X? back!
+
+; Finalize result: round and copy Y to X
+              ld    a,b            ; load LSB Y
+              ld    hl,0x7924      ; address X exponent
+              or    a              ; LSB Y(7) = 0?
+              call  m,0x07A8       ; no - round Y
+              ld    b,(hl)         ; Exp. X to Exp. Y
+              inc   hl             ; sign flag
+              ld    a,(hl)         ; load
+              and   0x80           ; mask out sign
+              xor   c              ; link with MSB Y (invert)
+              ld    c,a            ; and back to MSB Y
+              jp    0x09B4         ; Y to X as result
 
 ; Rounding
-              inc   e              ; Increment e
-              ret   nz             ; Return if nz
-              inc   d              ; Increment d
-              ret   nz             ; Return if nz
-              inc   c              ; Increment c
-              ret   nz             ; Return if nz
-              ld    c,0x80         ; Load c from 0x80
-              inc   (hl)           ; Increment (hl)
-              ret   nz             ; Return if nz
-              ld    e,0x0A         ; Overflow error
-              jp    0x19A2         ; Jump to 0x19A2
+              inc   e              ; LSB Y + 1
+              ret   nz             ; = 0?, no-done
+              inc   d              ; next byte Y + 1
+              ret   nz             ; = 0?, no-done
+              inc   c              ; MSB Y + 1
+              ret   nz             ; = 0?, no-done
+              ld    c,0x80         ; yes, MSB Y = 80H
+              inc   (hl)           ; exponent X + 1
+              ret   nz             ; = 0?, no-back
 
-; Single-precision mantissa add
-              ld    a,(hl)         ; Load a from (hl)
-              add   a,e            ; Add e to A
-              ld    e,a            ; Load e from a
-              inc   hl             ; Increment hl
-              ld    a,(hl)         ; Load a from (hl)
+; Overflow error
+              ld    e,0x0A         ; error number in E
+              jp    0x19A2         ; to error routine
+
+; Single precision mantissa addition
+              ld    a,(hl)         ; LSB X in A
+              add   a,e            ; + LSB Y
+              ld    e,a            ; sum in LSB Y
+              inc   hl             ; X address + 1
+              ld    a,(hl)         ; add next byte
               adc   a,d            ; Add d with carry to a
               ld    d,a            ; Load d from a
-              inc   hl             ; Increment hl
-              ld    a,(hl)         ; Load a from (hl)
+              inc   hl             ; HL = MSB X
+              ld    a,(hl)         ; MSB X + MSB Y
               adc   a,c            ; Add c with carry to a
-              ld    c,a            ; Load c from a
+              ld    c,a            ; in MSB Y
               ret                  ; Return
 
 ; Negate mantissa Y
-              ld    hl,0x7925      ; Load hl from 0x7925
+              ld    hl,0x7925      ; invert sign flag
               ld    a,(hl)         ; Load a from (hl)
               cpl                  ; Complement A
               ld    (hl),a         ; Load (hl) from a
-              xor   a              ; Clear A
-              ld    l,a            ; Load l from a
-              sub   b              ; Subtract b from A
+              xor   a              ; A = 0
+              ld    l,a            ; L = 0
+              sub   b              ; LSB Y = 0 - LSB Y
               ld    b,a            ; Load b from a
               ld    a,l            ; Load a from l
-              sbc   a,e            ; Subtract e with carry from a
+              sbc   a,e            ; next byte Y = 0 - next byte Y
               ld    e,a            ; Load e from a
               ld    a,l            ; Load a from l
-              sbc   a,d            ; Subtract d with carry from a
+              sbc   a,d            ; next byte Y = 0 - next byte Y
               ld    d,a            ; Load d from a
               ld    a,l            ; Load a from l
-              sbc   a,c            ; Subtract c with carry from a
+              sbc   a,c            ; MSB Y = 0 - MSB Y
               ld    c,a            ; Load c from a
               ret   
               ld    b,0x00

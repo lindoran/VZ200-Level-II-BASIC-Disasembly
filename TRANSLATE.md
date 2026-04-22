@@ -7,4 +7,4 @@
 | 12         | 0191 - 019C   | Low        | Padding/Junk bytes (marked as DIRECT_BYTE). |
 | 12 - 13    | 019D - 01C8   | Medium     | Parameter / Coordinate Parsing routine. |
 | 13 - 16    | 01C9 - 030C   | Medium     | CLS/RANDOM plus keyboard, token, printer-semigraphics, and SOUND tables translated from German listing OCR; table regions remapped to DIRECT_BYTE/DIRECT_WORD. |
-| 17 - 36    | 030D - 07D5   | Medium     | Screen/printer/DCB/input/keyboard-rollover/init/vector/arithmetic sections translated from German listing; added block separators, table/data segments, and explicit data/table annotations to preserve binary-identical layout. |
+| 17 - 36    | 030D - 07D5   | High       | Screen/printer/DCB/input/keyboard-rollover/init/vector/arithmetic sections translated from German listing; fully substituted English inline comments and preserved binary-identical layout via remapped segments. |

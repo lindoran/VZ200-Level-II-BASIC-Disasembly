@@ -465,33 +465,33 @@
 0321  01020304 ....                DEFB  0x01,0x02,0x03,0x04,0x06,0x08,0x0C,0x10 ; A2-E3
       06080C10 ....  
 0329  18       .                   DEFB  0x18           ; Data bytes 0x18
-                     ; Output character to screen/printer/cassette
+                     ; Output character to screen, printer or cassette.
                      CHAR_OUTPUT_DISPATCH:
-032A  C5       .                   push  bc             ; Push bc
-032B  4F       O                   ld    c,a            ; Load c from a
-032C  CDC179   ..y                 call  0x79C1         ; Call 0x79C1
-032F  3A9C78   :.x                 ld    a,(0x789C)     ; Load output flag (0=screen,1=printer,0x80=
-0332  B7       .                   or    a              ; Test A
-0333  79       y                   ld    a,c            ; Load a from c
-0334  C1       .                   pop   bc             ; Pop bc
-0335  FA543B   .T;                 jp    m,0x3B54
-0338  2062      b                  jr    nz,$+100       ; Relative jump if nz to $+100
-                     ; Output one character to screen
+032A  C5       .                   push  bc             ; save BC
+032B  4F       O                   ld    c,a            ; store character in C
+032C  CDC179   ..y                 call  0x79C1         ; RAM expansion output (RET)
+032F  3A9C78   :.x                 ld    a,(0x789C)     ; load output flag
+0332  B7       .                   or    a              ; and test
+0333  79       y                   ld    a,c            ; character back to A
+0334  C1       .                   pop   bc             ; restore BC
+0335  FA543B   .T;                 jp    m,0x3B54       ; Cassette? yes - continue at 3B54H
+0338  2062      b                  jr    nz,$+100       ; Printer? yes - to printer output
+                     ; Output a character to the screen
                      SCREEN_OUT_CHAR:
-033A  D5       .                   push  de             ; Push de
+033A  D5       .                   push  de             ; save registers
 033B  F5       .                   push  af             ; Push af
 033C  C5       .                   push  bc             ; Push bc
 033D  E5       .                   push  hl             ; Push hl
-033E  CD8B30   ..0                 call  0x308B         ; Call 0x308B
-0341  E1       .                   pop   hl             ; Pop hl
+033E  CD8B30   ..0                 call  0x308B         ; call output routine
+0341  E1       .                   pop   hl             ; restore registers
 0342  C1       .                   pop   bc             ; Pop bc
 0343  00       .                   nop                  ; No operation
 0344  00       .                   nop                  ; No operation
 0345  F1       .                   pop   af             ; Pop af
 0346  D1       .                   pop   de             ; Pop de
-0347  C9       .                   ret                  ; Return
-                     ; Get cursor column in line
-                     ; (not used on Laser 110/210/310)
+0347  C9       .                   ret                  ; done
+                     ; Determine cursor position in line
+                     ; not used on LASER 110-310
                      CURSOR_COL_GET:
 0348  3A3D78   :=x                 ld    a,(0x783D)     ; Load a from (0x783D)
 034B  E608     ..                  and   0x08           ; AND A with 0x08
@@ -501,17 +501,14 @@
 0353  E61F     ..                  and   0x1F           ; AND A with 0x1F
 0355  E61F     ..                  and   0x1F           ; AND A with 0x1F
 0357  C9       .                   ret                  ; Return
-                     ; Keyboard query wrapper
+                     ; Keyboard query
                      KBD_QUERY_WRAP:
-0358  CDC479   ..y                 call  0x79C4         ; Call 0x79C4
-035B  D5       .                   push  de             ; Push de
-035C  CD2B00   .+.                 call  KBD_QUERY      ; Call 0x002B
-035F  D1       .                   pop   de             ; Pop de
+0358  CDC479   ..y                 call  0x79C4         ; RAM expansion output (RET)
+035B  D5       .                   push  de             ; save DE
+035C  CD2B00   .+.                 call  KBD_QUERY      ; evaluate keyboard
+035F  D1       .                   pop   de             ; restore DE
 0360  C9       .                   ret                  ; Return
-                     ; *******************************
-                     ; SOUND base timing values
-                     ; (per note)
-                     ; *******************************
+                     ; Table of basic time values for each individual note of the SOUND command.
 0361  0A0B0C0C ....                DEFB  0x0A,0x0B,0x0C,0x0C,0x0D,0x0E,0x0F,0x0F ; A2-E3
       0D0E0F0F ....  
 0369  10111213 ....                DEFB  0x10,0x11,0x12,0x13,0x15,0x16,0x17,0x19 ; F3-C4
@@ -520,298 +517,300 @@
       21232527 !#%'  
 0379  292C2E31 ),.1                DEFB  0x29,0x2C,0x2E,0x31,0x34,0x35,0x3A ; A4-D#5
       34353A   45:   
-                     ; VERIFY command messages
+                     ; OK and error message of the VERIFY command
 0380  4F4B     OK                  DEFM  "OK"           ; \
 0382  0D00     ..                  DEFB  0x0D,0x00      ; Data bytes 0x0D,0x00
 0384  4552524F ERRO                DEFM  "ERROR"        ; \
       52       R     
 0389  0D00     ..                  DEFB  0x0D,0x00      ; Data bytes 0x0D,0x00
-                     ; Set output flag to screen
-                     ; Issue CR to printer if not at line start
+                     ; Output flag to screen.
+                     ; CR on printer, if not at start of line
                      OUTPUT_SCREEN_SELECT:
-038B  AF       .                   xor   a              ; Clear A
+038B  AF       .                   xor   a              ; output flag to screen
 038C  329C78   2.x                 ld    (0x789C),a     ; Load (0x789C) from a
-038F  3A9B78   :.x                 ld    a,(0x789B)     ; Load a from (0x789B)
-0392  B7       .                   or    a              ; Test A
-0393  C8       .                   ret   z              ; Return if z
-0394  3E0D     >.                  ld    a,0x0D         ; Output carriage return to printer
-0396  D5       .                   push  de             ; Push de
-0397  CD9C03   ...                 call  PRINTER_OUT_CHAR ; Call 0x039C
-039A  D1       .                   pop   de             ; Pop de
+038F  3A9B78   :.x                 ld    a,(0x789B)     ; printer position in line
+0392  B7       .                   or    a              ; = 0?
+0393  C8       .                   ret   z              ; yes - done
+                     ; Output carriage return to printer
+0394  3E0D     >.                  ld    a,0x0D         ; load CR
+0396  D5       .                   push  de             ; save DE
+0397  CD9C03   ...                 call  PRINTER_OUT_CHAR ; output CR
+039A  D1       .                   pop   de             ; restore DE
 039B  C9       .                   ret                  ; Return
-                     ; Output one character to printer
+                     ; Output character to printer.
                      PRINTER_OUT_CHAR:
-039C  F5       .                   push  af             ; Push af
+039C  F5       .                   push  af             ; save registers
 039D  D5       .                   push  de             ; Push de
 039E  C5       .                   push  bc             ; Push bc
-039F  4F       O                   ld    c,a            ; Load c from a
-03A0  1E00     ..                  ld    e,0x00         ; Load e from 0x00
-03A2  FE0C     ..                  cp    0x0C           ; Compare A with 0x0C
-03A4  2810     (.                  jr    z,$+18         ; Relative jump if z to $+18
-03A6  FE0A     ..                  cp    0x0A           ; Compare A with 0x0A
-03A8  2003      .                  jr    nz,$+5         ; Relative jump if nz to $+5
-03AA  3E0D     >.                  ld    a,0x0D         ; Load a from 0x0D
-03AC  4F       O                   ld    c,a            ; Load c from a
-03AD  FE0D     ..                  cp    0x0D           ; Compare A with 0x0D
-03AF  2805     (.                  jr    z,$+7          ; Relative jump if z to $+7
-03B1  3A9B78   :.x                 ld    a,(0x789B)     ; Load a from (0x789B)
-03B4  3C       <                   inc   a              ; Increment a
-03B5  5F       _                   ld    e,a            ; Load e from a
-03B6  7B       {                   ld    a,e            ; Load a from e
+039F  4F       O                   ld    c,a            ; character in C
+03A0  1E00     ..                  ld    e,0x00         ; E = 0
+03A2  FE0C     ..                  cp    0x0C           ; is it a Form Feed?
+03A4  2810     (.                  jr    z,$+18         ; yes!
+03A6  FE0A     ..                  cp    0x0A           ; is it a Line Feed?
+03A8  2003      .                  jr    nz,$+5         ; no!
+03AA  3E0D     >.                  ld    a,0x0D         ; yes, replace with carriage return
+03AC  4F       O                   ld    c,a            ; and in C
+03AD  FE0D     ..                  cp    0x0D           ; is it a carriage return?
+03AF  2805     (.                  jr    z,$+7          ; yes!
+03B1  3A9B78   :.x                 ld    a,(0x789B)     ; load print head position
+03B4  3C       <                   inc   a              ; +1
+03B5  5F       _                   ld    e,a            ; in E
+03B6  7B       {                   ld    a,e            ; save new position (CR=0)
 03B7  329B78   2.x                 ld    (0x789B),a     ; Load (0x789B) from a
-03BA  79       y                   ld    a,c            ; Load a from c
-03BB  CD3B00   .;.                 call  PRN_OUT_DCB
-03BE  C1       .                   pop   bc             ; Pop bc
+03BA  79       y                   ld    a,c            ; character to be output in A
+03BB  CD3B00   .;.                 call  PRN_OUT_DCB    ; print character
+03BE  C1       .                   pop   bc             ; restore register contents
 03BF  D1       .                   pop   de             ; Pop de
 03C0  F1       .                   pop   af             ; Pop af
-03C1  C9       .                   ret                  ; Return
-                     ; Dispatch via device control block (DCB)
+03C1  C9       .                   ret                  ; done
+                     ; Call driver routines via the Device Control Block
                      DCB_DISPATCH:
-03C2  E5       .                   push  hl             ; Push hl
+03C2  E5       .                   push  hl             ; save registers
 03C3  DDE5     ..                  push  ix             ; Push ix
-03C5  D5       .                   push  de             ; Push de
+03C5  D5       .                   push  de             ; DCB address in IX
 03C6  DDE1     ..                  pop   ix             ; Pop ix
-03C8  D5       .                   push  de             ; Push de
-03C9  21DD03   !..                 ld    hl,0x03DD      ; Load hl from 0x03DD
+03C8  D5       .                   push  de             ; and on stack
+03C9  21DD03   !..                 ld    hl,0x03DD      ; return address on stack
 03CC  E5       .                   push  hl             ; Push hl
-03CD  4F       O                   ld    c,a            ; Load c from a
-03CE  1A       .                   ld    a,(de)         ; Load a from (de)
-03CF  A0       .                   and   b              ; AND A with b
-03D0  B8       .                   cp    b              ; Compare A with b
-03D1  C23378   .3x                 jp    nz,0x7833      ; Jump if nz to 0x7833
-03D4  FE02     ..                  cp    0x02           ; Compare A with 0x02
-03D6  DD6E01   .n.                 ld    l,(ix+0x01)    ; Load l from (ix+0x01)
+03CD  4F       O                   ld    c,a            ; character to C
+03CE  1A       .                   ld    a,(de)         ; load DCB identifier (1st byte)
+03CF  A0       .                   and   b              ; AND with specified type
+03D0  B8       .                   cp    b              ; correct type?
+03D1  C23378   .3x                 jp    nz,0x7833      ; no, return via RAM 7833H
+03D4  FE02     ..                  cp    0x02           ; set carry for inputs
+03D6  DD6E01   .n.                 ld    l,(ix+0x01)    ; load driver address from DCB
 03D9  DD6602   .f.                 ld    h,(ix+0x02)    ; Load h from (ix+0x02)
-03DC  E9       .                   jp    (hl)           ; Jump to (hl)
-03DD  D1       .                   pop   de             ; Return from DCB driver
+03DC  E9       .                   jp    (hl)           ; jump to driver
+03DD  D1       .                   pop   de             ; restore registers
 03DE  DDE1     ..                  pop   ix             ; Pop ix
 03E0  E1       .                   pop   hl             ; Pop hl
 03E1  C1       .                   pop   bc             ; Pop bc
-03E2  C9       .                   ret                  ; Return
-                     ; Read one line from keyboard
-                     ; Echo to screen and copy to I/O buffer
+03E2  C9       .                   ret                  ; done
+                     ; Read a line from the keyboard.
+                     ; The line is read until the RETURN or BREAK key is pressed, displayed on the 
+                     ; screen and then transferred to the I/O buffer.
                      INPUT_LINE_READ:
-03E3  213978   !9x                 ld    hl,0x7839      ; Load hl from 0x7839
-03E6  CBEE     ..                  set   5,(hl)         ; Set bit 5 of (hl)
-03E8  2A2078   * x                 ld    hl,(0x7820)    ; Load hl from (0x7820)
-03EB  CD5300   .S.                 call  0x0053         ; Call 0x0053
-03EE  7C       |                   ld    a,h            ; Load a from h
+03E3  213978   !9x                 ld    hl,0x7839      ; initialization flag for
+03E6  CBEE     ..                  set   5,(hl)         ; set buffered output.
+03E8  2A2078   * x                 ld    hl,(0x7820)    ; load cursor address
+03EB  CD5300   .S.                 call  0x0053         ; save character at cursor position
+03EE  7C       |                   ld    a,h            ; cursor at the beginning of the last line?
 03EF  FE71     .q                  cp    0x71           ; Compare A with 0x71
-03F1  2010      .                  jr    nz,$+18        ; Relative jump if nz to $+18
+03F1  2010      .                  jr    nz,$+18        ; no
 03F3  7D       }                   ld    a,l            ; Load a from l
 03F4  FEE0     ..                  cp    0xE0           ; Compare A with 0xE0
-03F6  200B      .                  jr    nz,$+13        ; Relative jump if nz to $+13
-03F8  3AD77A   :.z                 ld    a,(0x7AD7)     ; Load a from (0x7AD7)
-03FB  B7       .                   or    a              ; Test A
-03FC  2005      .                  jr    nz,$+7         ; Relative jump if nz to $+7
-03FE  3E0D     >.                  ld    a,0x0D         ; Load a from 0x0D
+03F6  200B      .                  jr    nz,$+13        ; no
+03F8  3AD77A   :.z                 ld    a,(0x7AD7)     ; check status of 1st line
+03FB  B7       .                   or    a              ; = continuation line?
+03FC  2005      .                  jr    nz,$+7         ; no!
+03FE  3E0D     >.                  ld    a,0x0D         ; scroll image up one line
 0400  CD8B30   ..0                 call  0x308B         ; Call 0x308B
-0403  41       A                   ld    b,c            ; Load b from c
-0404  C5       .                   push  bc             ; Push bc
-0405  213978   !9x                 ld    hl,0x7839      ; Load hl from 0x7839
-0408  CB86     ..                  res   0,(hl)         ; Reset bit 0 of (hl)
-040A  CB96     ..                  res   2,(hl)         ; Reset bit 2 of (hl)
-040C  CB46     .F                  bit   0,(hl)         ; Test bit 0 of (hl)
+0403  41       A                   ld    b,c            ; length of leading text in B
+0404  C5       .                   push  bc             ; on stack (B=C)
+0405  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+0408  CB86     ..                  res   0,(hl)         ; reset CR flag
+040A  CB96     ..                  res   2,(hl)         ; reset BREAK flag
+040C  CB46     .F                  bit   0,(hl)         ; wait until CR flag is set
 040E  28FC     (.                  jr    z,$-2          ; Relative jump if z to $-2
-                     ; Compute start address of input line
-0410  3AA678   :.x                 ld    a,(0x78A6)     ; Load a from (0x78A6)
-0413  4F       O                   ld    c,a            ; Load c from a
+                     ; Determine starting address of input line
+0410  3AA678   :.x                 ld    a,(0x78A6)     ; load column in input line
+0413  4F       O                   ld    c,a            ; in BC
 0414  AF       .                   xor   a              ; Clear A
-0415  32A678   2.x                 ld    (0x78A6),a     ; Load (0x78A6) from a
+0415  32A678   2.x                 ld    (0x78A6),a     ; column counter = 0 (start of line)
 0418  47       G                   ld    b,a            ; Load b from a
-0419  2A2078   * x                 ld    hl,(0x7820)    ; Load hl from (0x7820)
-041C  ED42     .B                  sbc   hl,bc          ; Subtract bc with carry from hl
-041E  222078   " x                 ld    (0x7820),hl    ; Load (0x7820) from hl
-                     ; Load buffer and line addresses
-0421  11E879   ..y                 ld    de,0x79E8      ; Load de from 0x79E8
-0424  C1       .                   pop   bc             ; Pop bc
-0425  213978   !9x                 ld    hl,0x7839      ; Load hl from 0x7839
-0428  CB66     .f                  bit   4,(hl)         ; Test bit 4 of (hl)
-042A  2A2078   * x                 ld    hl,(0x7820)    ; Load hl from (0x7820)
-042D  2842     (B                  jr    z,$+68         ; Relative jump if z to $+68
-                     ; INPUT command: skip prompt text in current line
-042F  C5       .                   push  bc             ; Push bc
+0419  2A2078   * x                 ld    hl,(0x7820)    ; load cursor address
+041C  ED42     .B                  sbc   hl,bc          ; - column = start of line
+041E  222078   " x                 ld    (0x7820),hl    ; back to cursor pointer
+                     ; Load buffer and line address
+0421  11E879   ..y                 ld    de,0x79E8      ; starting address of I/O buffer
+0424  C1       .                   pop   bc             ; character counter of leading text
+0425  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+0428  CB66     .f                  bit   4,(hl)         ; is this an INPUT command?
+042A  2A2078   * x                 ld    hl,(0x7820)    ; load starting address of line
+042D  2842     (B                  jr    z,$+68         ; no INPUT cmd, continue at 471H
+                     ; For INPUT set text pointer after given text
+042F  C5       .                   push  bc             ; save registers
 0430  E5       .                   push  hl             ; Push hl
-0431  CDA833   ..3                 call  0x33A8         ; Call 0x33A8
-0434  E1       .                   pop   hl             ; Pop hl
+0431  CDA833   ..3                 call  0x33A8         ; determine status of line
+0434  E1       .                   pop   hl             ; reload HL + BC
 0435  C1       .                   pop   bc             ; Pop bc
-0436  B7       .                   or    a              ; Test A
-0437  2008      .                  jr    nz,$+10        ; Relative jump if nz to $+10
-0439  7D       }                   ld    a,l            ; Load a from l
+0436  B7       .                   or    a              ; continuation line? (status=00)
+0437  2008      .                  jr    nz,$+10        ; no!
+0439  7D       }                   ld    a,l            ; line address in HL - 1 line
 043A  D620     .                   sub   0x20           ; Subtract 0x20 from A
 043C  6F       o                   ld    l,a            ; Load l from a
 043D  7C       |                   ld    a,h            ; Load a from h
 043E  DE00     ..                  sbc   a,0x00         ; Subtract 0x00 with carry from a
 0440  67       g                   ld    h,a            ; Load h from a
-0441  48       H                   ld    c,b            ; Load c from b
-0442  1A       .                   ld    a,(de)         ; Load a from (de)
-0443  BE       .                   cp    (hl)           ; Compare A with (hl)
-0444  2007      .                  jr    nz,$+9         ; Relative jump if nz to $+9
-0446  23       #                   inc   hl             ; Increment hl
-0447  13       .                   inc   de             ; Increment de
-0448  10F8     ..                  djnz  $-6            ; Decrement B and jump if not zero to $-6
-044A  C5       .                   push  bc             ; Push bc
-044B  1804     ..                  jr    $+6            ; Relative jump to $+6
-044D  010000   ...                 ld    bc,START       ; Load bc from 0x0000
-0450  C5       .                   push  bc             ; Push bc
-0451  E5       .                   push  hl             ; Push hl
-0452  CDA833   ..3                 call  0x33A8         ; Call 0x33A8
-0455  E1       .                   pop   hl             ; Pop hl
+0441  48       H                   ld    c,b            ; number of leading characters
+0442  1A       .                   ld    a,(de)         ; pointer after leading text
+0443  BE       .                   cp    (hl)           ; compare if not changed
+0444  2007      .                  jr    nz,$+9         ; not equal, stop
+0446  23       #                   inc   hl             ; screen pointer + 1
+0447  13       .                   inc   de             ; buffer pointer + 1
+0448  10F8     ..                  djnz  $-6            ; done?
+044A  C5       .                   push  bc             ; if equal, remember length
+044B  1804     ..                  jr    $+6            ; continue at 0451
+044D  010000   ...                 ld    bc,START       ; unequal, length = 0
+0450  C5       .                   push  bc             ; on the stack
+0451  E5       .                   push  hl             ; save HL
+0452  CDA833   ..3                 call  0x33A8         ; read status of line
+0455  E1       .                   pop   hl             ; reload HL + BC
 0456  C1       .                   pop   bc             ; Pop bc
-0457  C5       .                   push  bc             ; Push bc
-0458  FE80     ..                  cp    0x80           ; Compare A with 0x80
-045A  280A     (.                  jr    z,$+12         ; Relative jump if z to $+12
-045C  3E40     >@                  ld    a,0x40         ; Load a from 0x40
+0457  C5       .                   push  bc             ; remember length again
+0458  FE80     ..                  cp    0x80           ; single line?
+045A  280A     (.                  jr    z,$+12         ; yes!
+045C  3E40     >@                  ld    a,0x40         ; max characters = 64 - lead
 045E  91       .                   sub   c              ; Subtract c from A
 045F  47       G                   ld    b,a            ; Load b from a
-0460  D1       .                   pop   de             ; Pop de
-0461  1E00     ..                  ld    e,0x00         ; Load e from 0x00
+0460  D1       .                   pop   de             ; number of leading characters in stack
+0461  1E00     ..                  ld    e,0x00         ; set to 0
 0463  D5       .                   push  de             ; Push de
-0464  1805     ..                  jr    $+7            ; Relative jump to $+7
-0466  0620     .                   ld    b,0x20         ; Load b from 0x20
-0468  2A2078   * x                 ld    hl,(0x7820)    ; Load hl from (0x7820)
-046B  11E879   ..y                 ld    de,0x79E8      ; Load de from 0x79E8
-046E  C3A83E   ..>                 jp    0x3EA8         ; Jump to 0x3EA8
-                     ; Non-INPUT path: derive text start and max length
-0471  010000   ...                 ld    bc,START       ; Load bc from 0x0000
-0474  C5       .                   push  bc             ; Push bc
-0475  E5       .                   push  hl             ; Push hl
-0476  CDA833   ..3                 call  0x33A8         ; Call 0x33A8
-0479  E1       .                   pop   hl             ; Pop hl
-047A  FE80     ..                  cp    0x80           ; Compare A with 0x80
-047C  280E     (.                  jr    z,$+16         ; Relative jump if z to $+16
-047E  FE81     ..                  cp    0x81           ; Compare A with 0x81
-0480  2806     (.                  jr    z,$+8          ; Relative jump if z to $+8
-0482  012000   . .                 ld    bc,RST20_VEC   ; Load bc from 0x0020
+0464  1805     ..                  jr    $+7            ; take 2 lines
+0466  0620     .                   ld    b,0x20         ; take 1 line
+0468  2A2078   * x                 ld    hl,(0x7820)    ; load text start address
+046B  11E879   ..y                 ld    de,0x79E8      ; I/O buffer address
+046E  C3A83E   ..>                 jp    0x3EA8         ; check background color
+                     ; Determine text starting address and max length, if not INPUT command
+0471  010000   ...                 ld    bc,START       ; set leading text length = 0
+0474  C5       .                   push  bc             ; on stack
+0475  E5       .                   push  hl             ; save HL
+0476  CDA833   ..3                 call  0x33A8         ; determine status of line
+0479  E1       .                   pop   hl             ; reload HL
+047A  FE80     ..                  cp    0x80           ; single line?
+047C  280E     (.                  jr    z,$+16         ; yes!
+047E  FE81     ..                  cp    0x81           ; 2 lines?
+0480  2806     (.                  jr    z,$+8          ; yes!
+0482  012000   . .                 ld    bc,RST20_VEC   ; for continuation line, back one line
 0485  B7       .                   or    a              ; Test A
 0486  ED42     .B                  sbc   hl,bc          ; Subtract bc with carry from hl
-0488  0640     .@                  ld    b,0x40         ; Load b from 0x40
+0488  0640     .@                  ld    b,0x40         ; take 2 lines
 048A  1802     ..                  jr    $+4            ; Relative jump to $+4
-048C  0620     .                   ld    b,0x20         ; Load b from 0x20
-048E  3A1878   :.x                 ld    a,(0x7818)     ; Load a from (0x7818)
-0491  B7       .                   or    a              ; Test A
-0492  CA403E   .@>                 jp    z,0x3E40       ; Jump if z to 0x3E40
-                     ; Transfer characters from screen line to I/O buffer
-0495  7E       ~                   ld    a,(hl)         ; Load a from (hl)
-0496  FE40     .@                  cp    0x40           ; Compare A with 0x40
-0498  DAAE04   ...                 jp    c,0x04AE       ; Jump if c to 0x04AE
-049B  C1       .                   pop   bc             ; Pop bc
-049C  11A404   ...                 ld    de,0x04A4      ; Load de from 0x04A4
+048C  0620     .                   ld    b,0x20         ; take 1 line
+048E  3A1878   :.x                 ld    a,(0x7818)     ; check background color
+0491  B7       .                   or    a              ; 0 = green, 1 = black
+0492  CA403E   .@>                 jp    z,0x3E40       ; if green continue at 3E40H
+                     ; Transferring data from screen to I/O buffer
+0495  7E       ~                   ld    a,(hl)         ; load character from screen
+0496  FE40     .@                  cp    0x40           ; graphics or inverse?
+0498  DAAE04   ...                 jp    c,0x04AE       ; no, take it
+049B  C1       .                   pop   bc             ; if not INPUT, then graphics and inverse ar
+049C  11A404   ...                 ld    de,0x04A4      ; return address in stack
 049F  D5       .                   push  de             ; Push de
 04A0  C5       .                   push  bc             ; Push bc
-04A1  C30205   ...                 jp    0x0502         ; Jump to 0x0502
-04A4  D8       .                   ret   c              ; Return if c
-04A5  211A3E   !.>                 ld    hl,0x3E1A      ; Load hl from 0x3E1A
-04A8  CDA728   ..(                 call  0x28A7         ; Call 0x28A7
-04AB  C3E303   ...                 jp    INPUT_LINE_READ ; Jump to 0x03E3
-04AE  FE22     ."                  cp    0x22           ; Compare A with 0x22
-04B0  2031      1                  jr    nz,$+51        ; Relative jump if nz to $+51
-04B2  12       .                   ld    (de),a         ; Load (de) from a
-04B3  23       #                   inc   hl             ; Increment hl
-04B4  13       .                   inc   de             ; Increment de
-04B5  05       .                   dec   b              ; Decrement b
-04B6  2836     (6                  jr    z,$+56         ; Relative jump if z to $+56
-04B8  7E       ~                   ld    a,(hl)         ; Load a from (hl)
-04B9  FE40     .@                  cp    0x40           ; Compare A with 0x40
-04BB  DAC904   ...                 jp    c,0x04C9       ; Jump if c to 0x04C9
-04BE  FE80     ..                  cp    0x80           ; Compare A with 0x80
-04C0  DAC504   ...                 jp    c,0x04C5       ; Jump if c to 0x04C5
-04C3  E68F     ..                  and   0x8F           ; AND A with 0x8F
-04C5  F680     ..                  or    0x80           ; OR A with 0x80
+04A1  C30205   ...                 jp    0x0502         ; check text end identifier (BREAK?)
+04A4  D8       .                   ret   c              ; BREAK, back to BASIC
+04A5  211A3E   !.>                 ld    hl,0x3E1A      ; text \
+04A8  CDA728   ..(                 call  0x28A7         ; output
+04AB  C3E303   ...                 jp    INPUT_LINE_READ ; back to line entry
+04AE  FE22     ."                  cp    0x22           ; string identifier?
+04B0  2031      1                  jr    nz,$+51        ; no, continue
+04B2  12       .                   ld    (de),a         ; character in I/O buffer
+04B3  23       #                   inc   hl             ; screen address + 1
+04B4  13       .                   inc   de             ; buffer address + 1
+04B5  05       .                   dec   b              ; character counter -1
+04B6  2836     (6                  jr    z,$+56         ; if 0, end takeover
+04B8  7E       ~                   ld    a,(hl)         ; load character from screen
+04B9  FE40     .@                  cp    0x40           ; normal text character?
+04BB  DAC904   ...                 jp    c,0x04C9       ; yes!
+04BE  FE80     ..                  cp    0x80           ; inverse text character?
+04C0  DAC504   ...                 jp    c,0x04C5       ; yes!
+04C3  E68F     ..                  and   0x8F           ; graphics character, clear bits 4,5,6
+04C5  F680     ..                  or    0x80           ; set bit 7
 04C7  1813     ..                  jr    $+21           ; Relative jump to $+21
-04C9  FE22     ."                  cp    0x22           ; Compare A with 0x22
-04CB  2009      .                  jr    nz,$+11        ; Relative jump if nz to $+11
-04CD  E5       .                   push  hl             ; Push hl
-04CE  213978   !9x                 ld    hl,0x7839      ; Load hl from 0x7839
-04D1  CB66     .f                  bit   4,(hl)         ; Test bit 4 of (hl)
-04D3  E1       .                   pop   hl             ; Pop hl
-04D4  280D     (.                  jr    z,$+15         ; Relative jump if z to $+15
-04D6  CB6F     .o                  bit   5,a            ; Test bit 5 of a
-04D8  2002      .                  jr    nz,$+4         ; Relative jump if nz to $+4
-04DA  F640     .@                  or    0x40           ; OR A with 0x40
-04DC  12       .                   ld    (de),a         ; Load (de) from a
-04DD  23       #                   inc   hl             ; Increment hl
-04DE  13       .                   inc   de             ; Increment de
-04DF  10D7     ..                  djnz  $-39           ; Decrement B and jump if not zero to $-39
-04E1  180B     ..                  jr    $+13           ; Relative jump to $+13
-04E3  CB6F     .o                  bit   5,a            ; Test bit 5 of a
-04E5  2002      .                  jr    nz,$+4         ; Relative jump if nz to $+4
-04E7  F640     .@                  or    0x40           ; OR A with 0x40
-04E9  12       .                   ld    (de),a         ; Load (de) from a
-04EA  23       #                   inc   hl             ; Increment hl
-04EB  13       .                   inc   de             ; Increment de
-04EC  10A7     ..                  djnz  $-87           ; Decrement B and jump if not zero to $-87
+04C9  FE22     ."                  cp    0x22           ; string delimiter '\
+04CB  2009      .                  jr    nz,$+11        ; no!
+04CD  E5       .                   push  hl             ; save HL
+04CE  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+04D1  CB66     .f                  bit   4,(hl)         ; INPUT command?
+04D3  E1       .                   pop   hl             ; reload HL
+04D4  280D     (.                  jr    z,$+15         ; no - from now on graphics and inverse not 
+04D6  CB6F     .o                  bit   5,a            ; character in real ASCII code
+04D8  2002      .                  jr    nz,$+4         ; convert, e.g. 'A' from 01 to 41
+04DA  F640     .@                  or    0x40           ; affects codes 00 - 1FH
+04DC  12       .                   ld    (de),a         ; character in I/O buffer
+04DD  23       #                   inc   hl             ; screen address + 1
+04DE  13       .                   inc   de             ; buffer address + 1
+04DF  10D7     ..                  djnz  $-39           ; counter - 1
+04E1  180B     ..                  jr    $+13           ; = 0, then done
+04E3  CB6F     .o                  bit   5,a            ; character in real ASCII code
+04E5  2002      .                  jr    nz,$+4         ; convert, e.g. 'C' from 03 to 43
+04E7  F640     .@                  or    0x40           ; affects codes 00 - 1FH
+04E9  12       .                   ld    (de),a         ; character in I/O buffer
+04EA  23       #                   inc   hl             ; screen address + 1
+04EB  13       .                   inc   de             ; buffer address + 1
+04EC  10A7     ..                  djnz  $-87           ; counter - 1
                      ; Finalize buffer after transfer
-04EE  1B       .                   dec   de             ; Decrement de
-04EF  7A       z                   ld    a,d            ; Load a from d
+04EE  1B       .                   dec   de             ; eliminate blanks at buffer end
+04EF  7A       z                   ld    a,d            ; at buffer start?
 04F0  FE79     .y                  cp    0x79           ; Compare A with 0x79
-04F2  2006      .                  jr    nz,$+8         ; Relative jump if nz to $+8
+04F2  2006      .                  jr    nz,$+8         ; no
 04F4  7B       {                   ld    a,e            ; Load a from e
 04F5  FEE8     ..                  cp    0xE8           ; Compare A with 0xE8
-04F7  DAFF04   ...                 jp    c,0x04FF       ; Jump if c to 0x04FF
-04FA  1A       .                   ld    a,(de)         ; Load a from (de)
-04FB  FE20     .                   cp    0x20           ; Compare A with 0x20
-04FD  28EF     (.                  jr    z,$-15         ; Relative jump if z to $-15
-04FF  13       .                   inc   de             ; Increment de
-0500  AF       .                   xor   a              ; Clear A
+04F7  DAFF04   ...                 jp    c,0x04FF       ; yes, done
+04FA  1A       .                   ld    a,(de)         ; load character
+04FB  FE20     .                   cp    0x20           ; = blank?
+04FD  28EF     (.                  jr    z,$-15         ; yes, further back
+04FF  13       .                   inc   de             ; buffer end with X'00'
+0500  AF       .                   xor   a              ; mark it
 0501  12       .                   ld    (de),a         ; Load (de) from a
                      ; Output one or two blank lines by line status
-0502  CDA833   ..3                 call  0x33A8         ; Call 0x33A8
-0505  2A2078   * x                 ld    hl,(0x7820)    ; Load hl from (0x7820)
-0508  FE81     ..                  cp    0x81           ; Compare A with 0x81
-050A  CD5300   .S.                 call  0x0053         ; Call 0x0053
-050D  2004      .                  jr    nz,$+6         ; Relative jump if nz to $+6
-050F  AF       .                   xor   a              ; Clear A
+0502  CDA833   ..3                 call  0x33A8         ; determine line status
+0505  2A2078   * x                 ld    hl,(0x7820)    ; load cursor pointer
+0508  FE81     ..                  cp    0x81           ; 2 lines?
+050A  CD5300   .S.                 call  0x0053         ; save character from cursor position.
+050D  2004      .                  jr    nz,$+6         ; single line
+050F  AF       .                   xor   a              ; 1 blank line output
 0510  CD8B30   ..0                 call  0x308B         ; Call 0x308B
-0513  AF       .                   xor   a              ; Clear A
+0513  AF       .                   xor   a              ; 1 blank line output
 0514  CD8B30   ..0                 call  0x308B         ; Call 0x308B
-0517  3A3878   :8x                 ld    a,(0x7838)     ; Load a from (0x7838)
-051A  E6FD     ..                  and   0xFD           ; AND A with 0xFD
-051C  323878   28x                 ld    (0x7838),a     ; Load (0x7838) from a
-051F  213978   !9x                 ld    hl,0x7839      ; Load hl from 0x7839
-0522  CB56     .V                  bit   2,(hl)         ; Test bit 2 of (hl)
-0524  2805     (.                  jr    z,$+7          ; Relative jump if z to $+7
-0526  3E01     >.                  ld    a,0x01         ; Load a from 0x01
-0528  37       7                   scf                  ; Set carry flag
+0517  3A3878   :8x                 ld    a,(0x7838)     ; load Flag 1
+051A  E6FD     ..                  and   0xFD           ; reset INVERSE flag
+051C  323878   28x                 ld    (0x7838),a     ; Flag 1 back
+051F  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+0522  CB56     .V                  bit   2,(hl)         ; BREAK flag set?
+0524  2805     (.                  jr    z,$+7          ; no!
+0526  3E01     >.                  ld    a,0x01         ; BREAK, A=1
+0528  37       7                   scf                  ; + set carry
 0529  1801     ..                  jr    $+3            ; Relative jump to $+3
-052B  AF       .                   xor   a              ; Clear A
+052B  AF       .                   xor   a              ; no BREAK, A=0
                      ; Reset input command flag and continue
-052C  213978   !9x                 ld    hl,0x7839      ; Load hl from 0x7839
-052F  CBA6     ..                  res   4,(hl)         ; Reset bit 4 of (hl)
-0531  21E879   !.y                 ld    hl,0x79E8      ; Load hl from 0x79E8
-0534  C1       .                   pop   bc             ; Pop bc
-0535  F5       .                   push  af             ; Push af
+052C  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+052F  CBA6     ..                  res   4,(hl)         ; reset INPUT-Cmd flag
+0531  21E879   !.y                 ld    hl,0x79E8      ; address I/O buffer
+0534  C1       .                   pop   bc             ; to start of input
+0535  F5       .                   push  af             ; save BREAK identifier
 0536  09       .                   add   hl,bc          ; Add hl,bc
-0537  C3293E   .)>                 jp    0x3E29         ; Jump to 0x3E29
+0537  C3293E   .)>                 jp    0x3E29         ; continue at 3E29H
                      ; INPUT helper: read one line into I/O buffer
-053A  3AAF7A   :.z                 ld    a,(0x7AAF)     ; Load a from (0x7AAF)
-053D  B7       .                   or    a              ; Test A
-053E  20FA      .                  jr    nz,$-4         ; Relative jump if nz to $-4
-0540  0640     .@                  ld    b,0x40         ; Load b from 0x40
-0542  21E879   !.y                 ld    hl,0x79E8      ; Load hl from 0x79E8
-0545  3E20     >                   ld    a,0x20         ; Load a from 0x20
-0547  77       w                   ld    (hl),a         ; Load (hl) from a
-0548  23       #                   inc   hl             ; Increment hl
-0549  10FC     ..                  djnz  $-2            ; Decrement B and jump if not zero to $-2
-054B  AF       .                   xor   a              ; Clear A
-054C  77       w                   ld    (hl),a         ; Load (hl) from a
-054D  CDA833   ..3                 call  0x33A8         ; Call 0x33A8
-0550  B7       .                   or    a              ; Test A
-0551  3AA678   :.x                 ld    a,(0x78A6)     ; Load a from (0x78A6)
-0554  2002      .                  jr    nz,$+4         ; Relative jump if nz to $+4
-0556  C620     .                   add   a,0x20         ; Add 0x20 to A
-0558  4F       O                   ld    c,a            ; Load c from a
-0559  AF       .                   xor   a              ; Clear A
+053A  3AAF7A   :.z                 ld    a,(0x7AAF)     ; wait until text output finished.
+053D  B7       .                   or    a              ; 7AAFH contains number of characters in
+053E  20FA      .                  jr    nz,$-4         ; print buffer; if 0 = empty
+0540  0640     .@                  ld    b,0x40         ; clear I/O buffer (length 64)
+0542  21E879   !.y                 ld    hl,0x79E8      ; buffer starting address
+0545  3E20     >                   ld    a,0x20         ; space in A
+0547  77       w                   ld    (hl),a         ; transfer to buffer
+0548  23       #                   inc   hl             ; buffer address + 1
+0549  10FC     ..                  djnz  $-2            ; counter - 1, if 0 - done!
+054B  AF       .                   xor   a              ; 0 in A
+054C  77       w                   ld    (hl),a         ; mark buffer end with X'00'.
+054D  CDA833   ..3                 call  0x33A8         ; determine line status
+0550  B7       .                   or    a              ; continuation line?
+0551  3AA678   :.x                 ld    a,(0x78A6)     ; load column counter
+0554  2002      .                  jr    nz,$+4         ; no continuation line!
+0556  C620     .                   add   a,0x20         ; add one line for continuation line.
+0558  4F       O                   ld    c,a            ; transfer column counter to BC
+0559  AF       .                   xor   a              ; set B = 0
 055A  47       G                   ld    b,a            ; Load b from a
-055B  2A2078   * x                 ld    hl,(0x7820)    ; Load hl from (0x7820)
-055E  ED42     .B                  sbc   hl,bc          ; Subtract bc with carry from hl
-0560  11E879   ..y                 ld    de,0x79E8      ; Load de from 0x79E8
-0563  C5       .                   push  bc             ; Push bc
-0564  EDB0     ..                  ldir                 ; Execute ldir
-0566  C1       .                   pop   bc             ; Pop bc
-0567  213978   !9x                 ld    hl,0x7839      ; Load hl from 0x7839
-056A  CBE6     ..                  set   4,(hl)         ; Set bit 4 of (hl)
-056C  CDE303   ...                 call  INPUT_LINE_READ ; Call 0x03E3
+055B  2A2078   * x                 ld    hl,(0x7820)    ; load cursor pointer
+055E  ED42     .B                  sbc   hl,bc          ; - column = start of line
+0560  11E879   ..y                 ld    de,0x79E8      ; load I/O buffer address
+0563  C5       .                   push  bc             ; remember column counter
+0564  EDB0     ..                  ldir                 ; existing text from line to buffer
+0566  C1       .                   pop   bc             ; reload column counter
+0567  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+056A  CBE6     ..                  set   4,(hl)         ; set INPUT-Cmd flag
+056C  CDE303   ...                 call  INPUT_LINE_READ ; read line
 056F  C9       .                   ret                  ; Return
                      ; RUN command for CRUN auto-start
 0570  52554E00 RUN.                DEFM  "RUN\00"       ; Data text 'RUN\00'
@@ -830,174 +829,183 @@
 0588  EF       .                   rst   0x28           ; Call restart vector 0x28
 0589  3A3804   :8.                 ld    a,(0x0438)     ; Load a from (0x0438)
 058C  DD79B7   .y.                 defb  0x00DD,0x0079,0x00B7 ; Data bytes 0x00DD,0x0079,0x00B7
-058F  2833     (3                  jr    z,$+53         ; Relative jump if z to $+53
-0591  FE0B     ..                  cp    0x0B           ; Compare A with 0x0B
-0593  280A     (.                  jr    z,$+12         ; Relative jump if z to $+12
-0595  FE0C     ..                  cp    0x0C           ; Compare A with 0x0C
-0597  2014      .                  jr    nz,$+22        ; Relative jump if nz to $+22
-0599  AF       .                   xor   a              ; Clear A
-059A  DDB603   ...                 or    (ix+0x03)      ; OR A with (ix+0x03)
-059D  280E     (.                  jr    z,$+16         ; Relative jump if z to $+16
-059F  DD7E03   .~.                 ld    a,(ix+0x03)    ; Load a from (ix+0x03)
-05A2  DD9604   ...                 sub   (ix+0x04)      ; Subtract (ix+0x04) from A
-05A5  47       G                   ld    b,a            ; Load b from a
-05A6  CDE23A   ..:                 call  0x3AE2         ; Call 0x3AE2
-05A9  10FB     ..                  djnz  $-3            ; Decrement B and jump if not zero to $-3
+058F  2833     (3                  jr    z,$+53         ; yes, just determine printer status
+0591  FE0B     ..                  cp    0x0B           ; Page feed?
+0593  280A     (.                  jr    z,$+12         ; yes - execute
+0595  FE0C     ..                  cp    0x0C           ; conditional page feed?
+0597  2014      .                  jr    nz,$+22        ; no!
+0599  AF       .                   xor   a              ; only executed if number of
+059A  DDB603   ...                 or    (ix+0x03)      ; lines/page is not 0
+059D  280E     (.                  jr    z,$+16         ; else output 0C to printer
+059F  DD7E03   .~.                 ld    a,(ix+0x03)    ; lines/page
+05A2  DD9604   ...                 sub   (ix+0x04)      ; - number of printed lines
+05A5  47       G                   ld    b,a            ; in B as skip counter
+05A6  CDE23A   ..:                 call  0x3AE2         ; output Carriage-Return + Line Feed
+05A9  10FB     ..                  djnz  $-3            ; until new page
 05AB  1812     ..                  jr    $+20           ; Relative jump to $+20
-05AD  CDB63A   ..:                 call  0x3AB6         ; Call 0x3AB6
-05B0  79       y                   ld    a,c            ; Load a from c
-05B1  FE0D     ..                  cp    0x0D           ; Compare A with 0x0D
-05B3  C0       .                   ret   nz             ; Return if nz
-05B4  DD3404   .4.                 inc   (ix+0x04)      ; Increment (ix+0x04)
-05B7  DD7E04   .~.                 ld    a,(ix+0x04)    ; Load a from (ix+0x04)
-05BA  DDBE03   ...                 cp    (ix+0x03)      ; Compare A with (ix+0x03)
-05BD  79       y                   ld    a,c            ; Load a from c
-05BE  C0       .                   ret   nz             ; Return if nz
-05BF  DD360400 .6..                ld    (ix+0x04),0x00 ; Load (ix+0x04) from 0x00
+05AD  CDB63A   ..:                 call  0x3AB6         ; character output
+05B0  79       y                   ld    a,c            ; reload character
+05B1  FE0D     ..                  cp    0x0D           ; was that a CR?
+05B3  C0       .                   ret   nz             ; no, done
+05B4  DD3404   .4.                 inc   (ix+0x04)      ; increment line counter in DCB
+05B7  DD7E04   .~.                 ld    a,(ix+0x04)    ; at the beginning of a new page?
+05BA  DDBE03   ...                 cp    (ix+0x03)      ; (line counter - lines/page)
+05BD  79       y                   ld    a,c            ; character back in A
+05BE  C0       .                   ret   nz             ; no new page - done
+05BF  DD360400 .6..                ld    (ix+0x04),0x00 ; line counter = 0
 05C3  C9       .                   ret                  ; Return
-05C4  DB00     ..                  in    a,(0x00)       ; Read printer busy status
-05C6  E601     ..                  and   0x01           ; AND A with 0x01
+05C4  DB00     ..                  in    a,(0x00)       ; determine printer status
+05C6  E601     ..                  and   0x01           ; only BUSY is checked
 05C8  C9       .                   ret                  ; Return
                      ; Clear 4-byte graphics print buffer
                      PRN_GFXBUF_CLEAR:
-05C9  C5       .                   push  bc             ; Push bc
+05C9  C5       .                   push  bc             ; save BC + HL
 05CA  E5       .                   push  hl             ; Push hl
-05CB  0604     ..                  ld    b,0x04         ; Load b from 0x04
-05CD  21D27A   !.z                 ld    hl,0x7AD2      ; Load hl from 0x7AD2
-05D0  77       w                   ld    (hl),a         ; Load (hl) from a
-05D1  23       #                   inc   hl             ; Increment hl
-05D2  10FC     ..                  djnz  $-2            ; Decrement B and jump if not zero to $-2
-05D4  E1       .                   pop   hl             ; Pop hl
+05CB  0604     ..                  ld    b,0x04         ; counter = 4
+05CD  21D27A   !.z                 ld    hl,0x7AD2      ; load buffer address
+05D0  77       w                   ld    (hl),a         ; transfer A to buffer
+05D1  23       #                   inc   hl             ; buffer address + 1
+05D2  10FC     ..                  djnz  $-2            ; counter - 1 = 0? yes - done!
+05D4  E1       .                   pop   hl             ; restore registers
 05D5  C1       .                   pop   bc             ; Pop bc
 05D6  C9       .                   ret                  ; Return
-                     ; Keyboard rollover handler
-                     ; (second key pressed before first release)
+                     ; Part of the keyboard query
+                     ; Handles the pressing of a second key before the first one has been released 
+                     ; (Rollover)
+                     ; In Flag 1 (7838H), bits 3 and 4 are used to indicate the status of the two 
+                     ; keyboard buffers B1 (7836H) and B2 (7837H).
+                     ; Bit4 Bit3 Status
+                     ; 0 0 : B1 and B2 are not pressed
+                     ; 0 1 : B1 pressed, B2 not pressed
+                     ; 1 0 : B1 not pressed, B2 pressed
+                     ; 1 1 : B1 and B2 pressed
                      KBD_ROLLOVER:
-05D7  213878   !8x                 ld    hl,0x7838      ; Load hl from 0x7838
-05DA  CB56     .V                  bit   2,(hl)         ; Test bit 2 of (hl)
-05DC  2815     (.                  jr    z,$+23         ; Relative jump if z to $+23
-05DE  57       W                   ld    d,a            ; Load d from a
-05DF  3A3A78   ::x                 ld    a,(0x783A)     ; Load a from (0x783A)
-05E2  B7       .                   or    a              ; Test A
-05E3  280F     (.                  jr    z,$+17         ; Relative jump if z to $+17
-05E5  3C       <                   inc   a              ; Increment a
-05E6  323A78   2:x                 ld    (0x783A),a     ; Load (0x783A) from a
-05E9  FE2A     .*                  cp    0x2A           ; Compare A with 0x2A
-05EB  2802     (.                  jr    z,$+4          ; Relative jump if z to $+4
-05ED  AF       .                   xor   a              ; Clear A
-05EE  C9       .                   ret                  ; Return
-05EF  CB96     ..                  res   2,(hl)         ; Reset bit 2 of (hl)
-05F1  AF       .                   xor   a              ; Clear A
-05F2  C9       .                   ret                  ; Return
-05F3  57       W                   ld    d,a            ; Load d from a
-05F4  213878   !8x                 ld    hl,0x7838      ; Load hl from 0x7838
-05F7  7E       ~                   ld    a,(hl)         ; Load a from (hl)
-05F8  E618     ..                  and   0x18           ; AND A with 0x18
-05FA  200B      .                  jr    nz,$+13        ; Relative jump if nz to $+13
-05FC  CBDE     ..                  set   3,(hl)         ; Set bit 3 of (hl)
-05FE  AF       .                   xor   a              ; Clear A
+05D7  213878   !8x                 ld    hl,0x7838      ; address Flag 1
+05DA  CB56     .V                  bit   2,(hl)         ; function flag set?
+05DC  2815     (.                  jr    z,$+23         ; no - continue at 05F3H
+05DE  57       W                   ld    d,a            ; save key code
+05DF  3A3A78   ::x                 ld    a,(0x783A)     ; load timer value
+05E2  B7       .                   or    a              ; = 0?
+05E3  280F     (.                  jr    z,$+17         ; yes - continue at 05F4H
+05E5  3C       <                   inc   a              ; timer value + 1
+05E6  323A78   2:x                 ld    (0x783A),a     ; store back
+05E9  FE2A     .*                  cp    0x2A           ; time elapsed? (approx. 0.84 sec)
+05EB  2802     (.                  jr    z,$+4          ; yes!
+05ED  AF       .                   xor   a              ; clear character
+05EE  C9       .                   ret                  ; and back
+05EF  CB96     ..                  res   2,(hl)         ; clear function flag
+05F1  AF       .                   xor   a              ; clear character
+05F2  C9       .                   ret                  ; back
+05F3  57       W                   ld    d,a            ; save character in D
+05F4  213878   !8x                 ld    hl,0x7838      ; address Flag 1
+05F7  7E       ~                   ld    a,(hl)         ; load into A
+05F8  E618     ..                  and   0x18           ; test bits 3 and 4
+05FA  200B      .                  jr    nz,$+13        ; bit 3 and/or bit 4 set
+05FC  CBDE     ..                  set   3,(hl)         ; set bit 3
+05FE  AF       .                   xor   a              ; clear B2
 05FF  323778   27x                 ld    (0x7837),a     ; Load (0x7837) from a
-0602  7A       z                   ld    a,d            ; Load a from d
-0603  323678   26x                 ld    (0x7836),a     ; Load (0x7836) from a
-0606  C9       .                   ret                  ; Return
-0607  CB66     .f                  bit   4,(hl)         ; Test bit 4 of (hl)
-0609  202A      *                  jr    nz,$+44        ; Relative jump if nz to $+44
-060B  3A3678   :6x                 ld    a,(0x7836)     ; Load a from (0x7836)
-060E  BA       .                   cp    d              ; Compare A with d
-060F  2021      !                  jr    nz,$+35        ; Relative jump if nz to $+35
-0611  ED4B4278 .KBx                ld    bc,(0x7842)    ; Load bc from (0x7842)
-0615  2A4478   *Dx                 ld    hl,(0x7844)    ; Load hl from (0x7844)
-0618  7B       {                   ld    a,e            ; Load a from e
-0619  CD352F   .5/                 call  0x2F35         ; Call 0x2F35
-061C  BA       .                   cp    d              ; Compare A with d
-061D  CAD72F   ../                 jp    z,0x2FD7       ; Jump if z to 0x2FD7
-0620  FE00     ..                  cp    0x00           ; Compare A with 0x00
-0622  CAD72F   ../                 jp    z,0x2FD7       ; Jump if z to 0x2FD7
-0625  213878   !8x                 ld    hl,0x7838      ; Load hl from 0x7838
-0628  CBDE     ..                  set   3,(hl)         ; Set bit 3 of (hl)
+0602  7A       z                   ld    a,d            ; reload character
+0603  323678   26x                 ld    (0x7836),a     ; and enter in B1
+0606  C9       .                   ret                  ; only one key pressed - done!
+                     ; Key was held
+0607  CB66     .f                  bit   4,(hl)         ; already two keys in the buffer?
+0609  202A      *                  jr    nz,$+44        ; yes!
+060B  3A3678   :6x                 ld    a,(0x7836)     ; load character from B1
+060E  BA       .                   cp    d              ; = pressed key?
+060F  2021      !                  jr    nz,$+35        ; no, a new one
+0611  ED4B4278 .KBx                ld    bc,(0x7842)    ; load row/column counter
+0615  2A4478   *Dx                 ld    hl,(0x7844)    ; load matrix address
+0618  7B       {                   ld    a,e            ; content of matrix row
+0619  CD352F   .5/                 call  0x2F35         ; check remaining keys
+061C  BA       .                   cp    d              ; same as before?
+061D  CAD72F   ../                 jp    z,0x2FD7       ; yes, for key repeat
+0620  FE00     ..                  cp    0x00           ; no further one?
+0622  CAD72F   ../                 jp    z,0x2FD7       ; yes, for key repeat
+0625  213878   !8x                 ld    hl,0x7838      ; address Flag 1
+0628  CBDE     ..                  set   3,(hl)         ; set both status bits 3+4
 062A  CBE6     ..                  set   4,(hl)         ; Set bit 4 of (hl)
-062C  CB96     ..                  res   2,(hl)         ; Reset bit 2 of (hl)
-062E  323778   27x                 ld    (0x7837),a     ; Load (0x7837) from a
-0631  C9       .                   ret                  ; Return
-0632  7A       z                   ld    a,d            ; Load a from d
-0633  18F0     ..                  jr    $-14           ; Relative jump to $-14
-0635  3A3678   :6x                 ld    a,(0x7836)     ; Load a from (0x7836)
-0638  BA       .                   cp    d              ; Compare A with d
-0639  2808     (.                  jr    z,$+10         ; Relative jump if z to $+10
-063B  3A3778   :7x                 ld    a,(0x7837)     ; Load a from (0x7837)
-063E  BA       .                   cp    d              ; Compare A with d
-063F  2802     (.                  jr    z,$+4          ; Relative jump if z to $+4
-0641  AF       .                   xor   a              ; Clear A
-0642  C9       .                   ret                  ; Return
-0643  ED4B4278 .KBx                ld    bc,(0x7842)    ; Load bc from (0x7842)
-0647  2A4478   *Dx                 ld    hl,(0x7844)    ; Load hl from (0x7844)
-064A  7B       {                   ld    a,e            ; Load a from e
-064B  CD352F   .5/                 call  0x2F35         ; Call 0x2F35
-064E  BA       .                   cp    d              ; Compare A with d
-064F  2805     (.                  jr    z,$+7          ; Relative jump if z to $+7
-0651  FE00     ..                  cp    0x00           ; Compare A with 0x00
-0653  C2D72F   ../                 jp    nz,0x2FD7      ; Jump if nz to 0x2FD7
-0656  213878   !8x                 ld    hl,0x7838      ; Load hl from 0x7838
-0659  CBDE     ..                  set   3,(hl)         ; Set bit 3 of (hl)
-065B  CBA6     ..                  res   4,(hl)         ; Reset bit 4 of (hl)
-065D  3A3678   :6x                 ld    a,(0x7836)     ; Load a from (0x7836)
-0660  BA       .                   cp    d              ; Compare A with d
-0661  2005      .                  jr    nz,$+7         ; Relative jump if nz to $+7
-0663  AF       .                   xor   a              ; Clear A
+062C  CB96     ..                  res   2,(hl)         ; reset function flag
+062E  323778   27x                 ld    (0x7837),a     ; character in B2
+0631  C9       .                   ret                  ; and back
+0632  7A       z                   ld    a,d            ; new key code in A
+0633  18F0     ..                  jr    $-14           ; enter in B2
+                     ; Two keys already registered
+0635  3A3678   :6x                 ld    a,(0x7836)     ; load character from B1
+0638  BA       .                   cp    d              ; = new key code?
+0639  2808     (.                  jr    z,$+10         ; yes!
+063B  3A3778   :7x                 ld    a,(0x7837)     ; load character from B2
+063E  BA       .                   cp    d              ; = new key code?
+063F  2802     (.                  jr    z,$+4          ; yes!
+0641  AF       .                   xor   a              ; 3 keys - yuck
+0642  C9       .                   ret                  ; back with A = 0
+0643  ED4B4278 .KBx                ld    bc,(0x7842)    ; load row/column counter
+0647  2A4478   *Dx                 ld    hl,(0x7844)    ; load matrix address
+064A  7B       {                   ld    a,e            ; load content of matrix row
+064B  CD352F   .5/                 call  0x2F35         ; continue searching matrix
+064E  BA       .                   cp    d              ; same key?
+064F  2805     (.                  jr    z,$+7          ; yes!
+0651  FE00     ..                  cp    0x00           ; no further key?
+0653  C2D72F   ../                 jp    nz,0x2FD7      ; yes - for key repeat
+0656  213878   !8x                 ld    hl,0x7838      ; address Flag 1
+0659  CBDE     ..                  set   3,(hl)         ; set status flag for B1
+065B  CBA6     ..                  res   4,(hl)         ; clear status flag for B2
+065D  3A3678   :6x                 ld    a,(0x7836)     ; load character from B1
+0660  BA       .                   cp    d              ; = entered character?
+0661  2005      .                  jr    nz,$+7         ; no!
+0663  AF       .                   xor   a              ; clear B2
 0664  323778   27x                 ld    (0x7837),a     ; Load (0x7837) from a
-0667  C9       .                   ret                  ; Return
-0668  3A3778   :7x                 ld    a,(0x7837)     ; Load a from (0x7837)
+0667  C9       .                   ret                  ; back
+0668  3A3778   :7x                 ld    a,(0x7837)     ; transfer B2 to B1
 066B  323678   26x                 ld    (0x7836),a     ; Load (0x7836) from a
-066E  18F3     ..                  jr    $-11           ; Relative jump to $-11
+066E  18F3     ..                  jr    $-11           ; clear B2
 0670  DDCB09D6 ....                set   2,(ix+0x09)    ; Set bit 2 of (ix+0x09)
-                     ; *******************************
-                     ; BASIC initialization part 1
-                     ; *******************************
+                     ; BASIC - Initialization Part 1
                      BASIC_INIT_1:
-0674  00       .                   nop                  ; No operation
+0674  00       .                   nop                  ; starts well
 0675  00       .                   nop                  ; No operation
-0676  21D206   !..                 ld    hl,RAM_VECTOR_BLOCK ; Load hl from 0x06D2
-0679  110078   ..x                 ld    de,0x7800      ; Load de from 0x7800
-067C  013600   .6.                 ld    bc,0x0036      ; Load bc from 0x0036
+0676  21D206   !..                 ld    hl,RAM_VECTOR_BLOCK ; ROM 6D2 - 707 into
+0679  110078   ..x                 ld    de,0x7800      ; RAM 7800 - 7835
+067C  013600   .6.                 ld    bc,0x0036      ; transfer
 067F  EDB0     ..                  ldir                 ; Execute ldir
-0681  3D       =                   dec   a              ; Decrement a
-0682  3D       =                   dec   a              ; Decrement a
-0683  20F1      .                  jr    nz,$-13        ; Relative jump if nz to $-13
-0685  0627     .'                  ld    b,0x27         ; Load b from 0x27
-0687  12       .                   ld    (de),a         ; Load (de) from a
+0681  3D       =                   dec   a              ; the whole 128x
+0682  3D       =                   dec   a              ; why ???????
+0683  20F1      .                  jr    nz,$-13        ; probably burn-in !!!!!
+0685  0627     .'                  ld    b,0x27         ; clear the next 39 bytes
+0687  12       .                   ld    (de),a         ; (7836 - 785C)
 0688  13       .                   inc   de             ; Increment de
 0689  10FC     ..                  djnz  $-2            ; Decrement B and jump if not zero to $-2
-068B  C37500   .u.                 jp    BASIC_INIT_2   ; Jump to BASIC initialization part 2
-                     ; BASIC initialization part 3
+068B  C37500   .u.                 jp    BASIC_INIT_2   ; to BASIC - initialization T. 2
+                     ; BASIC - Initialization Part 3
                      ; Check for external ROM cassette
                      BASIC_INIT_3:
-068E  210040   !.@                 ld    hl,0x4000      ; Load hl from 0x4000
-0691  CDA406   ...                 call  ROM_CART_CHECK ; Call 0x06A4
-0694  210060   !.`                 ld    hl,0x6000      ; Load hl from 0x6000
-0697  CDA406   ...                 call  ROM_CART_CHECK ; Call 0x06A4
-069A  210080   !..                 ld    hl,0x8000      ; Load hl from 0x8000
-069D  CDA406   ...                 call  ROM_CART_CHECK ; Call 0x06A4
-06A0  FB       .                   ei                   ; Enable interrupts
-06A1  C3191A   ...                 jp    0x1A19         ; Jump to 0x1A19
+068E  210040   !.@                 ld    hl,0x4000      ; 1st possibility at 4000H
+0691  CDA406   ...                 call  ROM_CART_CHECK ; check there
+0694  210060   !.`                 ld    hl,0x6000      ; 2nd possibility at 6000H
+0697  CDA406   ...                 call  ROM_CART_CHECK ; check
+069A  210080   !..                 ld    hl,0x8000      ; 3rd possibility at 8000H
+069D  CDA406   ...                 call  ROM_CART_CHECK ; check
+06A0  FB       .                   ei                   ; no insert - interrupts on
+06A1  C3191A   ...                 jp    0x1A19         ; to BASIC - main loop
+                     ; ROM insert must begin with the byte sequence AA 55 E7 18
                      ROM_CART_CHECK:
-06A4  3EAA     >.                  ld    a,0xAA         ; Check signature sequence AA 55 E7 18
-06A6  BE       .                   cp    (hl)           ; Compare A with (hl)
-06A7  23       #                   inc   hl             ; Increment hl
-06A8  C0       .                   ret   nz             ; Return if nz
-06A9  2F       /                   cpl                  ; Complement A
-06AA  BE       .                   cp    (hl)           ; Compare A with (hl)
-06AB  23       #                   inc   hl             ; Increment hl
-06AC  C0       .                   ret   nz             ; Return if nz
-06AD  3EE7     >.                  ld    a,0xE7         ; Load a from 0xE7
-06AF  BE       .                   cp    (hl)           ; Compare A with (hl)
-06B0  23       #                   inc   hl             ; Increment hl
-06B1  C0       .                   ret   nz             ; Return if nz
-06B2  2F       /                   cpl                  ; Complement A
-06B3  BE       .                   cp    (hl)           ; Compare A with (hl)
-06B4  23       #                   inc   hl             ; Increment hl
-06B5  C0       .                   ret   nz             ; Return if nz
-06B6  FB       .                   ei                   ; Enable interrupts
-06B7  E9       .                   jp    (hl)           ; Jump to (hl)
+06A4  3EAA     >.                  ld    a,0xAA         ; ROM insert must begin with the
+06A6  BE       .                   cp    (hl)           ; byte sequence AA 55 E7 18
+06A7  23       #                   inc   hl             ; next byte
+06A8  C0       .                   ret   nz             ; was nothing already
+06A9  2F       /                   cpl                  ; form 2nd value (55)
+06AA  BE       .                   cp    (hl)           ; equal?
+06AB  23       #                   inc   hl             ; next byte
+06AC  C0       .                   ret   nz             ; unequal!
+06AD  3EE7     >.                  ld    a,0xE7         ; 3rd value = E7
+06AF  BE       .                   cp    (hl)           ; is that correct?
+06B0  23       #                   inc   hl             ; next byte
+06B1  C0       .                   ret   nz             ; no, not that either
+06B2  2F       /                   cpl                  ; form 4th value (18)
+06B3  BE       .                   cp    (hl)           ; is this one correct too?
+06B4  23       #                   inc   hl             ; next byte
+06B5  C0       .                   ret   nz             ; no - no insert
+06B6  FB       .                   ei                   ; interrupts on
+06B7  E9       .                   jp    (hl)           ; jump to ROM insert
 06B8  0E02     ..                  ld    c,0x02         ; Load c from 0x02
 06BA  CD591A   .Y.                 call  0x1A59         ; Call 0x1A59
 06BD  CDB834   ..4                 call  0x34B8         ; Call 0x34B8
@@ -1007,199 +1015,208 @@
 06C6  2C       ,                   inc   l              ; Increment l
 06C7  2814     (.                  jr    z,$+22         ; Relative jump if z to $+22
 06C9  CDF134   ..4                 call  0x34F1         ; Call 0x34F1
-06CC  01181A   ...                 ld    bc,0x1A18      ; Load bc from 0x1A18
-06CF  C3AE19   ...                 jp    0x19AE         ; Jump to 0x19AE
-                     ; *******************************
-                     ; Copied to RAM 0x7800-0x7835
-                     ; Restart vectors and DCB tables
-                     ; *******************************
+06CC  01181A   ...                 ld    bc,0x1A18      ; load address of main loop
+06CF  C3AE19   ...                 jp    0x19AE         ; init BASIC variables and pointers.
+                     ; The following area from 6D2 to 707 is transferred to the RAM area from 7800 
+                     ; to 7835
+                     ; Restart Vectors
                      RAM_VECTOR_BLOCK:
-06D2  C3961C   ...                 jp    0x1C96         ; RST 08H: compare one character
-06D5  C3781D   .x.                 jp    0x1D78         ; RST 10H: next character
-06D8  C3901C   ...                 jp    0x1C90         ; RST 18H: compare HL/DE
-06DB  C3D925   ..%                 jp    0x25D9         ; RST 20H: test data type
+06D2  C3961C   ...                 jp    0x1C96         ; RST 8H (compare 1 character)
+06D5  C3781D   .x.                 jp    0x1D78         ; RST 10H (next character)
+06D8  C3901C   ...                 jp    0x1C90         ; RST 18H (compare HL/DE)
+06DB  C3D925   ..%                 jp    0x25D9         ; RST 20H (test data type)
 06DE  C9       .                   ret                  ; RST 28H
 06DF  00       .                   nop                  ; No operation
 06E0  00       .                   nop                  ; No operation
 06E1  C9       .                   ret                  ; RST 30H
 06E2  00       .                   nop                  ; No operation
 06E3  00       .                   nop                  ; No operation
-06E4  FB       .                   ei                   ; RST 38H interrupt entry
+06E4  FB       .                   ei                   ; RST 38H (Interrupt)
 06E5  C9       .                   ret                  ; Return
 06E6  00       .                   nop                  ; No operation
-                     ; Keyboard device control block (DCB)
-06E7  01F42E00 ....                DEFB  0x01,0xF4,0x2E,0x00,0x00,0x00 ; Keyboard DCB: type + driver address + rese
-      0000     ..    
-06ED  4B49     KI                  DEFM  "KI"           ; Name: KI
-                     ; Screen device control block (DCB)
-06EF  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x70,0x00,0x00,0x00 ; Data bytes 0x00,0x00,0x00,0x00,0x70,0x00,0
-      70000000 p...  
-                     ; Printer device control block (DCB)
-06F7  068D0543 ...C                DEFB  0x06,0x8D,0x05,0x43,0x00,0x00 ; Data bytes 0x06,0x8D,0x05,0x43,0x00,0x00
-      0000     ..    
-06FD  5052     PR                  DEFM  "PR"           ; Name: PR
-06FF  C30050   ..P                 jp    0x5000         ; Jump to 0x5000
-0702  C7       .                   rst   0              ; Call restart vector 0
+                     ; Keyboard - Device Control Block
+06E7  01       .                   DEFB  0x01           ; DCB type
+06E8  F42E     ..                  DEFW  0x2EF4
+06EA  000000   ...                 DEFB  0x00,0x00,0x00
+                     ; Keyboard Name
+06ED  4B49     KI                  DEFM  "KI"           ; Keyboard Name
+                     ; Screen - Device Control Block
+                     ; not used except for the cursor address.
+06EF  00       .                   DEFB  0x00           ; DCB type (unknown)
+06F0  0000     ..                  DEFW  0x0000         ; used by SET, RESET and POINT.
+06F2  0070     .p                  DEFW  0x7000         ; cursor address pointer
+06F4  000000   ...                 DEFB  0x00,0x00,0x00
+                     ; Printer - Device Control Block
+06F7  06       .                   DEFB  0x06           ; DCB type
+06F8  8D05     ..                  DEFW  0x058D         ; driver address
+06FA  43       C                   DEFB  0x43           ; lines/page + 1
+06FB  00       .                   DEFB  0x00           ; line counter
+06FC  00       .                   DEFB  0x00
+06FD  5052     PR                  DEFM  "PR"           ; Printer Name
+06FF  C30050   ..P                 jp    0x5000         ; not used
+0702  C7       .                   rst   0              ; not used
 0703  00       .                   nop                  ; No operation
 0704  00       .                   nop                  ; No operation
-                     ; Entry used on wrong DCB type
-0705  3E00     >.                  ld    a,0x00         ; Load a from 0x00
-0707  C9       .                   ret                  ; Return
-                     ; *******************************
-                     ; Single-precision add/subtract
-                     ; (entry points by requested operation)
-                     ; *******************************
+                     ; Entry for wrong DCB type
+0705  3E00     >.                  ld    a,0x00         ; entry for wrong DCB type
+0707  C9       .                   ret                  ; in the DCB call routine
+                     ; Addition and subtraction with single precision
+                     ; Various entry points according to the required function.
                      FP_ADD_HALF:
-0708  218013   !..                 ld    hl,0x1380      ; Load hl from 0x1380
-070B  CDC209   ...                 call  0x09C2         ; Load constant 0.5 into Y then add to X
-070E  1806     ..                  jr    $+8            ; Relative jump to $+8
+0708  218013   !..                 ld    hl,0x1380      ; address of constant 0.5
+070B  CDC209   ...                 call  0x09C2         ; load constant into Y then add to X
+070E  1806     ..                  jr    $+8            ; jump to addition
                      FP_SUB_HALF:
-0710  CDC209   ...                 call  0x09C2         ; Call 0x09C2
+0710  CDC209   ...                 call  0x09C2         ; load constant into Y
                      FP_SUB_Y_MINUS_X:
-0713  CD8209   ...                 call  0x0982         ; Call 0x0982
+0713  CD8209   ...                 call  0x0982         ; X = -X
                      FP_ADD_X_PLUS_Y:
-0716  78       x                   ld    a,b            ; Load a from b
+0716  78       x                   ld    a,b            ; Y = 0? (Exp. Y = 0)
 0717  B7       .                   or    a              ; Test A
-0718  C8       .                   ret   z              ; Return if z
-0719  3A2479   :$y                 ld    a,(0x7924)     ; Load a from (0x7924)
+0718  C8       .                   ret   z              ; yes, done
+0719  3A2479   :$y                 ld    a,(0x7924)     ; X = 0? (Exp. X = 0)
 071C  B7       .                   or    a              ; Test A
-071D  CAB409   ...                 jp    z,0x09B4       ; Jump if z to 0x09B4
-0720  90       .                   sub   b              ; Subtract b from A
-0721  300C     0.                  jr    nc,$+14        ; Relative jump if nc to $+14
-0723  2F       /                   cpl                  ; Complement A
-0724  3C       <                   inc   a              ; Increment a
-0725  EB       .                   ex    de,hl          ; Exchange de,hl
-0726  CDA409   ...                 call  0x09A4         ; Call 0x09A4
-0729  EB       .                   ex    de,hl          ; Exchange de,hl
-072A  CDB409   ...                 call  0x09B4         ; Call 0x09B4
-072D  C1       .                   pop   bc             ; Pop bc
+071D  CAB409   ...                 jp    z,0x09B4       ; yes, done, X=Y
+0720  90       .                   sub   b              ; Exp. Y <= Exp. X?
+0721  300C     0.                  jr    nc,$+14        ; yes
+0723  2F       /                   cpl                  ; negate Exp.Diff
+0724  3C       <                   inc   a              ; exchange X with Y
+0725  EB       .                   ex    de,hl          ; save LSB Y
+0726  CDA409   ...                 call  0x09A4         ; put X on stack
+0729  EB       .                   ex    de,hl          ; restore LSB Y
+072A  CDB409   ...                 call  0x09B4         ; transfer Y to X
+072D  C1       .                   pop   bc             ; load stack to Y
 072E  D1       .                   pop   de             ; Pop de
-072F  FE19     ..                  cp    0x19           ; Compare A with 0x19
-0731  D0       .                   ret   nc             ; Return if nc
-0732  F5       .                   push  af             ; Push af
-0733  CDDF09   ...                 call  0x09DF         ; Call 0x09DF
-0736  67       g                   ld    h,a            ; Load h from a
-0737  F1       .                   pop   af             ; Pop af
-0738  CDD707   ...                 call  0x07D7         ; Call 0x07D7
-073B  B4       .                   or    h              ; OR A with h
-073C  212179   !!y                 ld    hl,0x7921      ; Load hl from 0x7921
-073F  F25407   .T.                 jp    p,0x0754       ; Jump if p to 0x0754
+072F  FE19     ..                  cp    0x19           ; Exp.Diff > mantissa (24 bits)
+0731  D0       .                   ret   nc             ; no, X = X, done
+0732  F5       .                   push  af             ; save Exp.Diff.
+0733  CDDF09   ...                 call  0x09DF         ; A(7) = 0 if different signs
+0736  67       g                   ld    h,a            ; save sign flag
+0737  F1       .                   pop   af             ; reload Exp.Difference
+0738  CDD707   ...                 call  0x07D7         ; shift Y right by this difference
+073B  B4       .                   or    h              ; signs equal?
+073C  212179   !!y                 ld    hl,0x7921      ; LSB X address in HL
+073F  F25407   .T.                 jp    p,0x0754       ; no, subtract
                      ; Mantissa addition
-0742  CDB707   ...                 call  0x07B7         ; Call 0x07B7
-0745  D29607   ...                 jp    nc,0x0796      ; Jump if nc to 0x0796
-0748  23       #                   inc   hl             ; Increment hl
-0749  34       4                   inc   (hl)           ; Increment (hl)
-074A  CAB207   ...                 jp    z,0x07B2       ; Jump if z to 0x07B2
-074D  2E01     ..                  ld    l,0x01         ; Load l from 0x01
-074F  CDEB07   ...                 call  0x07EB         ; Call 0x07EB
-0752  1842     .B                  jr    $+68           ; Relative jump to $+68
+0742  CDB707   ...                 call  0x07B7         ; add mantissas
+0745  D29607   ...                 jp    nc,0x0796      ; overflow? no=jump
+0748  23       #                   inc   hl             ; pointer to Exp. X
+0749  34       4                   inc   (hl)           ; Exp. X + 1
+074A  CAB207   ...                 jp    z,0x07B2       ; overflow? yes=OV-Error
+074D  2E01     ..                  ld    l,0x01         ; shift mantissa of X by 1 bit
+074F  CDEB07   ...                 call  0x07EB         ; right
+0752  1842     .B                  jr    $+68           ; done!
                      ; Mantissa subtraction
-0754  AF       .                   xor   a              ; Clear A
-0755  90       .                   sub   b              ; Subtract b from A
-0756  47       G                   ld    b,a            ; Load b from a
-0757  7E       ~                   ld    a,(hl)         ; Load a from (hl)
+0754  AF       .                   xor   a              ; Mant. Y - Mant. X to Mant. Y
+0755  90       .                   sub   b              ; low order byte (created by shifting)
+0756  47       G                   ld    b,a            ; result
+0757  7E       ~                   ld    a,(hl)         ; LSB subtraction
 0758  9B       .                   sbc   a,e            ; Subtract e with carry from a
 0759  5F       _                   ld    e,a            ; Load e from a
-075A  23       #                   inc   hl             ; Increment hl
-075B  7E       ~                   ld    a,(hl)         ; Load a from (hl)
+075A  23       #                   inc   hl             ; next byte
+075B  7E       ~                   ld    a,(hl)         ; subtract
 075C  9A       .                   sbc   a,d            ; Subtract d with carry from a
 075D  57       W                   ld    d,a            ; Load d from a
-075E  23       #                   inc   hl             ; Increment hl
+075E  23       #                   inc   hl             ; MSB subtract
 075F  7E       ~                   ld    a,(hl)         ; Load a from (hl)
 0760  99       .                   sbc   a,c            ; Subtract c with carry from a
-0761  4F       O                   ld    c,a            ; Load c from a
-0762  DCC307   ...                 call  c,0x07C3       ; Call 0x07C3 if c
-                     ; Normalization
-0765  68       h                   ld    l,b            ; Load l from b
+0761  4F       O                   ld    c,a            ; underflow?
+0762  DCC307   ...                 call  c,0x07C3       ; invert sign flag
+                     ; Normalize
+0765  68       h                   ld    l,b            ; res. mant. from CDEB to CDHL
 0766  63       c                   ld    h,e            ; Load h from e
-0767  AF       .                   xor   a              ; Clear A
+0767  AF       .                   xor   a              ; shift counter = 0
 0768  47       G                   ld    b,a            ; Load b from a
-0769  79       y                   ld    a,c            ; Load a from c
+0769  79       y                   ld    a,c            ; MSB Y = 0?
 076A  B7       .                   or    a              ; Test A
-076B  2018      .                  jr    nz,$+26        ; Relative jump if nz to $+26
-076D  4A       J                   ld    c,d            ; Load c from d
-076E  54       T                   ld    d,h            ; Load d from h
-076F  65       e                   ld    h,l            ; Load h from l
-0770  6F       o                   ld    l,a            ; Load l from a
-0771  78       x                   ld    a,b            ; Load a from b
+076B  2018      .                  jr    nz,$+26        ; no
+076D  4A       J                   ld    c,d            ; shift Y left by 1 byte
+076E  54       T                   ld    d,h            ; H to D
+076F  65       e                   ld    h,l            ; L to H
+0770  6F       o                   ld    l,a            ; L = 0
+0771  78       x                   ld    a,b            ; shift counter - 8
 0772  D608     ..                  sub   0x08           ; Subtract 0x08 from A
-0774  FEE0     ..                  cp    0xE0           ; Compare A with 0xE0
-0776  20F0      .                  jr    nz,$-14        ; Relative jump if nz to $-14
-0778  AF       .                   xor   a              ; Set real value to zero
-0779  322479   2$y                 ld    (0x7924),a     ; Load (0x7924) from a
+0774  FEE0     ..                  cp    0xE0           ; 32 left shifts? (number = 0)
+0776  20F0      .                  jr    nz,$-14        ; no!
+                     ; Set real value = 0
+0778  AF       .                   xor   a              ; exponent in X = 0
+0779  322479   2$y                 ld    (0x7924),a     ; i.e. X = 0
 077C  C9       .                   ret                  ; Return
-077D  05       .                   dec   b              ; Decrement b
-077E  29       )                   add   hl,hl          ; Add hl,hl
-077F  7A       z                   ld    a,d            ; Load a from d
+                     ; 2nd part of normalization
+077D  05       .                   dec   b              ; shift counter - 1
+077E  29       )                   add   hl,hl          ; CDHL one bit left (HL * 2)
+077F  7A       z                   ld    a,d            ; D * 2
 0780  17       .                   rla                  ; Rotate A left through carry
 0781  57       W                   ld    d,a            ; Load d from a
-0782  79       y                   ld    a,c            ; Load a from c
+0782  79       y                   ld    a,c            ; C * 2
 0783  8F       .                   adc   a,a            ; Add a with carry to a
-0784  4F       O                   ld    c,a            ; Load c from a
-0785  F27D07   .}.                 jp    p,0x077D       ; Jump if p to 0x077D
-0788  78       x                   ld    a,b            ; Load a from b
-0789  5C       \                   ld    e,h            ; Load e from h
+0784  4F       O                   ld    c,a            ; highest bit of Y set?
+0785  F27D07   .}.                 jp    p,0x077D       ; no, continue
+0788  78       x                   ld    a,b            ; shift counter to A
+0789  5C       \                   ld    e,h            ; CDHL back to CDEB
 078A  45       E                   ld    b,l            ; Load b from l
-078B  B7       .                   or    a              ; Test A
-078C  2808     (.                  jr    z,$+10         ; Relative jump if z to $+10
-078E  212479   !$y                 ld    hl,0x7924      ; Load hl from 0x7924
-0791  86       .                   add   a,(hl)         ; Add (hl) to A
-0792  77       w                   ld    (hl),a         ; Load (hl) from a
-0793  30E3     0.                  jr    nc,$-27        ; Relative jump if nc to $-27
-0795  C8       .                   ret   z              ; Return if z
-0796  78       x                   ld    a,b            ; Finalize result: round and copy Y to X
-0797  212479   !$y                 ld    hl,0x7924      ; Load hl from 0x7924
-079A  B7       .                   or    a              ; Test A
-079B  FCA807   ...                 call  m,0x07A8       ; Call 0x07A8 if m
-079E  46       F                   ld    b,(hl)         ; Load b from (hl)
-079F  23       #                   inc   hl             ; Increment hl
-07A0  7E       ~                   ld    a,(hl)         ; Load a from (hl)
-07A1  E680     ..                  and   0x80           ; AND A with 0x80
-07A3  A9       .                   xor   c              ; XOR A with c
-07A4  4F       O                   ld    c,a            ; Load c from a
-07A5  C3B409   ...                 jp    0x09B4         ; Jump to 0x09B4
+078B  B7       .                   or    a              ; no shift?
+078C  2808     (.                  jr    z,$+10         ; yes
+078E  212479   !$y                 ld    hl,0x7924      ; address X exponent
+0791  86       .                   add   a,(hl)         ; Exp. X + number of shifts
+0792  77       w                   ld    (hl),a         ; = Exp. X. Underflow?
+0793  30E3     0.                  jr    nc,$-27        ; yes! X=0 and back
+0795  C8       .                   ret   z              ; number of shifts = Exp. X? back!
+                     ; Finalize result: round and copy Y to X
+0796  78       x                   ld    a,b            ; load LSB Y
+0797  212479   !$y                 ld    hl,0x7924      ; address X exponent
+079A  B7       .                   or    a              ; LSB Y(7) = 0?
+079B  FCA807   ...                 call  m,0x07A8       ; no - round Y
+079E  46       F                   ld    b,(hl)         ; Exp. X to Exp. Y
+079F  23       #                   inc   hl             ; sign flag
+07A0  7E       ~                   ld    a,(hl)         ; load
+07A1  E680     ..                  and   0x80           ; mask out sign
+07A3  A9       .                   xor   c              ; link with MSB Y (invert)
+07A4  4F       O                   ld    c,a            ; and back to MSB Y
+07A5  C3B409   ...                 jp    0x09B4         ; Y to X as result
                      ; Rounding
-07A8  1C       .                   inc   e              ; Increment e
-07A9  C0       .                   ret   nz             ; Return if nz
-07AA  14       .                   inc   d              ; Increment d
-07AB  C0       .                   ret   nz             ; Return if nz
-07AC  0C       .                   inc   c              ; Increment c
-07AD  C0       .                   ret   nz             ; Return if nz
-07AE  0E80     ..                  ld    c,0x80         ; Load c from 0x80
-07B0  34       4                   inc   (hl)           ; Increment (hl)
-07B1  C0       .                   ret   nz             ; Return if nz
-07B2  1E0A     ..                  ld    e,0x0A         ; Overflow error
-07B4  C3A219   ...                 jp    0x19A2         ; Jump to 0x19A2
-                     ; Single-precision mantissa add
-07B7  7E       ~                   ld    a,(hl)         ; Load a from (hl)
-07B8  83       .                   add   a,e            ; Add e to A
-07B9  5F       _                   ld    e,a            ; Load e from a
-07BA  23       #                   inc   hl             ; Increment hl
-07BB  7E       ~                   ld    a,(hl)         ; Load a from (hl)
+07A8  1C       .                   inc   e              ; LSB Y + 1
+07A9  C0       .                   ret   nz             ; = 0?, no-done
+07AA  14       .                   inc   d              ; next byte Y + 1
+07AB  C0       .                   ret   nz             ; = 0?, no-done
+07AC  0C       .                   inc   c              ; MSB Y + 1
+07AD  C0       .                   ret   nz             ; = 0?, no-done
+07AE  0E80     ..                  ld    c,0x80         ; yes, MSB Y = 80H
+07B0  34       4                   inc   (hl)           ; exponent X + 1
+07B1  C0       .                   ret   nz             ; = 0?, no-back
+                     ; Overflow error
+07B2  1E0A     ..                  ld    e,0x0A         ; error number in E
+07B4  C3A219   ...                 jp    0x19A2         ; to error routine
+                     ; Single precision mantissa addition
+07B7  7E       ~                   ld    a,(hl)         ; LSB X in A
+07B8  83       .                   add   a,e            ; + LSB Y
+07B9  5F       _                   ld    e,a            ; sum in LSB Y
+07BA  23       #                   inc   hl             ; X address + 1
+07BB  7E       ~                   ld    a,(hl)         ; add next byte
 07BC  8A       .                   adc   a,d            ; Add d with carry to a
 07BD  57       W                   ld    d,a            ; Load d from a
-07BE  23       #                   inc   hl             ; Increment hl
-07BF  7E       ~                   ld    a,(hl)         ; Load a from (hl)
+07BE  23       #                   inc   hl             ; HL = MSB X
+07BF  7E       ~                   ld    a,(hl)         ; MSB X + MSB Y
 07C0  89       .                   adc   a,c            ; Add c with carry to a
-07C1  4F       O                   ld    c,a            ; Load c from a
+07C1  4F       O                   ld    c,a            ; in MSB Y
 07C2  C9       .                   ret                  ; Return
                      ; Negate mantissa Y
-07C3  212579   !%y                 ld    hl,0x7925      ; Load hl from 0x7925
+07C3  212579   !%y                 ld    hl,0x7925      ; invert sign flag
 07C6  7E       ~                   ld    a,(hl)         ; Load a from (hl)
 07C7  2F       /                   cpl                  ; Complement A
 07C8  77       w                   ld    (hl),a         ; Load (hl) from a
-07C9  AF       .                   xor   a              ; Clear A
-07CA  6F       o                   ld    l,a            ; Load l from a
-07CB  90       .                   sub   b              ; Subtract b from A
+07C9  AF       .                   xor   a              ; A = 0
+07CA  6F       o                   ld    l,a            ; L = 0
+07CB  90       .                   sub   b              ; LSB Y = 0 - LSB Y
 07CC  47       G                   ld    b,a            ; Load b from a
 07CD  7D       }                   ld    a,l            ; Load a from l
-07CE  9B       .                   sbc   a,e            ; Subtract e with carry from a
+07CE  9B       .                   sbc   a,e            ; next byte Y = 0 - next byte Y
 07CF  5F       _                   ld    e,a            ; Load e from a
 07D0  7D       }                   ld    a,l            ; Load a from l
-07D1  9A       .                   sbc   a,d            ; Subtract d with carry from a
+07D1  9A       .                   sbc   a,d            ; next byte Y = 0 - next byte Y
 07D2  57       W                   ld    d,a            ; Load d from a
 07D3  7D       }                   ld    a,l            ; Load a from l
-07D4  99       .                   sbc   a,c            ; Subtract c with carry from a
+07D4  99       .                   sbc   a,c            ; MSB Y = 0 - MSB Y
 07D5  4F       O                   ld    c,a            ; Load c from a
 07D6  C9       .                   ret   
 07D7  0600     ..                  ld    b,0x00
