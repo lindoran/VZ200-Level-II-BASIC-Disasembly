@@ -139,15 +139,13 @@
 00AC  31F879   1.y                 ld    sp,0x79F8      ; Set temporary stack pointer (79F8H)
 00AF  CD8F1B   ...                 call  0x1B8F         ; Initialize stack and variables (STKINI)
 00B2  CDC901   ...                 call  CLRSCR         ; Clear screen and home cursor (CLRSCR)
-00B5  00       .                   nop   
-00B6  00       .                   nop   
-00B7  00       .                   nop   
-00B8  00       .                   nop   
-00B9  00       .                   nop   
-00BA  00       .                   nop   
-00BB  00       .                   nop   
-00BC  00       .                   nop   
-00BD  00       .                   nop   
+                     ;
+                     ; ************************************************************************
+                     ; Unused code block / timing delay? falls into next segment
+                     ; possbile removed block from TRS-80?
+00B5  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+      00000000 ....  
+00BD  00       .                   DEFB  0x00
                      ; Skip memory test
                      SKIP_MEM_TEST:
 00BE  1804     ..                  jr    $+6            ; Jump to memory test routine
@@ -327,252 +325,120 @@
 01CB  CD3A03   .:.                 call  0x033A
 01CE  3E1F     >.                  ld    a,0x1F         ; Move cursor home (1FH)
 01D0  C33A03   .:.                 jp    0x033A
-                     ; Random Number Seed initialization
+                     ; RANDOM statement seed initialization
+                     RANDOM_INIT:
 01D3  ED5F     ._                  ld    a,r            ; Get Refresh Register R
-01D5  32AB78   2.x                 ld    (0x78AB),a     ; Store in 78ABH
+01D5  32AB78   2.x                 ld    (0x78AB),a     ; Store refresh value as random seed base
 01D8  C9       .                   ret   
-01D9  54       T                   ld    d,h
-01DA  47       G                   ld    b,a
-01DB  42       B                   ld    b,d
-01DC  35       5                   dec   (hl)
-01DD  4E       N                   ld    c,(hl)
-01DE  3659     6Y                  ld    (hl),0x59
-01E0  48       H                   ld    c,b
-01E1  57       W                   ld    d,a
-01E2  53       S                   ld    d,e
-01E3  58       X                   ld    e,b
-01E4  322E39   2.9                 ld    (0x392E),a
-01E7  4F       O                   ld    c,a
-01E8  4C       L                   ld    c,h
-01E9  00       .                   nop   
-01EA  00       .                   nop   
-01EB  00       .                   nop   
-01EC  00       .                   nop   
-01ED  00       .                   nop   
-01EE  2D       -                   dec   l
-01EF  0D       .                   dec   c
-01F0  3A4544   :ED                 ld    a,(0x4445)
-01F3  43       C                   ld    b,e
-01F4  33       3                   inc   sp
-01F5  2C       ,                   inc   l
-01F6  3849     8I                  jr    c,$+75
-01F8  4B       K                   ld    c,e
-01F9  51       Q                   ld    d,c
-01FA  41       A                   ld    b,c
-01FB  5A       Z                   ld    e,d
-01FC  312030   1 0                 ld    sp,0x3020
-01FF  50       P                   ld    d,b
-0200  3B       ;                   dec   sp
-0201  52       R                   ld    d,d
-0202  46       F                   ld    b,(hl)
-0203  56       V                   ld    d,(hl)
-0204  34       4                   inc   (hl)
-0205  4D       M                   ld    c,l
-0206  37       7                   scf   
-0207  55       U                   ld    d,l
-0208  4A       J                   ld    c,d
-0209  8C       .                   adc   a,h
-020A  89       .                   adc   a,c
-020B  00       .                   nop   
-020C  25       %                   dec   h
-020D  5E       ^                   ld    e,(hl)
-020E  2683     &.                  ld    h,0x83
-0210  86       .                   add   a,(hl)
-0211  8D       .                   adc   a,l
-0212  82       .                   add   a,d
-0213  00       .                   nop   
-0214  223E29   ">)                 ld    (0x293E),hl
-0217  5B       [                   ld    e,e
-0218  3F       ?                   ccf   
-0219  00       .                   nop   
-021A  00       .                   nop   
-021B  00       .                   nop   
-021C  00       .                   nop   
-021D  00       .                   nop   
-021E  3D       =                   dec   a
-021F  0D       .                   dec   c
-0220  2A8B84   *..                 ld    hl,(0x848B)
-0223  00       .                   nop   
-0224  23       #                   inc   hl
-0225  3C       <                   inc   a
-0226  2885     (.                  jr    z,$-121
-0228  2F       /                   cpl   
-0229  8E       .                   adc   a,(hl)
-022A  81       .                   add   a,c
-022B  80       .                   add   a,b
-022C  212040   ! @                 ld    hl,0x4020
-022F  5D       ]                   ld    e,l
-0230  2B       +                   dec   hl
-0231  87       .                   add   a,a
-0232  88       .                   adc   a,b
-0233  00       .                   nop   
-0234  24       $                   inc   h
-0235  5C       \                   ld    e,h
-0236  27       '                   daa   
-0237  8A       .                   adc   a,d
-0238  8F       .                   adc   a,a
-0239  CA8DB5   ...                 jp    z,0xB58D
-023C  B4       .                   or    h
-023D  97       .                   sub   a
-023E  8E       .                   adc   a,(hl)
-023F  95       .                   sub   l
-0240  84       .                   add   a,h
-0241  BD       .                   cp    l
-0242  CCB1B9   ...                 call  z,0xB9B1
-0245  1B       .                   dec   de
-0246  8B       .                   adc   a,e
-0247  8C       .                   adc   a,h
-0248  15       .                   dec   d
-0249  00       .                   nop   
-024A  00       .                   nop   
-024B  00       .                   nop   
-024C  00       .                   nop   
-024D  00       .                   nop   
-024E  010000   ...                 ld    bc,START
-0251  87       .                   add   a,a
-0252  8A       .                   adc   a,d
-0253  B3       .                   or    e
-0254  9C       .                   sbc   a,h
-0255  09       .                   add   hl,bc
-0256  BB       .                   cp    e
-0257  89       .                   adc   a,c
-0258  BC       .                   cp    h
-0259  81       .                   add   a,c
-025A  9D       .                   sbc   a,l
-025B  E5       .                   push  hl
-025C  BA       .                   cp    d
-025D  0A       .                   ld    a,(bc)
-025E  88       .                   adc   a,b
-025F  B2       .                   or    d
-0260  7F       .                   ld    a,a
-0261  92       .                   sub   d
-0262  91       .                   sub   c
-0263  AF       .                   xor   a
-0264  98       .                   sbc   a,b
-0265  08       .                   ex    af,af'
-0266  80       .                   add   a,b
-0267  8F       .                   adc   a,a
-0268  93       .                   sub   e
-0269  FA949E   ...                 jp    m,0x9E94
-026C  DF       .                   rst   0x18
-026D  BF       .                   cp    a
-026E  E0       .                   ret   po
-026F  F9       .                   ld    sp,hl
-0270  83       .                   add   a,e
-0271  F5       .                   push  af
-0272  F4A0E1   ...                 call  p,0xE1A0
-0275  00       .                   nop   
-0276  D9       .                   exx   
-0277  D300     ..                  out   (0x00),a
-0279  00       .                   nop   
-027A  00       .                   nop   
-027B  00       .                   nop   
-027C  00       .                   nop   
-027D  00       .                   nop   
-027E  010000   ...                 ld    bc,START
-0281  F3       .                   di    
-0282  90       .                   sub   b
-0283  96       .                   sub   (hl)
-0284  E3       .                   ex    (sp),hl
-0285  00       .                   nop   
-0286  DDD2C6   ...                 defb  0x00DD,0x00D2,0x00C6
-0289  F7       .                   rst   0x30
-028A  F6DB     ..                  or    0xDB
-028C  E200D8   ...                 jp    po,0xD800
-028F  CB00     ..                  rlc   b
-0291  F8       .                   ret   m
-0292  DEC1     ..                  sbc   a,0xC1
-0294  E400D7   ...                 call  po,0xD700
-0297  C9       .                   ret   
-0298  82       .                   add   a,d
-0299  E2E1E3   ...                 jp    po,0xE3E1
-029C  E4DFE0   ...                 call  po,0xE0DF
-029F  D7       .                   rst   0x10
-02A0  DDD9D8   ...                 defb  0x00DD,0x00D9,0x00D8
-02A3  F7       .                   rst   0x30
-02A4  F5       .                   push  af
-02A5  F3       .                   di    
-02A6  F8       .                   ret   m
-02A7  F7       .                   rst   0x30
-02A8  F9       .                   ld    sp,hl
-02A9  9D       .                   sbc   a,l
-02AA  F6F4     ..                  or    0xF4
-02AC  DEE5     ..                  sbc   a,0xE5
-02AE  FA8080   ...                 jp    m,0x8080
-02B1  80       .                   add   a,b
-02B2  B8       .                   cp    b
-02B3  B8       .                   cp    b
-02B4  80       .                   add   a,b
-02B5  B8       .                   cp    b
-02B6  B8       .                   cp    b
-02B7  80       .                   add   a,b
-02B8  87       .                   add   a,a
-02B9  80       .                   add   a,b
-02BA  BF       .                   cp    a
-02BB  B8       .                   cp    b
-02BC  87       .                   add   a,a
-02BD  B8       .                   cp    b
-02BE  BF       .                   cp    a
-02BF  87       .                   add   a,a
-02C0  80       .                   add   a,b
-02C1  87       .                   add   a,a
-02C2  B8       .                   cp    b
-02C3  BF       .                   cp    a
-02C4  80       .                   add   a,b
-02C5  BF       .                   cp    a
-02C6  B8       .                   cp    b
-02C7  87       .                   add   a,a
-02C8  87       .                   add   a,a
-02C9  87       .                   add   a,a
-02CA  BF       .                   cp    a
-02CB  BF       .                   cp    a
-02CC  87       .                   add   a,a
-02CD  BF       .                   cp    a
-02CE  BF       .                   cp    a
-02CF  72       r                   ld    (hl),d
-02D0  02       .                   ld    (bc),a
-02D1  4F       O                   ld    c,a
-02D2  02       .                   ld    (bc),a
-02D3  2E02     ..                  ld    l,0x02
-02D5  0E02     ..                  ld    c,0x02
-02D7  F1       .                   pop   af
-02D8  01D501   ...                 ld    bc,0x01D5
-02DB  B7       .                   or    a
-02DC  019E01   ...                 ld    bc,0x019E
-02DF  86       .                   add   a,(hl)
-02E0  017001   .p.                 ld    bc,0x0170
-02E3  5B       [                   ld    e,e
-02E4  014801   .H.                 ld    bc,0x0148
-02E7  35       5                   dec   (hl)
-02E8  012301   .#.                 ld    bc,0x0123
-02EB  13       .                   inc   de
-02EC  010301   ...                 ld    bc,0x0103
-02EF  F400E6   ...                 call  p,0xE600
-02F2  00       .                   nop   
-02F3  D9       .                   exx   
-02F4  00       .                   nop   
-02F5  CD00C1   ...                 call  0xC100
-02F8  00       .                   nop   
-02F9  B6       .                   or    (hl)
-02FA  00       .                   nop   
-02FB  AB       .                   xor   e
-02FC  00       .                   nop   
-02FD  A1       .                   and   c
-02FE  00       .                   nop   
-02FF  98       .                   sbc   a,b
-0300  00       .                   nop   
-0301  8F       .                   adc   a,a
-0302  00       .                   nop   
-0303  87       .                   add   a,a
-0304  00       .                   nop   
-0305  7F       .                   ld    a,a
-0306  00       .                   nop   
-0307  78       x                   ld    a,b
-0308  00       .                   nop   
-0309  70       p                   ld    (hl),b
-030A  00       .                   nop   
-030B  6A       j                   ld    l,d
-030C  00       .                   nop   
+                     ; *******************************
+                     ; Keyboard tables
+                     ; *******************************
+                     ; Key codes without SHIFT
+                     KEYBOARD_CODES_NORMAL:
+01D9  54474235 TGB5                DEFB  0x54,0x47,0x42,0x35,0x4E,0x36,0x59,0x48 ; Bit row 0
+      4E365948 N6YH  
+01E1  57535832 WSX2                DEFB  0x57,0x53,0x58,0x32,0x2E,0x39,0x4F,0x4C ; Bit row 1
+      2E394F4C .9OL  
+01E9  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x2D,0x0D,0x3A ; Bit row 2
+      002D0D3A .-.:  
+01F1  45444333 EDC3                DEFB  0x45,0x44,0x43,0x33,0x2C,0x38,0x49,0x4B ; Bit row 3
+      2C38494B ,8IK  
+01F9  51415A31 QAZ1                DEFB  0x51,0x41,0x5A,0x31,0x20,0x30,0x50,0x3B ; Bit row 4
+      2030503B  0P;  
+0201  52465634 RFV4                DEFB  0x52,0x46,0x56,0x34,0x4D,0x37,0x55,0x4A ; Bit row 5
+      4D37554A M7UJ  
+                     ; Key codes with SHIFT (incl. semigraphics)
+                     KEYBOARD_CODES_SHIFT:
+0209  8C890025 ...%                DEFB  0x8C,0x89,0x00,0x25,0x5E,0x26,0x83,0x86 ; Bit row 0
+      5E268386 ^&..  
+0211  8D820022 ..."                DEFB  0x8D,0x82,0x00,0x22,0x3E,0x29,0x5B,0x3F ; Bit row 1
+      3E295B3F >)[?  
+0219  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x3D,0x0D,0x2A ; Bit row 2
+      003D0D2A .=.*  
+0221  8B840023 ...#                DEFB  0x8B,0x84,0x00,0x23,0x3C,0x28,0x85,0x2F ; Bit row 3
+      3C28852F <(./  
+0229  8E818021 ...!                DEFB  0x8E,0x81,0x80,0x21,0x20,0x40,0x5D,0x2B ; Bit row 4
+      20405D2B  @]+  
+0231  87880024 ...$                DEFB  0x87,0x88,0x00,0x24,0x5C,0x27,0x8A,0x8F ; Bit row 5
+      5C278A8F \'..  
+                     ; Key codes with CTRL (incl. CMD tokens)
+                     KEYBOARD_CODES_CTRL:
+0239  CA8DB5B4 ....                DEFB  0xCA,0x8D,0xB5,0xB4,0x97,0x8E,0x95,0x84 ; Bit row 0
+      978E9584 ....  
+0241  BDCCB1B9 ....                DEFB  0xBD,0xCC,0xB1,0xB9,0x1B,0x8B,0x8C,0x15 ; Bit row 1
+      1B8B8C15 ....  
+0249  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00 ; Bit row 2
+      00010000 ....  
+0251  878AB39C ....                DEFB  0x87,0x8A,0xB3,0x9C,0x09,0xBB,0x89,0xBC ; Bit row 3
+      09BB89BC ....  
+0259  819DE5BA ....                DEFB  0x81,0x9D,0xE5,0xBA,0x0A,0x88,0xB2,0x7F ; Bit row 4
+      0A88B27F ....  
+0261  9291AF98 ....                DEFB  0x92,0x91,0xAF,0x98,0x08,0x80,0x8F,0x93 ; Bit row 5
+      08808F93 ....  
+                     ; Function key codes (with CTRL+ENTER)
+                     KEYBOARD_CODES_FUNCTION:
+0269  FA949EDF ....                DEFB  0xFA,0x94,0x9E,0xDF,0xBF,0xE0,0xF9,0x83 ; Bit row 0
+      BFE0F983 ....  
+0271  F5F4A0E1 ....                DEFB  0xF5,0xF4,0xA0,0xE1,0x00,0xD9,0xD3,0x00 ; Bit row 1
+      00D9D300 ....  
+0279  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00 ; Bit row 2
+      00010000 ....  
+0281  F39096E3 ....                DEFB  0xF3,0x90,0x96,0xE3,0x00,0xDD,0xD2,0xC6 ; Bit row 3
+      00DDD2C6 ....  
+0289  F7F6DBE2 ....                DEFB  0xF7,0xF6,0xDB,0xE2,0x00,0xD8,0xCB,0x00 ; Bit row 4
+      00D8CB00 ....  
+0291  F8DEC1E4 ....                DEFB  0xF8,0xDE,0xC1,0xE4,0x00,0xD7,0xC9,0x82 ; Bit row 5
+      00D7C982 ....  
+                     ; Tokens that append '(' on output
+                     TOKEN_APPEND_PAREN:
+0299  E2E1E3E4 ....                DEFB  0xE2,0xE1,0xE3,0xE4,0xDF,0xE0,0xD7,0xDD ; Token row 0
+      DFE0D7DD ....  
+02A1  D9D8F7F5 ....                DEFB  0xD9,0xD8,0xF7,0xF5,0xF3,0xF8,0xF7,0xF9 ; Token row 1
+      F3F8F7F9 ....  
+02A9  9DF6F4DE ....                DEFB  0x9D,0xF6,0xF4,0xDE,0xE5,0xFA ; Token row 2
+      E5FA     ..    
+                     ; *******************************
+                     ; Printer semigraphics output table
+                     ; (2 bytes per character)
+                     ; *******************************
+                     PRINTER_GRAPHICS_TABLE:
+02AF  8080     ..                  DEFB  0x80,0x80      ; Char 0x80
+02B1  80B8     ..                  DEFB  0x80,0xB8      ; Char 0x81
+02B3  B880     ..                  DEFB  0xB8,0x80      ; Char 0x82
+02B5  B8B8     ..                  DEFB  0xB8,0xB8      ; Char 0x83
+02B7  8087     ..                  DEFB  0x80,0x87      ; Char 0x84
+02B9  80BF     ..                  DEFB  0x80,0xBF      ; Char 0x85
+02BB  B887     ..                  DEFB  0xB8,0x87      ; Char 0x86
+02BD  B8BF     ..                  DEFB  0xB8,0xBF      ; Char 0x87
+02BF  8780     ..                  DEFB  0x87,0x80      ; Char 0x88
+02C1  87B8     ..                  DEFB  0x87,0xB8      ; Char 0x89
+02C3  BF80     ..                  DEFB  0xBF,0x80      ; Char 0x8A
+02C5  BFB8     ..                  DEFB  0xBF,0xB8      ; Char 0x8B
+02C7  8787     ..                  DEFB  0x87,0x87      ; Char 0x8C
+02C9  87BF     ..                  DEFB  0x87,0xBF      ; Char 0x8D
+02CB  BF87     ..                  DEFB  0xBF,0x87      ; Char 0x8E
+02CD  BFBF     ..                  DEFB  0xBF,0xBF      ; Char 0x8F
+                     ; *******************************
+                     ; SOUND frequency table
+                     ; (2-byte value per note)
+                     ; *******************************
+                     SOUND_FREQ_TABLE:
+02CF  72024F02 r.O.                DEFW  0x0272,0x024F,0x022E,0x020E,0x01F1,0x01D5,0x01B7,0x019E ; A2-E3
+      2E020E02 ....  
+      F101D501 ....  
+      B7019E01 ....  
+02DF  86017001 ..p.                DEFW  0x0186,0x0170,0x015B,0x0148,0x0135,0x0123,0x0113,0x0103 ; F3-C#4
+      5B014801 [.H.  
+      35012301 5.#.  
+      13010301 ....  
+02EF  F400E600 ....                DEFW  0x00F4,0x00E6,0x00D9,0x00CD,0x00C1,0x00B6,0x00AB,0x00A1 ; C#4-G4
+      D900CD00 ....  
+      C100B600 ....  
+      AB00A100 ....  
+02FF  98008F00 ....                DEFW  0x0098,0x008F,0x0087,0x007F,0x0078,0x0070,0x006A ; A4-D5
+      87007F00 ....  
+      78007000 x.p.  
+      6A00     j.    
 030D  47       G                   ld    b,a
 030E  3A3C78   :<x                 ld    a,(0x783C)
 0311  2A2078   * x                 ld    hl,(0x7820)
@@ -7030,7 +6896,7 @@
 2C1C  AF       .                   xor   a
 2C1D  47       G                   ld    b,a
 2C1E  F1       .                   pop   af
-2C1F  21CF02   !..                 ld    hl,0x02CF
+2C1F  21CF02   !..                 ld    hl,SOUND_FREQ_TABLE
 2C22  09       .                   add   hl,bc
 2C23  5E       ^                   ld    e,(hl)
 2C24  23       #                   inc   hl
@@ -7097,7 +6963,7 @@
 2C80  4F       O                   ld    c,a
 2C81  AF       .                   xor   a
 2C82  47       G                   ld    b,a
-2C83  21AF02   !..                 ld    hl,0x02AF
+2C83  21AF02   !..                 ld    hl,PRINTER_GRAPHICS_TABLE
 2C86  09       .                   add   hl,bc
 2C87  7E       ~                   ld    a,(hl)
 2C88  47       G                   ld    b,a
@@ -7546,7 +7412,7 @@
 2F6E  91       .                   sub   c
 2F6F  ED434278 .CBx                ld    (0x7842),bc
 2F73  224478   "Dx                 ld    (0x7844),hl
-2F76  21D901   !..                 ld    hl,0x01D9
+2F76  21D901   !..                 ld    hl,KEYBOARD_CODES_NORMAL
 2F79  4F       O                   ld    c,a
 2F7A  0600     ..                  ld    b,0x00
 2F7C  3AFB68   :.h                 ld    a,(0x68FB)
@@ -7554,7 +7420,7 @@
 2F81  200A      .                  jr    nz,$+12
 2F83  213878   !8x                 ld    hl,0x7838
 2F86  CBC6     ..                  set   0,(hl)
-2F88  210902   !..                 ld    hl,0x0209
+2F88  210902   !..                 ld    hl,KEYBOARD_CODES_SHIFT
 2F8B  183D     .=                  jr    $+63
 2F8D  3AFD68   :.h                 ld    a,(0x68FD)
 2F90  CB57     .W                  bit   2,a
@@ -7575,7 +7441,7 @@
 2FAC  CBFE     ..                  set   7,(hl)
 2FAE  CB56     .V                  bit   2,(hl)
 2FB0  2805     (.                  jr    z,$+7
-2FB2  216902   !i.                 ld    hl,0x0269
+2FB2  216902   !i.                 ld    hl,KEYBOARD_CODES_FUNCTION
 2FB5  1813     ..                  jr    $+21
 2FB7  3ABF68   :.h                 ld    a,(0x68BF)
 2FBA  CB57     .W                  bit   2,a
@@ -7585,7 +7451,7 @@
 2FC1  323A78   2:x                 ld    (0x783A),a
 2FC4  C9       .                   ret   
 2FC5  CB96     ..                  res   2,(hl)
-2FC7  213902   !9.                 ld    hl,0x0239
+2FC7  213902   !9.                 ld    hl,KEYBOARD_CODES_CTRL
 2FCA  09       .                   add   hl,bc
 2FCB  7E       ~                   ld    a,(hl)
 2FCC  C9       .                   ret   
@@ -7667,7 +7533,7 @@
 305B  28F8     (.                  jr    z,$-6
 305D  F1       .                   pop   af
 305E  0616     ..                  ld    b,0x16
-3060  219902   !..                 ld    hl,0x0299
+3060  219902   !..                 ld    hl,TOKEN_APPEND_PAREN
 3063  BE       .                   cp    (hl)
 3064  2816     (.                  jr    z,$+24
 3066  23       #                   inc   hl

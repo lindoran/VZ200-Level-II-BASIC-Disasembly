@@ -20,6 +20,11 @@ end = 95
 type = DATA_BYTE
 
 [region]
+offset = 181
+end = 189
+type = DATA_BYTE
+
+[region]
 offset = 266
 end = 270
 type = DATA_BYTE
@@ -63,6 +68,96 @@ type = DATA_BYTE
 offset = 401
 end = 412
 type = DATA_BYTE
+
+[region]
+offset = 473
+end = 686
+type = DATA_BYTE
+
+[region]
+offset = 687
+end = 688
+type = DATA_BYTE
+
+[region]
+offset = 689
+end = 690
+type = DATA_BYTE
+
+[region]
+offset = 691
+end = 692
+type = DATA_BYTE
+
+[region]
+offset = 693
+end = 694
+type = DATA_BYTE
+
+[region]
+offset = 695
+end = 696
+type = DATA_BYTE
+
+[region]
+offset = 697
+end = 698
+type = DATA_BYTE
+
+[region]
+offset = 699
+end = 700
+type = DATA_BYTE
+
+[region]
+offset = 701
+end = 702
+type = DATA_BYTE
+
+[region]
+offset = 703
+end = 704
+type = DATA_BYTE
+
+[region]
+offset = 705
+end = 706
+type = DATA_BYTE
+
+[region]
+offset = 707
+end = 708
+type = DATA_BYTE
+
+[region]
+offset = 709
+end = 710
+type = DATA_BYTE
+
+[region]
+offset = 711
+end = 712
+type = DATA_BYTE
+
+[region]
+offset = 713
+end = 714
+type = DATA_BYTE
+
+[region]
+offset = 715
+end = 716
+type = DATA_BYTE
+
+[region]
+offset = 717
+end = 718
+type = DATA_BYTE
+
+[region]
+offset = 719
+end = 780
+type = DATA_WORD
 
 [label]
 offset = 0
@@ -203,6 +298,38 @@ name = RESET
 [label]
 offset = 457
 name = CLRSCR_HOME
+
+[label]
+offset = 467
+name = RANDOM_INIT
+
+[label]
+offset = 473
+name = KEYBOARD_CODES_NORMAL
+
+[label]
+offset = 521
+name = KEYBOARD_CODES_SHIFT
+
+[label]
+offset = 569
+name = KEYBOARD_CODES_CTRL
+
+[label]
+offset = 617
+name = KEYBOARD_CODES_FUNCTION
+
+[label]
+offset = 665
+name = TOKEN_APPEND_PAREN
+
+[label]
+offset = 687
+name = PRINTER_GRAPHICS_TABLE
+
+[label]
+offset = 719
+name = SOUND_FREQ_TABLE
 
 [comment]
 offset = 0
@@ -966,7 +1093,195 @@ text = Get Refresh Register R
 
 [comment]
 offset = 469
-text = Store in 78ABH
+text = Store refresh value as random seed base
+
+[comment]
+offset = 473
+text = Bit row 0
+
+[comment]
+offset = 481
+text = Bit row 1
+
+[comment]
+offset = 489
+text = Bit row 2
+
+[comment]
+offset = 497
+text = Bit row 3
+
+[comment]
+offset = 505
+text = Bit row 4
+
+[comment]
+offset = 513
+text = Bit row 5
+
+[comment]
+offset = 521
+text = Bit row 0
+
+[comment]
+offset = 529
+text = Bit row 1
+
+[comment]
+offset = 537
+text = Bit row 2
+
+[comment]
+offset = 545
+text = Bit row 3
+
+[comment]
+offset = 553
+text = Bit row 4
+
+[comment]
+offset = 561
+text = Bit row 5
+
+[comment]
+offset = 569
+text = Bit row 0
+
+[comment]
+offset = 577
+text = Bit row 1
+
+[comment]
+offset = 585
+text = Bit row 2
+
+[comment]
+offset = 593
+text = Bit row 3
+
+[comment]
+offset = 601
+text = Bit row 4
+
+[comment]
+offset = 609
+text = Bit row 5
+
+[comment]
+offset = 617
+text = Bit row 0
+
+[comment]
+offset = 625
+text = Bit row 1
+
+[comment]
+offset = 633
+text = Bit row 2
+
+[comment]
+offset = 641
+text = Bit row 3
+
+[comment]
+offset = 649
+text = Bit row 4
+
+[comment]
+offset = 657
+text = Bit row 5
+
+[comment]
+offset = 665
+text = Token row 0
+
+[comment]
+offset = 673
+text = Token row 1
+
+[comment]
+offset = 681
+text = Token row 2
+
+[comment]
+offset = 687
+text = Char 0x80
+
+[comment]
+offset = 689
+text = Char 0x81
+
+[comment]
+offset = 691
+text = Char 0x82
+
+[comment]
+offset = 693
+text = Char 0x83
+
+[comment]
+offset = 695
+text = Char 0x84
+
+[comment]
+offset = 697
+text = Char 0x85
+
+[comment]
+offset = 699
+text = Char 0x86
+
+[comment]
+offset = 701
+text = Char 0x87
+
+[comment]
+offset = 703
+text = Char 0x88
+
+[comment]
+offset = 705
+text = Char 0x89
+
+[comment]
+offset = 707
+text = Char 0x8A
+
+[comment]
+offset = 709
+text = Char 0x8B
+
+[comment]
+offset = 711
+text = Char 0x8C
+
+[comment]
+offset = 713
+text = Char 0x8D
+
+[comment]
+offset = 715
+text = Char 0x8E
+
+[comment]
+offset = 717
+text = Char 0x8F
+
+[comment]
+offset = 719
+text = A2-E3
+
+[comment]
+offset = 735
+text = F3-C#4
+
+[comment]
+offset = 751
+text = C#4-G4
+
+[comment]
+offset = 767
+text = A4-D5
 
 [block]
 offset = 0
@@ -1047,6 +1362,13 @@ offset = 168
 text = End of BASIC initialisation
 
 [block]
+offset = 181
+text = 
+              ************************************************************************
+              Unused code block / timing delay? falls into next segment
+              possbile removed block from TRS-80?
+
+[block]
 offset = 190
 text = Skip memory test
 
@@ -1106,5 +1428,42 @@ text = Clear Screen and Home Cursor
 
 [block]
 offset = 467
-text = Random Number Seed initialization
+text = RANDOM statement seed initialization
+
+[block]
+offset = 473
+text = *******************************
+              Keyboard tables
+              *******************************
+              Key codes without SHIFT
+
+[block]
+offset = 521
+text = Key codes with SHIFT (incl. semigraphics)
+
+[block]
+offset = 569
+text = Key codes with CTRL (incl. CMD tokens)
+
+[block]
+offset = 617
+text = Function key codes (with CTRL+ENTER)
+
+[block]
+offset = 665
+text = Tokens that append '(' on output
+
+[block]
+offset = 687
+text = *******************************
+              Printer semigraphics output table
+              (2 bytes per character)
+              *******************************
+
+[block]
+offset = 719
+text = *******************************
+              SOUND frequency table
+              (2-byte value per note)
+              *******************************
 

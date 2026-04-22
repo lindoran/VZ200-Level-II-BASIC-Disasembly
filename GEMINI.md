@@ -64,6 +64,8 @@ Before beginning work, an AI assistant should:
   to resolve orphan byte ranges; do not resolve them unilaterally.
 - Verify that the output `.asm` assembles cleanly after each dump once direct-byte
   orphan ranges are resolved.
+- At the end of each translation batch, export both `export.lst` and `export.asm`
+  so the user can review changes directly in code without opening the GUI.
 - Ask clarifying questions when context is unclear.
 - Do not make ROM design or interpretation decisions without user approval.
 - Propose symbol name suggestions but wait for user approval before finalising.
@@ -87,7 +89,8 @@ Before beginning work, an AI assistant should:
   1. Run an assembly check on the current output.
   2. Summarise any newly opened or unresolved items.
   3. Update `ORPHANS.md` and `TRANSLATE.md`.
-  4. Wait for user confirmation before continuing.
+  4. Export both `export.lst` and `export.asm` for code-first review.
+  5. Wait for user confirmation before continuing.
 
 ---
 

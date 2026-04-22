@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Wed Apr 22 00:53:44 2026
+; Generated: Wed Apr 22 11:31:20 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -158,15 +158,13 @@ INIT_BASIC_FINISH:
               ld    sp,0x79F8      ; Set temporary stack pointer (79F8H)
               call  0x1B8F         ; Initialize stack and variables (STKINI)
               call  CLRSCR         ; Clear screen and home cursor (CLRSCR)
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
+
+;
+; ************************************************************************
+; Unused code block / timing delay? falls into next segment
+; possbile removed block from TRS-80?
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+              DEFB  0x00
 
 ; Skip memory test
 SKIP_MEM_TEST:
@@ -351,252 +349,88 @@ RESET:
               ld    a,0x1F         ; Move cursor home (1FH)
               jp    0x033A
 
-; Random Number Seed initialization
+; RANDOM statement seed initialization
+RANDOM_INIT:
               ld    a,r            ; Get Refresh Register R
-              ld    (0x78AB),a     ; Store in 78ABH
+              ld    (0x78AB),a     ; Store refresh value as random seed base
               ret   
-              ld    d,h
-              ld    b,a
-              ld    b,d
-              dec   (hl)
-              ld    c,(hl)
-              ld    (hl),0x59
-              ld    c,b
-              ld    d,a
-              ld    d,e
-              ld    e,b
-              ld    (0x392E),a
-              ld    c,a
-              ld    c,h
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              dec   l
-              dec   c
-              ld    a,(0x4445)
-              ld    b,e
-              inc   sp
-              inc   l
-              jr    c,$+75
-              ld    c,e
-              ld    d,c
-              ld    b,c
-              ld    e,d
-              ld    sp,0x3020
-              ld    d,b
-              dec   sp
-              ld    d,d
-              ld    b,(hl)
-              ld    d,(hl)
-              inc   (hl)
-              ld    c,l
-              scf   
-              ld    d,l
-              ld    c,d
-              adc   a,h
-              adc   a,c
-              nop   
-              dec   h
-              ld    e,(hl)
-              ld    h,0x83
-              add   a,(hl)
-              adc   a,l
-              add   a,d
-              nop   
-              ld    (0x293E),hl
-              ld    e,e
-              ccf   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              dec   a
-              dec   c
-              ld    hl,(0x848B)
-              nop   
-              inc   hl
-              inc   a
-              jr    z,$-121
-              cpl   
-              adc   a,(hl)
-              add   a,c
-              add   a,b
-              ld    hl,0x4020
-              ld    e,l
-              dec   hl
-              add   a,a
-              adc   a,b
-              nop   
-              inc   h
-              ld    e,h
-              daa   
-              adc   a,d
-              adc   a,a
-              jp    z,0xB58D
-              or    h
-              sub   a
-              adc   a,(hl)
-              sub   l
-              add   a,h
-              cp    l
-              call  z,0xB9B1
-              dec   de
-              adc   a,e
-              adc   a,h
-              dec   d
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              ld    bc,START
-              add   a,a
-              adc   a,d
-              or    e
-              sbc   a,h
-              add   hl,bc
-              cp    e
-              adc   a,c
-              cp    h
-              add   a,c
-              sbc   a,l
-              push  hl
-              cp    d
-              ld    a,(bc)
-              adc   a,b
-              or    d
-              ld    a,a
-              sub   d
-              sub   c
-              xor   a
-              sbc   a,b
-              ex    af,af'
-              add   a,b
-              adc   a,a
-              sub   e
-              jp    m,0x9E94
-              rst   0x18
-              cp    a
-              ret   po
-              ld    sp,hl
-              add   a,e
-              push  af
-              call  p,0xE1A0
-              nop   
-              exx   
-              out   (0x00),a
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              ld    bc,START
-              di    
-              sub   b
-              sub   (hl)
-              ex    (sp),hl
-              nop   
-              defb  0x00DD,0x00D2,0x00C6
-              rst   0x30
-              or    0xDB
-              jp    po,0xD800
-              rlc   b
-              ret   m
-              sbc   a,0xC1
-              call  po,0xD700
-              ret   
-              add   a,d
-              jp    po,0xE3E1
-              call  po,0xE0DF
-              rst   0x10
-              defb  0x00DD,0x00D9,0x00D8
-              rst   0x30
-              push  af
-              di    
-              ret   m
-              rst   0x30
-              ld    sp,hl
-              sbc   a,l
-              or    0xF4
-              sbc   a,0xE5
-              jp    m,0x8080
-              add   a,b
-              cp    b
-              cp    b
-              add   a,b
-              cp    b
-              cp    b
-              add   a,b
-              add   a,a
-              add   a,b
-              cp    a
-              cp    b
-              add   a,a
-              cp    b
-              cp    a
-              add   a,a
-              add   a,b
-              add   a,a
-              cp    b
-              cp    a
-              add   a,b
-              cp    a
-              cp    b
-              add   a,a
-              add   a,a
-              add   a,a
-              cp    a
-              cp    a
-              add   a,a
-              cp    a
-              cp    a
-              ld    (hl),d
-              ld    (bc),a
-              ld    c,a
-              ld    (bc),a
-              ld    l,0x02
-              ld    c,0x02
-              pop   af
-              ld    bc,0x01D5
-              or    a
-              ld    bc,0x019E
-              add   a,(hl)
-              ld    bc,0x0170
-              ld    e,e
-              ld    bc,0x0148
-              dec   (hl)
-              ld    bc,0x0123
-              inc   de
-              ld    bc,0x0103
-              call  p,0xE600
-              nop   
-              exx   
-              nop   
-              call  0xC100
-              nop   
-              or    (hl)
-              nop   
-              xor   e
-              nop   
-              and   c
-              nop   
-              sbc   a,b
-              nop   
-              adc   a,a
-              nop   
-              add   a,a
-              nop   
-              ld    a,a
-              nop   
-              ld    a,b
-              nop   
-              ld    (hl),b
-              nop   
-              ld    l,d
-              nop   
+
+; *******************************
+; Keyboard tables
+; *******************************
+; Key codes without SHIFT
+KEYBOARD_CODES_NORMAL:
+              DEFB  0x54,0x47,0x42,0x35,0x4E,0x36,0x59,0x48 ; Bit row 0
+              DEFB  0x57,0x53,0x58,0x32,0x2E,0x39,0x4F,0x4C ; Bit row 1
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x2D,0x0D,0x3A ; Bit row 2
+              DEFB  0x45,0x44,0x43,0x33,0x2C,0x38,0x49,0x4B ; Bit row 3
+              DEFB  0x51,0x41,0x5A,0x31,0x20,0x30,0x50,0x3B ; Bit row 4
+              DEFB  0x52,0x46,0x56,0x34,0x4D,0x37,0x55,0x4A ; Bit row 5
+
+; Key codes with SHIFT (incl. semigraphics)
+KEYBOARD_CODES_SHIFT:
+              DEFB  0x8C,0x89,0x00,0x25,0x5E,0x26,0x83,0x86 ; Bit row 0
+              DEFB  0x8D,0x82,0x00,0x22,0x3E,0x29,0x5B,0x3F ; Bit row 1
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x3D,0x0D,0x2A ; Bit row 2
+              DEFB  0x8B,0x84,0x00,0x23,0x3C,0x28,0x85,0x2F ; Bit row 3
+              DEFB  0x8E,0x81,0x80,0x21,0x20,0x40,0x5D,0x2B ; Bit row 4
+              DEFB  0x87,0x88,0x00,0x24,0x5C,0x27,0x8A,0x8F ; Bit row 5
+
+; Key codes with CTRL (incl. CMD tokens)
+KEYBOARD_CODES_CTRL:
+              DEFB  0xCA,0x8D,0xB5,0xB4,0x97,0x8E,0x95,0x84 ; Bit row 0
+              DEFB  0xBD,0xCC,0xB1,0xB9,0x1B,0x8B,0x8C,0x15 ; Bit row 1
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00 ; Bit row 2
+              DEFB  0x87,0x8A,0xB3,0x9C,0x09,0xBB,0x89,0xBC ; Bit row 3
+              DEFB  0x81,0x9D,0xE5,0xBA,0x0A,0x88,0xB2,0x7F ; Bit row 4
+              DEFB  0x92,0x91,0xAF,0x98,0x08,0x80,0x8F,0x93 ; Bit row 5
+
+; Function key codes (with CTRL+ENTER)
+KEYBOARD_CODES_FUNCTION:
+              DEFB  0xFA,0x94,0x9E,0xDF,0xBF,0xE0,0xF9,0x83 ; Bit row 0
+              DEFB  0xF5,0xF4,0xA0,0xE1,0x00,0xD9,0xD3,0x00 ; Bit row 1
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00 ; Bit row 2
+              DEFB  0xF3,0x90,0x96,0xE3,0x00,0xDD,0xD2,0xC6 ; Bit row 3
+              DEFB  0xF7,0xF6,0xDB,0xE2,0x00,0xD8,0xCB,0x00 ; Bit row 4
+              DEFB  0xF8,0xDE,0xC1,0xE4,0x00,0xD7,0xC9,0x82 ; Bit row 5
+
+; Tokens that append '(' on output
+TOKEN_APPEND_PAREN:
+              DEFB  0xE2,0xE1,0xE3,0xE4,0xDF,0xE0,0xD7,0xDD ; Token row 0
+              DEFB  0xD9,0xD8,0xF7,0xF5,0xF3,0xF8,0xF7,0xF9 ; Token row 1
+              DEFB  0x9D,0xF6,0xF4,0xDE,0xE5,0xFA ; Token row 2
+
+; *******************************
+; Printer semigraphics output table
+; (2 bytes per character)
+; *******************************
+PRINTER_GRAPHICS_TABLE:
+              DEFB  0x80,0x80      ; Char 0x80
+              DEFB  0x80,0xB8      ; Char 0x81
+              DEFB  0xB8,0x80      ; Char 0x82
+              DEFB  0xB8,0xB8      ; Char 0x83
+              DEFB  0x80,0x87      ; Char 0x84
+              DEFB  0x80,0xBF      ; Char 0x85
+              DEFB  0xB8,0x87      ; Char 0x86
+              DEFB  0xB8,0xBF      ; Char 0x87
+              DEFB  0x87,0x80      ; Char 0x88
+              DEFB  0x87,0xB8      ; Char 0x89
+              DEFB  0xBF,0x80      ; Char 0x8A
+              DEFB  0xBF,0xB8      ; Char 0x8B
+              DEFB  0x87,0x87      ; Char 0x8C
+              DEFB  0x87,0xBF      ; Char 0x8D
+              DEFB  0xBF,0x87      ; Char 0x8E
+              DEFB  0xBF,0xBF      ; Char 0x8F
+
+; *******************************
+; SOUND frequency table
+; (2-byte value per note)
+; *******************************
+SOUND_FREQ_TABLE:
+              DEFW  0x0272,0x024F,0x022E,0x020E,0x01F1,0x01D5,0x01B7,0x019E ; A2-E3
+              DEFW  0x0186,0x0170,0x015B,0x0148,0x0135,0x0123,0x0113,0x0103 ; F3-C#4
+              DEFW  0x00F4,0x00E6,0x00D9,0x00CD,0x00C1,0x00B6,0x00AB,0x00A1 ; C#4-G4
+              DEFW  0x0098,0x008F,0x0087,0x007F,0x0078,0x0070,0x006A ; A4-D5
               ld    b,a
               ld    a,(0x783C)
               ld    hl,(0x7820)
@@ -7054,7 +6888,7 @@ RESET:
               xor   a
               ld    b,a
               pop   af
-              ld    hl,0x02CF
+              ld    hl,SOUND_FREQ_TABLE
               add   hl,bc
               ld    e,(hl)
               inc   hl
@@ -7121,7 +6955,7 @@ RESET:
               ld    c,a
               xor   a
               ld    b,a
-              ld    hl,0x02AF
+              ld    hl,PRINTER_GRAPHICS_TABLE
               add   hl,bc
               ld    a,(hl)
               ld    b,a
@@ -7570,7 +7404,7 @@ RESET:
               sub   c
               ld    (0x7842),bc
               ld    (0x7844),hl
-              ld    hl,0x01D9
+              ld    hl,KEYBOARD_CODES_NORMAL
               ld    c,a
               ld    b,0x00
               ld    a,(0x68FB)
@@ -7578,7 +7412,7 @@ RESET:
               jr    nz,$+12
               ld    hl,0x7838
               set   0,(hl)
-              ld    hl,0x0209
+              ld    hl,KEYBOARD_CODES_SHIFT
               jr    $+63
               ld    a,(0x68FD)
               bit   2,a
@@ -7599,7 +7433,7 @@ RESET:
               set   7,(hl)
               bit   2,(hl)
               jr    z,$+7
-              ld    hl,0x0269
+              ld    hl,KEYBOARD_CODES_FUNCTION
               jr    $+21
               ld    a,(0x68BF)
               bit   2,a
@@ -7609,7 +7443,7 @@ RESET:
               ld    (0x783A),a
               ret   
               res   2,(hl)
-              ld    hl,0x0239
+              ld    hl,KEYBOARD_CODES_CTRL
               add   hl,bc
               ld    a,(hl)
               ret   
@@ -7691,7 +7525,7 @@ RESET:
               jr    z,$-6
               pop   af
               ld    b,0x16
-              ld    hl,0x0299
+              ld    hl,TOKEN_APPEND_PAREN
               cp    (hl)
               jr    z,$+24
               inc   hl
