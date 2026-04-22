@@ -64,21 +64,6 @@ offset = 401
 end = 412
 type = DATA_BYTE
 
-[region]
-offset = 473
-end = 639
-type = DATA_BYTE
-
-[region]
-offset = 865
-end = 899
-type = DATA_BYTE
-
-[region]
-offset = 900
-end = 906
-type = DATA_STRING
-
 [label]
 offset = 0
 name = START
@@ -218,18 +203,6 @@ name = RESET
 [label]
 offset = 457
 name = CLRSCR_HOME
-
-[label]
-offset = 826
-name = OUTSTR_AUX
-
-[label]
-offset = 924
-name = OUT_CHAR_MAIN
-
-[label]
-offset = 962
-name = DCB_DISPATCH
 
 [comment]
 offset = 0
@@ -995,122 +968,6 @@ text = Get Refresh Register R
 offset = 469
 text = Store in 78ABH
 
-[comment]
-offset = 473
-text = Column 1: T, G, B, 5
-
-[comment]
-offset = 477
-text = Column 2: N, 6, Y, H
-
-[comment]
-offset = 481
-text = Column 3: W, S, X, 2
-
-[comment]
-offset = 485
-text = Column 4: ., 9, O, L
-
-[comment]
-offset = 489
-text = Column 5: (unused)
-
-[comment]
-offset = 493
-text = Column 6: (unused), -, CR, :
-
-[comment]
-offset = 497
-text = Column 7: E, D, C, 3
-
-[comment]
-offset = 501
-text = Column 8: ,, 8, I, K
-
-[comment]
-offset = 505
-text = Column 9: Q, A, Z, 1
-
-[comment]
-offset = 509
-text = Column 10: Space, 0, P, ;
-
-[comment]
-offset = 513
-text = Column 11: R, F, V, 4
-
-[comment]
-offset = 517
-text = Column 12: M, 7, U, J
-
-[comment]
-offset = 521
-text = Column 1: (shifted symbols)
-
-[comment]
-offset = 525
-text = Column 2: (shifted symbols)
-
-[comment]
-offset = 529
-text = Column 3: (shifted symbols)
-
-[comment]
-offset = 533
-text = Column 4: (shifted symbols)
-
-[comment]
-offset = 537
-text = Column 5: (unused)
-
-[comment]
-offset = 541
-text = Column 6-8: symbols
-
-[comment]
-offset = 549
-text = Column 9-11: symbols
-
-[comment]
-offset = 557
-text = Column 12: symbols
-
-[comment]
-offset = 782
-text = Load char at 783CH
-
-[comment]
-offset = 785
-text = Load cursor addr from 7820H
-
-[comment]
-offset = 788
-text = Store char at cursor
-
-[comment]
-offset = 795
-text = Subtract 32 (line length)
-
-[comment]
-offset = 797
-text = Save new cursor address
-
-[comment]
-offset = 1000
-text = Load cursor address (7820H)
-
-[comment]
-offset = 1007
-text = Compare H with 71H (End of Video RAM 7000-71FF?)
-
-[comment]
-offset = 1242
-text = Set bit 6 (ASCII to VDG mapping?)
-
-[comment]
-offset = 1255
-text = Set bit 6 (ASCII to VDG mapping?)
-
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -1250,64 +1107,4 @@ text = Clear Screen and Home Cursor
 [block]
 offset = 467
 text = Random Number Seed initialization
-
-[block]
-offset = 473
-text = Keyboard Table 1 (Normal)
-
-[block]
-offset = 521
-text = Keyboard Table 2 (Shifted)
-
-[block]
-offset = 541
-text = Keyboard Table 3 (Control/Other)
-
-[block]
-offset = 779
-text = Load cursor and char at cursor
-
-[block]
-offset = 791
-text = Move cursor left
-
-[block]
-offset = 826
-text = Auxiliary Output String Routine
-
-[block]
-offset = 840
-text = Check cursor position? (TAB/POS support)
-
-[block]
-offset = 856
-text = Wait for keypress / DCB routine
-
-[block]
-offset = 865
-text = Character conversion table / Control chars
-
-[block]
-offset = 924
-text = Main character output routine
-
-[block]
-offset = 962
-text = DCB Call Dispatcher
-
-[block]
-offset = 995
-text = Video RAM check and line wrap logic
-
-[block]
-offset = 1029
-text = Reset cursor flags and handle line wrap
-
-[block]
-offset = 1057
-text = Buffer processing (79E8H buffer?)
-
-[block]
-offset = 1198
-text = Character mapping/conversion to VDG
 

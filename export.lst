@@ -76,8 +76,8 @@
 0054  323C78   2<x                 ld    (0x783C),a     ; Save character to 783CH
 0057  C9       .                   ret                  ; Return
                      ; not used in vz200
-0058  4CFE5420 L.T                 DEFB  0x4C,0xFE,0x54,0x20
-005C  D6FD21F1 ..!.                DEFB  0xD6,0xFD,0x21,0xF1
+0058  4CFE5420 L.T                 DEFB  0x4C,0xFE,0x54,0x20,0xD6,0xFD,0x21,0xF1
+      D6FD21F1 ..!.  
                      ;
                      ; Delay loop (input: register BC determines duration)
                      DELAY_LOOP:
@@ -114,7 +114,7 @@
                      INIT_DOS_HOOKS:
 008E  112D01   .-.                 ld    de,ERROR_L3    ; Address of L3 error handler (012DH)
 0091  061C     ..                  ld    b,0x1C         ; 28 DOS commands to initialize
-0093  215279   !Ry                 ld    hl,ERCALL      ; RAM hook table address (7952H)
+0093  215279   !Ry                 ld    hl,0x7952      ; RAM hook table address (7952H)
                      INIT_DOS_LOOP:
 0096  36C3     6.                  ld    (hl),0xC3      ; Store JP opcode (0xC3)
 0098  23       #                   inc   hl             ; Increment RAM pointer
@@ -137,7 +137,7 @@
 00A8  21E87A   !.z                 ld    hl,0x7AE8      ; Load start of user RAM (7AE8H)
 00AB  70       p                   ld    (hl),b         ; Initialize it to zero
 00AC  31F879   1.y                 ld    sp,0x79F8      ; Set temporary stack pointer (79F8H)
-00AF  CD8F1B   ...                 call  STKINI         ; Initialize stack and variables (STKINI)
+00AF  CD8F1B   ...                 call  0x1B8F         ; Initialize stack and variables (STKINI)
 00B2  CDC901   ...                 call  CLRSCR         ; Clear screen and home cursor (CLRSCR)
 00B5  00       .                   nop   
 00B6  00       .                   nop   
@@ -206,11 +206,11 @@
 00F9  CD4D1B   .M.                 call  0x1B4D         ; call the NEW routine (1B4DH)
 00FC  CD8434   ..4                 call  0x3484         ; initialize counters and pointers (3484H)
 00FF  210F01   !..                 ld    hl,0x010F      ; Load banner string address (010FH)
-0102  CDA728   ..(                 call  OUTSTR         ; Print banner string (OUTSTR)
+0102  CDA728   ..(                 call  0x28A7         ; Print banner string (OUTSTR)
 0105  ED56     .V                  im    1              ; Set Interrupt Mode 1
 0107  C38E06   ...                 jp    0x068E         ; Jump to memory expansion check (068EH)
-010A  007E23FE .~#.                DEFB  0x00,0x7E,0x23,0xFE ; Artifact? No caller
-010E  0D       .                   DEFB  0x0D
+010A  007E23FE .~#.                DEFB  0x00,0x7E,0x23,0xFE,0x0D ; Artifact? No caller
+      0D       .     
                      ; Banner-Text: VIDEO TECHNOLOGY BASIC V2.0
 010F  56494445 VIDE                DEFM  "VIDEO TECHNOLOGY"
       4F205445 O TE  
@@ -224,100 +224,112 @@
                      ; L3 Error Handler (?L3 ERROR)
                      ERROR_L3:
 012D  1E2C     .,                  ld    e,0x2C         ; Load error code 44 (L3 Error)
-012F  C3A219   ...                 jp    ERROR_HANDLER  ; Jump to main error handler
-0132  D7       .                   rst   0x10
-0133  AF       .                   xor   a
-0134  013E80   .>.                 ld    bc,0x803E
-0137  013E01   .>.                 ld    bc,0x013E
-013A  F5       .                   push  af
-013B  CF       .                   rst   8
-013C  28CD     (.                  jr    z,$-49
-013E  1C       .                   inc   e
-013F  2B       +                   dec   hl
-0140  FE80     ..                  cp    0x80
-0142  D24A1E   .J.                 jp    nc,0x1E4A
-0145  F5       .                   push  af
-0146  CF       .                   rst   8
-0147  2C       ,                   inc   l
-0148  CD1C2B   ..+                 call  0x2B1C
-014B  FE40     .@                  cp    0x40
-014D  D24A1E   .J.                 jp    nc,0x1E4A
-0150  5F       _                   ld    e,a
-0151  AF       .                   xor   a
-0152  57       W                   ld    d,a
-0153  EB       .                   ex    de,hl
-0154  29       )                   add   hl,hl
-0155  29       )                   add   hl,hl
-0156  29       )                   add   hl,hl
-0157  29       )                   add   hl,hl
-0158  29       )                   add   hl,hl
-0159  EB       .                   ex    de,hl
-015A  F1       .                   pop   af
-015B  F5       .                   push  af
-015C  CB3F     .?                  srl   a
-015E  CB3F     .?                  srl   a
-0160  83       .                   add   a,e
-0161  5F       _                   ld    e,a
-0162  7A       z                   ld    a,d
-0163  F670     .p                  or    0x70
-0165  57       W                   ld    d,a
-0166  F1       .                   pop   af
-0167  E603     ..                  and   0x03
-0169  87       .                   add   a,a
-016A  47       G                   ld    b,a
-016B  F1       .                   pop   af
-016C  B7       .                   or    a
-016D  CAE738   ..8                 jp    z,0x38E7
-0170  F5       .                   push  af
-0171  0E3F     .?                  ld    c,0x3F
-0173  3A4678   :Fx                 ld    a,(0x7846)
-0176  CB27     .'                  sla   a
-0178  CB27     .'                  sla   a
-017A  CB0F     ..                  rrc   a
-017C  CB09     ..                  rrc   c
-017E  10FA     ..                  djnz  $-4
-0180  C30339   ..9                 jp    0x3903
-0183  213978   !9x                 ld    hl,0x7839
-0186  CB9E     ..                  res   3,(hl)
-0188  218403   !..                 ld    hl,0x0384
-018B  CDA728   ..(                 call  OUTSTR
-018E  C3CF36   ..6                 jp    0x36CF
-0191  F1       .                   pop   af
-0192  FE20     .                   cp    0x20
-0194  2014      .                  jr    nz,$+22
-0196  1A       .                   ld    a,(de)
-0197  13       .                   inc   de
-0198  FE20     .                   cp    0x20
-019A  28FA     (.                  jr    z,$-4
-019C  FED7     ..                  cp    0xD7
-019E  E5       .                   push  hl
-019F  3A9978   :.x                 ld    a,(0x7899)
-01A2  B7       .                   or    a
-01A3  2006      .                  jr    nz,$+8
-01A5  CD5803   .X.                 call  0x0358
-01A8  B7       .                   or    a
-01A9  2811     (.                  jr    z,$+19
+012F  C3A219   ...                 jp    0x19A2         ; Jump to main error handler
+                     ; GRAPHICS ROUTINE - Common Code for SET, RESET and POINT
+                     ; A will be 0 for POINT, 80H for SET and 1 for RESET.
+                     POINT:
+0132  D7       .                   rst   0x10           ; Get next character (RST 10H)
+0133  AF       .                   xor   a              ; A = 0 (POINT flag)
+0134  01       .                   DEFB  0x01           ; Skip LD A,n (01 matches LD BC,nn)
+                     SET:
+0135  3E80     >.                  ld    a,0x80         ; A = 80H (SET flag)
+0137  01       .                   DEFB  0x01           ; Skip LD A,n
+                     RESET:
+0138  3E01     >.                  ld    a,0x01         ; A = 1 (RESET flag)
+013A  F5       .                   push  af             ; Save command flag (POINT/SET/RESET)
+013B  CF       .                   rst   8              ; Expect '(' (RST 08H)
+013C  28CD     (.                  jr    z,$-49         ; JR Z, 010BH (GETBYT?)
+013E  1C       .                   inc   e              ; INC E
+013F  2B       +                   dec   hl             ; DEC HL
+0140  FE80     ..                  cp    0x80           ; X < 128?
+0142  D24A1E   .J.                 jp    nc,0x1E4A      ; JP NC, FCERR (1E4AH)
+0145  F5       .                   push  af             ; Save X
+0146  CF       .                   rst   8              ; Expect ',' (RST 08H)
+0147  2C       ,                   inc   l              ; INC L
+0148  CD1C2B   ..+                 call  0x2B1C         ; Call GETBYT (2B1CH?)
+014B  FE40     .@                  cp    0x40           ; Y < 64?
+014D  D24A1E   .J.                 jp    nc,0x1E4A      ; JP NC, FCERR (1E4AH)
+0150  5F       _                   ld    e,a            ; E = Y
+0151  AF       .                   xor   a              ; A = 0
+0152  57       W                   ld    d,a            ; D = 0
+0153  EB       .                   ex    de,hl          ; DE <-> HL (HL = Y)
+0154  29       )                   add   hl,hl          ; Y * 2
+0155  29       )                   add   hl,hl          ; Y * 4
+0156  29       )                   add   hl,hl          ; Y * 8
+0157  29       )                   add   hl,hl          ; Y * 16
+0158  29       )                   add   hl,hl          ; Y * 32
+0159  EB       .                   ex    de,hl          ; DE <-> HL (DE = Y * 32)
+015A  F1       .                   pop   af             ; Get X
+015B  F5       .                   push  af             ; Save X
+015C  CB3F     .?                  srl   a              ; X / 2
+015E  CB3F     .?                  srl   a              ; X / 4
+0160  83       .                   add   a,e            ; A = X/4 + (Y*32 mod 256)
+0161  5F       _                   ld    e,a            ; E = A
+0162  7A       z                   ld    a,d            ; A = D (high byte of Y*32)
+0163  F670     .p                  or    0x70           ; OR 70H (Video RAM starts at 7000H)
+0165  57       W                   ld    d,a            ; D = A (DE = 7000H + Y*32 + X/4)
+0166  F1       .                   pop   af             ; Get X again
+0167  E603     ..                  and   0x03           ; X AND 03H (pixel position in byte)
+0169  87       .                   add   a,a            ; A = pixel * 2
+016A  47       G                   ld    b,a            ; B = A
+016B  F1       .                   pop   af             ; Get original command flag (POINT/SET/RESET
+016C  B7       .                   or    a              ; Is it POINT (0)?
+016D  CAE738   ..8                 jp    z,0x38E7       ; Yes, JP to POINT routine (38E7H)
+0170  F5       .                   push  af             ; Save Command flag
+0171  0E3F     .?                  ld    c,0x3F         ; C = 3FH (Graphics mask?)
+0173  3A4678   :Fx                 ld    a,(0x7846)     ; Get color mode latch?
+0176  CB27     .'                  sla   a              ; SLA A
+0178  CB27     .'                  sla   a              ; SLA A
+017A  CB0F     ..                  rrc   a              ; RRC A
+017C  CB09     ..                  rrc   c              ; RRC C
+017E  10FA     ..                  djnz  $-4            ; DJNZ hBc2 (Shift bit into position)
+0180  C30339   ..9                 jp    0x3903         ; JP to rest of SET/RESET (3903H)
+                     ; Set cursor to 7839H and reset bit 3
+0183  213978   !9x                 ld    hl,0x7839      ; Load 7839H (Cursor flags?)
+0186  CB9E     ..                  res   3,(hl)         ; Reset bit 3
+0188  218403   !..                 ld    hl,0x0384      ; Load address of 'ERROR' message
+018B  CDA728   ..(                 call  0x28A7         ; Print string (OUTSTR)
+018E  C3CF36   ..6                 jp    0x36CF         ; Jump to 36CFH
+                     ;
+                     ; *******************************************************
+                     ; UNUSED BYTE ARTIFACT INSIDE VZ200 ROM
+                     ; *******************************************************
+0191  F1FE2020 ..                  DEFB  0xF1,0xFE,0x20,0x20,0x14,0x1A,0x13,0xFE
+      141A13FE ....  
+0199  2028FAFE  (..                DEFB  0x20,0x28,0xFA,0xFE
+                     ; Parameter / Coordinate Parsing (for Graphics?)
+019D  D7       .                   rst   0x10           ; Get next character (RST 10H)
+019E  E5       .                   push  hl             ; Save pointer
+019F  3A9978   :.x                 ld    a,(0x7899)     ; Get RAM byte 7899H
+01A2  B7       .                   or    a              ; Zero?
+01A3  2006      .                  jr    nz,$+8         ; No, skip next part
+01A5  CD5803   .X.                 call  0x0358         ; Call 0358H
+01A8  B7       .                   or    a              ; Zero?
+01A9  2811     (.                  jr    z,$+19         ; Yes, skip ahead
 01AB  F5       .                   push  af
 01AC  AF       .                   xor   a
 01AD  329978   2.x                 ld    (0x7899),a
 01B0  3C       <                   inc   a
-01B1  CD5728   .W(                 call  0x2857
+01B1  CD5728   .W(                 call  0x2857         ; Call STRINI (2857H)
 01B4  F1       .                   pop   af
-01B5  2AD478   *.x                 ld    hl,(0x78D4)
+01B5  2AD478   *.x                 ld    hl,(0x78D4)    ; Get 78D4H
 01B8  77       w                   ld    (hl),a
-01B9  C38428   ..(                 jp    0x2884
-01BC  212819   !(.                 ld    hl,0x1928
+01B9  C38428   ..(                 jp    0x2884         ; Jump to 2884H
+01BC  212819   !(.                 ld    hl,0x1928      ; Load 1928H into 7921H
 01BF  222179   "!y                 ld    (0x7921),hl
-01C2  3E03     >.                  ld    a,0x03
+01C2  3E03     >.                  ld    a,0x03         ; Set 78AFH to 3
 01C4  32AF78   2.x                 ld    (0x78AF),a
-01C7  E1       .                   pop   hl
-01C8  C9       .                   ret   
-01C9  3E1C     >.                  ld    a,0x1C
+01C7  E1       .                   pop   hl             ; Restore HL
+01C8  C9       .                   ret                  ; Return
+                     ; Clear Screen and Home Cursor
+                     CLRSCR_HOME:
+01C9  3E1C     >.                  ld    a,0x1C         ; Clear screen (1CH)
 01CB  CD3A03   .:.                 call  0x033A
-01CE  3E1F     >.                  ld    a,0x1F
+01CE  3E1F     >.                  ld    a,0x1F         ; Move cursor home (1FH)
 01D0  C33A03   .:.                 jp    0x033A
-01D3  ED5F     ._                  ld    a,r
-01D5  32AB78   2.x                 ld    (0x78AB),a
+                     ; Random Number Seed initialization
+01D3  ED5F     ._                  ld    a,r            ; Get Refresh Register R
+01D5  32AB78   2.x                 ld    (0x78AB),a     ; Store in 78ABH
 01D8  C9       .                   ret   
 01D9  54       T                   ld    d,h
 01DA  47       G                   ld    b,a
@@ -806,7 +818,7 @@
 04A1  C30205   ...                 jp    0x0502
 04A4  D8       .                   ret   c
 04A5  211A3E   !.>                 ld    hl,0x3E1A
-04A8  CDA728   ..(                 call  OUTSTR
+04A8  CDA728   ..(                 call  0x28A7
 04AB  C3E303   ...                 jp    0x03E3
 04AE  FE22     ."                  cp    0x22
 04B0  2031      1                  jr    nz,$+51
@@ -1245,7 +1257,7 @@
 07B0  34       4                   inc   (hl)
 07B1  C0       .                   ret   nz
 07B2  1E0A     ..                  ld    e,0x0A
-07B4  C3A219   ...                 jp    ERROR_HANDLER
+07B4  C3A219   ...                 jp    0x19A2
 07B7  7E       ~                   ld    a,(hl)
 07B8  83       .                   add   a,e
 07B9  5F       _                   ld    e,a
@@ -1765,7 +1777,7 @@
 0AF4  E7       .                   rst   0x20
 0AF5  C8       .                   ret   z
 0AF6  1E18     ..                  ld    e,0x18
-0AF8  C3A219   ...                 jp    ERROR_HANDLER
+0AF8  C3A219   ...                 jp    0x19A2
 0AFB  47       G                   ld    b,a
 0AFC  4F       O                   ld    c,a
 0AFD  57       W                   ld    d,a
@@ -2485,7 +2497,7 @@
 0FA4  C3BD0E   ...                 jp    0x0EBD
 0FA7  E5       .                   push  hl
 0FA8  212419   !$.                 ld    hl,0x1924
-0FAB  CDA728   ..(                 call  OUTSTR
+0FAB  CDA728   ..(                 call  0x28A7
 0FAE  E1       .                   pop   hl
 0FAF  CD9A0A   ...                 call  0x0A9A
 0FB2  AF       .                   xor   a
@@ -4250,7 +4262,7 @@
 1A01  E5       .                   push  hl
 1A02  2AEA78   *.x                 ld    hl,(0x78EA)
 1A05  E3       .                   ex    (sp),hl
-1A06  CDA728   ..(                 call  OUTSTR
+1A06  CDA728   ..(                 call  0x28A7
 1A09  E1       .                   pop   hl
 1A0A  11FEFF   ...                 ld    de,0xFFFE
 1A0D  DF       .                   rst   0x18
@@ -4267,7 +4279,7 @@
 1A21  00       .                   nop   
 1A22  CDF920   ..                  call  0x20F9
 1A25  212919   !).                 ld    hl,0x1929
-1A28  CDA728   ..(                 call  OUTSTR
+1A28  CDA728   ..(                 call  0x28A7
 1A2B  3A9A78   :.x                 ld    a,(0x789A)
 1A2E  D602     ..                  sub   0x02
 1A30  00       .                   nop   
@@ -4838,7 +4850,7 @@
 1DE7  7C       |                   ld    a,h
 1DE8  B5       .                   or    l
 1DE9  1E20     .                   ld    e,0x20
-1DEB  CAA219   ...                 jp    z,ERROR_HANDLER
+1DEB  CAA219   ...                 jp    z,0x19A2
 1DEE  EB       .                   ex    de,hl
 1DEF  2AF578   *.x                 ld    hl,(0x78F5)
 1DF2  22A278   ".x                 ld    (0x78A2),hl
@@ -4898,7 +4910,7 @@
 1E46  CD022B   ..+                 call  0x2B02
 1E49  F0       .                   ret   p
 1E4A  1E08     ..                  ld    e,0x08
-1E4C  C3A219   ...                 jp    ERROR_HANDLER
+1E4C  C3A219   ...                 jp    0x19A2
 1E4F  7E       ~                   ld    a,(hl)
 1E50  FE2E     ..                  cp    0x2E
 1E52  EB       .                   ex    de,hl
@@ -4981,7 +4993,7 @@
 1ED7  2B       +                   dec   hl
 1ED8  D8       .                   ret   c
 1ED9  1E0E     ..                  ld    e,0x0E
-1EDB  C3A219   ...                 jp    ERROR_HANDLER
+1EDB  C3A219   ...                 jp    0x19A2
 1EDE  C0       .                   ret   nz
 1EDF  16FF     ..                  ld    d,0xFF
 1EE1  CD3619   .6.                 call  0x1936
@@ -4989,7 +5001,7 @@
 1EE5  22E878   ".x                 ld    (0x78E8),hl
 1EE8  FE91     ..                  cp    0x91
 1EEA  1E04     ..                  ld    e,0x04
-1EEC  C2A219   ...                 jp    nz,ERROR_HANDLER
+1EEC  C2A219   ...                 jp    nz,0x19A2
 1EEF  E1       .                   pop   hl
 1EF0  22A278   ".x                 ld    (0x78A2),hl
 1EF3  23       #                   inc   hl
@@ -5156,7 +5168,7 @@
 1FFF  FE2D     .-                  cp    0x2D
 2001  3802     8.                  jr    c,$+4
 2003  1E26     .&                  ld    e,0x26
-2005  C3A219   ...                 jp    ERROR_HANDLER
+2005  C3A219   ...                 jp    0x19A2
 2008  110A00   ...                 ld    de,0x000A
 200B  D5       .                   push  de
 200C  2817     (.                  jr    z,$+25
@@ -5352,10 +5364,10 @@
 2186  3AA978   :.x                 ld    a,(0x78A9)
 2189  B7       .                   or    a
 218A  1E2A     .*                  ld    e,0x2A
-218C  CAA219   ...                 jp    z,ERROR_HANDLER
+218C  CAA219   ...                 jp    z,0x19A2
 218F  C1       .                   pop   bc
 2190  217821   !x!                 ld    hl,0x2178
-2193  CDA728   ..(                 call  OUTSTR
+2193  CDA728   ..(                 call  0x28A7
 2196  2AE678   *.x                 ld    hl,(0x78E6)
 2199  C9       .                   ret   
 219A  CD2828   .((                 call  0x2828
@@ -5426,7 +5438,7 @@
 220E  3AA978   :.x                 ld    a,(0x78A9)
 2211  B7       .                   or    a
 2212  1E06     ..                  ld    e,0x06
-2214  CAA219   ...                 jp    z,ERROR_HANDLER
+2214  CAA219   ...                 jp    z,0x19A2
 2217  3E3F     >?                  ld    a,0x3F
 2219  CD2A03   .*.                 call  0x032A
 221C  CDB31B   ...                 call  0x1BB3
@@ -5489,7 +5501,7 @@
 2278  CDDF79   ..y                 call  0x79DF
 227B  B6       .                   or    (hl)
 227C  218622   !."                 ld    hl,0x2286
-227F  C4A728   ..(                 call  nz,OUTSTR
+227F  C4A728   ..(                 call  nz,0x28A7
 2282  E1       .                   pop   hl
 2283  C36921   .i!                 jp    0x2169
 2286  3F       ?                   ccf   
@@ -5515,7 +5527,7 @@
 229E  23       #                   inc   hl
 229F  B6       .                   or    (hl)
 22A0  1E06     ..                  ld    e,0x06
-22A2  CAA219   ...                 jp    z,ERROR_HANDLER
+22A2  CAA219   ...                 jp    z,0x19A2
 22A5  23       #                   inc   hl
 22A6  5E       ^                   ld    e,(hl)
 22A7  23       #                   inc   hl
@@ -5807,7 +5819,7 @@
 249C  C3A008   ...                 jp    0x08A0
 249F  D7       .                   rst   0x10
 24A0  1E28     .(                  ld    e,0x28
-24A2  CAA219   ...                 jp    z,ERROR_HANDLER
+24A2  CAA219   ...                 jp    z,0x19A2
 24A5  DA6C0E   .l.                 jp    c,0x0E6C
 24A8  CD3D1E   .=.                 call  0x1E3D
 24AB  D24025   .@%                 jp    nc,0x2540
@@ -5864,7 +5876,7 @@
 250E  FEC7     ..                  cp    0xC7
 2510  CA7679   .vy                 jp    z,0x7976
 2513  FEC6     ..                  cp    0xC6
-2515  CA3201   .2.                 jp    z,0x0132
+2515  CA3201   .2.                 jp    z,POINT
 2518  FEC9     ..                  cp    0xC9
 251A  CA9D01   ...                 jp    z,0x019D
 251D  FEC4     ..                  cp    0xC4
@@ -6222,12 +6234,12 @@
 272F  3AAE78   :.x                 ld    a,(0x78AE)
 2732  B7       .                   or    a
 2733  1E12     ..                  ld    e,0x12
-2735  C2A219   ...                 jp    nz,ERROR_HANDLER
+2735  C2A219   ...                 jp    nz,0x19A2
 2738  F1       .                   pop   af
 2739  96       .                   sub   (hl)
 273A  CA9527   ..'                 jp    z,0x2795
 273D  1E10     ..                  ld    e,0x10
-273F  C3A219   ...                 jp    ERROR_HANDLER
+273F  C3A219   ...                 jp    0x19A2
 2742  77       w                   ld    (hl),a
 2743  23       #                   inc   hl
 2744  5F       _                   ld    e,a
@@ -6247,7 +6259,7 @@
 2757  3AAE78   :.x                 ld    a,(0x78AE)
 275A  17       .                   rla   
 275B  79       y                   ld    a,c
-275C  010B00   ...                 ld    bc,0x000B
+275C  010B00   ...                 ld    bc,ROMRET
 275F  3002     0.                  jr    nc,$+4
 2761  C1       .                   pop   bc
 2762  03       .                   inc   bc
@@ -6386,7 +6398,7 @@
 282F  E1       .                   pop   hl
 2830  C0       .                   ret   nz
 2831  1E16     ..                  ld    e,0x16
-2833  C3A219   ...                 jp    ERROR_HANDLER
+2833  C3A219   ...                 jp    0x19A2
 2836  CDBD0F   ...                 call  0x0FBD
 2839  CD6528   .e(                 call  0x2865
 283C  CDDA29   ..)                 call  0x29DA
@@ -6451,7 +6463,7 @@
 289F  7E       ~                   ld    a,(hl)
 28A0  C0       .                   ret   nz
 28A1  1E1E     ..                  ld    e,0x1E
-28A3  C3A219   ...                 jp    ERROR_HANDLER
+28A3  C3A219   ...                 jp    0x19A2
 28A6  23       #                   inc   hl
 28A7  CD6528   .e(                 call  0x2865
 28AA  CDDA29   ..)                 call  0x29DA
@@ -6485,7 +6497,7 @@
 28D9  C9       .                   ret   
 28DA  F1       .                   pop   af
 28DB  1E1A     ..                  ld    e,0x1A
-28DD  CAA219   ...                 jp    z,ERROR_HANDLER
+28DD  CAA219   ...                 jp    z,0x19A2
 28E0  BF       .                   cp    a
 28E1  F5       .                   push  af
 28E2  01C128   ..(                 ld    bc,0x28C1
@@ -6620,7 +6632,7 @@
 29A1  E5       .                   push  hl
 29A2  86       .                   add   a,(hl)
 29A3  1E1C     ..                  ld    e,0x1C
-29A5  DAA219   ...                 jp    c,ERROR_HANDLER
+29A5  DAA219   ...                 jp    c,0x19A2
 29A8  CD5728   .W(                 call  0x2857
 29AB  D1       .                   pop   de
 29AC  CDDE29   ..)                 call  0x29DE
@@ -6978,7 +6990,7 @@
 2BD5  DF       .                   rst   0x18
 2BD6  D24A1E   .J.                 jp    nc,0x1E4A
 2BD9  212919   !).                 ld    hl,0x1929
-2BDC  CDA728   ..(                 call  OUTSTR
+2BDC  CDA728   ..(                 call  0x28A7
 2BDF  C1       .                   pop   bc
 2BE0  21E81A   !..                 ld    hl,0x1AE8
 2BE3  E3       .                   ex    (sp),hl
@@ -7296,7 +7308,7 @@
 2DCA  7A       z                   ld    a,d
 2DCB  F680     ..                  or    0x80
 2DCD  CDBE0F   ...                 call  0x0FBE
-2DD0  CDA728   ..(                 call  OUTSTR
+2DD0  CDA728   ..(                 call  0x28A7
 2DD3  E1       .                   pop   hl
 2DD4  2B       +                   dec   hl
 2DD5  D7       .                   rst   0x10
@@ -8505,7 +8517,7 @@
 36CB  2A1E78   *.x                 ld    hl,(0x781E)
 36CE  E9       .                   jp    (hl)
 36CF  212919   !).                 ld    hl,0x1929
-36D2  CDA728   ..(                 call  OUTSTR
+36D2  CDA728   ..(                 call  0x28A7
 36D5  2AA478   *.x                 ld    hl,(0x78A4)
 36D8  E5       .                   push  hl
 36D9  213978   !9x                 ld    hl,0x7839
@@ -8535,7 +8547,7 @@
 370E  C3811A   ...                 jp    0x1A81
 3711  214A38   !J8                 ld    hl,0x384A
 3714  FB       .                   ei    
-3715  CDA728   ..(                 call  OUTSTR
+3715  CDA728   ..(                 call  0x28A7
 3718  F3       .                   di    
 3719  3A4C78   :Lx                 ld    a,(0x784C)
 371C  B7       .                   or    a
@@ -8560,7 +8572,7 @@
 3746  BE       .                   cp    (hl)
 3747  2809     (.                  jr    z,$+11
 3749  216C37   !l7                 ld    hl,0x376C
-374C  CDA728   ..(                 call  OUTSTR
+374C  CDA728   ..(                 call  0x28A7
 374F  C38301   ...                 jp    0x0183
 3752  23       #                   inc   hl
 3753  0B       .                   dec   bc
@@ -8570,9 +8582,9 @@
 3758  213978   !9x                 ld    hl,0x7839
 375B  CB9E     ..                  res   3,(hl)
 375D  216C37   !l7                 ld    hl,0x376C
-3760  CDA728   ..(                 call  OUTSTR
+3760  CDA728   ..(                 call  0x28A7
 3763  218003   !..                 ld    hl,0x0380
-3766  CDA728   ..(                 call  OUTSTR
+3766  CDA728   ..(                 call  0x28A7
 3769  C3CF36   ..6                 jp    0x36CF
 376C  0D       .                   dec   c
 376D  56       V                   ld    d,(hl)
@@ -9730,7 +9742,7 @@
 3E50  C30205   ...                 jp    0x0502
 3E53  D8       .                   ret   c
 3E54  211A3E   !.>                 ld    hl,0x3E1A
-3E57  CDA728   ..(                 call  OUTSTR
+3E57  CDA728   ..(                 call  0x28A7
 3E5A  C3E303   ...                 jp    0x03E3
 3E5D  FE62     .b                  cp    0x62
 3E5F  2039      9                  jr    nz,$+59

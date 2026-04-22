@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Thu Apr  2 12:56:48 2026
+; Generated: Wed Apr 22 00:44:24 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -89,8 +89,7 @@
               ret                  ; Return
 
 ; not used in vz200
-              DEFB  0x4C,0xFE,0x54,0x20
-              DEFB  0xD6,0xFD,0x21,0xF1
+              DEFB  0x4C,0xFE,0x54,0x20,0xD6,0xFD,0x21,0xF1
 
 ;
 ; Delay loop (input: register BC determines duration)
@@ -132,7 +131,7 @@
 INIT_DOS_HOOKS:
               ld    de,ERROR_L3    ; Address of L3 error handler (012DH)
               ld    b,0x1C         ; 28 DOS commands to initialize
-              ld    hl,ERCALL      ; RAM hook table address (7952H)
+              ld    hl,0x7952      ; RAM hook table address (7952H)
 INIT_DOS_LOOP:
               ld    (hl),0xC3      ; Store JP opcode (0xC3)
               inc   hl             ; Increment RAM pointer
@@ -157,7 +156,7 @@ INIT_BASIC_FINISH:
               ld    hl,0x7AE8      ; Load start of user RAM (7AE8H)
               ld    (hl),b         ; Initialize it to zero
               ld    sp,0x79F8      ; Set temporary stack pointer (79F8H)
-              call  STKINI         ; Initialize stack and variables (STKINI)
+              call  0x1B8F         ; Initialize stack and variables (STKINI)
               call  CLRSCR         ; Clear screen and home cursor (CLRSCR)
               nop   
               nop   
@@ -230,11 +229,10 @@ INIT_VARS_2:
               call  0x1B4D         ; call the NEW routine (1B4DH)
               call  0x3484         ; initialize counters and pointers (3484H)
               ld    hl,0x010F      ; Load banner string address (010FH)
-              call  OUTSTR         ; Print banner string (OUTSTR)
+              call  0x28A7         ; Print banner string (OUTSTR)
               im    1              ; Set Interrupt Mode 1
               jp    0x068E         ; Jump to memory expansion check (068EH)
-              DEFB  0x00,0x7E,0x23,0xFE ; Artifact? No caller
-              DEFB  0x0D
+              DEFB  0x00,0x7E,0x23,0xFE,0x0D ; Artifact? No caller
 
 ; Banner-Text: VIDEO TECHNOLOGY BASIC V2.0
               DEFM  "VIDEO TECHNOLOGY"
@@ -245,100 +243,117 @@ INIT_VARS_2:
 ; L3 Error Handler (?L3 ERROR)
 ; ERROR_L3: (defined in symbols.sym)
               ld    e,0x2C         ; Load error code 44 (L3 Error)
-              jp    ERROR_HANDLER  ; Jump to main error handler
-              rst   0x10
-              xor   a
-              ld    bc,0x803E
-              ld    bc,0x013E
-              push  af
-              rst   8
-              jr    z,$-49
-              inc   e
-              dec   hl
-              cp    0x80
-              jp    nc,0x1E4A
-              push  af
-              rst   8
-              inc   l
-              call  0x2B1C
-              cp    0x40
-              jp    nc,0x1E4A
-              ld    e,a
-              xor   a
-              ld    d,a
-              ex    de,hl
-              add   hl,hl
-              add   hl,hl
-              add   hl,hl
-              add   hl,hl
-              add   hl,hl
-              ex    de,hl
-              pop   af
-              push  af
-              srl   a
-              srl   a
-              add   a,e
-              ld    e,a
-              ld    a,d
-              or    0x70
-              ld    d,a
-              pop   af
-              and   0x03
-              add   a,a
-              ld    b,a
-              pop   af
-              or    a
-              jp    z,0x38E7
-              push  af
-              ld    c,0x3F
-              ld    a,(0x7846)
-              sla   a
-              sla   a
-              rrc   a
-              rrc   c
-              djnz  $-4
-              jp    0x3903
-              ld    hl,0x7839
-              res   3,(hl)
-              ld    hl,0x0384
-              call  OUTSTR
-              jp    0x36CF
-              pop   af
-              cp    0x20
-              jr    nz,$+22
-              ld    a,(de)
-              inc   de
-              cp    0x20
-              jr    z,$-4
-              cp    0xD7
-              push  hl
-              ld    a,(0x7899)
-              or    a
-              jr    nz,$+8
-              call  0x0358
-              or    a
-              jr    z,$+19
+              jp    0x19A2         ; Jump to main error handler
+
+; GRAPHICS ROUTINE - Common Code for SET, RESET and POINT
+; A will be 0 for POINT, 80H for SET and 1 for RESET.
+POINT:
+              rst   0x10           ; Get next character (RST 10H)
+              xor   a              ; A = 0 (POINT flag)
+              DEFB  0x01           ; Skip LD A,n (01 matches LD BC,nn)
+SET:
+              ld    a,0x80         ; A = 80H (SET flag)
+              DEFB  0x01           ; Skip LD A,n
+RESET:
+              ld    a,0x01         ; A = 1 (RESET flag)
+              push  af             ; Save command flag (POINT/SET/RESET)
+              rst   8              ; Expect '(' (RST 08H)
+              jr    z,$-49         ; JR Z, 010BH (GETBYT?)
+              inc   e              ; INC E
+              dec   hl             ; DEC HL
+              cp    0x80           ; X < 128?
+              jp    nc,0x1E4A      ; JP NC, FCERR (1E4AH)
+              push  af             ; Save X
+              rst   8              ; Expect ',' (RST 08H)
+              inc   l              ; INC L
+              call  0x2B1C         ; Call GETBYT (2B1CH?)
+              cp    0x40           ; Y < 64?
+              jp    nc,0x1E4A      ; JP NC, FCERR (1E4AH)
+              ld    e,a            ; E = Y
+              xor   a              ; A = 0
+              ld    d,a            ; D = 0
+              ex    de,hl          ; DE <-> HL (HL = Y)
+              add   hl,hl          ; Y * 2
+              add   hl,hl          ; Y * 4
+              add   hl,hl          ; Y * 8
+              add   hl,hl          ; Y * 16
+              add   hl,hl          ; Y * 32
+              ex    de,hl          ; DE <-> HL (DE = Y * 32)
+              pop   af             ; Get X
+              push  af             ; Save X
+              srl   a              ; X / 2
+              srl   a              ; X / 4
+              add   a,e            ; A = X/4 + (Y*32 mod 256)
+              ld    e,a            ; E = A
+              ld    a,d            ; A = D (high byte of Y*32)
+              or    0x70           ; OR 70H (Video RAM starts at 7000H)
+              ld    d,a            ; D = A (DE = 7000H + Y*32 + X/4)
+              pop   af             ; Get X again
+              and   0x03           ; X AND 03H (pixel position in byte)
+              add   a,a            ; A = pixel * 2
+              ld    b,a            ; B = A
+              pop   af             ; Get original command flag (POINT/SET/RESET)
+              or    a              ; Is it POINT (0)?
+              jp    z,0x38E7       ; Yes, JP to POINT routine (38E7H)
+              push  af             ; Save Command flag
+              ld    c,0x3F         ; C = 3FH (Graphics mask?)
+              ld    a,(0x7846)     ; Get color mode latch?
+              sla   a              ; SLA A
+              sla   a              ; SLA A
+              rrc   a              ; RRC A
+              rrc   c              ; RRC C
+              djnz  $-4            ; DJNZ hBc2 (Shift bit into position)
+              jp    0x3903         ; JP to rest of SET/RESET (3903H)
+
+; Set cursor to 7839H and reset bit 3
+              ld    hl,0x7839      ; Load 7839H (Cursor flags?)
+              res   3,(hl)         ; Reset bit 3
+              ld    hl,0x0384      ; Load address of 'ERROR' message
+              call  0x28A7         ; Print string (OUTSTR)
+              jp    0x36CF         ; Jump to 36CFH
+
+;
+; *******************************************************
+; UNUSED BYTE ARTIFACT INSIDE VZ200 ROM
+; *******************************************************
+              DEFB  0xF1,0xFE,0x20,0x20,0x14,0x1A,0x13,0xFE
+              DEFB  0x20,0x28,0xFA,0xFE
+
+; Parameter / Coordinate Parsing (for Graphics?)
+              rst   0x10           ; Get next character (RST 10H)
+              push  hl             ; Save pointer
+              ld    a,(0x7899)     ; Get RAM byte 7899H
+              or    a              ; Zero?
+              jr    nz,$+8         ; No, skip next part
+              call  0x0358         ; Call 0358H
+              or    a              ; Zero?
+              jr    z,$+19         ; Yes, skip ahead
               push  af
               xor   a
               ld    (0x7899),a
               inc   a
-              call  0x2857
+              call  0x2857         ; Call STRINI (2857H)
               pop   af
-              ld    hl,(0x78D4)
+              ld    hl,(0x78D4)    ; Get 78D4H
               ld    (hl),a
-              jp    0x2884
-              ld    hl,0x1928
+              jp    0x2884         ; Jump to 2884H
+              ld    hl,0x1928      ; Load 1928H into 7921H
               ld    (0x7921),hl
-              ld    a,0x03
+              ld    a,0x03         ; Set 78AFH to 3
               ld    (0x78AF),a
-              pop   hl
-              ret   
-              ld    a,0x1C
+              pop   hl             ; Restore HL
+              ret                  ; Return
+
+; Clear Screen and Home Cursor
+; CLRSCR_HOME: (defined in symbols.sym)
+              ld    a,0x1C         ; Clear screen (1CH)
               call  0x033A
-              ld    a,0x1F
+              ld    a,0x1F         ; Move cursor home (1FH)
               jp    0x033A
-              ld    a,r
-              ld    (0x78AB),a
+
+; Random Number Seed initialization
+              ld    a,r            ; Get Refresh Register R
+              ld    (0x78AB),a     ; Store in 78ABH
               ret   
               ld    d,h
               ld    b,a
@@ -827,7 +842,7 @@ INIT_VARS_2:
               jp    0x0502
               ret   c
               ld    hl,0x3E1A
-              call  OUTSTR
+              call  0x28A7
               jp    0x03E3
               cp    0x22
               jr    nz,$+51
@@ -1266,7 +1281,7 @@ INIT_VARS_2:
               inc   (hl)
               ret   nz
               ld    e,0x0A
-              jp    ERROR_HANDLER
+              jp    0x19A2
               ld    a,(hl)
               add   a,e
               ld    e,a
@@ -1786,7 +1801,7 @@ INIT_VARS_2:
               rst   0x20
               ret   z
               ld    e,0x18
-              jp    ERROR_HANDLER
+              jp    0x19A2
               ld    b,a
               ld    c,a
               ld    d,a
@@ -2506,7 +2521,7 @@ INIT_VARS_2:
               jp    0x0EBD
               push  hl
               ld    hl,0x1924
-              call  OUTSTR
+              call  0x28A7
               pop   hl
               call  0x0A9A
               xor   a
@@ -4271,7 +4286,7 @@ INIT_VARS_2:
               push  hl
               ld    hl,(0x78EA)
               ex    (sp),hl
-              call  OUTSTR
+              call  0x28A7
               pop   hl
               ld    de,0xFFFE
               rst   0x18
@@ -4288,7 +4303,7 @@ INIT_VARS_2:
               nop   
               call  0x20F9
               ld    hl,0x1929
-              call  OUTSTR
+              call  0x28A7
               ld    a,(0x789A)
               sub   0x02
               nop   
@@ -4859,7 +4874,7 @@ INIT_VARS_2:
               ld    a,h
               or    l
               ld    e,0x20
-              jp    z,ERROR_HANDLER
+              jp    z,0x19A2
               ex    de,hl
               ld    hl,(0x78F5)
               ld    (0x78A2),hl
@@ -4919,7 +4934,7 @@ INIT_VARS_2:
               call  0x2B02
               ret   p
               ld    e,0x08
-              jp    ERROR_HANDLER
+              jp    0x19A2
               ld    a,(hl)
               cp    0x2E
               ex    de,hl
@@ -5002,7 +5017,7 @@ INIT_VARS_2:
               dec   hl
               ret   c
               ld    e,0x0E
-              jp    ERROR_HANDLER
+              jp    0x19A2
               ret   nz
               ld    d,0xFF
               call  0x1936
@@ -5010,7 +5025,7 @@ INIT_VARS_2:
               ld    (0x78E8),hl
               cp    0x91
               ld    e,0x04
-              jp    nz,ERROR_HANDLER
+              jp    nz,0x19A2
               pop   hl
               ld    (0x78A2),hl
               inc   hl
@@ -5177,7 +5192,7 @@ INIT_VARS_2:
               cp    0x2D
               jr    c,$+4
               ld    e,0x26
-              jp    ERROR_HANDLER
+              jp    0x19A2
               ld    de,0x000A
               push  de
               jr    z,$+25
@@ -5373,10 +5388,10 @@ INIT_VARS_2:
               ld    a,(0x78A9)
               or    a
               ld    e,0x2A
-              jp    z,ERROR_HANDLER
+              jp    z,0x19A2
               pop   bc
               ld    hl,0x2178
-              call  OUTSTR
+              call  0x28A7
               ld    hl,(0x78E6)
               ret   
               call  0x2828
@@ -5447,7 +5462,7 @@ INIT_VARS_2:
               ld    a,(0x78A9)
               or    a
               ld    e,0x06
-              jp    z,ERROR_HANDLER
+              jp    z,0x19A2
               ld    a,0x3F
               call  0x032A
               call  0x1BB3
@@ -5510,7 +5525,7 @@ INIT_VARS_2:
               call  0x79DF
               or    (hl)
               ld    hl,0x2286
-              call  nz,OUTSTR
+              call  nz,0x28A7
               pop   hl
               jp    0x2169
               ccf   
@@ -5536,7 +5551,7 @@ INIT_VARS_2:
               inc   hl
               or    (hl)
               ld    e,0x06
-              jp    z,ERROR_HANDLER
+              jp    z,0x19A2
               inc   hl
               ld    e,(hl)
               inc   hl
@@ -5828,7 +5843,7 @@ INIT_VARS_2:
               jp    0x08A0
               rst   0x10
               ld    e,0x28
-              jp    z,ERROR_HANDLER
+              jp    z,0x19A2
               jp    c,0x0E6C
               call  0x1E3D
               jp    nc,0x2540
@@ -5885,7 +5900,7 @@ INIT_VARS_2:
               cp    0xC7
               jp    z,0x7976
               cp    0xC6
-              jp    z,0x0132
+              jp    z,POINT
               cp    0xC9
               jp    z,0x019D
               cp    0xC4
@@ -6243,12 +6258,12 @@ INIT_VARS_2:
               ld    a,(0x78AE)
               or    a
               ld    e,0x12
-              jp    nz,ERROR_HANDLER
+              jp    nz,0x19A2
               pop   af
               sub   (hl)
               jp    z,0x2795
               ld    e,0x10
-              jp    ERROR_HANDLER
+              jp    0x19A2
               ld    (hl),a
               inc   hl
               ld    e,a
@@ -6268,7 +6283,7 @@ INIT_VARS_2:
               ld    a,(0x78AE)
               rla   
               ld    a,c
-              ld    bc,0x000B
+              ld    bc,ROMRET
               jr    nc,$+4
               pop   bc
               inc   bc
@@ -6407,7 +6422,7 @@ INIT_VARS_2:
               pop   hl
               ret   nz
               ld    e,0x16
-              jp    ERROR_HANDLER
+              jp    0x19A2
               call  0x0FBD
               call  0x2865
               call  0x29DA
@@ -6472,7 +6487,7 @@ INIT_VARS_2:
               ld    a,(hl)
               ret   nz
               ld    e,0x1E
-              jp    ERROR_HANDLER
+              jp    0x19A2
               inc   hl
               call  0x2865
               call  0x29DA
@@ -6506,7 +6521,7 @@ INIT_VARS_2:
               ret   
               pop   af
               ld    e,0x1A
-              jp    z,ERROR_HANDLER
+              jp    z,0x19A2
               cp    a
               push  af
               ld    bc,0x28C1
@@ -6641,7 +6656,7 @@ INIT_VARS_2:
               push  hl
               add   a,(hl)
               ld    e,0x1C
-              jp    c,ERROR_HANDLER
+              jp    c,0x19A2
               call  0x2857
               pop   de
               call  0x29DE
@@ -6999,7 +7014,7 @@ INIT_VARS_2:
               rst   0x18
               jp    nc,0x1E4A
               ld    hl,0x1929
-              call  OUTSTR
+              call  0x28A7
               pop   bc
               ld    hl,0x1AE8
               ex    (sp),hl
@@ -7317,7 +7332,7 @@ INIT_VARS_2:
               ld    a,d
               or    0x80
               call  0x0FBE
-              call  OUTSTR
+              call  0x28A7
               pop   hl
               dec   hl
               rst   0x10
@@ -8526,7 +8541,7 @@ INIT_VARS_2:
               ld    hl,(0x781E)
               jp    (hl)
               ld    hl,0x1929
-              call  OUTSTR
+              call  0x28A7
               ld    hl,(0x78A4)
               push  hl
               ld    hl,0x7839
@@ -8556,7 +8571,7 @@ INIT_VARS_2:
               jp    0x1A81
               ld    hl,0x384A
               ei    
-              call  OUTSTR
+              call  0x28A7
               di    
               ld    a,(0x784C)
               or    a
@@ -8581,7 +8596,7 @@ INIT_VARS_2:
               cp    (hl)
               jr    z,$+11
               ld    hl,0x376C
-              call  OUTSTR
+              call  0x28A7
               jp    0x0183
               inc   hl
               dec   bc
@@ -8591,9 +8606,9 @@ INIT_VARS_2:
               ld    hl,0x7839
               res   3,(hl)
               ld    hl,0x376C
-              call  OUTSTR
+              call  0x28A7
               ld    hl,0x0380
-              call  OUTSTR
+              call  0x28A7
               jp    0x36CF
               dec   c
               ld    d,(hl)
@@ -9751,7 +9766,7 @@ INIT_VARS_2:
               jp    0x0502
               ret   c
               ld    hl,0x3E1A
-              call  OUTSTR
+              call  0x28A7
               jp    0x03E3
               cp    0x62
               jr    nz,$+59
