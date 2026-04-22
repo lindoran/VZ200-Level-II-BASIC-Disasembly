@@ -159,6 +159,71 @@ offset = 719
 end = 780
 type = DATA_WORD
 
+[region]
+offset = 801
+end = 809
+type = DATA_BYTE
+
+[region]
+offset = 865
+end = 895
+type = DATA_BYTE
+
+[region]
+offset = 896
+end = 897
+type = DATA_STRING
+
+[region]
+offset = 898
+end = 899
+type = DATA_BYTE
+
+[region]
+offset = 900
+end = 904
+type = DATA_STRING
+
+[region]
+offset = 905
+end = 906
+type = DATA_BYTE
+
+[region]
+offset = 1392
+end = 1395
+type = DATA_STRING
+
+[region]
+offset = 1396
+end = 1396
+type = DATA_BYTE
+
+[region]
+offset = 1767
+end = 1772
+type = DATA_BYTE
+
+[region]
+offset = 1773
+end = 1774
+type = DATA_STRING
+
+[region]
+offset = 1775
+end = 1782
+type = DATA_BYTE
+
+[region]
+offset = 1783
+end = 1788
+type = DATA_BYTE
+
+[region]
+offset = 1789
+end = 1790
+type = DATA_STRING
+
 [label]
 offset = 0
 name = START
@@ -330,6 +395,90 @@ name = PRINTER_GRAPHICS_TABLE
 [label]
 offset = 719
 name = SOUND_FREQ_TABLE
+
+[label]
+offset = 781
+name = CURSOR_CHAR_RESTORE
+
+[label]
+offset = 791
+name = CURSOR_LINE_BACK
+
+[label]
+offset = 810
+name = CHAR_OUTPUT_DISPATCH
+
+[label]
+offset = 826
+name = SCREEN_OUT_CHAR
+
+[label]
+offset = 840
+name = CURSOR_COL_GET
+
+[label]
+offset = 856
+name = KBD_QUERY_WRAP
+
+[label]
+offset = 907
+name = OUTPUT_SCREEN_SELECT
+
+[label]
+offset = 924
+name = PRINTER_OUT_CHAR
+
+[label]
+offset = 962
+name = DCB_DISPATCH
+
+[label]
+offset = 995
+name = INPUT_LINE_READ
+
+[label]
+offset = 1397
+name = PRINTER_DRIVER
+
+[label]
+offset = 1481
+name = PRN_GFXBUF_CLEAR
+
+[label]
+offset = 1495
+name = KBD_ROLLOVER
+
+[label]
+offset = 1652
+name = BASIC_INIT_1
+
+[label]
+offset = 1678
+name = BASIC_INIT_3
+
+[label]
+offset = 1700
+name = ROM_CART_CHECK
+
+[label]
+offset = 1746
+name = RAM_VECTOR_BLOCK
+
+[label]
+offset = 1800
+name = FP_ADD_HALF
+
+[label]
+offset = 1808
+name = FP_SUB_HALF
+
+[label]
+offset = 1811
+name = FP_SUB_Y_MINUS_X
+
+[label]
+offset = 1814
+name = FP_ADD_X_PLUS_Y
 
 [comment]
 offset = 0
@@ -1283,6 +1432,2670 @@ text = C#4-G4
 offset = 767
 text = A4-D5
 
+[comment]
+offset = 781
+text = Output character in B
+
+[comment]
+offset = 782
+text = Load character at cursor position
+
+[comment]
+offset = 785
+text = Load cursor address
+
+[comment]
+offset = 788
+text = Write character
+
+[comment]
+offset = 789
+text = Restore output character in A
+
+[comment]
+offset = 790
+text = Return
+
+[comment]
+offset = 791
+text = Line length
+
+[comment]
+offset = 794
+text = Clear carry
+
+[comment]
+offset = 795
+text = Cursor address minus one line
+
+[comment]
+offset = 797
+text = Store in cursor pointer
+
+[comment]
+offset = 800
+text = Return
+
+[comment]
+offset = 801
+text = A2-E3
+
+[comment]
+offset = 809
+text = Data bytes 0x18
+
+[comment]
+offset = 810
+text = Push bc
+
+[comment]
+offset = 811
+text = Load c from a
+
+[comment]
+offset = 812
+text = Call 0x79C1
+
+[comment]
+offset = 815
+text = Load output flag (0=screen,1=printer,0x80=cassette)
+
+[comment]
+offset = 818
+text = Test A
+
+[comment]
+offset = 819
+text = Load a from c
+
+[comment]
+offset = 820
+text = Pop bc
+
+[comment]
+offset = 824
+text = Relative jump if nz to $+100
+
+[comment]
+offset = 826
+text = Push de
+
+[comment]
+offset = 827
+text = Push af
+
+[comment]
+offset = 828
+text = Push bc
+
+[comment]
+offset = 829
+text = Push hl
+
+[comment]
+offset = 830
+text = Call 0x308B
+
+[comment]
+offset = 833
+text = Pop hl
+
+[comment]
+offset = 834
+text = Pop bc
+
+[comment]
+offset = 835
+text = No operation
+
+[comment]
+offset = 836
+text = No operation
+
+[comment]
+offset = 837
+text = Pop af
+
+[comment]
+offset = 838
+text = Pop de
+
+[comment]
+offset = 839
+text = Return
+
+[comment]
+offset = 840
+text = Load a from (0x783D)
+
+[comment]
+offset = 843
+text = AND A with 0x08
+
+[comment]
+offset = 845
+text = Load a from (0x7820)
+
+[comment]
+offset = 848
+text = Relative jump if z to $+5
+
+[comment]
+offset = 850
+text = Rotate A right
+
+[comment]
+offset = 851
+text = AND A with 0x1F
+
+[comment]
+offset = 853
+text = AND A with 0x1F
+
+[comment]
+offset = 855
+text = Return
+
+[comment]
+offset = 856
+text = Call 0x79C4
+
+[comment]
+offset = 859
+text = Push de
+
+[comment]
+offset = 860
+text = Call 0x002B
+
+[comment]
+offset = 863
+text = Pop de
+
+[comment]
+offset = 864
+text = Return
+
+[comment]
+offset = 865
+text = A2-E3
+
+[comment]
+offset = 873
+text = F3-C4
+
+[comment]
+offset = 881
+text = C#4-G#4
+
+[comment]
+offset = 889
+text = A4-D#5
+
+[comment]
+offset = 896
+text = \
+
+[comment]
+offset = 898
+text = Data bytes 0x0D,0x00
+
+[comment]
+offset = 900
+text = \
+
+[comment]
+offset = 905
+text = Data bytes 0x0D,0x00
+
+[comment]
+offset = 907
+text = Clear A
+
+[comment]
+offset = 908
+text = Load (0x789C) from a
+
+[comment]
+offset = 911
+text = Load a from (0x789B)
+
+[comment]
+offset = 914
+text = Test A
+
+[comment]
+offset = 915
+text = Return if z
+
+[comment]
+offset = 916
+text = Output carriage return to printer
+
+[comment]
+offset = 918
+text = Push de
+
+[comment]
+offset = 919
+text = Call 0x039C
+
+[comment]
+offset = 922
+text = Pop de
+
+[comment]
+offset = 923
+text = Return
+
+[comment]
+offset = 924
+text = Push af
+
+[comment]
+offset = 925
+text = Push de
+
+[comment]
+offset = 926
+text = Push bc
+
+[comment]
+offset = 927
+text = Load c from a
+
+[comment]
+offset = 928
+text = Load e from 0x00
+
+[comment]
+offset = 930
+text = Compare A with 0x0C
+
+[comment]
+offset = 932
+text = Relative jump if z to $+18
+
+[comment]
+offset = 934
+text = Compare A with 0x0A
+
+[comment]
+offset = 936
+text = Relative jump if nz to $+5
+
+[comment]
+offset = 938
+text = Load a from 0x0D
+
+[comment]
+offset = 940
+text = Load c from a
+
+[comment]
+offset = 941
+text = Compare A with 0x0D
+
+[comment]
+offset = 943
+text = Relative jump if z to $+7
+
+[comment]
+offset = 945
+text = Load a from (0x789B)
+
+[comment]
+offset = 948
+text = Increment a
+
+[comment]
+offset = 949
+text = Load e from a
+
+[comment]
+offset = 950
+text = Load a from e
+
+[comment]
+offset = 951
+text = Load (0x789B) from a
+
+[comment]
+offset = 954
+text = Load a from c
+
+[comment]
+offset = 958
+text = Pop bc
+
+[comment]
+offset = 959
+text = Pop de
+
+[comment]
+offset = 960
+text = Pop af
+
+[comment]
+offset = 961
+text = Return
+
+[comment]
+offset = 962
+text = Push hl
+
+[comment]
+offset = 963
+text = Push ix
+
+[comment]
+offset = 965
+text = Push de
+
+[comment]
+offset = 966
+text = Pop ix
+
+[comment]
+offset = 968
+text = Push de
+
+[comment]
+offset = 969
+text = Load hl from 0x03DD
+
+[comment]
+offset = 972
+text = Push hl
+
+[comment]
+offset = 973
+text = Load c from a
+
+[comment]
+offset = 974
+text = Load a from (de)
+
+[comment]
+offset = 975
+text = AND A with b
+
+[comment]
+offset = 976
+text = Compare A with b
+
+[comment]
+offset = 977
+text = Jump if nz to 0x7833
+
+[comment]
+offset = 980
+text = Compare A with 0x02
+
+[comment]
+offset = 982
+text = Load l from (ix+0x01)
+
+[comment]
+offset = 985
+text = Load h from (ix+0x02)
+
+[comment]
+offset = 988
+text = Jump to (hl)
+
+[comment]
+offset = 989
+text = Return from DCB driver
+
+[comment]
+offset = 990
+text = Pop ix
+
+[comment]
+offset = 992
+text = Pop hl
+
+[comment]
+offset = 993
+text = Pop bc
+
+[comment]
+offset = 994
+text = Return
+
+[comment]
+offset = 995
+text = Load hl from 0x7839
+
+[comment]
+offset = 998
+text = Set bit 5 of (hl)
+
+[comment]
+offset = 1000
+text = Load hl from (0x7820)
+
+[comment]
+offset = 1003
+text = Call 0x0053
+
+[comment]
+offset = 1006
+text = Load a from h
+
+[comment]
+offset = 1007
+text = Compare A with 0x71
+
+[comment]
+offset = 1009
+text = Relative jump if nz to $+18
+
+[comment]
+offset = 1011
+text = Load a from l
+
+[comment]
+offset = 1012
+text = Compare A with 0xE0
+
+[comment]
+offset = 1014
+text = Relative jump if nz to $+13
+
+[comment]
+offset = 1016
+text = Load a from (0x7AD7)
+
+[comment]
+offset = 1019
+text = Test A
+
+[comment]
+offset = 1020
+text = Relative jump if nz to $+7
+
+[comment]
+offset = 1022
+text = Load a from 0x0D
+
+[comment]
+offset = 1024
+text = Call 0x308B
+
+[comment]
+offset = 1027
+text = Load b from c
+
+[comment]
+offset = 1028
+text = Push bc
+
+[comment]
+offset = 1029
+text = Load hl from 0x7839
+
+[comment]
+offset = 1032
+text = Reset bit 0 of (hl)
+
+[comment]
+offset = 1034
+text = Reset bit 2 of (hl)
+
+[comment]
+offset = 1036
+text = Test bit 0 of (hl)
+
+[comment]
+offset = 1038
+text = Relative jump if z to $-2
+
+[comment]
+offset = 1040
+text = Load a from (0x78A6)
+
+[comment]
+offset = 1043
+text = Load c from a
+
+[comment]
+offset = 1044
+text = Clear A
+
+[comment]
+offset = 1045
+text = Load (0x78A6) from a
+
+[comment]
+offset = 1048
+text = Load b from a
+
+[comment]
+offset = 1049
+text = Load hl from (0x7820)
+
+[comment]
+offset = 1052
+text = Subtract bc with carry from hl
+
+[comment]
+offset = 1054
+text = Load (0x7820) from hl
+
+[comment]
+offset = 1057
+text = Load de from 0x79E8
+
+[comment]
+offset = 1060
+text = Pop bc
+
+[comment]
+offset = 1061
+text = Load hl from 0x7839
+
+[comment]
+offset = 1064
+text = Test bit 4 of (hl)
+
+[comment]
+offset = 1066
+text = Load hl from (0x7820)
+
+[comment]
+offset = 1069
+text = Relative jump if z to $+68
+
+[comment]
+offset = 1071
+text = Push bc
+
+[comment]
+offset = 1072
+text = Push hl
+
+[comment]
+offset = 1073
+text = Call 0x33A8
+
+[comment]
+offset = 1076
+text = Pop hl
+
+[comment]
+offset = 1077
+text = Pop bc
+
+[comment]
+offset = 1078
+text = Test A
+
+[comment]
+offset = 1079
+text = Relative jump if nz to $+10
+
+[comment]
+offset = 1081
+text = Load a from l
+
+[comment]
+offset = 1082
+text = Subtract 0x20 from A
+
+[comment]
+offset = 1084
+text = Load l from a
+
+[comment]
+offset = 1085
+text = Load a from h
+
+[comment]
+offset = 1086
+text = Subtract 0x00 with carry from a
+
+[comment]
+offset = 1088
+text = Load h from a
+
+[comment]
+offset = 1089
+text = Load c from b
+
+[comment]
+offset = 1090
+text = Load a from (de)
+
+[comment]
+offset = 1091
+text = Compare A with (hl)
+
+[comment]
+offset = 1092
+text = Relative jump if nz to $+9
+
+[comment]
+offset = 1094
+text = Increment hl
+
+[comment]
+offset = 1095
+text = Increment de
+
+[comment]
+offset = 1096
+text = Decrement B and jump if not zero to $-6
+
+[comment]
+offset = 1098
+text = Push bc
+
+[comment]
+offset = 1099
+text = Relative jump to $+6
+
+[comment]
+offset = 1101
+text = Load bc from 0x0000
+
+[comment]
+offset = 1104
+text = Push bc
+
+[comment]
+offset = 1105
+text = Push hl
+
+[comment]
+offset = 1106
+text = Call 0x33A8
+
+[comment]
+offset = 1109
+text = Pop hl
+
+[comment]
+offset = 1110
+text = Pop bc
+
+[comment]
+offset = 1111
+text = Push bc
+
+[comment]
+offset = 1112
+text = Compare A with 0x80
+
+[comment]
+offset = 1114
+text = Relative jump if z to $+12
+
+[comment]
+offset = 1116
+text = Load a from 0x40
+
+[comment]
+offset = 1118
+text = Subtract c from A
+
+[comment]
+offset = 1119
+text = Load b from a
+
+[comment]
+offset = 1120
+text = Pop de
+
+[comment]
+offset = 1121
+text = Load e from 0x00
+
+[comment]
+offset = 1123
+text = Push de
+
+[comment]
+offset = 1124
+text = Relative jump to $+7
+
+[comment]
+offset = 1126
+text = Load b from 0x20
+
+[comment]
+offset = 1128
+text = Load hl from (0x7820)
+
+[comment]
+offset = 1131
+text = Load de from 0x79E8
+
+[comment]
+offset = 1134
+text = Jump to 0x3EA8
+
+[comment]
+offset = 1137
+text = Load bc from 0x0000
+
+[comment]
+offset = 1140
+text = Push bc
+
+[comment]
+offset = 1141
+text = Push hl
+
+[comment]
+offset = 1142
+text = Call 0x33A8
+
+[comment]
+offset = 1145
+text = Pop hl
+
+[comment]
+offset = 1146
+text = Compare A with 0x80
+
+[comment]
+offset = 1148
+text = Relative jump if z to $+16
+
+[comment]
+offset = 1150
+text = Compare A with 0x81
+
+[comment]
+offset = 1152
+text = Relative jump if z to $+8
+
+[comment]
+offset = 1154
+text = Load bc from 0x0020
+
+[comment]
+offset = 1157
+text = Test A
+
+[comment]
+offset = 1158
+text = Subtract bc with carry from hl
+
+[comment]
+offset = 1160
+text = Load b from 0x40
+
+[comment]
+offset = 1162
+text = Relative jump to $+4
+
+[comment]
+offset = 1164
+text = Load b from 0x20
+
+[comment]
+offset = 1166
+text = Load a from (0x7818)
+
+[comment]
+offset = 1169
+text = Test A
+
+[comment]
+offset = 1170
+text = Jump if z to 0x3E40
+
+[comment]
+offset = 1173
+text = Load a from (hl)
+
+[comment]
+offset = 1174
+text = Compare A with 0x40
+
+[comment]
+offset = 1176
+text = Jump if c to 0x04AE
+
+[comment]
+offset = 1179
+text = Pop bc
+
+[comment]
+offset = 1180
+text = Load de from 0x04A4
+
+[comment]
+offset = 1183
+text = Push de
+
+[comment]
+offset = 1184
+text = Push bc
+
+[comment]
+offset = 1185
+text = Jump to 0x0502
+
+[comment]
+offset = 1188
+text = Return if c
+
+[comment]
+offset = 1189
+text = Load hl from 0x3E1A
+
+[comment]
+offset = 1192
+text = Call 0x28A7
+
+[comment]
+offset = 1195
+text = Jump to 0x03E3
+
+[comment]
+offset = 1198
+text = Compare A with 0x22
+
+[comment]
+offset = 1200
+text = Relative jump if nz to $+51
+
+[comment]
+offset = 1202
+text = Load (de) from a
+
+[comment]
+offset = 1203
+text = Increment hl
+
+[comment]
+offset = 1204
+text = Increment de
+
+[comment]
+offset = 1205
+text = Decrement b
+
+[comment]
+offset = 1206
+text = Relative jump if z to $+56
+
+[comment]
+offset = 1208
+text = Load a from (hl)
+
+[comment]
+offset = 1209
+text = Compare A with 0x40
+
+[comment]
+offset = 1211
+text = Jump if c to 0x04C9
+
+[comment]
+offset = 1214
+text = Compare A with 0x80
+
+[comment]
+offset = 1216
+text = Jump if c to 0x04C5
+
+[comment]
+offset = 1219
+text = AND A with 0x8F
+
+[comment]
+offset = 1221
+text = OR A with 0x80
+
+[comment]
+offset = 1223
+text = Relative jump to $+21
+
+[comment]
+offset = 1225
+text = Compare A with 0x22
+
+[comment]
+offset = 1227
+text = Relative jump if nz to $+11
+
+[comment]
+offset = 1229
+text = Push hl
+
+[comment]
+offset = 1230
+text = Load hl from 0x7839
+
+[comment]
+offset = 1233
+text = Test bit 4 of (hl)
+
+[comment]
+offset = 1235
+text = Pop hl
+
+[comment]
+offset = 1236
+text = Relative jump if z to $+15
+
+[comment]
+offset = 1238
+text = Test bit 5 of a
+
+[comment]
+offset = 1240
+text = Relative jump if nz to $+4
+
+[comment]
+offset = 1242
+text = OR A with 0x40
+
+[comment]
+offset = 1244
+text = Load (de) from a
+
+[comment]
+offset = 1245
+text = Increment hl
+
+[comment]
+offset = 1246
+text = Increment de
+
+[comment]
+offset = 1247
+text = Decrement B and jump if not zero to $-39
+
+[comment]
+offset = 1249
+text = Relative jump to $+13
+
+[comment]
+offset = 1251
+text = Test bit 5 of a
+
+[comment]
+offset = 1253
+text = Relative jump if nz to $+4
+
+[comment]
+offset = 1255
+text = OR A with 0x40
+
+[comment]
+offset = 1257
+text = Load (de) from a
+
+[comment]
+offset = 1258
+text = Increment hl
+
+[comment]
+offset = 1259
+text = Increment de
+
+[comment]
+offset = 1260
+text = Decrement B and jump if not zero to $-87
+
+[comment]
+offset = 1262
+text = Decrement de
+
+[comment]
+offset = 1263
+text = Load a from d
+
+[comment]
+offset = 1264
+text = Compare A with 0x79
+
+[comment]
+offset = 1266
+text = Relative jump if nz to $+8
+
+[comment]
+offset = 1268
+text = Load a from e
+
+[comment]
+offset = 1269
+text = Compare A with 0xE8
+
+[comment]
+offset = 1271
+text = Jump if c to 0x04FF
+
+[comment]
+offset = 1274
+text = Load a from (de)
+
+[comment]
+offset = 1275
+text = Compare A with 0x20
+
+[comment]
+offset = 1277
+text = Relative jump if z to $-15
+
+[comment]
+offset = 1279
+text = Increment de
+
+[comment]
+offset = 1280
+text = Clear A
+
+[comment]
+offset = 1281
+text = Load (de) from a
+
+[comment]
+offset = 1282
+text = Call 0x33A8
+
+[comment]
+offset = 1285
+text = Load hl from (0x7820)
+
+[comment]
+offset = 1288
+text = Compare A with 0x81
+
+[comment]
+offset = 1290
+text = Call 0x0053
+
+[comment]
+offset = 1293
+text = Relative jump if nz to $+6
+
+[comment]
+offset = 1295
+text = Clear A
+
+[comment]
+offset = 1296
+text = Call 0x308B
+
+[comment]
+offset = 1299
+text = Clear A
+
+[comment]
+offset = 1300
+text = Call 0x308B
+
+[comment]
+offset = 1303
+text = Load a from (0x7838)
+
+[comment]
+offset = 1306
+text = AND A with 0xFD
+
+[comment]
+offset = 1308
+text = Load (0x7838) from a
+
+[comment]
+offset = 1311
+text = Load hl from 0x7839
+
+[comment]
+offset = 1314
+text = Test bit 2 of (hl)
+
+[comment]
+offset = 1316
+text = Relative jump if z to $+7
+
+[comment]
+offset = 1318
+text = Load a from 0x01
+
+[comment]
+offset = 1320
+text = Set carry flag
+
+[comment]
+offset = 1321
+text = Relative jump to $+3
+
+[comment]
+offset = 1323
+text = Clear A
+
+[comment]
+offset = 1324
+text = Load hl from 0x7839
+
+[comment]
+offset = 1327
+text = Reset bit 4 of (hl)
+
+[comment]
+offset = 1329
+text = Load hl from 0x79E8
+
+[comment]
+offset = 1332
+text = Pop bc
+
+[comment]
+offset = 1333
+text = Push af
+
+[comment]
+offset = 1334
+text = Add hl,bc
+
+[comment]
+offset = 1335
+text = Jump to 0x3E29
+
+[comment]
+offset = 1338
+text = Load a from (0x7AAF)
+
+[comment]
+offset = 1341
+text = Test A
+
+[comment]
+offset = 1342
+text = Relative jump if nz to $-4
+
+[comment]
+offset = 1344
+text = Load b from 0x40
+
+[comment]
+offset = 1346
+text = Load hl from 0x79E8
+
+[comment]
+offset = 1349
+text = Load a from 0x20
+
+[comment]
+offset = 1351
+text = Load (hl) from a
+
+[comment]
+offset = 1352
+text = Increment hl
+
+[comment]
+offset = 1353
+text = Decrement B and jump if not zero to $-2
+
+[comment]
+offset = 1355
+text = Clear A
+
+[comment]
+offset = 1356
+text = Load (hl) from a
+
+[comment]
+offset = 1357
+text = Call 0x33A8
+
+[comment]
+offset = 1360
+text = Test A
+
+[comment]
+offset = 1361
+text = Load a from (0x78A6)
+
+[comment]
+offset = 1364
+text = Relative jump if nz to $+4
+
+[comment]
+offset = 1366
+text = Add 0x20 to A
+
+[comment]
+offset = 1368
+text = Load c from a
+
+[comment]
+offset = 1369
+text = Clear A
+
+[comment]
+offset = 1370
+text = Load b from a
+
+[comment]
+offset = 1371
+text = Load hl from (0x7820)
+
+[comment]
+offset = 1374
+text = Subtract bc with carry from hl
+
+[comment]
+offset = 1376
+text = Load de from 0x79E8
+
+[comment]
+offset = 1379
+text = Push bc
+
+[comment]
+offset = 1380
+text = Execute ldir
+
+[comment]
+offset = 1382
+text = Pop bc
+
+[comment]
+offset = 1383
+text = Load hl from 0x7839
+
+[comment]
+offset = 1386
+text = Set bit 4 of (hl)
+
+[comment]
+offset = 1388
+text = Call 0x03E3
+
+[comment]
+offset = 1391
+text = Return
+
+[comment]
+offset = 1392
+text = Data text 'RUN\00'
+
+[comment]
+offset = 1396
+text = Data bytes 0xC4
+
+[comment]
+offset = 1397
+text = Increment sp
+
+[comment]
+offset = 1398
+text = Load (0xA3CD) from a
+
+[comment]
+offset = 1401
+text = Load a from (de)
+
+[comment]
+offset = 1402
+text = Call 0x17D8
+
+[comment]
+offset = 1405
+text = Call 0x190D
+
+[comment]
+offset = 1408
+text = Jump if z to 0x125A
+
+[comment]
+offset = 1411
+text = Call 0x1F49
+
+[comment]
+offset = 1414
+text = Relative jump if c to $+26
+
+[comment]
+offset = 1416
+text = Call restart vector 0x28
+
+[comment]
+offset = 1417
+text = Load a from (0x0438)
+
+[comment]
+offset = 1420
+text = Data bytes 0x00DD,0x0079,0x00B7
+
+[comment]
+offset = 1423
+text = Relative jump if z to $+53
+
+[comment]
+offset = 1425
+text = Compare A with 0x0B
+
+[comment]
+offset = 1427
+text = Relative jump if z to $+12
+
+[comment]
+offset = 1429
+text = Compare A with 0x0C
+
+[comment]
+offset = 1431
+text = Relative jump if nz to $+22
+
+[comment]
+offset = 1433
+text = Clear A
+
+[comment]
+offset = 1434
+text = OR A with (ix+0x03)
+
+[comment]
+offset = 1437
+text = Relative jump if z to $+16
+
+[comment]
+offset = 1439
+text = Load a from (ix+0x03)
+
+[comment]
+offset = 1442
+text = Subtract (ix+0x04) from A
+
+[comment]
+offset = 1445
+text = Load b from a
+
+[comment]
+offset = 1446
+text = Call 0x3AE2
+
+[comment]
+offset = 1449
+text = Decrement B and jump if not zero to $-3
+
+[comment]
+offset = 1451
+text = Relative jump to $+20
+
+[comment]
+offset = 1453
+text = Call 0x3AB6
+
+[comment]
+offset = 1456
+text = Load a from c
+
+[comment]
+offset = 1457
+text = Compare A with 0x0D
+
+[comment]
+offset = 1459
+text = Return if nz
+
+[comment]
+offset = 1460
+text = Increment (ix+0x04)
+
+[comment]
+offset = 1463
+text = Load a from (ix+0x04)
+
+[comment]
+offset = 1466
+text = Compare A with (ix+0x03)
+
+[comment]
+offset = 1469
+text = Load a from c
+
+[comment]
+offset = 1470
+text = Return if nz
+
+[comment]
+offset = 1471
+text = Load (ix+0x04) from 0x00
+
+[comment]
+offset = 1475
+text = Return
+
+[comment]
+offset = 1476
+text = Read printer busy status
+
+[comment]
+offset = 1478
+text = AND A with 0x01
+
+[comment]
+offset = 1480
+text = Return
+
+[comment]
+offset = 1481
+text = Push bc
+
+[comment]
+offset = 1482
+text = Push hl
+
+[comment]
+offset = 1483
+text = Load b from 0x04
+
+[comment]
+offset = 1485
+text = Load hl from 0x7AD2
+
+[comment]
+offset = 1488
+text = Load (hl) from a
+
+[comment]
+offset = 1489
+text = Increment hl
+
+[comment]
+offset = 1490
+text = Decrement B and jump if not zero to $-2
+
+[comment]
+offset = 1492
+text = Pop hl
+
+[comment]
+offset = 1493
+text = Pop bc
+
+[comment]
+offset = 1494
+text = Return
+
+[comment]
+offset = 1495
+text = Load hl from 0x7838
+
+[comment]
+offset = 1498
+text = Test bit 2 of (hl)
+
+[comment]
+offset = 1500
+text = Relative jump if z to $+23
+
+[comment]
+offset = 1502
+text = Load d from a
+
+[comment]
+offset = 1503
+text = Load a from (0x783A)
+
+[comment]
+offset = 1506
+text = Test A
+
+[comment]
+offset = 1507
+text = Relative jump if z to $+17
+
+[comment]
+offset = 1509
+text = Increment a
+
+[comment]
+offset = 1510
+text = Load (0x783A) from a
+
+[comment]
+offset = 1513
+text = Compare A with 0x2A
+
+[comment]
+offset = 1515
+text = Relative jump if z to $+4
+
+[comment]
+offset = 1517
+text = Clear A
+
+[comment]
+offset = 1518
+text = Return
+
+[comment]
+offset = 1519
+text = Reset bit 2 of (hl)
+
+[comment]
+offset = 1521
+text = Clear A
+
+[comment]
+offset = 1522
+text = Return
+
+[comment]
+offset = 1523
+text = Load d from a
+
+[comment]
+offset = 1524
+text = Load hl from 0x7838
+
+[comment]
+offset = 1527
+text = Load a from (hl)
+
+[comment]
+offset = 1528
+text = AND A with 0x18
+
+[comment]
+offset = 1530
+text = Relative jump if nz to $+13
+
+[comment]
+offset = 1532
+text = Set bit 3 of (hl)
+
+[comment]
+offset = 1534
+text = Clear A
+
+[comment]
+offset = 1535
+text = Load (0x7837) from a
+
+[comment]
+offset = 1538
+text = Load a from d
+
+[comment]
+offset = 1539
+text = Load (0x7836) from a
+
+[comment]
+offset = 1542
+text = Return
+
+[comment]
+offset = 1543
+text = Test bit 4 of (hl)
+
+[comment]
+offset = 1545
+text = Relative jump if nz to $+44
+
+[comment]
+offset = 1547
+text = Load a from (0x7836)
+
+[comment]
+offset = 1550
+text = Compare A with d
+
+[comment]
+offset = 1551
+text = Relative jump if nz to $+35
+
+[comment]
+offset = 1553
+text = Load bc from (0x7842)
+
+[comment]
+offset = 1557
+text = Load hl from (0x7844)
+
+[comment]
+offset = 1560
+text = Load a from e
+
+[comment]
+offset = 1561
+text = Call 0x2F35
+
+[comment]
+offset = 1564
+text = Compare A with d
+
+[comment]
+offset = 1565
+text = Jump if z to 0x2FD7
+
+[comment]
+offset = 1568
+text = Compare A with 0x00
+
+[comment]
+offset = 1570
+text = Jump if z to 0x2FD7
+
+[comment]
+offset = 1573
+text = Load hl from 0x7838
+
+[comment]
+offset = 1576
+text = Set bit 3 of (hl)
+
+[comment]
+offset = 1578
+text = Set bit 4 of (hl)
+
+[comment]
+offset = 1580
+text = Reset bit 2 of (hl)
+
+[comment]
+offset = 1582
+text = Load (0x7837) from a
+
+[comment]
+offset = 1585
+text = Return
+
+[comment]
+offset = 1586
+text = Load a from d
+
+[comment]
+offset = 1587
+text = Relative jump to $-14
+
+[comment]
+offset = 1589
+text = Load a from (0x7836)
+
+[comment]
+offset = 1592
+text = Compare A with d
+
+[comment]
+offset = 1593
+text = Relative jump if z to $+10
+
+[comment]
+offset = 1595
+text = Load a from (0x7837)
+
+[comment]
+offset = 1598
+text = Compare A with d
+
+[comment]
+offset = 1599
+text = Relative jump if z to $+4
+
+[comment]
+offset = 1601
+text = Clear A
+
+[comment]
+offset = 1602
+text = Return
+
+[comment]
+offset = 1603
+text = Load bc from (0x7842)
+
+[comment]
+offset = 1607
+text = Load hl from (0x7844)
+
+[comment]
+offset = 1610
+text = Load a from e
+
+[comment]
+offset = 1611
+text = Call 0x2F35
+
+[comment]
+offset = 1614
+text = Compare A with d
+
+[comment]
+offset = 1615
+text = Relative jump if z to $+7
+
+[comment]
+offset = 1617
+text = Compare A with 0x00
+
+[comment]
+offset = 1619
+text = Jump if nz to 0x2FD7
+
+[comment]
+offset = 1622
+text = Load hl from 0x7838
+
+[comment]
+offset = 1625
+text = Set bit 3 of (hl)
+
+[comment]
+offset = 1627
+text = Reset bit 4 of (hl)
+
+[comment]
+offset = 1629
+text = Load a from (0x7836)
+
+[comment]
+offset = 1632
+text = Compare A with d
+
+[comment]
+offset = 1633
+text = Relative jump if nz to $+7
+
+[comment]
+offset = 1635
+text = Clear A
+
+[comment]
+offset = 1636
+text = Load (0x7837) from a
+
+[comment]
+offset = 1639
+text = Return
+
+[comment]
+offset = 1640
+text = Load a from (0x7837)
+
+[comment]
+offset = 1643
+text = Load (0x7836) from a
+
+[comment]
+offset = 1646
+text = Relative jump to $-11
+
+[comment]
+offset = 1648
+text = Set bit 2 of (ix+0x09)
+
+[comment]
+offset = 1652
+text = No operation
+
+[comment]
+offset = 1653
+text = No operation
+
+[comment]
+offset = 1654
+text = Load hl from 0x06D2
+
+[comment]
+offset = 1657
+text = Load de from 0x7800
+
+[comment]
+offset = 1660
+text = Load bc from 0x0036
+
+[comment]
+offset = 1663
+text = Execute ldir
+
+[comment]
+offset = 1665
+text = Decrement a
+
+[comment]
+offset = 1666
+text = Decrement a
+
+[comment]
+offset = 1667
+text = Relative jump if nz to $-13
+
+[comment]
+offset = 1669
+text = Load b from 0x27
+
+[comment]
+offset = 1671
+text = Load (de) from a
+
+[comment]
+offset = 1672
+text = Increment de
+
+[comment]
+offset = 1673
+text = Decrement B and jump if not zero to $-2
+
+[comment]
+offset = 1675
+text = Jump to BASIC initialization part 2
+
+[comment]
+offset = 1678
+text = Load hl from 0x4000
+
+[comment]
+offset = 1681
+text = Call 0x06A4
+
+[comment]
+offset = 1684
+text = Load hl from 0x6000
+
+[comment]
+offset = 1687
+text = Call 0x06A4
+
+[comment]
+offset = 1690
+text = Load hl from 0x8000
+
+[comment]
+offset = 1693
+text = Call 0x06A4
+
+[comment]
+offset = 1696
+text = Enable interrupts
+
+[comment]
+offset = 1697
+text = Jump to 0x1A19
+
+[comment]
+offset = 1700
+text = Check signature sequence AA 55 E7 18
+
+[comment]
+offset = 1702
+text = Compare A with (hl)
+
+[comment]
+offset = 1703
+text = Increment hl
+
+[comment]
+offset = 1704
+text = Return if nz
+
+[comment]
+offset = 1705
+text = Complement A
+
+[comment]
+offset = 1706
+text = Compare A with (hl)
+
+[comment]
+offset = 1707
+text = Increment hl
+
+[comment]
+offset = 1708
+text = Return if nz
+
+[comment]
+offset = 1709
+text = Load a from 0xE7
+
+[comment]
+offset = 1711
+text = Compare A with (hl)
+
+[comment]
+offset = 1712
+text = Increment hl
+
+[comment]
+offset = 1713
+text = Return if nz
+
+[comment]
+offset = 1714
+text = Complement A
+
+[comment]
+offset = 1715
+text = Compare A with (hl)
+
+[comment]
+offset = 1716
+text = Increment hl
+
+[comment]
+offset = 1717
+text = Return if nz
+
+[comment]
+offset = 1718
+text = Enable interrupts
+
+[comment]
+offset = 1719
+text = Jump to (hl)
+
+[comment]
+offset = 1720
+text = Load c from 0x02
+
+[comment]
+offset = 1722
+text = Call 0x1A59
+
+[comment]
+offset = 1725
+text = Call 0x34B8
+
+[comment]
+offset = 1728
+text = Call 0x18E3
+
+[comment]
+offset = 1731
+text = Relative jump if z to $-62
+
+[comment]
+offset = 1733
+text = Call restart vector 0x28
+
+[comment]
+offset = 1734
+text = Increment l
+
+[comment]
+offset = 1735
+text = Relative jump if z to $+22
+
+[comment]
+offset = 1737
+text = Call 0x34F1
+
+[comment]
+offset = 1740
+text = Load bc from 0x1A18
+
+[comment]
+offset = 1743
+text = Jump to 0x19AE
+
+[comment]
+offset = 1746
+text = RST 08H: compare one character
+
+[comment]
+offset = 1749
+text = RST 10H: next character
+
+[comment]
+offset = 1752
+text = RST 18H: compare HL/DE
+
+[comment]
+offset = 1755
+text = RST 20H: test data type
+
+[comment]
+offset = 1758
+text = RST 28H
+
+[comment]
+offset = 1759
+text = No operation
+
+[comment]
+offset = 1760
+text = No operation
+
+[comment]
+offset = 1761
+text = RST 30H
+
+[comment]
+offset = 1762
+text = No operation
+
+[comment]
+offset = 1763
+text = No operation
+
+[comment]
+offset = 1764
+text = RST 38H interrupt entry
+
+[comment]
+offset = 1765
+text = Return
+
+[comment]
+offset = 1766
+text = No operation
+
+[comment]
+offset = 1767
+text = Keyboard DCB: type + driver address + reserved bytes
+
+[comment]
+offset = 1773
+text = Name: KI
+
+[comment]
+offset = 1775
+text = Data bytes 0x00,0x00,0x00,0x00,0x70,0x00,0x00,0x00
+
+[comment]
+offset = 1783
+text = Data bytes 0x06,0x8D,0x05,0x43,0x00,0x00
+
+[comment]
+offset = 1789
+text = Name: PR
+
+[comment]
+offset = 1791
+text = Jump to 0x5000
+
+[comment]
+offset = 1794
+text = Call restart vector 0
+
+[comment]
+offset = 1795
+text = No operation
+
+[comment]
+offset = 1796
+text = No operation
+
+[comment]
+offset = 1797
+text = Load a from 0x00
+
+[comment]
+offset = 1799
+text = Return
+
+[comment]
+offset = 1800
+text = Load hl from 0x1380
+
+[comment]
+offset = 1803
+text = Load constant 0.5 into Y then add to X
+
+[comment]
+offset = 1806
+text = Relative jump to $+8
+
+[comment]
+offset = 1808
+text = Call 0x09C2
+
+[comment]
+offset = 1811
+text = Call 0x0982
+
+[comment]
+offset = 1814
+text = Load a from b
+
+[comment]
+offset = 1815
+text = Test A
+
+[comment]
+offset = 1816
+text = Return if z
+
+[comment]
+offset = 1817
+text = Load a from (0x7924)
+
+[comment]
+offset = 1820
+text = Test A
+
+[comment]
+offset = 1821
+text = Jump if z to 0x09B4
+
+[comment]
+offset = 1824
+text = Subtract b from A
+
+[comment]
+offset = 1825
+text = Relative jump if nc to $+14
+
+[comment]
+offset = 1827
+text = Complement A
+
+[comment]
+offset = 1828
+text = Increment a
+
+[comment]
+offset = 1829
+text = Exchange de,hl
+
+[comment]
+offset = 1830
+text = Call 0x09A4
+
+[comment]
+offset = 1833
+text = Exchange de,hl
+
+[comment]
+offset = 1834
+text = Call 0x09B4
+
+[comment]
+offset = 1837
+text = Pop bc
+
+[comment]
+offset = 1838
+text = Pop de
+
+[comment]
+offset = 1839
+text = Compare A with 0x19
+
+[comment]
+offset = 1841
+text = Return if nc
+
+[comment]
+offset = 1842
+text = Push af
+
+[comment]
+offset = 1843
+text = Call 0x09DF
+
+[comment]
+offset = 1846
+text = Load h from a
+
+[comment]
+offset = 1847
+text = Pop af
+
+[comment]
+offset = 1848
+text = Call 0x07D7
+
+[comment]
+offset = 1851
+text = OR A with h
+
+[comment]
+offset = 1852
+text = Load hl from 0x7921
+
+[comment]
+offset = 1855
+text = Jump if p to 0x0754
+
+[comment]
+offset = 1858
+text = Call 0x07B7
+
+[comment]
+offset = 1861
+text = Jump if nc to 0x0796
+
+[comment]
+offset = 1864
+text = Increment hl
+
+[comment]
+offset = 1865
+text = Increment (hl)
+
+[comment]
+offset = 1866
+text = Jump if z to 0x07B2
+
+[comment]
+offset = 1869
+text = Load l from 0x01
+
+[comment]
+offset = 1871
+text = Call 0x07EB
+
+[comment]
+offset = 1874
+text = Relative jump to $+68
+
+[comment]
+offset = 1876
+text = Clear A
+
+[comment]
+offset = 1877
+text = Subtract b from A
+
+[comment]
+offset = 1878
+text = Load b from a
+
+[comment]
+offset = 1879
+text = Load a from (hl)
+
+[comment]
+offset = 1880
+text = Subtract e with carry from a
+
+[comment]
+offset = 1881
+text = Load e from a
+
+[comment]
+offset = 1882
+text = Increment hl
+
+[comment]
+offset = 1883
+text = Load a from (hl)
+
+[comment]
+offset = 1884
+text = Subtract d with carry from a
+
+[comment]
+offset = 1885
+text = Load d from a
+
+[comment]
+offset = 1886
+text = Increment hl
+
+[comment]
+offset = 1887
+text = Load a from (hl)
+
+[comment]
+offset = 1888
+text = Subtract c with carry from a
+
+[comment]
+offset = 1889
+text = Load c from a
+
+[comment]
+offset = 1890
+text = Call 0x07C3 if c
+
+[comment]
+offset = 1893
+text = Load l from b
+
+[comment]
+offset = 1894
+text = Load h from e
+
+[comment]
+offset = 1895
+text = Clear A
+
+[comment]
+offset = 1896
+text = Load b from a
+
+[comment]
+offset = 1897
+text = Load a from c
+
+[comment]
+offset = 1898
+text = Test A
+
+[comment]
+offset = 1899
+text = Relative jump if nz to $+26
+
+[comment]
+offset = 1901
+text = Load c from d
+
+[comment]
+offset = 1902
+text = Load d from h
+
+[comment]
+offset = 1903
+text = Load h from l
+
+[comment]
+offset = 1904
+text = Load l from a
+
+[comment]
+offset = 1905
+text = Load a from b
+
+[comment]
+offset = 1906
+text = Subtract 0x08 from A
+
+[comment]
+offset = 1908
+text = Compare A with 0xE0
+
+[comment]
+offset = 1910
+text = Relative jump if nz to $-14
+
+[comment]
+offset = 1912
+text = Set real value to zero
+
+[comment]
+offset = 1913
+text = Load (0x7924) from a
+
+[comment]
+offset = 1916
+text = Return
+
+[comment]
+offset = 1917
+text = Decrement b
+
+[comment]
+offset = 1918
+text = Add hl,hl
+
+[comment]
+offset = 1919
+text = Load a from d
+
+[comment]
+offset = 1920
+text = Rotate A left through carry
+
+[comment]
+offset = 1921
+text = Load d from a
+
+[comment]
+offset = 1922
+text = Load a from c
+
+[comment]
+offset = 1923
+text = Add a with carry to a
+
+[comment]
+offset = 1924
+text = Load c from a
+
+[comment]
+offset = 1925
+text = Jump if p to 0x077D
+
+[comment]
+offset = 1928
+text = Load a from b
+
+[comment]
+offset = 1929
+text = Load e from h
+
+[comment]
+offset = 1930
+text = Load b from l
+
+[comment]
+offset = 1931
+text = Test A
+
+[comment]
+offset = 1932
+text = Relative jump if z to $+10
+
+[comment]
+offset = 1934
+text = Load hl from 0x7924
+
+[comment]
+offset = 1937
+text = Add (hl) to A
+
+[comment]
+offset = 1938
+text = Load (hl) from a
+
+[comment]
+offset = 1939
+text = Relative jump if nc to $-27
+
+[comment]
+offset = 1941
+text = Return if z
+
+[comment]
+offset = 1942
+text = Finalize result: round and copy Y to X
+
+[comment]
+offset = 1943
+text = Load hl from 0x7924
+
+[comment]
+offset = 1946
+text = Test A
+
+[comment]
+offset = 1947
+text = Call 0x07A8 if m
+
+[comment]
+offset = 1950
+text = Load b from (hl)
+
+[comment]
+offset = 1951
+text = Increment hl
+
+[comment]
+offset = 1952
+text = Load a from (hl)
+
+[comment]
+offset = 1953
+text = AND A with 0x80
+
+[comment]
+offset = 1955
+text = XOR A with c
+
+[comment]
+offset = 1956
+text = Load c from a
+
+[comment]
+offset = 1957
+text = Jump to 0x09B4
+
+[comment]
+offset = 1960
+text = Increment e
+
+[comment]
+offset = 1961
+text = Return if nz
+
+[comment]
+offset = 1962
+text = Increment d
+
+[comment]
+offset = 1963
+text = Return if nz
+
+[comment]
+offset = 1964
+text = Increment c
+
+[comment]
+offset = 1965
+text = Return if nz
+
+[comment]
+offset = 1966
+text = Load c from 0x80
+
+[comment]
+offset = 1968
+text = Increment (hl)
+
+[comment]
+offset = 1969
+text = Return if nz
+
+[comment]
+offset = 1970
+text = Overflow error
+
+[comment]
+offset = 1972
+text = Jump to 0x19A2
+
+[comment]
+offset = 1975
+text = Load a from (hl)
+
+[comment]
+offset = 1976
+text = Add e to A
+
+[comment]
+offset = 1977
+text = Load e from a
+
+[comment]
+offset = 1978
+text = Increment hl
+
+[comment]
+offset = 1979
+text = Load a from (hl)
+
+[comment]
+offset = 1980
+text = Add d with carry to a
+
+[comment]
+offset = 1981
+text = Load d from a
+
+[comment]
+offset = 1982
+text = Increment hl
+
+[comment]
+offset = 1983
+text = Load a from (hl)
+
+[comment]
+offset = 1984
+text = Add c with carry to a
+
+[comment]
+offset = 1985
+text = Load c from a
+
+[comment]
+offset = 1986
+text = Return
+
+[comment]
+offset = 1987
+text = Load hl from 0x7925
+
+[comment]
+offset = 1990
+text = Load a from (hl)
+
+[comment]
+offset = 1991
+text = Complement A
+
+[comment]
+offset = 1992
+text = Load (hl) from a
+
+[comment]
+offset = 1993
+text = Clear A
+
+[comment]
+offset = 1994
+text = Load l from a
+
+[comment]
+offset = 1995
+text = Subtract b from A
+
+[comment]
+offset = 1996
+text = Load b from a
+
+[comment]
+offset = 1997
+text = Load a from l
+
+[comment]
+offset = 1998
+text = Subtract e with carry from a
+
+[comment]
+offset = 1999
+text = Load e from a
+
+[comment]
+offset = 2000
+text = Load a from l
+
+[comment]
+offset = 2001
+text = Subtract d with carry from a
+
+[comment]
+offset = 2002
+text = Load d from a
+
+[comment]
+offset = 2003
+text = Load a from l
+
+[comment]
+offset = 2004
+text = Subtract c with carry from a
+
+[comment]
+offset = 2005
+text = Load c from a
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -1466,4 +4279,191 @@ text = *******************************
               SOUND frequency table
               (2-byte value per note)
               *******************************
+
+[block]
+offset = 781
+text = *******************************
+              Restore character at cursor position
+              (part of screen output routine)
+              *******************************
+
+[block]
+offset = 791
+text = *******************************
+              Cursor address one line back
+
+[block]
+offset = 801
+text = *******************************
+              SOUND duration multipliers
+              (1 byte per input code 1-9)
+              *******************************
+
+[block]
+offset = 810
+text = Output character to screen/printer/cassette
+
+[block]
+offset = 826
+text = Output one character to screen
+
+[block]
+offset = 840
+text = Get cursor column in line
+              (not used on Laser 110/210/310)
+
+[block]
+offset = 856
+text = Keyboard query wrapper
+
+[block]
+offset = 865
+text = *******************************
+              SOUND base timing values
+              (per note)
+              *******************************
+
+[block]
+offset = 896
+text = VERIFY command messages
+
+[block]
+offset = 907
+text = Set output flag to screen
+              Issue CR to printer if not at line start
+
+[block]
+offset = 924
+text = Output one character to printer
+
+[block]
+offset = 962
+text = Dispatch via device control block (DCB)
+
+[block]
+offset = 995
+text = Read one line from keyboard
+              Echo to screen and copy to I/O buffer
+
+[block]
+offset = 1040
+text = Compute start address of input line
+
+[block]
+offset = 1057
+text = Load buffer and line addresses
+
+[block]
+offset = 1071
+text = INPUT command: skip prompt text in current line
+
+[block]
+offset = 1137
+text = Non-INPUT path: derive text start and max length
+
+[block]
+offset = 1173
+text = Transfer characters from screen line to I/O buffer
+
+[block]
+offset = 1262
+text = Finalize buffer after transfer
+
+[block]
+offset = 1282
+text = Output one or two blank lines by line status
+
+[block]
+offset = 1324
+text = Reset input command flag and continue
+
+[block]
+offset = 1338
+text = INPUT helper: read one line into I/O buffer
+
+[block]
+offset = 1392
+text = RUN command for CRUN auto-start
+
+[block]
+offset = 1396
+text = Printer driver
+
+[block]
+offset = 1397
+text = Printer driver
+
+[block]
+offset = 1481
+text = Clear 4-byte graphics print buffer
+
+[block]
+offset = 1495
+text = Keyboard rollover handler
+              (second key pressed before first release)
+
+[block]
+offset = 1652
+text = *******************************
+              BASIC initialization part 1
+              *******************************
+
+[block]
+offset = 1678
+text = BASIC initialization part 3
+              Check for external ROM cassette
+
+[block]
+offset = 1746
+text = *******************************
+              Copied to RAM 0x7800-0x7835
+              Restart vectors and DCB tables
+              *******************************
+
+[block]
+offset = 1767
+text = Keyboard device control block (DCB)
+
+[block]
+offset = 1775
+text = Screen device control block (DCB)
+
+[block]
+offset = 1783
+text = Printer device control block (DCB)
+
+[block]
+offset = 1797
+text = Entry used on wrong DCB type
+
+[block]
+offset = 1800
+text = *******************************
+              Single-precision add/subtract
+              (entry points by requested operation)
+              *******************************
+
+[block]
+offset = 1858
+text = Mantissa addition
+
+[block]
+offset = 1876
+text = Mantissa subtraction
+
+[block]
+offset = 1893
+text = Normalization
+
+[block]
+offset = 1960
+text = Rounding
+
+[block]
+offset = 1975
+text = Single-precision mantissa add
+
+[block]
+offset = 1987
+text = Negate mantissa Y
 

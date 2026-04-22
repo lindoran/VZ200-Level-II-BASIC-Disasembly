@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Wed Apr 22 11:31:20 2026
+; Generated: Wed Apr 22 12:31:57 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -11,7 +11,7 @@
               di                   ; Main entry point from RESET
               xor   a              ; Clear A (color index 0)
               ld    (0x6800),a     ; Set background color (black)
-              jp    0x0674         ; Jump to RESET part 1 (at 0674H)
+              jp    BASIC_INIT_1   ; Jump to RESET part 1 (at 0674H)
 
 ;
 ; *****************************************************************
@@ -69,7 +69,7 @@
               ret                  ; Return from unused path
               DEFB  0x00,0x00
 ; DCB_CALL: (defined in symbols.sym)
-              jp    0x03C2         ; Jump to DCB dispatcher (0674H)
+              jp    DCB_DISPATCH   ; Jump to DCB dispatcher (0674H)
 
 ; Keyboard query waits until a key is pressed
 ; KBD_WAIT: (defined in symbols.sym)
@@ -229,7 +229,7 @@ INIT_VARS_2:
               ld    hl,0x010F      ; Load banner string address (010FH)
               call  0x28A7         ; Print banner string (OUTSTR)
               im    1              ; Set Interrupt Mode 1
-              jp    0x068E         ; Jump to memory expansion check (068EH)
+              jp    BASIC_INIT_3   ; Jump to memory expansion check (068EH)
               DEFB  0x00,0x7E,0x23,0xFE,0x0D ; Artifact? No caller
 
 ; Banner-Text: VIDEO TECHNOLOGY BASIC V2.0
@@ -323,7 +323,7 @@ RESET:
               ld    a,(0x7899)     ; Get RAM byte 7899H
               or    a              ; Zero?
               jr    nz,$+8         ; No, skip next part
-              call  0x0358         ; Call 0358H
+              call  KBD_QUERY_WRAP ; Call 0358H
               or    a              ; Zero?
               jr    z,$+19         ; Yes, skip ahead
               push  af
@@ -345,9 +345,9 @@ RESET:
 ; Clear Screen and Home Cursor
 ; CLRSCR_HOME: (defined in symbols.sym)
               ld    a,0x1C         ; Clear screen (1CH)
-              call  0x033A
+              call  SCREEN_OUT_CHAR
               ld    a,0x1F         ; Move cursor home (1FH)
-              jp    0x033A
+              jp    SCREEN_OUT_CHAR
 
 ; RANDOM statement seed initialization
 RANDOM_INIT:
@@ -431,720 +431,800 @@ SOUND_FREQ_TABLE:
               DEFW  0x0186,0x0170,0x015B,0x0148,0x0135,0x0123,0x0113,0x0103 ; F3-C#4
               DEFW  0x00F4,0x00E6,0x00D9,0x00CD,0x00C1,0x00B6,0x00AB,0x00A1 ; C#4-G4
               DEFW  0x0098,0x008F,0x0087,0x007F,0x0078,0x0070,0x006A ; A4-D5
-              ld    b,a
-              ld    a,(0x783C)
-              ld    hl,(0x7820)
-              ld    (hl),a
-              ld    a,b
-              ret   
-              ld    bc,RST20_VEC
-              or    a
-              sbc   hl,bc
-              ld    (0x7820),hl
-              ret   
-              ld    bc,0x0302
-              inc   b
-              ld    b,0x08
-              inc   c
-              djnz  $+26
-              push  bc
-              ld    c,a
-              call  0x79C1
-              ld    a,(0x789C)
-              or    a
-              ld    a,c
-              pop   bc
+
+; *******************************
+; Restore character at cursor position
+; (part of screen output routine)
+; *******************************
+CURSOR_CHAR_RESTORE:
+              ld    b,a            ; Output character in B
+              ld    a,(0x783C)     ; Load character at cursor position
+              ld    hl,(0x7820)    ; Load cursor address
+              ld    (hl),a         ; Write character
+              ld    a,b            ; Restore output character in A
+              ret                  ; Return
+
+; *******************************
+; Cursor address one line back
+CURSOR_LINE_BACK:
+              ld    bc,RST20_VEC   ; Line length
+              or    a              ; Clear carry
+              sbc   hl,bc          ; Cursor address minus one line
+              ld    (0x7820),hl    ; Store in cursor pointer
+              ret                  ; Return
+
+; *******************************
+; SOUND duration multipliers
+; (1 byte per input code 1-9)
+; *******************************
+              DEFB  0x01,0x02,0x03,0x04,0x06,0x08,0x0C,0x10 ; A2-E3
+              DEFB  0x18           ; Data bytes 0x18
+
+; Output character to screen/printer/cassette
+CHAR_OUTPUT_DISPATCH:
+              push  bc             ; Push bc
+              ld    c,a            ; Load c from a
+              call  0x79C1         ; Call 0x79C1
+              ld    a,(0x789C)     ; Load output flag (0=screen,1=printer,0x80=cassette)
+              or    a              ; Test A
+              ld    a,c            ; Load a from c
+              pop   bc             ; Pop bc
               jp    m,0x3B54
-              jr    nz,$+100
-              push  de
-              push  af
-              push  bc
-              push  hl
-              call  0x308B
-              pop   hl
-              pop   bc
-              nop   
-              nop   
-              pop   af
-              pop   de
-              ret   
-              ld    a,(0x783D)
-              and   0x08
-              ld    a,(0x7820)
-              jr    z,$+5
-              rrca  
-              and   0x1F
-              and   0x1F
-              ret   
-              call  0x79C4
-              push  de
-              call  KBD_QUERY
-              pop   de
-              ret   
-              ld    a,(bc)
-              dec   bc
-              inc   c
-              inc   c
-              dec   c
-              ld    c,0x0F
-              rrca  
-              djnz  $+19
-              ld    (de),a
-              inc   de
-              dec   d
-              ld    d,0x17
-              add   hl,de
-              ld    a,(de)
-              inc   e
-              dec   e
-              rra   
-              ld    hl,0x2523
-              daa   
-              add   hl,hl
-              inc   l
-              ld    l,0x31
-              inc   (hl)
-              dec   (hl)
-              ld    a,(0x4B4F)
-              dec   c
-              nop   
-              ld    b,l
-              ld    d,d
-              ld    d,d
-              ld    c,a
-              ld    d,d
-              dec   c
-              nop   
-              xor   a
-              ld    (0x789C),a
-              ld    a,(0x789B)
-              or    a
-              ret   z
-              ld    a,0x0D
-              push  de
-              call  0x039C
-              pop   de
-              ret   
-              push  af
-              push  de
-              push  bc
-              ld    c,a
-              ld    e,0x00
-              cp    0x0C
-              jr    z,$+18
-              cp    0x0A
-              jr    nz,$+5
-              ld    a,0x0D
-              ld    c,a
-              cp    0x0D
-              jr    z,$+7
-              ld    a,(0x789B)
-              inc   a
-              ld    e,a
-              ld    a,e
-              ld    (0x789B),a
-              ld    a,c
+              jr    nz,$+100       ; Relative jump if nz to $+100
+
+; Output one character to screen
+SCREEN_OUT_CHAR:
+              push  de             ; Push de
+              push  af             ; Push af
+              push  bc             ; Push bc
+              push  hl             ; Push hl
+              call  0x308B         ; Call 0x308B
+              pop   hl             ; Pop hl
+              pop   bc             ; Pop bc
+              nop                  ; No operation
+              nop                  ; No operation
+              pop   af             ; Pop af
+              pop   de             ; Pop de
+              ret                  ; Return
+
+; Get cursor column in line
+; (not used on Laser 110/210/310)
+CURSOR_COL_GET:
+              ld    a,(0x783D)     ; Load a from (0x783D)
+              and   0x08           ; AND A with 0x08
+              ld    a,(0x7820)     ; Load a from (0x7820)
+              jr    z,$+5          ; Relative jump if z to $+5
+              rrca                 ; Rotate A right
+              and   0x1F           ; AND A with 0x1F
+              and   0x1F           ; AND A with 0x1F
+              ret                  ; Return
+
+; Keyboard query wrapper
+KBD_QUERY_WRAP:
+              call  0x79C4         ; Call 0x79C4
+              push  de             ; Push de
+              call  KBD_QUERY      ; Call 0x002B
+              pop   de             ; Pop de
+              ret                  ; Return
+
+; *******************************
+; SOUND base timing values
+; (per note)
+; *******************************
+              DEFB  0x0A,0x0B,0x0C,0x0C,0x0D,0x0E,0x0F,0x0F ; A2-E3
+              DEFB  0x10,0x11,0x12,0x13,0x15,0x16,0x17,0x19 ; F3-C4
+              DEFB  0x1A,0x1C,0x1D,0x1F,0x21,0x23,0x25,0x27 ; C#4-G#4
+              DEFB  0x29,0x2C,0x2E,0x31,0x34,0x35,0x3A ; A4-D#5
+
+; VERIFY command messages
+              DEFM  "OK"           ; \
+              DEFB  0x0D,0x00      ; Data bytes 0x0D,0x00
+              DEFM  "ERROR"        ; \
+              DEFB  0x0D,0x00      ; Data bytes 0x0D,0x00
+
+; Set output flag to screen
+; Issue CR to printer if not at line start
+OUTPUT_SCREEN_SELECT:
+              xor   a              ; Clear A
+              ld    (0x789C),a     ; Load (0x789C) from a
+              ld    a,(0x789B)     ; Load a from (0x789B)
+              or    a              ; Test A
+              ret   z              ; Return if z
+              ld    a,0x0D         ; Output carriage return to printer
+              push  de             ; Push de
+              call  PRINTER_OUT_CHAR ; Call 0x039C
+              pop   de             ; Pop de
+              ret                  ; Return
+
+; Output one character to printer
+PRINTER_OUT_CHAR:
+              push  af             ; Push af
+              push  de             ; Push de
+              push  bc             ; Push bc
+              ld    c,a            ; Load c from a
+              ld    e,0x00         ; Load e from 0x00
+              cp    0x0C           ; Compare A with 0x0C
+              jr    z,$+18         ; Relative jump if z to $+18
+              cp    0x0A           ; Compare A with 0x0A
+              jr    nz,$+5         ; Relative jump if nz to $+5
+              ld    a,0x0D         ; Load a from 0x0D
+              ld    c,a            ; Load c from a
+              cp    0x0D           ; Compare A with 0x0D
+              jr    z,$+7          ; Relative jump if z to $+7
+              ld    a,(0x789B)     ; Load a from (0x789B)
+              inc   a              ; Increment a
+              ld    e,a            ; Load e from a
+              ld    a,e            ; Load a from e
+              ld    (0x789B),a     ; Load (0x789B) from a
+              ld    a,c            ; Load a from c
               call  PRN_OUT_DCB
-              pop   bc
-              pop   de
-              pop   af
-              ret   
-              push  hl
-              push  ix
-              push  de
-              pop   ix
-              push  de
-              ld    hl,0x03DD
-              push  hl
-              ld    c,a
-              ld    a,(de)
-              and   b
-              cp    b
-              jp    nz,0x7833
-              cp    0x02
-              ld    l,(ix+0x01)
-              ld    h,(ix+0x02)
-              jp    (hl)
-              pop   de
-              pop   ix
-              pop   hl
-              pop   bc
-              ret   
-              ld    hl,0x7839
-              set   5,(hl)
-              ld    hl,(0x7820)
-              call  0x0053
-              ld    a,h
-              cp    0x71
-              jr    nz,$+18
-              ld    a,l
-              cp    0xE0
-              jr    nz,$+13
-              ld    a,(0x7AD7)
-              or    a
-              jr    nz,$+7
-              ld    a,0x0D
-              call  0x308B
-              ld    b,c
-              push  bc
-              ld    hl,0x7839
-              res   0,(hl)
-              res   2,(hl)
-              bit   0,(hl)
-              jr    z,$-2
-              ld    a,(0x78A6)
-              ld    c,a
-              xor   a
-              ld    (0x78A6),a
-              ld    b,a
-              ld    hl,(0x7820)
-              sbc   hl,bc
-              ld    (0x7820),hl
-              ld    de,0x79E8
-              pop   bc
-              ld    hl,0x7839
-              bit   4,(hl)
-              ld    hl,(0x7820)
-              jr    z,$+68
-              push  bc
-              push  hl
-              call  0x33A8
-              pop   hl
-              pop   bc
-              or    a
-              jr    nz,$+10
-              ld    a,l
-              sub   0x20
-              ld    l,a
-              ld    a,h
-              sbc   a,0x00
-              ld    h,a
-              ld    c,b
-              ld    a,(de)
-              cp    (hl)
-              jr    nz,$+9
-              inc   hl
-              inc   de
-              djnz  $-6
-              push  bc
-              jr    $+6
-              ld    bc,START
-              push  bc
-              push  hl
-              call  0x33A8
-              pop   hl
-              pop   bc
-              push  bc
-              cp    0x80
-              jr    z,$+12
-              ld    a,0x40
-              sub   c
-              ld    b,a
-              pop   de
-              ld    e,0x00
-              push  de
-              jr    $+7
-              ld    b,0x20
-              ld    hl,(0x7820)
-              ld    de,0x79E8
-              jp    0x3EA8
-              ld    bc,START
-              push  bc
-              push  hl
-              call  0x33A8
-              pop   hl
-              cp    0x80
-              jr    z,$+16
-              cp    0x81
-              jr    z,$+8
-              ld    bc,RST20_VEC
-              or    a
-              sbc   hl,bc
-              ld    b,0x40
-              jr    $+4
-              ld    b,0x20
-              ld    a,(0x7818)
-              or    a
-              jp    z,0x3E40
-              ld    a,(hl)
-              cp    0x40
-              jp    c,0x04AE
-              pop   bc
-              ld    de,0x04A4
-              push  de
-              push  bc
-              jp    0x0502
-              ret   c
-              ld    hl,0x3E1A
-              call  0x28A7
-              jp    0x03E3
-              cp    0x22
-              jr    nz,$+51
-              ld    (de),a
-              inc   hl
-              inc   de
-              dec   b
-              jr    z,$+56
-              ld    a,(hl)
-              cp    0x40
-              jp    c,0x04C9
-              cp    0x80
-              jp    c,0x04C5
-              and   0x8F
-              or    0x80
-              jr    $+21
-              cp    0x22
-              jr    nz,$+11
-              push  hl
-              ld    hl,0x7839
-              bit   4,(hl)
-              pop   hl
-              jr    z,$+15
-              bit   5,a
-              jr    nz,$+4
-              or    0x40
-              ld    (de),a
-              inc   hl
-              inc   de
-              djnz  $-39
-              jr    $+13
-              bit   5,a
-              jr    nz,$+4
-              or    0x40
-              ld    (de),a
-              inc   hl
-              inc   de
-              djnz  $-87
-              dec   de
-              ld    a,d
-              cp    0x79
-              jr    nz,$+8
-              ld    a,e
-              cp    0xE8
-              jp    c,0x04FF
-              ld    a,(de)
-              cp    0x20
-              jr    z,$-15
-              inc   de
-              xor   a
-              ld    (de),a
-              call  0x33A8
-              ld    hl,(0x7820)
-              cp    0x81
-              call  0x0053
-              jr    nz,$+6
-              xor   a
-              call  0x308B
-              xor   a
-              call  0x308B
-              ld    a,(0x7838)
-              and   0xFD
-              ld    (0x7838),a
-              ld    hl,0x7839
-              bit   2,(hl)
-              jr    z,$+7
-              ld    a,0x01
-              scf   
-              jr    $+3
-              xor   a
-              ld    hl,0x7839
-              res   4,(hl)
-              ld    hl,0x79E8
-              pop   bc
-              push  af
-              add   hl,bc
-              jp    0x3E29
-              ld    a,(0x7AAF)
-              or    a
-              jr    nz,$-4
-              ld    b,0x40
-              ld    hl,0x79E8
-              ld    a,0x20
-              ld    (hl),a
-              inc   hl
-              djnz  $-2
-              xor   a
-              ld    (hl),a
-              call  0x33A8
-              or    a
-              ld    a,(0x78A6)
-              jr    nz,$+4
-              add   a,0x20
-              ld    c,a
-              xor   a
-              ld    b,a
-              ld    hl,(0x7820)
-              sbc   hl,bc
-              ld    de,0x79E8
-              push  bc
-              ldir  
-              pop   bc
-              ld    hl,0x7839
-              set   4,(hl)
-              call  0x03E3
-              ret   
-              ld    d,d
-              ld    d,l
-              ld    c,(hl)
-              nop   
-              call  nz,0x3233
-              call  0x1AA3
-              call  0x17D8
-              call  0x190D
-              jp    z,0x125A
-              call  0x1F49
-              jr    c,$+26
-              rst   0x28
-              ld    a,(0x0438)
-              defb  0x00DD,0x0079,0x00B7
-              jr    z,$+53
-              cp    0x0B
-              jr    z,$+12
-              cp    0x0C
-              jr    nz,$+22
-              xor   a
-              or    (ix+0x03)
-              jr    z,$+16
-              ld    a,(ix+0x03)
-              sub   (ix+0x04)
-              ld    b,a
-              call  0x3AE2
-              djnz  $-3
-              jr    $+20
-              call  0x3AB6
-              ld    a,c
-              cp    0x0D
-              ret   nz
-              inc   (ix+0x04)
-              ld    a,(ix+0x04)
-              cp    (ix+0x03)
-              ld    a,c
-              ret   nz
-              ld    (ix+0x04),0x00
-              ret   
-              in    a,(0x00)
-              and   0x01
-              ret   
-              push  bc
-              push  hl
-              ld    b,0x04
-              ld    hl,0x7AD2
-              ld    (hl),a
-              inc   hl
-              djnz  $-2
-              pop   hl
-              pop   bc
-              ret   
-              ld    hl,0x7838
-              bit   2,(hl)
-              jr    z,$+23
-              ld    d,a
-              ld    a,(0x783A)
-              or    a
-              jr    z,$+17
-              inc   a
-              ld    (0x783A),a
-              cp    0x2A
-              jr    z,$+4
-              xor   a
-              ret   
-              res   2,(hl)
-              xor   a
-              ret   
-              ld    d,a
-              ld    hl,0x7838
-              ld    a,(hl)
-              and   0x18
-              jr    nz,$+13
-              set   3,(hl)
-              xor   a
-              ld    (0x7837),a
-              ld    a,d
-              ld    (0x7836),a
-              ret   
-              bit   4,(hl)
-              jr    nz,$+44
-              ld    a,(0x7836)
-              cp    d
-              jr    nz,$+35
-              ld    bc,(0x7842)
-              ld    hl,(0x7844)
-              ld    a,e
-              call  0x2F35
-              cp    d
-              jp    z,0x2FD7
-              cp    0x00
-              jp    z,0x2FD7
-              ld    hl,0x7838
-              set   3,(hl)
-              set   4,(hl)
-              res   2,(hl)
-              ld    (0x7837),a
-              ret   
-              ld    a,d
-              jr    $-14
-              ld    a,(0x7836)
-              cp    d
-              jr    z,$+10
-              ld    a,(0x7837)
-              cp    d
-              jr    z,$+4
-              xor   a
-              ret   
-              ld    bc,(0x7842)
-              ld    hl,(0x7844)
-              ld    a,e
-              call  0x2F35
-              cp    d
-              jr    z,$+7
-              cp    0x00
-              jp    nz,0x2FD7
-              ld    hl,0x7838
-              set   3,(hl)
-              res   4,(hl)
-              ld    a,(0x7836)
-              cp    d
-              jr    nz,$+7
-              xor   a
-              ld    (0x7837),a
-              ret   
-              ld    a,(0x7837)
-              ld    (0x7836),a
-              jr    $-11
-              set   2,(ix+0x09)
-              nop   
-              nop   
-              ld    hl,0x06D2
-              ld    de,0x7800
-              ld    bc,0x0036
-              ldir  
-              dec   a
-              dec   a
-              jr    nz,$-13
-              ld    b,0x27
-              ld    (de),a
-              inc   de
-              djnz  $-2
-              jp    BASIC_INIT_2
-              ld    hl,0x4000
-              call  0x06A4
-              ld    hl,0x6000
-              call  0x06A4
-              ld    hl,0x8000
-              call  0x06A4
-              ei    
-              jp    0x1A19
-              ld    a,0xAA
-              cp    (hl)
-              inc   hl
-              ret   nz
-              cpl   
-              cp    (hl)
-              inc   hl
-              ret   nz
-              ld    a,0xE7
-              cp    (hl)
-              inc   hl
-              ret   nz
-              cpl   
-              cp    (hl)
-              inc   hl
-              ret   nz
-              ei    
-              jp    (hl)
-              ld    c,0x02
-              call  0x1A59
-              call  0x34B8
-              call  0x18E3
-              jr    z,$-62
-              rst   0x28
-              inc   l
-              jr    z,$+22
-              call  0x34F1
-              ld    bc,0x1A18
-              jp    0x19AE
-              jp    0x1C96
-              jp    0x1D78
-              jp    0x1C90
-              jp    0x25D9
-              ret   
-              nop   
-              nop   
-              ret   
-              nop   
-              nop   
-              ei    
-              ret   
-              nop   
-              ld    bc,0x2EF4
-              nop   
-              nop   
-              nop   
-              ld    c,e
-              ld    c,c
-              nop   
-              nop   
-              nop   
-              nop   
-              ld    (hl),b
-              nop   
-              nop   
-              nop   
-              ld    b,0x8D
-              dec   b
-              ld    b,e
-              nop   
-              nop   
-              ld    d,b
-              ld    d,d
-              jp    0x5000
-              rst   0
-              nop   
-              nop   
-              ld    a,0x00
-              ret   
-              ld    hl,0x1380
-              call  0x09C2
-              jr    $+8
-              call  0x09C2
-              call  0x0982
-              ld    a,b
-              or    a
-              ret   z
-              ld    a,(0x7924)
-              or    a
-              jp    z,0x09B4
-              sub   b
-              jr    nc,$+14
-              cpl   
-              inc   a
-              ex    de,hl
-              call  0x09A4
-              ex    de,hl
-              call  0x09B4
-              pop   bc
-              pop   de
-              cp    0x19
-              ret   nc
-              push  af
-              call  0x09DF
-              ld    h,a
-              pop   af
-              call  0x07D7
-              or    h
-              ld    hl,0x7921
-              jp    p,0x0754
-              call  0x07B7
-              jp    nc,0x0796
-              inc   hl
-              inc   (hl)
-              jp    z,0x07B2
-              ld    l,0x01
-              call  0x07EB
-              jr    $+68
-              xor   a
-              sub   b
-              ld    b,a
-              ld    a,(hl)
-              sbc   a,e
-              ld    e,a
-              inc   hl
-              ld    a,(hl)
-              sbc   a,d
-              ld    d,a
-              inc   hl
-              ld    a,(hl)
-              sbc   a,c
-              ld    c,a
-              call  c,0x07C3
-              ld    l,b
-              ld    h,e
-              xor   a
-              ld    b,a
-              ld    a,c
-              or    a
-              jr    nz,$+26
-              ld    c,d
-              ld    d,h
-              ld    h,l
-              ld    l,a
-              ld    a,b
-              sub   0x08
-              cp    0xE0
-              jr    nz,$-14
-              xor   a
-              ld    (0x7924),a
-              ret   
-              dec   b
-              add   hl,hl
-              ld    a,d
-              rla   
-              ld    d,a
-              ld    a,c
-              adc   a,a
-              ld    c,a
-              jp    p,0x077D
-              ld    a,b
-              ld    e,h
-              ld    b,l
-              or    a
-              jr    z,$+10
-              ld    hl,0x7924
-              add   a,(hl)
-              ld    (hl),a
-              jr    nc,$-27
-              ret   z
-              ld    a,b
-              ld    hl,0x7924
-              or    a
-              call  m,0x07A8
-              ld    b,(hl)
-              inc   hl
-              ld    a,(hl)
-              and   0x80
-              xor   c
-              ld    c,a
-              jp    0x09B4
-              inc   e
-              ret   nz
-              inc   d
-              ret   nz
-              inc   c
-              ret   nz
-              ld    c,0x80
-              inc   (hl)
-              ret   nz
-              ld    e,0x0A
-              jp    0x19A2
-              ld    a,(hl)
-              add   a,e
-              ld    e,a
-              inc   hl
-              ld    a,(hl)
-              adc   a,d
-              ld    d,a
-              inc   hl
-              ld    a,(hl)
-              adc   a,c
-              ld    c,a
-              ret   
-              ld    hl,0x7925
-              ld    a,(hl)
-              cpl   
-              ld    (hl),a
-              xor   a
-              ld    l,a
-              sub   b
-              ld    b,a
-              ld    a,l
-              sbc   a,e
-              ld    e,a
-              ld    a,l
-              sbc   a,d
-              ld    d,a
-              ld    a,l
-              sbc   a,c
-              ld    c,a
+              pop   bc             ; Pop bc
+              pop   de             ; Pop de
+              pop   af             ; Pop af
+              ret                  ; Return
+
+; Dispatch via device control block (DCB)
+DCB_DISPATCH:
+              push  hl             ; Push hl
+              push  ix             ; Push ix
+              push  de             ; Push de
+              pop   ix             ; Pop ix
+              push  de             ; Push de
+              ld    hl,0x03DD      ; Load hl from 0x03DD
+              push  hl             ; Push hl
+              ld    c,a            ; Load c from a
+              ld    a,(de)         ; Load a from (de)
+              and   b              ; AND A with b
+              cp    b              ; Compare A with b
+              jp    nz,0x7833      ; Jump if nz to 0x7833
+              cp    0x02           ; Compare A with 0x02
+              ld    l,(ix+0x01)    ; Load l from (ix+0x01)
+              ld    h,(ix+0x02)    ; Load h from (ix+0x02)
+              jp    (hl)           ; Jump to (hl)
+              pop   de             ; Return from DCB driver
+              pop   ix             ; Pop ix
+              pop   hl             ; Pop hl
+              pop   bc             ; Pop bc
+              ret                  ; Return
+
+; Read one line from keyboard
+; Echo to screen and copy to I/O buffer
+INPUT_LINE_READ:
+              ld    hl,0x7839      ; Load hl from 0x7839
+              set   5,(hl)         ; Set bit 5 of (hl)
+              ld    hl,(0x7820)    ; Load hl from (0x7820)
+              call  0x0053         ; Call 0x0053
+              ld    a,h            ; Load a from h
+              cp    0x71           ; Compare A with 0x71
+              jr    nz,$+18        ; Relative jump if nz to $+18
+              ld    a,l            ; Load a from l
+              cp    0xE0           ; Compare A with 0xE0
+              jr    nz,$+13        ; Relative jump if nz to $+13
+              ld    a,(0x7AD7)     ; Load a from (0x7AD7)
+              or    a              ; Test A
+              jr    nz,$+7         ; Relative jump if nz to $+7
+              ld    a,0x0D         ; Load a from 0x0D
+              call  0x308B         ; Call 0x308B
+              ld    b,c            ; Load b from c
+              push  bc             ; Push bc
+              ld    hl,0x7839      ; Load hl from 0x7839
+              res   0,(hl)         ; Reset bit 0 of (hl)
+              res   2,(hl)         ; Reset bit 2 of (hl)
+              bit   0,(hl)         ; Test bit 0 of (hl)
+              jr    z,$-2          ; Relative jump if z to $-2
+
+; Compute start address of input line
+              ld    a,(0x78A6)     ; Load a from (0x78A6)
+              ld    c,a            ; Load c from a
+              xor   a              ; Clear A
+              ld    (0x78A6),a     ; Load (0x78A6) from a
+              ld    b,a            ; Load b from a
+              ld    hl,(0x7820)    ; Load hl from (0x7820)
+              sbc   hl,bc          ; Subtract bc with carry from hl
+              ld    (0x7820),hl    ; Load (0x7820) from hl
+
+; Load buffer and line addresses
+              ld    de,0x79E8      ; Load de from 0x79E8
+              pop   bc             ; Pop bc
+              ld    hl,0x7839      ; Load hl from 0x7839
+              bit   4,(hl)         ; Test bit 4 of (hl)
+              ld    hl,(0x7820)    ; Load hl from (0x7820)
+              jr    z,$+68         ; Relative jump if z to $+68
+
+; INPUT command: skip prompt text in current line
+              push  bc             ; Push bc
+              push  hl             ; Push hl
+              call  0x33A8         ; Call 0x33A8
+              pop   hl             ; Pop hl
+              pop   bc             ; Pop bc
+              or    a              ; Test A
+              jr    nz,$+10        ; Relative jump if nz to $+10
+              ld    a,l            ; Load a from l
+              sub   0x20           ; Subtract 0x20 from A
+              ld    l,a            ; Load l from a
+              ld    a,h            ; Load a from h
+              sbc   a,0x00         ; Subtract 0x00 with carry from a
+              ld    h,a            ; Load h from a
+              ld    c,b            ; Load c from b
+              ld    a,(de)         ; Load a from (de)
+              cp    (hl)           ; Compare A with (hl)
+              jr    nz,$+9         ; Relative jump if nz to $+9
+              inc   hl             ; Increment hl
+              inc   de             ; Increment de
+              djnz  $-6            ; Decrement B and jump if not zero to $-6
+              push  bc             ; Push bc
+              jr    $+6            ; Relative jump to $+6
+              ld    bc,START       ; Load bc from 0x0000
+              push  bc             ; Push bc
+              push  hl             ; Push hl
+              call  0x33A8         ; Call 0x33A8
+              pop   hl             ; Pop hl
+              pop   bc             ; Pop bc
+              push  bc             ; Push bc
+              cp    0x80           ; Compare A with 0x80
+              jr    z,$+12         ; Relative jump if z to $+12
+              ld    a,0x40         ; Load a from 0x40
+              sub   c              ; Subtract c from A
+              ld    b,a            ; Load b from a
+              pop   de             ; Pop de
+              ld    e,0x00         ; Load e from 0x00
+              push  de             ; Push de
+              jr    $+7            ; Relative jump to $+7
+              ld    b,0x20         ; Load b from 0x20
+              ld    hl,(0x7820)    ; Load hl from (0x7820)
+              ld    de,0x79E8      ; Load de from 0x79E8
+              jp    0x3EA8         ; Jump to 0x3EA8
+
+; Non-INPUT path: derive text start and max length
+              ld    bc,START       ; Load bc from 0x0000
+              push  bc             ; Push bc
+              push  hl             ; Push hl
+              call  0x33A8         ; Call 0x33A8
+              pop   hl             ; Pop hl
+              cp    0x80           ; Compare A with 0x80
+              jr    z,$+16         ; Relative jump if z to $+16
+              cp    0x81           ; Compare A with 0x81
+              jr    z,$+8          ; Relative jump if z to $+8
+              ld    bc,RST20_VEC   ; Load bc from 0x0020
+              or    a              ; Test A
+              sbc   hl,bc          ; Subtract bc with carry from hl
+              ld    b,0x40         ; Load b from 0x40
+              jr    $+4            ; Relative jump to $+4
+              ld    b,0x20         ; Load b from 0x20
+              ld    a,(0x7818)     ; Load a from (0x7818)
+              or    a              ; Test A
+              jp    z,0x3E40       ; Jump if z to 0x3E40
+
+; Transfer characters from screen line to I/O buffer
+              ld    a,(hl)         ; Load a from (hl)
+              cp    0x40           ; Compare A with 0x40
+              jp    c,0x04AE       ; Jump if c to 0x04AE
+              pop   bc             ; Pop bc
+              ld    de,0x04A4      ; Load de from 0x04A4
+              push  de             ; Push de
+              push  bc             ; Push bc
+              jp    0x0502         ; Jump to 0x0502
+              ret   c              ; Return if c
+              ld    hl,0x3E1A      ; Load hl from 0x3E1A
+              call  0x28A7         ; Call 0x28A7
+              jp    INPUT_LINE_READ ; Jump to 0x03E3
+              cp    0x22           ; Compare A with 0x22
+              jr    nz,$+51        ; Relative jump if nz to $+51
+              ld    (de),a         ; Load (de) from a
+              inc   hl             ; Increment hl
+              inc   de             ; Increment de
+              dec   b              ; Decrement b
+              jr    z,$+56         ; Relative jump if z to $+56
+              ld    a,(hl)         ; Load a from (hl)
+              cp    0x40           ; Compare A with 0x40
+              jp    c,0x04C9       ; Jump if c to 0x04C9
+              cp    0x80           ; Compare A with 0x80
+              jp    c,0x04C5       ; Jump if c to 0x04C5
+              and   0x8F           ; AND A with 0x8F
+              or    0x80           ; OR A with 0x80
+              jr    $+21           ; Relative jump to $+21
+              cp    0x22           ; Compare A with 0x22
+              jr    nz,$+11        ; Relative jump if nz to $+11
+              push  hl             ; Push hl
+              ld    hl,0x7839      ; Load hl from 0x7839
+              bit   4,(hl)         ; Test bit 4 of (hl)
+              pop   hl             ; Pop hl
+              jr    z,$+15         ; Relative jump if z to $+15
+              bit   5,a            ; Test bit 5 of a
+              jr    nz,$+4         ; Relative jump if nz to $+4
+              or    0x40           ; OR A with 0x40
+              ld    (de),a         ; Load (de) from a
+              inc   hl             ; Increment hl
+              inc   de             ; Increment de
+              djnz  $-39           ; Decrement B and jump if not zero to $-39
+              jr    $+13           ; Relative jump to $+13
+              bit   5,a            ; Test bit 5 of a
+              jr    nz,$+4         ; Relative jump if nz to $+4
+              or    0x40           ; OR A with 0x40
+              ld    (de),a         ; Load (de) from a
+              inc   hl             ; Increment hl
+              inc   de             ; Increment de
+              djnz  $-87           ; Decrement B and jump if not zero to $-87
+
+; Finalize buffer after transfer
+              dec   de             ; Decrement de
+              ld    a,d            ; Load a from d
+              cp    0x79           ; Compare A with 0x79
+              jr    nz,$+8         ; Relative jump if nz to $+8
+              ld    a,e            ; Load a from e
+              cp    0xE8           ; Compare A with 0xE8
+              jp    c,0x04FF       ; Jump if c to 0x04FF
+              ld    a,(de)         ; Load a from (de)
+              cp    0x20           ; Compare A with 0x20
+              jr    z,$-15         ; Relative jump if z to $-15
+              inc   de             ; Increment de
+              xor   a              ; Clear A
+              ld    (de),a         ; Load (de) from a
+
+; Output one or two blank lines by line status
+              call  0x33A8         ; Call 0x33A8
+              ld    hl,(0x7820)    ; Load hl from (0x7820)
+              cp    0x81           ; Compare A with 0x81
+              call  0x0053         ; Call 0x0053
+              jr    nz,$+6         ; Relative jump if nz to $+6
+              xor   a              ; Clear A
+              call  0x308B         ; Call 0x308B
+              xor   a              ; Clear A
+              call  0x308B         ; Call 0x308B
+              ld    a,(0x7838)     ; Load a from (0x7838)
+              and   0xFD           ; AND A with 0xFD
+              ld    (0x7838),a     ; Load (0x7838) from a
+              ld    hl,0x7839      ; Load hl from 0x7839
+              bit   2,(hl)         ; Test bit 2 of (hl)
+              jr    z,$+7          ; Relative jump if z to $+7
+              ld    a,0x01         ; Load a from 0x01
+              scf                  ; Set carry flag
+              jr    $+3            ; Relative jump to $+3
+              xor   a              ; Clear A
+
+; Reset input command flag and continue
+              ld    hl,0x7839      ; Load hl from 0x7839
+              res   4,(hl)         ; Reset bit 4 of (hl)
+              ld    hl,0x79E8      ; Load hl from 0x79E8
+              pop   bc             ; Pop bc
+              push  af             ; Push af
+              add   hl,bc          ; Add hl,bc
+              jp    0x3E29         ; Jump to 0x3E29
+
+; INPUT helper: read one line into I/O buffer
+              ld    a,(0x7AAF)     ; Load a from (0x7AAF)
+              or    a              ; Test A
+              jr    nz,$-4         ; Relative jump if nz to $-4
+              ld    b,0x40         ; Load b from 0x40
+              ld    hl,0x79E8      ; Load hl from 0x79E8
+              ld    a,0x20         ; Load a from 0x20
+              ld    (hl),a         ; Load (hl) from a
+              inc   hl             ; Increment hl
+              djnz  $-2            ; Decrement B and jump if not zero to $-2
+              xor   a              ; Clear A
+              ld    (hl),a         ; Load (hl) from a
+              call  0x33A8         ; Call 0x33A8
+              or    a              ; Test A
+              ld    a,(0x78A6)     ; Load a from (0x78A6)
+              jr    nz,$+4         ; Relative jump if nz to $+4
+              add   a,0x20         ; Add 0x20 to A
+              ld    c,a            ; Load c from a
+              xor   a              ; Clear A
+              ld    b,a            ; Load b from a
+              ld    hl,(0x7820)    ; Load hl from (0x7820)
+              sbc   hl,bc          ; Subtract bc with carry from hl
+              ld    de,0x79E8      ; Load de from 0x79E8
+              push  bc             ; Push bc
+              ldir                 ; Execute ldir
+              pop   bc             ; Pop bc
+              ld    hl,0x7839      ; Load hl from 0x7839
+              set   4,(hl)         ; Set bit 4 of (hl)
+              call  INPUT_LINE_READ ; Call 0x03E3
+              ret                  ; Return
+
+; RUN command for CRUN auto-start
+              DEFM  "RUN\00"       ; Data text 'RUN\00'
+
+; Printer driver
+              DEFB  0xC4           ; Data bytes 0xC4
+
+; Printer driver
+PRINTER_DRIVER:
+              inc   sp             ; Increment sp
+              ld    (0xA3CD),a     ; Load (0xA3CD) from a
+              ld    a,(de)         ; Load a from (de)
+              call  0x17D8         ; Call 0x17D8
+              call  0x190D         ; Call 0x190D
+              jp    z,0x125A       ; Jump if z to 0x125A
+              call  0x1F49         ; Call 0x1F49
+              jr    c,$+26         ; Relative jump if c to $+26
+              rst   0x28           ; Call restart vector 0x28
+              ld    a,(0x0438)     ; Load a from (0x0438)
+              defb  0x00DD,0x0079,0x00B7 ; Data bytes 0x00DD,0x0079,0x00B7
+              jr    z,$+53         ; Relative jump if z to $+53
+              cp    0x0B           ; Compare A with 0x0B
+              jr    z,$+12         ; Relative jump if z to $+12
+              cp    0x0C           ; Compare A with 0x0C
+              jr    nz,$+22        ; Relative jump if nz to $+22
+              xor   a              ; Clear A
+              or    (ix+0x03)      ; OR A with (ix+0x03)
+              jr    z,$+16         ; Relative jump if z to $+16
+              ld    a,(ix+0x03)    ; Load a from (ix+0x03)
+              sub   (ix+0x04)      ; Subtract (ix+0x04) from A
+              ld    b,a            ; Load b from a
+              call  0x3AE2         ; Call 0x3AE2
+              djnz  $-3            ; Decrement B and jump if not zero to $-3
+              jr    $+20           ; Relative jump to $+20
+              call  0x3AB6         ; Call 0x3AB6
+              ld    a,c            ; Load a from c
+              cp    0x0D           ; Compare A with 0x0D
+              ret   nz             ; Return if nz
+              inc   (ix+0x04)      ; Increment (ix+0x04)
+              ld    a,(ix+0x04)    ; Load a from (ix+0x04)
+              cp    (ix+0x03)      ; Compare A with (ix+0x03)
+              ld    a,c            ; Load a from c
+              ret   nz             ; Return if nz
+              ld    (ix+0x04),0x00 ; Load (ix+0x04) from 0x00
+              ret                  ; Return
+              in    a,(0x00)       ; Read printer busy status
+              and   0x01           ; AND A with 0x01
+              ret                  ; Return
+
+; Clear 4-byte graphics print buffer
+PRN_GFXBUF_CLEAR:
+              push  bc             ; Push bc
+              push  hl             ; Push hl
+              ld    b,0x04         ; Load b from 0x04
+              ld    hl,0x7AD2      ; Load hl from 0x7AD2
+              ld    (hl),a         ; Load (hl) from a
+              inc   hl             ; Increment hl
+              djnz  $-2            ; Decrement B and jump if not zero to $-2
+              pop   hl             ; Pop hl
+              pop   bc             ; Pop bc
+              ret                  ; Return
+
+; Keyboard rollover handler
+; (second key pressed before first release)
+KBD_ROLLOVER:
+              ld    hl,0x7838      ; Load hl from 0x7838
+              bit   2,(hl)         ; Test bit 2 of (hl)
+              jr    z,$+23         ; Relative jump if z to $+23
+              ld    d,a            ; Load d from a
+              ld    a,(0x783A)     ; Load a from (0x783A)
+              or    a              ; Test A
+              jr    z,$+17         ; Relative jump if z to $+17
+              inc   a              ; Increment a
+              ld    (0x783A),a     ; Load (0x783A) from a
+              cp    0x2A           ; Compare A with 0x2A
+              jr    z,$+4          ; Relative jump if z to $+4
+              xor   a              ; Clear A
+              ret                  ; Return
+              res   2,(hl)         ; Reset bit 2 of (hl)
+              xor   a              ; Clear A
+              ret                  ; Return
+              ld    d,a            ; Load d from a
+              ld    hl,0x7838      ; Load hl from 0x7838
+              ld    a,(hl)         ; Load a from (hl)
+              and   0x18           ; AND A with 0x18
+              jr    nz,$+13        ; Relative jump if nz to $+13
+              set   3,(hl)         ; Set bit 3 of (hl)
+              xor   a              ; Clear A
+              ld    (0x7837),a     ; Load (0x7837) from a
+              ld    a,d            ; Load a from d
+              ld    (0x7836),a     ; Load (0x7836) from a
+              ret                  ; Return
+              bit   4,(hl)         ; Test bit 4 of (hl)
+              jr    nz,$+44        ; Relative jump if nz to $+44
+              ld    a,(0x7836)     ; Load a from (0x7836)
+              cp    d              ; Compare A with d
+              jr    nz,$+35        ; Relative jump if nz to $+35
+              ld    bc,(0x7842)    ; Load bc from (0x7842)
+              ld    hl,(0x7844)    ; Load hl from (0x7844)
+              ld    a,e            ; Load a from e
+              call  0x2F35         ; Call 0x2F35
+              cp    d              ; Compare A with d
+              jp    z,0x2FD7       ; Jump if z to 0x2FD7
+              cp    0x00           ; Compare A with 0x00
+              jp    z,0x2FD7       ; Jump if z to 0x2FD7
+              ld    hl,0x7838      ; Load hl from 0x7838
+              set   3,(hl)         ; Set bit 3 of (hl)
+              set   4,(hl)         ; Set bit 4 of (hl)
+              res   2,(hl)         ; Reset bit 2 of (hl)
+              ld    (0x7837),a     ; Load (0x7837) from a
+              ret                  ; Return
+              ld    a,d            ; Load a from d
+              jr    $-14           ; Relative jump to $-14
+              ld    a,(0x7836)     ; Load a from (0x7836)
+              cp    d              ; Compare A with d
+              jr    z,$+10         ; Relative jump if z to $+10
+              ld    a,(0x7837)     ; Load a from (0x7837)
+              cp    d              ; Compare A with d
+              jr    z,$+4          ; Relative jump if z to $+4
+              xor   a              ; Clear A
+              ret                  ; Return
+              ld    bc,(0x7842)    ; Load bc from (0x7842)
+              ld    hl,(0x7844)    ; Load hl from (0x7844)
+              ld    a,e            ; Load a from e
+              call  0x2F35         ; Call 0x2F35
+              cp    d              ; Compare A with d
+              jr    z,$+7          ; Relative jump if z to $+7
+              cp    0x00           ; Compare A with 0x00
+              jp    nz,0x2FD7      ; Jump if nz to 0x2FD7
+              ld    hl,0x7838      ; Load hl from 0x7838
+              set   3,(hl)         ; Set bit 3 of (hl)
+              res   4,(hl)         ; Reset bit 4 of (hl)
+              ld    a,(0x7836)     ; Load a from (0x7836)
+              cp    d              ; Compare A with d
+              jr    nz,$+7         ; Relative jump if nz to $+7
+              xor   a              ; Clear A
+              ld    (0x7837),a     ; Load (0x7837) from a
+              ret                  ; Return
+              ld    a,(0x7837)     ; Load a from (0x7837)
+              ld    (0x7836),a     ; Load (0x7836) from a
+              jr    $-11           ; Relative jump to $-11
+              set   2,(ix+0x09)    ; Set bit 2 of (ix+0x09)
+
+; *******************************
+; BASIC initialization part 1
+; *******************************
+BASIC_INIT_1:
+              nop                  ; No operation
+              nop                  ; No operation
+              ld    hl,RAM_VECTOR_BLOCK ; Load hl from 0x06D2
+              ld    de,0x7800      ; Load de from 0x7800
+              ld    bc,0x0036      ; Load bc from 0x0036
+              ldir                 ; Execute ldir
+              dec   a              ; Decrement a
+              dec   a              ; Decrement a
+              jr    nz,$-13        ; Relative jump if nz to $-13
+              ld    b,0x27         ; Load b from 0x27
+              ld    (de),a         ; Load (de) from a
+              inc   de             ; Increment de
+              djnz  $-2            ; Decrement B and jump if not zero to $-2
+              jp    BASIC_INIT_2   ; Jump to BASIC initialization part 2
+
+; BASIC initialization part 3
+; Check for external ROM cassette
+BASIC_INIT_3:
+              ld    hl,0x4000      ; Load hl from 0x4000
+              call  ROM_CART_CHECK ; Call 0x06A4
+              ld    hl,0x6000      ; Load hl from 0x6000
+              call  ROM_CART_CHECK ; Call 0x06A4
+              ld    hl,0x8000      ; Load hl from 0x8000
+              call  ROM_CART_CHECK ; Call 0x06A4
+              ei                   ; Enable interrupts
+              jp    0x1A19         ; Jump to 0x1A19
+ROM_CART_CHECK:
+              ld    a,0xAA         ; Check signature sequence AA 55 E7 18
+              cp    (hl)           ; Compare A with (hl)
+              inc   hl             ; Increment hl
+              ret   nz             ; Return if nz
+              cpl                  ; Complement A
+              cp    (hl)           ; Compare A with (hl)
+              inc   hl             ; Increment hl
+              ret   nz             ; Return if nz
+              ld    a,0xE7         ; Load a from 0xE7
+              cp    (hl)           ; Compare A with (hl)
+              inc   hl             ; Increment hl
+              ret   nz             ; Return if nz
+              cpl                  ; Complement A
+              cp    (hl)           ; Compare A with (hl)
+              inc   hl             ; Increment hl
+              ret   nz             ; Return if nz
+              ei                   ; Enable interrupts
+              jp    (hl)           ; Jump to (hl)
+              ld    c,0x02         ; Load c from 0x02
+              call  0x1A59         ; Call 0x1A59
+              call  0x34B8         ; Call 0x34B8
+              call  0x18E3         ; Call 0x18E3
+              jr    z,$-62         ; Relative jump if z to $-62
+              rst   0x28           ; Call restart vector 0x28
+              inc   l              ; Increment l
+              jr    z,$+22         ; Relative jump if z to $+22
+              call  0x34F1         ; Call 0x34F1
+              ld    bc,0x1A18      ; Load bc from 0x1A18
+              jp    0x19AE         ; Jump to 0x19AE
+
+; *******************************
+; Copied to RAM 0x7800-0x7835
+; Restart vectors and DCB tables
+; *******************************
+RAM_VECTOR_BLOCK:
+              jp    0x1C96         ; RST 08H: compare one character
+              jp    0x1D78         ; RST 10H: next character
+              jp    0x1C90         ; RST 18H: compare HL/DE
+              jp    0x25D9         ; RST 20H: test data type
+              ret                  ; RST 28H
+              nop                  ; No operation
+              nop                  ; No operation
+              ret                  ; RST 30H
+              nop                  ; No operation
+              nop                  ; No operation
+              ei                   ; RST 38H interrupt entry
+              ret                  ; Return
+              nop                  ; No operation
+
+; Keyboard device control block (DCB)
+              DEFB  0x01,0xF4,0x2E,0x00,0x00,0x00 ; Keyboard DCB: type + driver address + reserved bytes
+              DEFM  "KI"           ; Name: KI
+
+; Screen device control block (DCB)
+              DEFB  0x00,0x00,0x00,0x00,0x70,0x00,0x00,0x00 ; Data bytes 0x00,0x00,0x00,0x00,0x70,0x00,0x00,0x00
+
+; Printer device control block (DCB)
+              DEFB  0x06,0x8D,0x05,0x43,0x00,0x00 ; Data bytes 0x06,0x8D,0x05,0x43,0x00,0x00
+              DEFM  "PR"           ; Name: PR
+              jp    0x5000         ; Jump to 0x5000
+              rst   0              ; Call restart vector 0
+              nop                  ; No operation
+              nop                  ; No operation
+
+; Entry used on wrong DCB type
+              ld    a,0x00         ; Load a from 0x00
+              ret                  ; Return
+
+; *******************************
+; Single-precision add/subtract
+; (entry points by requested operation)
+; *******************************
+FP_ADD_HALF:
+              ld    hl,0x1380      ; Load hl from 0x1380
+              call  0x09C2         ; Load constant 0.5 into Y then add to X
+              jr    $+8            ; Relative jump to $+8
+FP_SUB_HALF:
+              call  0x09C2         ; Call 0x09C2
+FP_SUB_Y_MINUS_X:
+              call  0x0982         ; Call 0x0982
+FP_ADD_X_PLUS_Y:
+              ld    a,b            ; Load a from b
+              or    a              ; Test A
+              ret   z              ; Return if z
+              ld    a,(0x7924)     ; Load a from (0x7924)
+              or    a              ; Test A
+              jp    z,0x09B4       ; Jump if z to 0x09B4
+              sub   b              ; Subtract b from A
+              jr    nc,$+14        ; Relative jump if nc to $+14
+              cpl                  ; Complement A
+              inc   a              ; Increment a
+              ex    de,hl          ; Exchange de,hl
+              call  0x09A4         ; Call 0x09A4
+              ex    de,hl          ; Exchange de,hl
+              call  0x09B4         ; Call 0x09B4
+              pop   bc             ; Pop bc
+              pop   de             ; Pop de
+              cp    0x19           ; Compare A with 0x19
+              ret   nc             ; Return if nc
+              push  af             ; Push af
+              call  0x09DF         ; Call 0x09DF
+              ld    h,a            ; Load h from a
+              pop   af             ; Pop af
+              call  0x07D7         ; Call 0x07D7
+              or    h              ; OR A with h
+              ld    hl,0x7921      ; Load hl from 0x7921
+              jp    p,0x0754       ; Jump if p to 0x0754
+
+; Mantissa addition
+              call  0x07B7         ; Call 0x07B7
+              jp    nc,0x0796      ; Jump if nc to 0x0796
+              inc   hl             ; Increment hl
+              inc   (hl)           ; Increment (hl)
+              jp    z,0x07B2       ; Jump if z to 0x07B2
+              ld    l,0x01         ; Load l from 0x01
+              call  0x07EB         ; Call 0x07EB
+              jr    $+68           ; Relative jump to $+68
+
+; Mantissa subtraction
+              xor   a              ; Clear A
+              sub   b              ; Subtract b from A
+              ld    b,a            ; Load b from a
+              ld    a,(hl)         ; Load a from (hl)
+              sbc   a,e            ; Subtract e with carry from a
+              ld    e,a            ; Load e from a
+              inc   hl             ; Increment hl
+              ld    a,(hl)         ; Load a from (hl)
+              sbc   a,d            ; Subtract d with carry from a
+              ld    d,a            ; Load d from a
+              inc   hl             ; Increment hl
+              ld    a,(hl)         ; Load a from (hl)
+              sbc   a,c            ; Subtract c with carry from a
+              ld    c,a            ; Load c from a
+              call  c,0x07C3       ; Call 0x07C3 if c
+
+; Normalization
+              ld    l,b            ; Load l from b
+              ld    h,e            ; Load h from e
+              xor   a              ; Clear A
+              ld    b,a            ; Load b from a
+              ld    a,c            ; Load a from c
+              or    a              ; Test A
+              jr    nz,$+26        ; Relative jump if nz to $+26
+              ld    c,d            ; Load c from d
+              ld    d,h            ; Load d from h
+              ld    h,l            ; Load h from l
+              ld    l,a            ; Load l from a
+              ld    a,b            ; Load a from b
+              sub   0x08           ; Subtract 0x08 from A
+              cp    0xE0           ; Compare A with 0xE0
+              jr    nz,$-14        ; Relative jump if nz to $-14
+              xor   a              ; Set real value to zero
+              ld    (0x7924),a     ; Load (0x7924) from a
+              ret                  ; Return
+              dec   b              ; Decrement b
+              add   hl,hl          ; Add hl,hl
+              ld    a,d            ; Load a from d
+              rla                  ; Rotate A left through carry
+              ld    d,a            ; Load d from a
+              ld    a,c            ; Load a from c
+              adc   a,a            ; Add a with carry to a
+              ld    c,a            ; Load c from a
+              jp    p,0x077D       ; Jump if p to 0x077D
+              ld    a,b            ; Load a from b
+              ld    e,h            ; Load e from h
+              ld    b,l            ; Load b from l
+              or    a              ; Test A
+              jr    z,$+10         ; Relative jump if z to $+10
+              ld    hl,0x7924      ; Load hl from 0x7924
+              add   a,(hl)         ; Add (hl) to A
+              ld    (hl),a         ; Load (hl) from a
+              jr    nc,$-27        ; Relative jump if nc to $-27
+              ret   z              ; Return if z
+              ld    a,b            ; Finalize result: round and copy Y to X
+              ld    hl,0x7924      ; Load hl from 0x7924
+              or    a              ; Test A
+              call  m,0x07A8       ; Call 0x07A8 if m
+              ld    b,(hl)         ; Load b from (hl)
+              inc   hl             ; Increment hl
+              ld    a,(hl)         ; Load a from (hl)
+              and   0x80           ; AND A with 0x80
+              xor   c              ; XOR A with c
+              ld    c,a            ; Load c from a
+              jp    0x09B4         ; Jump to 0x09B4
+
+; Rounding
+              inc   e              ; Increment e
+              ret   nz             ; Return if nz
+              inc   d              ; Increment d
+              ret   nz             ; Return if nz
+              inc   c              ; Increment c
+              ret   nz             ; Return if nz
+              ld    c,0x80         ; Load c from 0x80
+              inc   (hl)           ; Increment (hl)
+              ret   nz             ; Return if nz
+              ld    e,0x0A         ; Overflow error
+              jp    0x19A2         ; Jump to 0x19A2
+
+; Single-precision mantissa add
+              ld    a,(hl)         ; Load a from (hl)
+              add   a,e            ; Add e to A
+              ld    e,a            ; Load e from a
+              inc   hl             ; Increment hl
+              ld    a,(hl)         ; Load a from (hl)
+              adc   a,d            ; Add d with carry to a
+              ld    d,a            ; Load d from a
+              inc   hl             ; Increment hl
+              ld    a,(hl)         ; Load a from (hl)
+              adc   a,c            ; Add c with carry to a
+              ld    c,a            ; Load c from a
+              ret                  ; Return
+
+; Negate mantissa Y
+              ld    hl,0x7925      ; Load hl from 0x7925
+              ld    a,(hl)         ; Load a from (hl)
+              cpl                  ; Complement A
+              ld    (hl),a         ; Load (hl) from a
+              xor   a              ; Clear A
+              ld    l,a            ; Load l from a
+              sub   b              ; Subtract b from A
+              ld    b,a            ; Load b from a
+              ld    a,l            ; Load a from l
+              sbc   a,e            ; Subtract e with carry from a
+              ld    e,a            ; Load e from a
+              ld    a,l            ; Load a from l
+              sbc   a,d            ; Subtract d with carry from a
+              ld    d,a            ; Load d from a
+              ld    a,l            ; Load a from l
+              sbc   a,c            ; Subtract c with carry from a
+              ld    c,a            ; Load c from a
               ret   
               ld    b,0x00
               sub   0x08
@@ -1198,18 +1278,18 @@ SOUND_FREQ_TABLE:
               ld    (hl),b
               push  de
               push  bc
-              call  0x0716
+              call  FP_ADD_X_PLUS_Y
               pop   bc
               pop   de
               inc   b
               call  0x08A2
               ld    hl,0x07F8
-              call  0x0710
+              call  FP_SUB_HALF
               ld    hl,0x07FC
               call  0x149A
               ld    bc,0x8080
               ld    de,START
-              call  0x0716
+              call  FP_ADD_X_PLUS_Y
               pop   af
               call  0x0F89
               ld    bc,0x8031
@@ -1381,7 +1461,7 @@ SOUND_FREQ_TABLE:
               add   a,0x02
               jp    c,0x07B2
               ld    b,a
-              call  0x0716
+              call  FP_ADD_X_PLUS_Y
               ld    hl,0x7924
               inc   (hl)
               ret   nz
@@ -2340,7 +2420,7 @@ SOUND_FREQ_TABLE:
               call  0x0964
               pop   bc
               pop   de
-              jp    0x0716
+              jp    FP_ADD_X_PLUS_Y
               ld    a,e
               cp    0x0A
               jr    nc,$+11
@@ -2832,7 +2912,7 @@ SOUND_FREQ_TABLE:
               jr    $+14
               push  bc
               push  hl
-              call  0x0708
+              call  FP_ADD_HALF
               inc   a
               call  0x0AFB
               call  0x09B4
@@ -3088,7 +3168,7 @@ SOUND_FREQ_TABLE:
               pop   bc
               pop   de
               push  af
-              call  0x0713
+              call  FP_SUB_Y_MINUS_X
               call  0x0982
               ld    hl,0x1479
               call  0x14A9
@@ -3148,7 +3228,7 @@ SOUND_FREQ_TABLE:
               pop   hl
               call  0x09C2
               push  hl
-              call  0x0716
+              call  FP_ADD_X_PLUS_Y
               pop   hl
               jr    $-21
               call  0x0A7F
@@ -3233,13 +3313,13 @@ SOUND_FREQ_TABLE:
               call  0x0B40
               pop   bc
               pop   de
-              call  0x0713
+              call  FP_SUB_Y_MINUS_X
               ld    hl,0x158F
-              call  0x0710
+              call  FP_SUB_HALF
               call  0x0955
               scf   
               jp    p,0x1577
-              call  0x0708
+              call  FP_ADD_HALF
               call  0x0955
               or    a
               push  af
@@ -3293,7 +3373,7 @@ SOUND_FREQ_TABLE:
               ld    d,c
               ld    e,c
               call  0x08A2
-              ld    hl,0x0710
+              ld    hl,FP_SUB_HALF
               push  hl
               ld    hl,0x15E3
               call  0x149A
@@ -4108,7 +4188,7 @@ SOUND_FREQ_TABLE:
               call  0x79A6
               ld    d,a
               ld    a,0x3F
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               call  0x3CD4
               nop   
               nop   
@@ -4124,13 +4204,13 @@ SOUND_FREQ_TABLE:
               pop   hl
               ld    de,0xFFFE
               rst   0x18
-              jp    z,0x0674
+              jp    z,BASIC_INIT_1
               ld    a,h
               and   l
               inc   a
               call  nz,0x0FA7
               ld    a,0xC1
-              call  0x038B
+              call  OUTPUT_SCREEN_SELECT
               call  0x79AC
               nop   
               nop   
@@ -4152,13 +4232,13 @@ SOUND_FREQ_TABLE:
               push  hl
               call  0x0FAF
               ld    a,0x20
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               pop   de
               push  de
               call  0x1B2C
               call  c,0x2E53
               nop   
-              call  0x03E3
+              call  INPUT_LINE_READ
               pop   de
               jr    nc,$+8
               xor   a
@@ -4179,7 +4259,7 @@ SOUND_FREQ_TABLE:
               jp    0x1A81
               nop   
               nop   
-              call  0x03E3
+              call  INPUT_LINE_READ
               jp    c,0x1A33
               rst   0x10
               inc   a
@@ -4360,7 +4440,7 @@ SOUND_FREQ_TABLE:
               ld    sp,hl
               ld    hl,0x78B5
               ld    (0x78B3),hl
-              call  0x038B
+              call  OUTPUT_SCREEN_SELECT
               call  0x2169
               xor   a
               ld    h,a
@@ -4371,9 +4451,9 @@ SOUND_FREQ_TABLE:
               ld    hl,(0x78DF)
               ret   
               ld    a,0x3F
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               ld    a,0x20
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               jp    0x053A
               xor   a
               ld    (0x78B0),a
@@ -4594,7 +4674,7 @@ SOUND_FREQ_TABLE:
               ld    b,0x81
               push  bc
               inc   sp
-              call  0x0358
+              call  KBD_QUERY_WRAP
               or    a
               call  nz,0x1DA0
               ld    (0x78E6),hl
@@ -4620,10 +4700,10 @@ SOUND_FREQ_TABLE:
               jr    z,$+17
               push  de
               ld    a,0x3C
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               call  0x0FAF
               ld    a,0x3E
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               pop   de
               ex    de,hl
               rst   0x10
@@ -4666,7 +4746,7 @@ SOUND_FREQ_TABLE:
               ld    (0x78FF),hl
               ex    de,hl
               ret   
-              call  0x0358
+              call  KBD_QUERY_WRAP
               or    a
               ret   z
               nop   
@@ -4698,7 +4778,7 @@ SOUND_FREQ_TABLE:
               ld    (0x78F5),hl
               ld    hl,(0x78E6)
               ld    (0x78F7),hl
-              call  0x038B
+              call  OUTPUT_SCREEN_SELECT
               call  0x20F9
               pop   af
               ld    hl,0x1930
@@ -5139,7 +5219,7 @@ SOUND_FREQ_TABLE:
               call  nc,0x20FE
               call  0x28AA
               ld    a,0x20
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               or    a
               call  z,0x28AA
               pop   hl
@@ -5148,7 +5228,7 @@ SOUND_FREQ_TABLE:
               or    a
               ret   z
               ld    a,0x0D
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               call  0x79D0
               xor   a
               ret   
@@ -5157,7 +5237,7 @@ SOUND_FREQ_TABLE:
               or    a
               jp    p,0x2119
               ld    a,0x2C
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               jr    $+77
               jr    z,$+10
               ld    a,(0x789B)
@@ -5194,7 +5274,7 @@ SOUND_FREQ_TABLE:
               inc   a
               ld    b,a
               ld    a,0x20
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               dec   b
               jr    nz,$-4
               pop   hl
@@ -5298,7 +5378,7 @@ SOUND_FREQ_TABLE:
               ld    e,0x06
               jp    z,0x19A2
               ld    a,0x3F
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               call  0x1BB3
               pop   de
               pop   bc
@@ -6330,7 +6410,7 @@ SOUND_FREQ_TABLE:
               dec   d
               ret   z
               ld    a,(bc)
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               cp    0x0D
               call  z,0x2103
               inc   bc
@@ -6774,7 +6854,7 @@ SOUND_FREQ_TABLE:
               call  0x0FAF
               ld    a,0x20
               pop   hl
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               call  0x2B7E
               ld    hl,(0x78A7)
               call  0x2B75
@@ -6783,7 +6863,7 @@ SOUND_FREQ_TABLE:
               ld    a,(hl)
               or    a
               ret   z
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               inc   hl
               jr    $-7
               push  hl
@@ -7029,7 +7109,7 @@ SOUND_FREQ_TABLE:
               ld    b,e
               ld    a,0x25
               call  0x2E49
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               xor   a
               ld    e,a
               ld    d,a
@@ -7199,7 +7279,7 @@ SOUND_FREQ_TABLE:
               jp    nz,0x2D03
               jr    $+8
               call  0x2E49
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               pop   hl
               pop   af
               jp    nz,0x2CCB
@@ -7235,13 +7315,13 @@ SOUND_FREQ_TABLE:
               inc   b
               dec   b
               jp    z,0x2DD3
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               jr    $-7
               push  af
               ld    a,d
               or    a
               ld    a,0x2B
-              call  nz,0x032A
+              call  nz,CHAR_OUTPUT_DISPATCH
               pop   af
               ret   
               ld    h,b
@@ -7348,7 +7428,7 @@ SOUND_FREQ_TABLE:
               jr    z,$+9
               call  0x2F28
               or    a
-              jp    nz,0x05D7
+              jp    nz,KBD_ROLLOVER
               ld    hl,0x7838
               bit   2,(hl)
               jr    z,$+10
@@ -7616,7 +7696,7 @@ SOUND_FREQ_TABLE:
               xor   a
               ld    (0x7AAF),a
               ret   
-              call  0x030D
+              call  CURSOR_CHAR_RESTORE
               or    a
               jr    z,$+6
               cp    0x0D
@@ -7662,7 +7742,7 @@ SOUND_FREQ_TABLE:
               or    b
               ld    b,a
               jr    $+97
-              call  0x030D
+              call  CURSOR_CHAR_RESTORE
               or    a
               jp    m,0x3145
               cp    0x0D
@@ -7919,11 +7999,11 @@ SOUND_FREQ_TABLE:
               push  hl
               call  0x33F3
               pop   hl
-              call  0x0317
+              call  CURSOR_LINE_BACK
               push  hl
               call  0x33F3
               pop   hl
-              call  0x0317
+              call  CURSOR_LINE_BACK
               pop   af
               ld    (0x78A6),a
               pop   de
@@ -8780,7 +8860,7 @@ SOUND_FREQ_TABLE:
               ld    c,0xC0
               call  0x3AF8
               push  hl
-              call  0x05C9
+              call  PRN_GFXBUF_CLEAR
               ld    b,0x03
               ld    a,(hl)
               and   c
@@ -9305,7 +9385,7 @@ SOUND_FREQ_TABLE:
               dec   e
               jr    nz,$-7
               and   0x7F
-              call  0x032A
+              call  CHAR_OUTPUT_DISPATCH
               ld    a,(hl)
               inc   hl
               or    a
@@ -9601,7 +9681,7 @@ SOUND_FREQ_TABLE:
               ret   c
               ld    hl,0x3E1A
               call  0x28A7
-              jp    0x03E3
+              jp    INPUT_LINE_READ
               cp    0x62
               jr    nz,$+59
               and   0xBF
