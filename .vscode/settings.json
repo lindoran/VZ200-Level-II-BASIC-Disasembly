@@ -1,0 +1,5 @@
+{
+  "files.associations": {
+    "*.lst": "z80-asm-listing"
+  }
+}

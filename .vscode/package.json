@@ -1,0 +1,27 @@
+{
+  "name": "z80-listing-syntax",
+  "displayName": "Z80 Listing Syntax",
+  "description": "Syntax highlighting for Z80 assembly listings (ignores leading columns)",
+  "version": "1.0.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.50.0"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "z80-listing",
+        "aliases": ["Z80 Listing", "z80-listing"],
+        "extensions": [".lst"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "z80-listing",
+        "scopeName": "source.asm.z80-listing",
+        "path": "./z80-listing.tmLanguage.json"
+      }
+    ]
+  }
+}

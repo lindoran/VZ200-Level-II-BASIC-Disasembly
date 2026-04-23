@@ -1,0 +1,44 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Z80 Listing (Code Only)",
+  "scopeName": "source.asm.z80-listing",
+  "patterns": [
+    {
+      "name": "comment.line.z80",
+      "match": "^;.*$",
+      "comment": "Full-line comments"
+    },
+    {
+      "begin": "^.{20}",
+      "end": "$",
+      "patterns": [
+        {
+          "name": "comment.line.semicolon.z80",
+          "match": ";.*$"
+        },
+        {
+          "name": "keyword.mnemonic.z80",
+          "match": "\\b(ld|ldd|lddr|ldi|ldir|push|pop|ex|exx|jp|jr|djnz|call|ret|reti|retn|rst|nop|halt|di|ei|im|add|adc|sub|sbc|and|or|xor|cp|inc|dec|rl|rlc|rr|rrc|sla|sra|srl|sli|daa|cpl|neg|sar|rlca|rrca|bit|set|res|in|out|cpd|cpdr|cpi|cpir|lde|otir|otdr|ind|indr|outi)\\b"
+        },
+        {
+          "name": "variable.register.z80",
+          "match": "\\b([ab]|[cd]|[ef]|hl|ix|iy|sp|pc|bc|de|psw|af|a'|b'|c'|d'|e'|f'|h'|l'|i|r)\\b"
+        },
+        {
+          "name": "constant.numeric.hex.z80",
+          "match": "\\b0x[0-9a-fA-F]+\\b|\\$[0-9a-fA-F]+|\\b[0-9a-fA-F]+H\\b"
+        },
+        {
+          "name": "constant.numeric.decimal.z80",
+          "match": "\\b[0-9]+\\b"
+        },
+        {
+          "name": "punctuation.definition.string.begin.z80",
+          "match": "(['\"])"
+        }
+      ]
+    }
+  ],
+  "fileTypes": ["lst"],
+  "uuid": "D8D5E82E-3D5B-46B0-8BC0-8E8E7DCC4A7E"
+}
