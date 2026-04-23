@@ -1007,20 +1007,9 @@
 2036	1	rra	
 2037	1	ld	b,a
 2038	2	jr	$-15
-2040	1	nop	
-2041	1	nop	
-2042	1	nop	
-2043	1	add	a,c
-2044	1	inc	bc
-2045	1	xor	d
-2046	1	ld	d,(hl)
-2047	1	add	hl,de
-2048	1	add	a,b
-2049	1	pop	af
-2050	3	ld	(0x8076),hl
-2053	1	ld	b,l
-2054	1	xor	d
-2055	2	jr	c,$-124
+2040	4	DEFB	0x00,0x00,0x00,0x81
+2044	8	DEFB	0x03,0xAA,0x56,0x19,0x80,0xF1,0x22,0x76
+2052	5	DEFB	0x80,0x45,0xAA,0x38,0x82
 2057	3	call	0x0955
 2060	1	or	a
 2061	3	jp	pe,0x1E4A

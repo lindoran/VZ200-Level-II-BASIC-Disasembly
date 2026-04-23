@@ -314,7 +314,7 @@
 01B8  77       w                   ld    (hl),a
 01B9  C38428   ..(                 jp    0x2884         ; Jump to 2884H
 01BC  212819   !(.                 ld    hl,0x1928      ; Load 1928H into 7921H
-01BF  222179   "!y                 ld    (0x7921),hl
+01BF  222179   "!y                 ld    (FACLO),hl
 01C2  3E03     >.                  ld    a,0x03         ; Set 78AFH to 3
 01C4  32AF78   2.x                 ld    (0x78AF),a
 01C7  E1       .                   pop   hl             ; Restore HL
@@ -1064,27 +1064,27 @@
                      ; Various entry points according to the required function.
                      FP_ADD_HALF:
 0708  218013   !..                 ld    hl,0x1380      ; address of constant 0.5
-070B  CDC209   ...                 call  0x09C2         ; load constant into Y then add to X
+070B  CDC209   ...                 call  MOVRM          ; load constant into Y then add to X
 070E  1806     ..                  jr    $+8            ; jump to addition
                      FP_SUB_HALF:
-0710  CDC209   ...                 call  0x09C2         ; load constant into Y
+0710  CDC209   ...                 call  MOVRM          ; load constant into Y
                      FP_SUB_Y_MINUS_X:
-0713  CD8209   ...                 call  0x0982         ; X = -X
+0713  CD8209   ...                 call  NNEG           ; X = -X
                      FP_ADD_X_PLUS_Y:
 0716  78       x                   ld    a,b            ; Y = 0? (Exp. Y = 0)
 0717  B7       .                   or    a              ; Test A
 0718  C8       .                   ret   z              ; yes, done
-0719  3A2479   :$y                 ld    a,(0x7924)     ; X = 0? (Exp. X = 0)
+0719  3A2479   :$y                 ld    a,(FAC)        ; X = 0? (Exp. X = 0)
 071C  B7       .                   or    a              ; Test A
-071D  CAB409   ...                 jp    z,0x09B4       ; yes, done, X=Y
+071D  CAB409   ...                 jp    z,MOVFR        ; yes, done, X=Y
 0720  90       .                   sub   b              ; Exp. Y <= Exp. X?
 0721  300C     0.                  jr    nc,$+14        ; yes
 0723  2F       /                   cpl                  ; negate Exp.Diff
 0724  3C       <                   inc   a              ; exchange X with Y
 0725  EB       .                   ex    de,hl          ; save LSB Y
-0726  CDA409   ...                 call  0x09A4         ; put X on stack
+0726  CDA409   ...                 call  PUSHF          ; put X on stack
 0729  EB       .                   ex    de,hl          ; restore LSB Y
-072A  CDB409   ...                 call  0x09B4         ; transfer Y to X
+072A  CDB409   ...                 call  MOVFR          ; transfer Y to X
 072D  C1       .                   pop   bc             ; load stack to Y
 072E  D1       .                   pop   de             ; Pop de
 072F  FE19     ..                  cp    0x19           ; Exp.Diff > mantissa (24 bits)
@@ -1093,9 +1093,9 @@
 0733  CDDF09   ...                 call  0x09DF         ; A(7) = 0 if different signs
 0736  67       g                   ld    h,a            ; save sign flag
 0737  F1       .                   pop   af             ; reload Exp.Difference
-0738  CDD707   ...                 call  0x07D7         ; shift Y right by this difference
+0738  CDD707   ...                 call  SHIFTR         ; shift Y right by this difference
 073B  B4       .                   or    h              ; signs equal?
-073C  212179   !!y                 ld    hl,0x7921      ; LSB X address in HL
+073C  212179   !!y                 ld    hl,FACLO       ; LSB X address in HL
 073F  F25407   .T.                 jp    p,0x0754       ; no, subtract
                      ; Mantissa addition
 0742  CDB707   ...                 call  0x07B7         ; add mantissas
@@ -1140,7 +1140,7 @@
 0776  20F0      .                  jr    nz,$-14        ; no!
                      ; Set real value = 0
 0778  AF       .                   xor   a              ; exponent in X = 0
-0779  322479   2$y                 ld    (0x7924),a     ; i.e. X = 0
+0779  322479   2$y                 ld    (FAC),a        ; i.e. X = 0
 077C  C9       .                   ret                  ; Return
                      ; 2nd part of normalization
 077D  05       .                   dec   b              ; shift counter - 1
@@ -1157,14 +1157,14 @@
 078A  45       E                   ld    b,l            ; Load b from l
 078B  B7       .                   or    a              ; no shift?
 078C  2808     (.                  jr    z,$+10         ; yes
-078E  212479   !$y                 ld    hl,0x7924      ; address X exponent
+078E  212479   !$y                 ld    hl,FAC         ; address X exponent
 0791  86       .                   add   a,(hl)         ; Exp. X + number of shifts
 0792  77       w                   ld    (hl),a         ; = Exp. X. Underflow?
 0793  30E3     0.                  jr    nc,$-27        ; yes! X=0 and back
 0795  C8       .                   ret   z              ; number of shifts = Exp. X? back!
                      ; Finalize result: round and copy Y to X
 0796  78       x                   ld    a,b            ; load LSB Y
-0797  212479   !$y                 ld    hl,0x7924      ; address X exponent
+0797  212479   !$y                 ld    hl,FAC         ; address X exponent
 079A  B7       .                   or    a              ; LSB Y(7) = 0?
 079B  FCA807   ...                 call  m,0x07A8       ; no - round Y
 079E  46       F                   ld    b,(hl)         ; Exp. X to Exp. Y
@@ -1173,7 +1173,7 @@
 07A1  E680     ..                  and   0x80           ; mask out sign
 07A3  A9       .                   xor   c              ; link with MSB Y (invert)
 07A4  4F       O                   ld    c,a            ; and back to MSB Y
-07A5  C3B409   ...                 jp    0x09B4         ; Y to X as result
+07A5  C3B409   ...                 jp    MOVFR          ; Y to X as result
                      ; Rounding
 07A8  1C       .                   inc   e              ; LSB Y + 1
 07A9  C0       .                   ret   nz             ; = 0?, no-done
@@ -1219,138 +1219,161 @@
 07D4  99       .                   sbc   a,c            ; MSB Y = 0 - MSB Y
 07D5  4F       O                   ld    c,a            ; Load c from a
 07D6  C9       .                   ret   
-07D7  0600     ..                  ld    b,0x00
-07D9  D608     ..                  sub   0x08
-07DB  3807     8.                  jr    c,$+9
-07DD  43       C                   ld    b,e
+                     ; SINGLE PRECISION MATH ROUTINE – “SHIFTR”
+                     ; This routine will shift the number in C/D/E right the number of times
+                     ; held in Register A. The general idea is to shift right 8 places
+                     ; as many times as is possible within the number of times in A,
+                     ; and then jump out to shift single bits once you can't shift 8
+                     ; at a time anymore. Alters everything except Register H.
+                     SHIFTR:
+07D7  0600     ..                  ld    b,0x00         ; LSB of result = 0
+                     SHIFTR1:
+07D9  D608     ..                  sub   0x08           ; shift 8 or more places?
+                     ; (none)
+                     SHIFTR1:
+07DB  3807     8.                  jr    c,$+9          ; no!
+07DD  43       C                   ld    b,e            ; shift Y right by one byte
 07DE  5A       Z                   ld    e,d
 07DF  51       Q                   ld    d,c
 07E0  0E00     ..                  ld    c,0x00
 07E2  18F5     ..                  jr    $-9
-07E4  C609     ..                  add   a,0x09
+                     ; SINGLE PRECISION MATH ROUTINE – “SHFTR2”
+                     ; This routine will shift the number in C/D/E right the number
+                     ; of times held in Register A, but one byte at a time.
+                     SHFTR2:
+07E4  C609     ..                  add   a,0x09         ; shift count + 1 in L
 07E6  6F       o                   ld    l,a
-07E7  AF       .                   xor   a
-07E8  2D       -                   dec   l
-07E9  C8       .                   ret   z
-07EA  79       y                   ld    a,c
+                     SHFTR3:
+07E7  AF       .                   xor   a              ; clear Carry
+                     SHFTR4:
+07E8  2D       -                   dec   l              ; shift counter - 1
+07E9  C8       .                   ret   z              ; = 0? yes-done
+07EA  79       y                   ld    a,c            ; MSB Y one bit right
 07EB  1F       .                   rra   
 07EC  4F       O                   ld    c,a
-07ED  7A       z                   ld    a,d
+07ED  7A       z                   ld    a,d            ; next byte Y one bit right
 07EE  1F       .                   rra   
 07EF  57       W                   ld    d,a
-07F0  7B       {                   ld    a,e
+07F0  7B       {                   ld    a,e            ; next byte Y one bit right
 07F1  1F       .                   rra   
 07F2  5F       _                   ld    e,a
-07F3  78       x                   ld    a,b
+07F3  78       x                   ld    a,b            ; LSB Y one bit right
 07F4  1F       .                   rra   
 07F5  47       G                   ld    b,a
-07F6  18EF     ..                  jr    $-15
-07F8  00       .                   nop   
-07F9  00       .                   nop   
-07FA  00       .                   nop   
-07FB  81       .                   add   a,c
-07FC  03       .                   inc   bc
-07FD  AA       .                   xor   d
-07FE  56       V                   ld    d,(hl)
-07FF  19       .                   add   hl,de
-0800  80       .                   add   a,b
-0801  F1       .                   pop   af
-0802  227680   "v.                 ld    (0x8076),hl
-0805  45       E                   ld    b,l
-0806  AA       .                   xor   d
-0807  3882     8.                  jr    c,$-124
-0809  CD5509   .U.                 call  0x0955
-080C  B7       .                   or    a
-080D  EA4A1E   .J.                 jp    pe,0x1E4A
-0810  212479   !$y                 ld    hl,0x7924
-0813  7E       ~                   ld    a,(hl)
-0814  013580   .5.                 ld    bc,0x8035
+07F6  18EF     ..                  jr    $-15           ; continue
+                     ; SINGLE PRECISION CONSTANT STORAGE LOCATION – “FONE”
+                     FONE:
+07F8  00000081 ....                DEFB  0x00,0x00,0x00,0x81 ; = 1
+                     ; SINGLE PRECISION CONSTANTS STORAGE LOCATION 2 – “LOGCN2”
+                     LOGCN2:
+07FC  03AA5619 ..V.                DEFB  0x03,0xAA,0x56,0x19,0x80,0xF1,0x22,0x76 ; number of constants = 3
+      80F12276 .."v  
+0804  8045AA38 .E.8                DEFB  0x80,0x45,0xAA,0x38,0x82
+      82       .     
+                     ; LEVEL II BASIC LOG ROUTINE – “FNLOG”
+                     ; Computes the natural log (base E) of the single precision value in
+                     ; WRA1. The result is returned as a single precision value in WRA1.
+                     FNLOG:
+0809  CD5509   .U.                 call  SIGN           ; argument <= 0?
+080C  B7       .                   or    a              ; if FAC < 0, then an error
+080D  EA4A1E   .J.                 jp    pe,0x1E4A      ; yes, Function-Code Error
+0810  212479   !$y                 ld    hl,FAC         ; exponent of argument in A
+0813  7E       ~                   ld    a,(hl)         ; get exponent
+0814  013580   .5.                 ld    bc,0x8035      ; Y = 0.707092
 0817  11F304   ...                 ld    de,0x04F3
-081A  90       .                   sub   b
-081B  F5       .                   push  af
-081C  70       p                   ld    (hl),b
-081D  D5       .                   push  de
+081A  90       .                   sub   b              ; offset Exp X in A
+081B  F5       .                   push  af             ; save
+081C  70       p                   ld    (hl),b         ; Exp. X = 0
+081D  D5       .                   push  de             ; Y on stack
 081E  C5       .                   push  bc
-081F  CD1607   ...                 call  FP_ADD_X_PLUS_Y
-0822  C1       .                   pop   bc
+081F  CD1607   ...                 call  FP_ADD_X_PLUS_Y ; X = X + 0.707092
+0822  C1       .                   pop   bc             ; reload Y with constant
 0823  D1       .                   pop   de
-0824  04       .                   inc   b
-0825  CDA208   ...                 call  0x08A2
-0828  21F807   !..                 ld    hl,0x07F8
-082B  CD1007   ...                 call  FP_SUB_HALF
-082E  21FC07   !..                 ld    hl,0x07FC
-0831  CD9A14   ...                 call  0x149A
-0834  018080   ...                 ld    bc,0x8080
+0824  04       .                   inc   b              ; Exp. Y + 1 (Y = SQR(2))
+0825  CDA208   ...                 call  0x08A2         ; X = SQR(2) / X
+0828  21F807   !..                 ld    hl,FONE        ; load address of constant 1
+082B  CD1007   ...                 call  FP_SUB_HALF    ; X = 1 - X
+082E  21FC07   !..                 ld    hl,LOGCN2      ; address of 1st series constant
+0831  CD9A14   ...                 call  0x149A         ; calculate series
+0834  018080   ...                 ld    bc,0x8080      ; Y = -0.5
 0837  110000   ...                 ld    de,START
-083A  CD1607   ...                 call  FP_ADD_X_PLUS_Y
-083D  F1       .                   pop   af
-083E  CD890F   ...                 call  0x0F89
-0841  013180   .1.                 ld    bc,0x8031
+083A  CD1607   ...                 call  FP_ADD_X_PLUS_Y ; X = X - 0.5
+083D  F1       .                   pop   af             ; exponent of argument
+083E  CD890F   ...                 call  0x0F89         ; X = X + A
+                     ; SINGLE PRECISION MULTIPLICATION – “FMLT”
+                     MULLN2:
+0841  013180   .1.                 ld    bc,0x8031      ; Y = LOG(2) approx. 0.693147
 0844  111872   ..r                 ld    de,0x7218
-0847  CD5509   .U.                 call  0x0955
-084A  C8       .                   ret   z
-084B  2E00     ..                  ld    l,0x00
-084D  CD1409   ...                 call  0x0914
-0850  79       y                   ld    a,c
-0851  324F79   2Oy                 ld    (0x794F),a
-0854  EB       .                   ex    de,hl
+0847  CD5509   .U.                 call  SIGN           ; X = 0?
+                     FMLT:
+084A  C8       .                   ret   z              ; yes, done
+084B  2E00     ..                  ld    l,0x00         ; flag for exponent processing
+084D  CD1409   ...                 call  MULDV          ; process exponents and signs
+0850  79       y                   ld    a,c            ; mantissa from Y to 794F...
+0851  324F79   2Oy                 ld    (0x794F),a     ; MSB
+0854  EB       .                   ex    de,hl          ; LSB
 0855  225079   "Py                 ld    (0x7950),hl
-0858  010000   ...                 ld    bc,START
+0858  010000   ...                 ld    bc,START       ; Y = clear result register
 085B  50       P                   ld    d,b
 085C  58       X                   ld    e,b
-085D  216507   !e.                 ld    hl,0x0765
-0860  E5       .                   push  hl
-0861  216908   !i.                 ld    hl,0x0869
-0864  E5       .                   push  hl
-0865  E5       .                   push  hl
-0866  212179   !!y                 ld    hl,0x7921
-0869  7E       ~                   ld    a,(hl)
-086A  23       #                   inc   hl
-086B  B7       .                   or    a
-086C  2824     ($                  jr    z,$+38
-086E  E5       .                   push  hl
-086F  2E08     ..                  ld    l,0x08
-0871  1F       .                   rra   
-0872  67       g                   ld    h,a
-0873  79       y                   ld    a,c
-0874  300B     0.                  jr    nc,$+13
-0876  E5       .                   push  hl
-0877  2A5079   *Py                 ld    hl,(0x7950)
-087A  19       .                   add   hl,de
-087B  EB       .                   ex    de,hl
-087C  E1       .                   pop   hl
-087D  3A4F79   :Oy                 ld    a,(0x794F)
-0880  89       .                   adc   a,c
-0881  1F       .                   rra   
-0882  4F       O                   ld    c,a
-0883  7A       z                   ld    a,d
+085D  216507   !e.                 ld    hl,0x0765      ; different return addresses for
+0860  E5       .                   push  hl             ; 3 passes on stack
+0861  216908   !i.                 ld    hl,FMLT2       ; to normalization after 3rd pass
+0864  E5       .                   push  hl             ; after 1st and 2nd pass
+0865  E5       .                   push  hl             ; repeat
+                     FMLT1:
+0866  212179   !!y                 ld    hl,FACLO       ; load LSB X address
+                     FMLT2:
+0869  7E       ~                   ld    a,(hl)         ; LSB X in A
+086A  23       #                   inc   hl             ; address next X-byte
+086B  B7       .                   or    a              ; content = 0?
+086C  2824     ($                  jr    z,$+38         ; yes, shift result 1 byte right
+086E  E5       .                   push  hl             ; save address pointer
+086F  2E08     ..                  ld    l,0x08         ; bit counter = 8
+0871  1F       .                   rra                  ; shift a bit into carry
+0872  67       g                   ld    h,a            ; save A in H
+0873  79       y                   ld    a,c            ; load MSB of result
+0874  300B     0.                  jr    nc,$+13        ; bit in carry = 1?
+0876  E5       .                   push  hl             ; yes! - save HL
+0877  2A5079   *Py                 ld    hl,(0x7950)    ; load LSB of 2nd factor
+087A  19       .                   add   hl,de          ; + result LSB
+087B  EB       .                   ex    de,hl          ; in LSB Y
+087C  E1       .                   pop   hl             ; reload HL
+087D  3A4F79   :Oy                 ld    a,(0x794F)     ; load MSB of 2nd factor
+0880  89       .                   adc   a,c            ; + result MSB
+0881  1F       .                   rra                  ; shift result 1 bit right
+0882  4F       O                   ld    c,a            ; MSB
+0883  7A       z                   ld    a,d            ; next byte
 0884  1F       .                   rra   
 0885  57       W                   ld    d,a
-0886  7B       {                   ld    a,e
+0886  7B       {                   ld    a,e            ; next byte
 0887  1F       .                   rra   
 0888  5F       _                   ld    e,a
-0889  78       x                   ld    a,b
+0889  78       x                   ld    a,b            ; LSB
 088A  1F       .                   rra   
 088B  47       G                   ld    b,a
-088C  2D       -                   dec   l
-088D  7C       |                   ld    a,h
-088E  20E1      .                  jr    nz,$-29
-0890  E1       .                   pop   hl
-0891  C9       .                   ret   
-0892  43       C                   ld    b,e
-0893  5A       Z                   ld    e,d
-0894  51       Q                   ld    d,c
-0895  4F       O                   ld    c,a
+088C  2D       -                   dec   l              ; bit counter - 1
+088D  7C       |                   ld    a,h            ; reload X-byte
+088E  20E1      .                  jr    nz,$-29        ; bit counter = 0, no-back
+0890  E1       .                   pop   hl             ; yes - load X-byte address
+0891  C9       .                   ret                  ; continue
+0892  43       C                   ld    b,e            ; result 1 byte right. B = E
+0893  5A       Z                   ld    e,d            ; E = D
+0894  51       Q                   ld    d,c            ; D = C
+0895  4F       O                   ld    c,a            ; C = 0
 0896  C9       .                   ret   
-0897  CDA409   ...                 call  0x09A4
-089A  21D80D   !..                 ld    hl,0x0DD8
-089D  CDB109   ...                 call  0x09B1
-08A0  C1       .                   pop   bc
+                     ; SINGLE PRECISION MATH ROUTINE – “FDIV”
+                     FDIV:
+0897  CDA409   ...                 call  PUSHF          ; save value in X on stack
+089A  21D80D   !..                 ld    hl,0x0DD8      ; address constant 10
+089D  CDB109   ...                 call  MOVFM          ; transfer to X
+08A0  C1       .                   pop   bc             ; load former X-value into Y
 08A1  D1       .                   pop   de
-08A2  CD5509   .U.                 call  0x0955
-08A5  CA9A19   ...                 jp    z,0x199A
+08A2  CD5509   .U.                 call  SIGN           ; divisor = 0?
+                     DV0ERR_JMP:
+08A5  CA9A19   ...                 jp    z,0x199A       ; yes, DIVISION BY ZERO - Error
 08A8  2EFF     ..                  ld    l,0xFF
-08AA  CD1409   ...                 call  0x0914
+08AA  CD1409   ...                 call  MULDV
 08AD  34       4                   inc   (hl)
 08AE  34       4                   inc   (hl)
 08AF  2B       +                   dec   hl
@@ -1408,24 +1431,32 @@
 08F9  B3       .                   or    e
 08FA  20CB      .                  jr    nz,$-51
 08FC  E5       .                   push  hl
-08FD  212479   !$y                 ld    hl,0x7924
+08FD  212479   !$y                 ld    hl,FAC
 0900  35       5                   dec   (hl)
 0901  E1       .                   pop   hl
 0902  20C3      .                  jr    nz,$-59
 0904  C3B207   ...                 jp    0x07B2
+                     ; DOUBLE PRECISION MATH ROUTINE – “MULDVS”
+                     ; This routine is to check for special cases and to add exponents for
+                     ; the FMULT and FDIV routines. Registers A, B, H and L are modified.
+                     MULDVS:
 0907  3EFF     >.                  ld    a,0xFF
+                     MULDVA_SKIP:
 0909  2EAF     ..                  ld    l,0xAF
-090B  212D79   !-y                 ld    hl,0x792D
+                     MULDVA:
+090B  212D79   !-y                 ld    hl,ARG
 090E  4E       N                   ld    c,(hl)
 090F  23       #                   inc   hl
 0910  AE       .                   xor   (hl)
 0911  47       G                   ld    b,a
 0912  2E00     ..                  ld    l,0x00
+                     ; DOUBLE PRECISION MATH ROUTINE – “MULDV”
+                     MULDV:
 0914  78       x                   ld    a,b
 0915  B7       .                   or    a
 0916  281F     (.                  jr    z,$+33
 0918  7D       }                   ld    a,l
-0919  212479   !$y                 ld    hl,0x7924
+0919  212479   !$y                 ld    hl,FAC
 091C  AE       .                   xor   (hl)
 091D  80       .                   add   a,b
 091E  47       G                   ld    b,a
@@ -1440,14 +1471,14 @@
 092E  77       w                   ld    (hl),a
 092F  2B       +                   dec   hl
 0930  C9       .                   ret   
-0931  CD5509   .U.                 call  0x0955
+0931  CD5509   .U.                 call  SIGN
 0934  2F       /                   cpl   
 0935  E1       .                   pop   hl
 0936  B7       .                   or    a
 0937  E1       .                   pop   hl
 0938  F27807   .x.                 jp    p,0x0778
 093B  C3B207   ...                 jp    0x07B2
-093E  CDBF09   ...                 call  0x09BF
+093E  CDBF09   ...                 call  MOVRF
 0941  78       x                   ld    a,b
 0942  B7       .                   or    a
 0943  C8       .                   ret   z
@@ -1455,23 +1486,33 @@
 0946  DAB207   ...                 jp    c,0x07B2
 0949  47       G                   ld    b,a
 094A  CD1607   ...                 call  FP_ADD_X_PLUS_Y
-094D  212479   !$y                 ld    hl,0x7924
+094D  212479   !$y                 ld    hl,FAC
 0950  34       4                   inc   (hl)
 0951  C0       .                   ret   nz
 0952  C3B207   ...                 jp    0x07B2
-0955  3A2479   :$y                 ld    a,(0x7924)
+                     ; SINGLE DOUBLE MATH ROUTINE – “SIGN” (Accumulator)
+                     ; This routine checks the sign of the value in the FAC.
+                     SIGN:
+0955  3A2479   :$y                 ld    a,(FAC)
 0958  B7       .                   or    a
 0959  C8       .                   ret   z
 095A  3A2379   :#y                 ld    a,(0x7923)
 095D  FE2F     ./                  cp    0x2F
+                     ICOMPS:
 095F  17       .                   rla   
+                     SIGNS:
 0960  9F       .                   sbc   a,a
 0961  C0       .                   ret   nz
 0962  3C       <                   inc   a
 0963  C9       .                   ret   
+                     ; MATH CONVERSION ROUTINE – “FLOAT”
+                     ; This routine will take a signed integer held in Register A and
+                     ; turn it into a floating point number. All registers are modified.
+                     FLOAT:
 0964  0688     ..                  ld    b,0x88
 0966  110000   ...                 ld    de,START
-0969  212479   !$y                 ld    hl,0x7924
+                     FLOATR:
+0969  212479   !$y                 ld    hl,FAC
 096C  4F       O                   ld    c,a
 096D  70       p                   ld    (hl),b
 096E  0600     ..                  ld    b,0x00
@@ -1479,33 +1520,58 @@
 0971  3680     6.                  ld    (hl),0x80
 0973  17       .                   rla   
 0974  C36207   .b.                 jp    0x0762
-0977  CD9409   ...                 call  0x0994
+                     ; LEVEL II BASIC ABS() ROUTINE – “FNABS”
+                     FNABS:
+0977  CD9409   ...                 call  VSIGN
 097A  F0       .                   ret   p
+                     ; NEGATE ROUTINE – “VNEG”
+                     ; This routine will negate any value in the ACCumulator.
+                     VNEG:
 097B  E7       .                   rst   0x20
-097C  FA5B0C   .[.                 jp    m,0x0C5B
-097F  CAF60A   ...                 jp    z,0x0AF6
+097C  FA5B0C   .[.                 jp    m,INEG
+097F  CAF60A   ...                 jp    z,TMERR
+                     ; NEGATE SINGLE/DOUBLE ROUTINE – “NNEG”
+                     ; This routine will negate the single or double precision number in the 
+                     ; ACCumulator.
+                     NNEG:
 0982  212379   !#y                 ld    hl,0x7923
 0985  7E       ~                   ld    a,(hl)
 0986  EE80     ..                  xor   0x80
 0988  77       w                   ld    (hl),a
 0989  C9       .                   ret   
-098A  CD9409   ...                 call  0x0994
+                     ; LEVEL II BASIC SGN() ROUTINE – “FNSGN”
+                     FNSGN:
+098A  CD9409   ...                 call  VSIGN
+                     ; CONVERT SIGNED A TO INTEGER – “CONIA”
+                     CONIA:
 098D  6F       o                   ld    l,a
 098E  17       .                   rla   
 098F  9F       .                   sbc   a,a
 0990  67       g                   ld    h,a
-0991  C39A0A   ...                 jp    0x0A9A
+0991  C39A0A   ...                 jp    MAKINT
+                     ; MATH COMPARE ROUTINE – “VSIGN” (Accumulator)
+                     ; This routine checks the sign of the ACCumulator.
+                     VSIGN:
 0994  E7       .                   rst   0x20
-0995  CAF60A   ...                 jp    z,0x0AF6
-0998  F25509   .U.                 jp    p,0x0955
-099B  2A2179   *!y                 ld    hl,(0x7921)
+0995  CAF60A   ...                 jp    z,TMERR
+0998  F25509   .U.                 jp    p,SIGN
+                     ; MATH COMPARE ROUTINE - INTEGER SIGN (Accumulator)
+                     ; Finds the sign of the Integer value held in the Accumulator.
+                     ISIGNA:
+099B  2A2179   *!y                 ld    hl,(FACLO)
+                     ; MATH COMPARE ROUTINE - INTEGER SIGN (HL)
+                     ; Finds the sign of the value held at (HL).
+                     ISIGN:
 099E  7C       |                   ld    a,h
 099F  B5       .                   or    l
 09A0  C8       .                   ret   z
 09A1  7C       |                   ld    a,h
 09A2  18BB     ..                  jr    $-67
+                     ; SINGLE PRECISION MATH ROUTINE – “PUSHF” - MOVE
+                     ; Moves the single precision value in the ACCumulator to the STACK.
+                     PUSHF:
 09A4  EB       .                   ex    de,hl
-09A5  2A2179   *!y                 ld    hl,(0x7921)
+09A5  2A2179   *!y                 ld    hl,(FACLO)
 09A8  E3       .                   ex    (sp),hl
 09A9  E5       .                   push  hl
 09AA  2A2379   *#y                 ld    hl,(0x7923)
@@ -1513,15 +1579,27 @@
 09AE  E5       .                   push  hl
 09AF  EB       .                   ex    de,hl
 09B0  C9       .                   ret   
-09B1  CDC209   ...                 call  0x09C2
+                     ; SINGLE PRECISION MATH ROUTINE – “MOVFM” - MOVE
+                     ; This routine moves a number from memory (pointed to by HL) into the ACC.
+                     MOVFM:
+09B1  CDC209   ...                 call  MOVRM
+                     ; SINGLE PRECISION MATH ROUTINE – “MOVFR” - MOVE
+                     ; Store the single precision value in BC:DE into ACC.
+                     MOVFR:
 09B4  EB       .                   ex    de,hl
-09B5  222179   "!y                 ld    (0x7921),hl
+09B5  222179   "!y                 ld    (FACLO),hl
 09B8  60       `                   ld    h,b
 09B9  69       i                   ld    l,c
 09BA  222379   "#y                 ld    (0x7923),hl
 09BD  EB       .                   ex    de,hl
 09BE  C9       .                   ret   
-09BF  212179   !!y                 ld    hl,0x7921
+                     ; SINGLE PRECISION MATH ROUTINE – “MOVRF” - MOVE
+                     ; It loads four bytes from ACCumulator (single) into the BC:DE Register Pairs.
+                     MOVRF:
+09BF  212179   !!y                 ld    hl,FACLO
+                     ; SINGLE PRECISION MATH ROUTINE – “MOVRM” - MOVE
+                     ; It loads four byte Single, pointed by HL, into the BC:DE Register Pairs.
+                     MOVRM:
 09C2  5E       ^                   ld    e,(hl)
 09C3  23       #                   inc   hl
 09C4  56       V                   ld    d,(hl)
@@ -1531,7 +1609,10 @@
 09C8  46       F                   ld    b,(hl)
 09C9  23       #                   inc   hl
 09CA  C9       .                   ret   
-09CB  112179   .!y                 ld    de,0x7921
+                     ; SINGLE PRECISION MATH ROUTINE – “MOVMF” - MOVE
+                     ; Copy a Single Precision value from ACCumulator to memory.
+                     MOVMF:
+09CB  112179   .!y                 ld    de,FACLO
 09CE  0604     ..                  ld    b,0x04
 09D0  1805     ..                  jr    $+7
 09D2  EB       .                   ex    de,hl
@@ -1569,29 +1650,37 @@
 09FC  212779   !'y                 ld    hl,0x7927
 09FF  11D309   ...                 ld    de,0x09D3
 0A02  D5       .                   push  de
-0A03  112179   .!y                 ld    de,0x7921
+0A03  112179   .!y                 ld    de,FACLO
 0A06  E7       .                   rst   0x20
 0A07  D8       .                   ret   c
 0A08  111D79   ..y                 ld    de,0x791D
 0A0B  C9       .                   ret   
+                     ; LEVEL II BASIC SINGLE PRECISION COMPARE – “FCOMP”
+                     ; Compare two single precision numbers.
+                     FCOMP:
 0A0C  78       x                   ld    a,b
 0A0D  B7       .                   or    a
-0A0E  CA5509   .U.                 jp    z,0x0955
+0A0E  CA5509   .U.                 jp    z,SIGN
 0A11  215E09   !^.                 ld    hl,0x095E
 0A14  E5       .                   push  hl
-0A15  CD5509   .U.                 call  0x0955
+0A15  CD5509   .U.                 call  SIGN
 0A18  79       y                   ld    a,c
 0A19  C8       .                   ret   z
 0A1A  212379   !#y                 ld    hl,0x7923
 0A1D  AE       .                   xor   (hl)
 0A1E  79       y                   ld    a,c
 0A1F  F8       .                   ret   m
+                     FCOMP2:
 0A20  CD260A   .&.                 call  0x0A26
+                     FCOMPD:
 0A23  1F       .                   rra   
 0A24  A9       .                   xor   c
 0A25  C9       .                   ret   
 0A26  23       #                   inc   hl
 0A27  78       x                   ld    a,b
+                     ; Compare two single precision numbers.
+                     ; Alters all Registers.
+                     FCOMP2:
 0A28  BE       .                   cp    (hl)
 0A29  C0       .                   ret   nz
 0A2A  2B       +                   dec   hl
@@ -1609,25 +1698,28 @@
 0A36  E1       .                   pop   hl
 0A37  E1       .                   pop   hl
 0A38  C9       .                   ret   
+                     ; Double precision compare.
+                     DCOMP:
 0A39  7A       z                   ld    a,d
 0A3A  AC       .                   xor   h
 0A3B  7C       |                   ld    a,h
-0A3C  FA5F09   ._.                 jp    m,0x095F
+0A3C  FA5F09   ._.                 jp    m,ICOMPS
 0A3F  BA       .                   cp    d
-0A40  C26009   .`.                 jp    nz,0x0960
+0A40  C26009   .`.                 jp    nz,SIGNS
 0A43  7D       }                   ld    a,l
 0A44  93       .                   sub   e
-0A45  C26009   .`.                 jp    nz,0x0960
+0A45  C26009   .`.                 jp    nz,SIGNS
 0A48  C9       .                   ret   
 0A49  212779   !'y                 ld    hl,0x7927
 0A4C  CDD309   ...                 call  0x09D3
+                     ; Internal single precision compare.
 0A4F  112E79   ..y                 ld    de,0x792E
 0A52  1A       .                   ld    a,(de)
 0A53  B7       .                   or    a
-0A54  CA5509   .U.                 jp    z,0x0955
+0A54  CA5509   .U.                 jp    z,SIGN
 0A57  215E09   !^.                 ld    hl,0x095E
 0A5A  E5       .                   push  hl
-0A5B  CD5509   .U.                 call  0x0955
+0A5B  CD5509   .U.                 call  SIGN
 0A5E  1B       .                   dec   de
 0A5F  1A       .                   ld    a,(de)
 0A60  4F       O                   ld    c,a
@@ -1641,7 +1733,7 @@
 0A6A  0608     ..                  ld    b,0x08
 0A6C  1A       .                   ld    a,(de)
 0A6D  96       .                   sub   (hl)
-0A6E  C2230A   .#.                 jp    nz,0x0A23
+0A6E  C2230A   .#.                 jp    nz,FCOMPD
 0A71  1B       .                   dec   de
 0A72  2B       +                   dec   hl
 0A73  05       .                   dec   b
@@ -1651,35 +1743,44 @@
 0A78  CD4F0A   .O.                 call  0x0A4F
 0A7B  C25E09   .^.                 jp    nz,0x095E
 0A7E  C9       .                   ret   
+                     ; LEVEL II BASIC FRCINT() ROUTINE – “FRCINT”
+                     ; Returns the largest integer less than or equal to the value in the FAC.
+                     FRCINT:
 0A7F  E7       .                   rst   0x20
-0A80  2A2179   *!y                 ld    hl,(0x7921)
+0A80  2A2179   *!y                 ld    hl,(FACLO)
 0A83  F8       .                   ret   m
-0A84  CAF60A   ...                 jp    z,0x0AF6
+0A84  CAF60A   ...                 jp    z,TMERR
 0A87  D4B90A   ...                 call  nc,0x0AB9
 0A8A  21B207   !..                 ld    hl,0x07B2
 0A8D  E5       .                   push  hl
-0A8E  3A2479   :$y                 ld    a,(0x7924)
+0A8E  3A2479   :$y                 ld    a,(FAC)
 0A91  FE90     ..                  cp    0x90
 0A93  300E     0.                  jr    nc,$+16
-0A95  CDFB0A   ...                 call  0x0AFB
+0A95  CDFB0A   ...                 call  DROUND
 0A98  EB       .                   ex    de,hl
 0A99  D1       .                   pop   de
-0A9A  222179   "!y                 ld    (0x7921),hl
+                     ; LEVEL II BASIC CONVERSION ROUTINE - \
+                     MAKINT:
+0A9A  222179   "!y                 ld    (FACLO),hl
 0A9D  3E02     >.                  ld    a,0x02
 0A9F  32AF78   2.x                 ld    (0x78AF),a
 0AA2  C9       .                   ret   
+                     ; LEVEL II BASIC INT() ROUTINE – “INT”
+                     ; Returns the largest integer less than or equal to the value in the FAC.
+                     INT:
 0AA3  018090   ...                 ld    bc,0x9080
 0AA6  110000   ...                 ld    de,START
-0AA9  CD0C0A   ...                 call  0x0A0C
+0AA9  CD0C0A   ...                 call  FCOMP
 0AAC  C0       .                   ret   nz
 0AAD  61       a                   ld    h,c
 0AAE  6A       j                   ld    l,d
 0AAF  18E8     ..                  jr    $-22
+                     ; Internal INT logic.
 0AB1  E7       .                   rst   0x20
 0AB2  E0       .                   ret   po
-0AB3  FACC0A   ...                 jp    m,0x0ACC
-0AB6  CAF60A   ...                 jp    z,0x0AF6
-0AB9  CDBF09   ...                 call  0x09BF
+0AB3  FACC0A   ...                 jp    m,INEG
+0AB6  CAF60A   ...                 jp    z,TMERR
+0AB9  CDBF09   ...                 call  MOVRF
 0ABC  CDEF0A   ...                 call  0x0AEF
 0ABF  78       x                   ld    a,b
 0AC0  B7       .                   or    a
@@ -1688,17 +1789,19 @@
 0AC5  212079   ! y                 ld    hl,0x7920
 0AC8  46       F                   ld    b,(hl)
 0AC9  C39607   ...                 jp    0x0796
-0ACC  2A2179   *!y                 ld    hl,(0x7921)
+                     INEG:
+0ACC  2A2179   *!y                 ld    hl,(FACLO)
 0ACF  CDEF0A   ...                 call  0x0AEF
 0AD2  7C       |                   ld    a,h
 0AD3  55       U                   ld    d,l
 0AD4  1E00     ..                  ld    e,0x00
 0AD6  0690     ..                  ld    b,0x90
-0AD8  C36909   .i.                 jp    0x0969
+0AD8  C36909   .i.                 jp    FLOATR
+                     ; Internal conversion routine.
 0ADB  E7       .                   rst   0x20
 0ADC  D0       .                   ret   nc
-0ADD  CAF60A   ...                 jp    z,0x0AF6
-0AE0  FCCC0A   ...                 call  m,0x0ACC
+0ADD  CAF60A   ...                 jp    z,TMERR
+0AE0  FCCC0A   ...                 call  m,INEG
 0AE3  210000   !..                 ld    hl,START
 0AE6  221D79   ".y                 ld    (0x791D),hl
 0AE9  221F79   ".y                 ld    (0x791F),hl
@@ -1707,8 +1810,12 @@
 0AF1  C39F0A   ...                 jp    0x0A9F
 0AF4  E7       .                   rst   0x20
 0AF5  C8       .                   ret   z
+                     TMERR:
 0AF6  1E18     ..                  ld    e,0x18
 0AF8  C3A219   ...                 jp    0x19A2
+                     ; SINGLE PRECISION MATH ROUTINE – “DROUND”
+                     ; This routine rounds the single precision number in the Accumulator.
+                     DROUND:
 0AFB  47       G                   ld    b,a
 0AFC  4F       O                   ld    c,a
 0AFD  57       W                   ld    d,a
@@ -1716,14 +1823,14 @@
 0AFF  B7       .                   or    a
 0B00  C8       .                   ret   z
 0B01  E5       .                   push  hl
-0B02  CDBF09   ...                 call  0x09BF
+0B02  CDBF09   ...                 call  MOVRF
 0B05  CDDF09   ...                 call  0x09DF
 0B08  AE       .                   xor   (hl)
 0B09  67       g                   ld    h,a
 0B0A  FC1F0B   ...                 call  m,0x0B1F
 0B0D  3E98     >.                  ld    a,0x98
 0B0F  90       .                   sub   b
-0B10  CDD707   ...                 call  0x07D7
+0B10  CDD707   ...                 call  SHIFTR
 0B13  7C       |                   ld    a,h
 0B14  17       .                   rla   
 0B15  DCA807   ...                 call  c,0x07A8
@@ -1740,23 +1847,23 @@
 0B25  C9       .                   ret   
 0B26  E7       .                   rst   0x20
 0B27  F8       .                   ret   m
-0B28  CD5509   .U.                 call  0x0955
+0B28  CD5509   .U.                 call  SIGN
 0B2B  F2370B   .7.                 jp    p,0x0B37
-0B2E  CD8209   ...                 call  0x0982
+0B2E  CD8209   ...                 call  NNEG
 0B31  CD370B   .7.                 call  0x0B37
-0B34  C37B09   .{.                 jp    0x097B
+0B34  C37B09   .{.                 jp    VNEG
 0B37  E7       .                   rst   0x20
 0B38  F8       .                   ret   m
 0B39  301E     0.                  jr    nc,$+32
 0B3B  28B9     (.                  jr    z,$-69
 0B3D  CD8E0A   ...                 call  0x0A8E
-0B40  212479   !$y                 ld    hl,0x7924
+0B40  212479   !$y                 ld    hl,FAC
 0B43  7E       ~                   ld    a,(hl)
 0B44  FE98     ..                  cp    0x98
-0B46  3A2179   :!y                 ld    a,(0x7921)
+0B46  3A2179   :!y                 ld    a,(FACLO)
 0B49  D0       .                   ret   nc
 0B4A  7E       ~                   ld    a,(hl)
-0B4B  CDFB0A   ...                 call  0x0AFB
+0B4B  CDFB0A   ...                 call  DROUND
 0B4E  3698     6.                  ld    (hl),0x98
 0B50  7B       {                   ld    a,e
 0B51  F5       .                   push  af
@@ -1765,10 +1872,10 @@
 0B54  CD6207   .b.                 call  0x0762
 0B57  F1       .                   pop   af
 0B58  C9       .                   ret   
-0B59  212479   !$y                 ld    hl,0x7924
+0B59  212479   !$y                 ld    hl,FAC
 0B5C  7E       ~                   ld    a,(hl)
 0B5D  FE90     ..                  cp    0x90
-0B5F  DA7F0A   ...                 jp    c,0x0A7F
+0B5F  DA7F0A   ...                 jp    c,FRCINT
 0B62  2014      .                  jr    nz,$+22
 0B64  4F       O                   ld    c,a
 0B65  2B       +                   dec   hl
@@ -1781,12 +1888,12 @@
 0B6E  20FB      .                  jr    nz,$-3
 0B70  B7       .                   or    a
 0B71  210080   !..                 ld    hl,0x8000
-0B74  CA9A0A   ...                 jp    z,0x0A9A
+0B74  CA9A0A   ...                 jp    z,MAKINT
 0B77  79       y                   ld    a,c
 0B78  FEB8     ..                  cp    0xB8
 0B7A  D0       .                   ret   nc
 0B7B  F5       .                   push  af
-0B7C  CDBF09   ...                 call  0x09BF
+0B7C  CDBF09   ...                 call  MOVRF
 0B7F  CDDF09   ...                 call  0x09DF
 0B82  AE       .                   xor   (hl)
 0B83  2B       +                   dec   hl
@@ -1856,13 +1963,13 @@
 0BE3  CDCF0A   ...                 call  0x0ACF
 0BE6  F1       .                   pop   af
 0BE7  E1       .                   pop   hl
-0BE8  CDA409   ...                 call  0x09A4
+0BE8  CDA409   ...                 call  PUSHF
 0BEB  EB       .                   ex    de,hl
 0BEC  CD6B0C   .k.                 call  0x0C6B
 0BEF  C38F0F   ...                 jp    0x0F8F
 0BF2  7C       |                   ld    a,h
 0BF3  B5       .                   or    l
-0BF4  CA9A0A   ...                 jp    z,0x0A9A
+0BF4  CA9A0A   ...                 jp    z,MAKINT
 0BF7  E5       .                   push  hl
 0BF8  D5       .                   push  de
 0BF9  CD450C   .E.                 call  0x0C45
@@ -1896,7 +2003,7 @@
 0C25  01C1E1   ...                 ld    bc,0xE1C1
 0C28  CDCF0A   ...                 call  0x0ACF
 0C2B  E1       .                   pop   hl
-0C2C  CDA409   ...                 call  0x09A4
+0C2C  CDA409   ...                 call  PUSHF
 0C2F  CDCF0A   ...                 call  0x0ACF
 0C32  C1       .                   pop   bc
 0C33  D1       .                   pop   de
@@ -1904,11 +2011,11 @@
 0C37  78       x                   ld    a,b
 0C38  B7       .                   or    a
 0C39  C1       .                   pop   bc
-0C3A  FA9A0A   ...                 jp    m,0x0A9A
+0C3A  FA9A0A   ...                 jp    m,MAKINT
 0C3D  D5       .                   push  de
 0C3E  CDCF0A   ...                 call  0x0ACF
 0C41  D1       .                   pop   de
-0C42  C38209   ...                 jp    0x0982
+0C42  C38209   ...                 jp    NNEG
 0C45  7C       |                   ld    a,h
 0C46  AA       .                   xor   d
 0C47  47       G                   ld    b,a
@@ -1916,7 +2023,7 @@
 0C4B  EB       .                   ex    de,hl
 0C4C  7C       |                   ld    a,h
 0C4D  B7       .                   or    a
-0C4E  F29A0A   ...                 jp    p,0x0A9A
+0C4E  F29A0A   ...                 jp    p,MAKINT
 0C51  AF       .                   xor   a
 0C52  4F       O                   ld    c,a
 0C53  95       .                   sub   l
@@ -1924,8 +2031,9 @@
 0C55  79       y                   ld    a,c
 0C56  9C       .                   sbc   a,h
 0C57  67       g                   ld    h,a
-0C58  C39A0A   ...                 jp    0x0A9A
-0C5B  2A2179   *!y                 ld    hl,(0x7921)
+0C58  C39A0A   ...                 jp    MAKINT
+                     INEG:
+0C5B  2A2179   *!y                 ld    hl,(FACLO)
 0C5E  CD510C   .Q.                 call  0x0C51
 0C61  7C       |                   ld    a,h
 0C62  EE80     ..                  xor   0x80
@@ -1935,8 +2043,8 @@
 0C67  CDEF0A   ...                 call  0x0AEF
 0C6A  AF       .                   xor   a
 0C6B  0698     ..                  ld    b,0x98
-0C6D  C36909   .i.                 jp    0x0969
-0C70  212D79   !-y                 ld    hl,0x792D
+0C6D  C36909   .i.                 jp    FLOATR
+0C70  212D79   !-y                 ld    hl,ARG
 0C73  7E       ~                   ld    a,(hl)
 0C74  EE80     ..                  xor   0x80
 0C76  77       w                   ld    (hl),a
@@ -1947,7 +2055,7 @@
 0C7D  47       G                   ld    b,a
 0C7E  2B       +                   dec   hl
 0C7F  4E       N                   ld    c,(hl)
-0C80  112479   .$y                 ld    de,0x7924
+0C80  112479   .$y                 ld    de,FAC
 0C83  1A       .                   ld    a,(de)
 0C84  B7       .                   or    a
 0C85  CAF409   ...                 jp    z,0x09F4
@@ -1981,7 +2089,7 @@
 0CA9  3600     6.                  ld    (hl),0x00
 0CAB  47       G                   ld    b,a
 0CAC  F1       .                   pop   af
-0CAD  212D79   !-y                 ld    hl,0x792D
+0CAD  212D79   !-y                 ld    hl,ARG
 0CB0  CD690D   .i.                 call  0x0D69
 0CB3  3A2679   :&y                 ld    a,(0x7926)
 0CB6  321C79   2.y                 ld    (0x791C),a
@@ -2024,7 +2132,7 @@
 0D01  78       x                   ld    a,b
 0D02  B7       .                   or    a
 0D03  2809     (.                  jr    z,$+11
-0D05  212479   !$y                 ld    hl,0x7924
+0D05  212479   !$y                 ld    hl,FAC
 0D08  86       .                   add   a,(hl)
 0D09  77       w                   ld    (hl),a
 0D0A  D27807   .x.                 jp    nc,0x0778
@@ -2130,7 +2238,7 @@
 0D9D  0D       .                   dec   c
 0D9E  20F9      .                  jr    nz,$-5
 0DA0  C9       .                   ret   
-0DA1  CD5509   .U.                 call  0x0955
+0DA1  CD5509   .U.                 call  SIGN
 0DA4  C8       .                   ret   z
 0DA5  CD0A09   ...                 call  0x090A
 0DA8  CD390E   .9.                 call  0x0E39
@@ -2172,7 +2280,7 @@
 0DE5  3A2E79   :.y                 ld    a,(0x792E)
 0DE8  B7       .                   or    a
 0DE9  CA9A19   ...                 jp    z,0x199A
-0DEC  CD0709   ...                 call  0x0907
+0DEC  CD0709   ...                 call  MULDVS
 0DEF  34       4                   inc   (hl)
 0DF0  34       4                   inc   (hl)
 0DF1  CD390E   .9.                 call  0x0E39
@@ -2205,12 +2313,12 @@
 0E2C  78       x                   ld    a,b
 0E2D  B7       .                   or    a
 0E2E  20C9      .                  jr    nz,$-53
-0E30  212479   !$y                 ld    hl,0x7924
+0E30  212479   !$y                 ld    hl,FAC
 0E33  35       5                   dec   (hl)
 0E34  20C3      .                  jr    nz,$-59
 0E36  C3B207   ...                 jp    0x07B2
 0E39  79       y                   ld    a,c
-0E3A  322D79   2-y                 ld    (0x792D),a
+0E3A  322D79   2-y                 ld    (ARG),a
 0E3D  2B       +                   dec   hl
 0E3E  115079   .Py                 ld    de,0x7950
 0E41  010007   ...                 ld    bc,0x0700
@@ -2244,7 +2352,7 @@
 0E6E  01FF00   ...                 ld    bc,0x00FF
 0E71  60       `                   ld    h,b
 0E72  68       h                   ld    l,b
-0E73  CC9A0A   ...                 call  z,0x0A9A
+0E73  CC9A0A   ...                 call  z,MAKINT
 0E76  EB       .                   ex    de,hl
 0E77  7E       ~                   ld    a,(hl)
 0E78  FE2D     .-                  cp    0x2D
@@ -2301,14 +2409,14 @@
 0ED2  E1       .                   pop   hl
 0ED3  F1       .                   pop   af
 0ED4  E5       .                   push  hl
-0ED5  CC7B09   .{.                 call  z,0x097B
+0ED5  CC7B09   .{.                 call  z,VNEG
 0ED8  E1       .                   pop   hl
 0ED9  E7       .                   rst   0x20
 0EDA  E8       .                   ret   pe
 0EDB  E5       .                   push  hl
 0EDC  219008   !..                 ld    hl,0x0890
 0EDF  E5       .                   push  hl
-0EE0  CDA30A   ...                 call  0x0AA3
+0EE0  CDA30A   ...                 call  INT
 0EE3  C9       .                   ret   
 0EE4  E7       .                   rst   0x20
 0EE5  0C       .                   inc   c
@@ -2348,7 +2456,7 @@
 0F1A  F5       .                   push  af
 0F1B  E7       .                   rst   0x20
 0F1C  F5       .                   push  af
-0F1D  E49708   ...                 call  po,0x0897
+0F1D  E49708   ...                 call  po,FDIV
 0F20  F1       .                   pop   af
 0F21  ECDC0D   ...                 call  pe,0x0DDC
 0F24  F1       .                   pop   af
@@ -2367,7 +2475,7 @@
 0F32  F5       .                   push  af
 0F33  E7       .                   rst   0x20
 0F34  F25D0F   .].                 jp    p,0x0F5D
-0F37  2A2179   *!y                 ld    hl,(0x7921)
+0F37  2A2179   *!y                 ld    hl,(FACLO)
 0F3A  11CD0C   ...                 ld    de,0x0CCD
 0F3D  DF       .                   rst   0x18
 0F3E  3019     0.                  jr    nc,$+27
@@ -2383,19 +2491,19 @@
 0F49  7C       |                   ld    a,h
 0F4A  B7       .                   or    a
 0F4B  FA570F   .W.                 jp    m,0x0F57
-0F4E  222179   "!y                 ld    (0x7921),hl
+0F4E  222179   "!y                 ld    (FACLO),hl
 0F51  E1       .                   pop   hl
 0F52  C1       .                   pop   bc
 0F53  D1       .                   pop   de
 0F54  C3830E   ...                 jp    0x0E83
 0F57  79       y                   ld    a,c
 0F58  F5       .                   push  af
-0F59  CDCC0A   ...                 call  0x0ACC
+0F59  CDCC0A   ...                 call  INEG
 0F5C  37       7                   scf   
 0F5D  3018     0.                  jr    nc,$+26
 0F5F  017494   .t.                 ld    bc,0x9474
 0F62  110024   ..$                 ld    de,0x2400
-0F65  CD0C0A   ...                 call  0x0A0C
+0F65  CD0C0A   ...                 call  FCOMP
 0F68  F2740F   .t.                 jp    p,0x0F74
 0F6B  CD3E09   .>.                 call  0x093E
 0F6E  F1       .                   pop   af
@@ -2405,12 +2513,12 @@
 0F77  CD4D0E   .M.                 call  0x0E4D
 0F7A  CDFC09   ...                 call  0x09FC
 0F7D  F1       .                   pop   af
-0F7E  CD6409   .d.                 call  0x0964
+0F7E  CD6409   .d.                 call  FLOAT
 0F81  CDE30A   ...                 call  0x0AE3
 0F84  CD770C   .w.                 call  0x0C77
 0F87  18C8     ..                  jr    $-54
-0F89  CDA409   ...                 call  0x09A4
-0F8C  CD6409   .d.                 call  0x0964
+0F89  CDA409   ...                 call  PUSHF
+0F8C  CD6409   .d.                 call  FLOAT
 0F8F  C1       .                   pop   bc
 0F90  D1       .                   pop   de
 0F91  C31607   ...                 jp    FP_ADD_X_PLUS_Y
@@ -2430,7 +2538,7 @@
 0FA8  212419   !$.                 ld    hl,0x1924
 0FAB  CDA728   ..(                 call  0x28A7
 0FAE  E1       .                   pop   hl
-0FAF  CD9A0A   ...                 call  0x0A9A
+0FAF  CD9A0A   ...                 call  MAKINT
 0FB2  AF       .                   xor   a
 0FB3  CD3410   .4.                 call  0x1034
 0FB6  B6       .                   or    (hl)
@@ -2442,13 +2550,13 @@
 0FC3  2802     (.                  jr    z,$+4
 0FC5  362B     6+                  ld    (hl),0x2B
 0FC7  EB       .                   ex    de,hl
-0FC8  CD9409   ...                 call  0x0994
+0FC8  CD9409   ...                 call  VSIGN
 0FCB  EB       .                   ex    de,hl
 0FCC  F2D90F   ...                 jp    p,0x0FD9
 0FCF  362D     6-                  ld    (hl),0x2D
 0FD1  C5       .                   push  bc
 0FD2  E5       .                   push  hl
-0FD3  CD7B09   .{.                 call  0x097B
+0FD3  CD7B09   .{.                 call  VNEG
 0FD6  E1       .                   pop   hl
 0FD7  C1       .                   pop   bc
 0FD8  B4       .                   or    h
@@ -2645,10 +2753,10 @@
 1123  C9       .                   ret   
 1124  010EB6   ...                 ld    bc,0xB60E
 1127  11CA1B   ...                 ld    de,0x1BCA
-112A  CD0C0A   ...                 call  0x0A0C
+112A  CD0C0A   ...                 call  FCOMP
 112D  F21B11   ...                 jp    p,0x111B
 1130  1606     ..                  ld    d,0x06
-1132  CD5509   .U.                 call  0x0955
+1132  CD5509   .U.                 call  SIGN
 1135  C40112   ...                 call  nz,0x1201
 1138  E1       .                   pop   hl
 1139  C1       .                   pop   bc
@@ -2715,13 +2823,13 @@
 11A0  C3BF10   ...                 jp    0x10BF
 11A3  E5       .                   push  hl
 11A4  D5       .                   push  de
-11A5  CDCC0A   ...                 call  0x0ACC
+11A5  CDCC0A   ...                 call  INEG
 11A8  D1       .                   pop   de
 11A9  AF       .                   xor   a
 11AA  CAB011   ...                 jp    z,0x11B0
 11AD  1E10     ..                  ld    e,0x10
 11AF  011E06   ...                 ld    bc,0x061E
-11B2  CD5509   .U.                 call  0x0955
+11B2  CD5509   .U.                 call  SIGN
 11B5  37       7                   scf   
 11B6  C40112   ...                 call  nz,0x1201
 11B9  E1       .                   pop   hl
@@ -2779,7 +2887,7 @@
 1203  F5       .                   push  af
 1204  E7       .                   rst   0x20
 1205  E22212   .".                 jp    po,0x1222
-1208  3A2479   :$y                 ld    a,(0x7924)
+1208  3A2479   :$y                 ld    a,(FAC)
 120B  FE91     ..                  cp    0x91
 120D  D22212   .".                 jp    nc,0x1222
 1210  116413   .d.                 ld    de,0x1364
@@ -2795,7 +2903,7 @@
 1226  EA3412   .4.                 jp    pe,0x1234
 1229  014391   .C.                 ld    bc,0x9143
 122C  11F94F   ..O                 ld    de,0x4FF9
-122F  CD0C0A   ...                 call  0x0A0C
+122F  CD0C0A   ...                 call  FCOMP
 1232  1806     ..                  jr    $+8
 1234  116C13   .l.                 ld    de,0x136C
 1237  CD490A   .I.                 call  0x0A49
@@ -2815,7 +2923,7 @@
 1250  EA5E12   .^.                 jp    pe,0x125E
 1253  017494   .t.                 ld    bc,0x9474
 1256  11F823   ..#                 ld    de,0x23F8
-1259  CD0C0A   ...                 call  0x0A0C
+1259  CD0C0A   ...                 call  FCOMP
 125C  1806     ..                  jr    $+8
 125E  117413   .t.                 ld    de,0x1374
 1261  CD490A   .I.                 call  0x0A49
@@ -2901,14 +3009,14 @@
 12E0  C5       .                   push  bc
 12E1  E5       .                   push  hl
 12E2  211D79   !.y                 ld    hl,0x791D
-12E5  CDB109   ...                 call  0x09B1
+12E5  CDB109   ...                 call  MOVFM
 12E8  180C     ..                  jr    $+14
 12EA  C5       .                   push  bc
 12EB  E5       .                   push  hl
 12EC  CD0807   ...                 call  FP_ADD_HALF
 12EF  3C       <                   inc   a
-12F0  CDFB0A   ...                 call  0x0AFB
-12F3  CDB409   ...                 call  0x09B4
+12F0  CDFB0A   ...                 call  DROUND
+12F3  CDB409   ...                 call  MOVFR
 12F6  E1       .                   pop   hl
 12F7  C1       .                   pop   bc
 12F8  AF       .                   xor   a
@@ -2919,7 +3027,7 @@
 1301  F5       .                   push  af
 1302  E5       .                   push  hl
 1303  D5       .                   push  de
-1304  CDBF09   ...                 call  0x09BF
+1304  CDBF09   ...                 call  MOVRF
 1307  E1       .                   pop   hl
 1308  062F     ./                  ld    b,0x2F
 130A  04       .                   inc   b
@@ -2939,7 +3047,7 @@
 1318  30F0     0.                  jr    nc,$-14
 131A  CDB707   ...                 call  0x07B7
 131D  23       #                   inc   hl
-131E  CDB409   ...                 call  0x09B4
+131E  CDB409   ...                 call  MOVFR
 1321  EB       .                   ex    de,hl
 1322  E1       .                   pop   hl
 1323  70       p                   ld    (hl),b
@@ -2966,7 +3074,7 @@
 1340  23       #                   inc   hl
 1341  E3       .                   ex    (sp),hl
 1342  EB       .                   ex    de,hl
-1343  2A2179   *!y                 ld    hl,(0x7921)
+1343  2A2179   *!y                 ld    hl,(FACLO)
 1346  062F     ./                  ld    b,0x2F
 1348  04       .                   inc   b
 1349  7D       }                   ld    a,l
@@ -2977,7 +3085,7 @@
 134E  67       g                   ld    h,a
 134F  30F7     0.                  jr    nc,$-7
 1351  19       .                   add   hl,de
-1352  222179   "!y                 ld    (0x7921),hl
+1352  222179   "!y                 ld    (FACLO),hl
 1355  D1       .                   pop   de
 1356  E1       .                   pop   hl
 1357  70       p                   ld    (hl),b
@@ -3099,14 +3207,14 @@
 13E4  09       .                   add   hl,bc
 13E5  E3       .                   ex    (sp),hl
 13E6  E9       .                   jp    (hl)
-13E7  CDA409   ...                 call  0x09A4
+13E7  CDA409   ...                 call  PUSHF
 13EA  218013   !..                 ld    hl,0x1380
-13ED  CDB109   ...                 call  0x09B1
+13ED  CDB109   ...                 call  MOVFM
 13F0  1803     ..                  jr    $+5
 13F2  CDB10A   ...                 call  0x0AB1
 13F5  C1       .                   pop   bc
 13F6  D1       .                   pop   de
-13F7  CD5509   .U.                 call  0x0955
+13F7  CD5509   .U.                 call  SIGN
 13FA  78       x                   ld    a,b
 13FB  283C     (<                  jr    z,$+62
 13FD  F20414   ...                 jp    p,0x1404
@@ -3118,7 +3226,7 @@
 1409  C5       .                   push  bc
 140A  79       y                   ld    a,c
 140B  F67F     ..                  or    0x7F
-140D  CDBF09   ...                 call  0x09BF
+140D  CDBF09   ...                 call  MOVRF
 1410  F22114   .!.                 jp    p,0x1421
 1413  D5       .                   push  de
 1414  C5       .                   push  bc
@@ -3126,27 +3234,27 @@
 1418  C1       .                   pop   bc
 1419  D1       .                   pop   de
 141A  F5       .                   push  af
-141B  CD0C0A   ...                 call  0x0A0C
+141B  CD0C0A   ...                 call  FCOMP
 141E  E1       .                   pop   hl
 141F  7C       |                   ld    a,h
 1420  1F       .                   rra   
 1421  E1       .                   pop   hl
 1422  222379   "#y                 ld    (0x7923),hl
 1425  E1       .                   pop   hl
-1426  222179   "!y                 ld    (0x7921),hl
+1426  222179   "!y                 ld    (FACLO),hl
 1429  DCE213   ...                 call  c,0x13E2
-142C  CC8209   ...                 call  z,0x0982
+142C  CC8209   ...                 call  z,NNEG
 142F  D5       .                   push  de
 1430  C5       .                   push  bc
-1431  CD0908   ...                 call  0x0809
+1431  CD0908   ...                 call  FNLOG
 1434  C1       .                   pop   bc
 1435  D1       .                   pop   de
 1436  CD4708   .G.                 call  0x0847
-1439  CDA409   ...                 call  0x09A4
+1439  CDA409   ...                 call  PUSHF
 143C  013881   .8.                 ld    bc,0x8138
 143F  113BAA   .;.                 ld    de,0xAA3B
 1442  CD4708   .G.                 call  0x0847
-1445  3A2479   :$y                 ld    a,(0x7924)
+1445  3A2479   :$y                 ld    a,(FAC)
 1448  FE88     ..                  cp    0x88
 144A  D23109   .1.                 jp    nc,0x0931
 144D  CD400B   .@.                 call  0x0B40
@@ -3154,15 +3262,15 @@
 1452  C602     ..                  add   a,0x02
 1454  DA3109   .1.                 jp    c,0x0931
 1457  F5       .                   push  af
-1458  21F807   !..                 ld    hl,0x07F8
+1458  21F807   !..                 ld    hl,FONE
 145B  CD0B07   ...                 call  0x070B
-145E  CD4108   .A.                 call  0x0841
+145E  CD4108   .A.                 call  MULLN2
 1461  F1       .                   pop   af
 1462  C1       .                   pop   bc
 1463  D1       .                   pop   de
 1464  F5       .                   push  af
 1465  CD1307   ...                 call  FP_SUB_Y_MINUS_X
-1468  CD8209   ...                 call  0x0982
+1468  CD8209   ...                 call  NNEG
 146B  217914   !y.                 ld    hl,0x1479
 146E  CDA914   ...                 call  0x14A9
 1471  110000   ...                 ld    de,START
@@ -3197,17 +3305,17 @@
 1497  00       .                   nop   
 1498  00       .                   nop   
 1499  81       .                   add   a,c
-149A  CDA409   ...                 call  0x09A4
+149A  CDA409   ...                 call  PUSHF
 149D  11320C   .2.                 ld    de,0x0C32
 14A0  D5       .                   push  de
 14A1  E5       .                   push  hl
-14A2  CDBF09   ...                 call  0x09BF
+14A2  CDBF09   ...                 call  MOVRF
 14A5  CD4708   .G.                 call  0x0847
 14A8  E1       .                   pop   hl
-14A9  CDA409   ...                 call  0x09A4
+14A9  CDA409   ...                 call  PUSHF
 14AC  7E       ~                   ld    a,(hl)
 14AD  23       #                   inc   hl
-14AE  CDB109   ...                 call  0x09B1
+14AE  CDB109   ...                 call  MOVFM
 14B1  06F1     ..                  ld    b,0xF1
 14B3  C1       .                   pop   bc
 14B4  D1       .                   pop   de
@@ -3219,12 +3327,12 @@
 14BA  E5       .                   push  hl
 14BB  CD4708   .G.                 call  0x0847
 14BE  E1       .                   pop   hl
-14BF  CDC209   ...                 call  0x09C2
+14BF  CDC209   ...                 call  MOVRM
 14C2  E5       .                   push  hl
 14C3  CD1607   ...                 call  FP_ADD_X_PLUS_Y
 14C6  E1       .                   pop   hl
 14C7  18E9     ..                  jr    $-21
-14C9  CD7F0A   ...                 call  0x0A7F
+14C9  CD7F0A   ...                 call  FRCINT
 14CC  7C       |                   ld    a,h
 14CD  B7       .                   or    a
 14CE  FA4A1E   .J.                 jp    m,0x1E4A
@@ -3232,7 +3340,7 @@
 14D2  CAF014   ...                 jp    z,0x14F0
 14D5  E5       .                   push  hl
 14D6  CDF014   ...                 call  0x14F0
-14D9  CDBF09   ...                 call  0x09BF
+14D9  CDBF09   ...                 call  MOVRF
 14DC  EB       .                   ex    de,hl
 14DD  E3       .                   ex    (sp),hl
 14DE  C5       .                   push  bc
@@ -3240,7 +3348,7 @@
 14E2  C1       .                   pop   bc
 14E3  D1       .                   pop   de
 14E4  CD4708   .G.                 call  0x0847
-14E7  21F807   !..                 ld    hl,0x07F8
+14E7  21F807   !..                 ld    hl,FONE
 14EA  CD0B07   ...                 call  0x070B
 14ED  C3400B   .@.                 jp    0x0B40
 14F0  219078   !.x                 ld    hl,0x7890
@@ -3295,32 +3403,32 @@
 153E  C36507   .e.                 jp    0x0765
 1541  218B15   !..                 ld    hl,0x158B
 1544  CD0B07   ...                 call  0x070B
-1547  CDA409   ...                 call  0x09A4
+1547  CDA409   ...                 call  PUSHF
 154A  014983   .I.                 ld    bc,0x8349
 154D  11DB0F   ...                 ld    de,0x0FDB
-1550  CDB409   ...                 call  0x09B4
+1550  CDB409   ...                 call  MOVFR
 1553  C1       .                   pop   bc
 1554  D1       .                   pop   de
 1555  CDA208   ...                 call  0x08A2
-1558  CDA409   ...                 call  0x09A4
+1558  CDA409   ...                 call  PUSHF
 155B  CD400B   .@.                 call  0x0B40
 155E  C1       .                   pop   bc
 155F  D1       .                   pop   de
 1560  CD1307   ...                 call  FP_SUB_Y_MINUS_X
 1563  218F15   !..                 ld    hl,0x158F
 1566  CD1007   ...                 call  FP_SUB_HALF
-1569  CD5509   .U.                 call  0x0955
+1569  CD5509   .U.                 call  SIGN
 156C  37       7                   scf   
 156D  F27715   .w.                 jp    p,0x1577
 1570  CD0807   ...                 call  FP_ADD_HALF
-1573  CD5509   .U.                 call  0x0955
+1573  CD5509   .U.                 call  SIGN
 1576  B7       .                   or    a
 1577  F5       .                   push  af
-1578  F48209   ...                 call  p,0x0982
+1578  F48209   ...                 call  p,NNEG
 157B  218F15   !..                 ld    hl,0x158F
 157E  CD0B07   ...                 call  0x070B
 1581  F1       .                   pop   af
-1582  D48209   ...                 call  nc,0x0982
+1582  D48209   ...                 call  nc,NNEG
 1585  219315   !..                 ld    hl,0x1593
 1588  C39A14   ...                 jp    0x149A
 158B  DB0F     ..                  in    a,(0x0F)
@@ -3347,19 +3455,19 @@
 15A3  86       .                   add   a,(hl)
 15A4  DA0F49   ..I                 jp    c,0x490F
 15A7  83       .                   add   a,e
-15A8  CDA409   ...                 call  0x09A4
+15A8  CDA409   ...                 call  PUSHF
 15AB  CD4715   .G.                 call  0x1547
 15AE  C1       .                   pop   bc
 15AF  E1       .                   pop   hl
-15B0  CDA409   ...                 call  0x09A4
+15B0  CDA409   ...                 call  PUSHF
 15B3  EB       .                   ex    de,hl
-15B4  CDB409   ...                 call  0x09B4
+15B4  CDB409   ...                 call  MOVFR
 15B7  CD4115   .A.                 call  0x1541
 15BA  C3A008   ...                 jp    0x08A0
-15BD  CD5509   .U.                 call  0x0955
+15BD  CD5509   .U.                 call  SIGN
 15C0  FCE213   ...                 call  m,0x13E2
-15C3  FC8209   ...                 call  m,0x0982
-15C6  3A2479   :$y                 ld    a,(0x7924)
+15C3  FC8209   ...                 call  m,NNEG
+15C6  3A2479   :$y                 ld    a,(FAC)
 15C9  FE81     ..                  cp    0x81
 15CB  380C     8.                  jr    c,$+14
 15CD  010081   ...                 ld    bc,0x8100
@@ -4619,14 +4727,14 @@
 1CC5  CF       .                   rst   8
 1CC6  BD       .                   cp    l
 1CC7  E7       .                   rst   0x20
-1CC8  CAF60A   ...                 jp    z,0x0AF6
-1CCB  D2F60A   ...                 jp    nc,0x0AF6
+1CC8  CAF60A   ...                 jp    z,TMERR
+1CCB  D2F60A   ...                 jp    nc,TMERR
 1CCE  F5       .                   push  af
 1CCF  CD3723   .7#                 call  0x2337
 1CD2  F1       .                   pop   af
 1CD3  E5       .                   push  hl
 1CD4  F2EC1C   ...                 jp    p,0x1CEC
-1CD7  CD7F0A   ...                 call  0x0A7F
+1CD7  CD7F0A   ...                 call  FRCINT
 1CDA  E3       .                   ex    (sp),hl
 1CDB  110100   ...                 ld    de,0x0001
 1CDE  7E       ~                   ld    a,(hl)
@@ -4635,10 +4743,10 @@
 1CE4  D5       .                   push  de
 1CE5  E5       .                   push  hl
 1CE6  EB       .                   ex    de,hl
-1CE7  CD9E09   ...                 call  0x099E
+1CE7  CD9E09   ...                 call  ISIGN
 1CEA  1822     ."                  jr    $+36
 1CEC  CDB10A   ...                 call  0x0AB1
-1CEF  CDBF09   ...                 call  0x09BF
+1CEF  CDBF09   ...                 call  MOVRF
 1CF2  E1       .                   pop   hl
 1CF3  C5       .                   push  bc
 1CF4  D5       .                   push  de
@@ -4652,8 +4760,8 @@
 1D01  CD3823   .8#                 call  0x2338
 1D04  E5       .                   push  hl
 1D05  CDB10A   ...                 call  0x0AB1
-1D08  CDBF09   ...                 call  0x09BF
-1D0B  CD5509   .U.                 call  0x0955
+1D08  CDBF09   ...                 call  MOVRF
+1D0B  CD5509   .U.                 call  SIGN
 1D0E  E1       .                   pop   hl
 1D0F  C5       .                   push  bc
 1D10  D5       .                   push  de
@@ -4982,7 +5090,7 @@
 1F38  CD030A   ...                 call  0x0A03
 1F3B  E5       .                   push  hl
 1F3C  2028      (                  jr    nz,$+42
-1F3E  2A2179   *!y                 ld    hl,(0x7921)
+1F3E  2A2179   *!y                 ld    hl,(FACLO)
 1F41  E5       .                   push  hl
 1F42  23       #                   inc   hl
 1F43  5E       ^                   ld    e,(hl)
@@ -5134,7 +5242,7 @@
 2044  CC781D   .x.                 call  z,0x1D78
 2047  2B       +                   dec   hl
 2048  E5       .                   push  hl
-2049  CD9409   ...                 call  0x0994
+2049  CD9409   ...                 call  VSIGN
 204C  E1       .                   pop   hl
 204D  2807     (.                  jr    z,$+9
 204F  D7       .                   rst   0x10
@@ -5195,7 +5303,7 @@
 20C0  CDBD0F   ...                 call  0x0FBD
 20C3  CD6528   .e(                 call  0x2865
 20C6  CDCD79   ..y                 call  0x79CD
-20C9  2A2179   *!y                 ld    hl,(0x7921)
+20C9  2A2179   *!y                 ld    hl,(FACLO)
 20CC  3A9C78   :.x                 ld    a,(0x789C)
 20CF  B7       .                   or    a
 20D0  FAE920   ..                  jp    m,0x20E9
@@ -5486,16 +5594,16 @@
 22CF  23       #                   inc   hl
 22D0  B7       .                   or    a
 22D1  FAEA22   .."                 jp    m,0x22EA
-22D4  CDB109   ...                 call  0x09B1
+22D4  CDB109   ...                 call  MOVFM
 22D7  E3       .                   ex    (sp),hl
 22D8  E5       .                   push  hl
 22D9  CD0B07   ...                 call  0x070B
 22DC  E1       .                   pop   hl
-22DD  CDCB09   ...                 call  0x09CB
+22DD  CDCB09   ...                 call  MOVMF
 22E0  E1       .                   pop   hl
-22E1  CDC209   ...                 call  0x09C2
+22E1  CDC209   ...                 call  MOVRM
 22E4  E5       .                   push  hl
-22E5  CD0C0A   ...                 call  0x0A0C
+22E5  CD0C0A   ...                 call  FCOMP
 22E8  1829     .)                  jr    $+43
 22EA  23       #                   inc   hl
 22EB  23       #                   inc   hl
@@ -5528,11 +5636,11 @@
 230D  56       V                   ld    d,(hl)
 230E  23       #                   inc   hl
 230F  E3       .                   ex    (sp),hl
-2310  CD390A   .9.                 call  0x0A39
+2310  CD390A   .9.                 call  DCOMP
 2313  E1       .                   pop   hl
 2314  C1       .                   pop   bc
 2315  90       .                   sub   b
-2316  CDC209   ...                 call  0x09C2
+2316  CDC209   ...                 call  MOVRM
 2319  2809     (.                  jr    z,$+11
 231B  EB       .                   ex    de,hl
 231C  22A278   ".x                 ld    (0x78A2),hl
@@ -5600,13 +5708,13 @@
 238D  CAD423   ..#                 jp    z,0x23D4
 2390  FE51     .Q                  cp    0x51
 2392  DAE123   ..#                 jp    c,0x23E1
-2395  212179   !!y                 ld    hl,0x7921
+2395  212179   !!y                 ld    hl,FACLO
 2398  B7       .                   or    a
 2399  3AAF78   :.x                 ld    a,(0x78AF)
 239C  3D       =                   dec   a
 239D  3D       =                   dec   a
 239E  3D       =                   dec   a
-239F  CAF60A   ...                 jp    z,0x0AF6
+239F  CAF60A   ...                 jp    z,TMERR
 23A2  4E       N                   ld    c,(hl)
 23A3  23       #                   inc   hl
 23A4  46       F                   ld    b,(hl)
@@ -5643,12 +5751,12 @@
 23CE  2AD878   *.x                 ld    hl,(0x78D8)
 23D1  C33A23   .:#                 jp    0x233A
 23D4  CDB10A   ...                 call  0x0AB1
-23D7  CDA409   ...                 call  0x09A4
+23D7  CDA409   ...                 call  PUSHF
 23DA  01F213   ...                 ld    bc,0x13F2
 23DD  167F     ..                  ld    d,0x7F
 23DF  18EC     ..                  jr    $-18
 23E1  D5       .                   push  de
-23E2  CD7F0A   ...                 call  0x0A7F
+23E2  CD7F0A   ...                 call  FRCINT
 23E5  D1       .                   pop   de
 23E6  E5       .                   push  hl
 23E7  01E925   ..%                 ld    bc,0x25E9
@@ -5663,7 +5771,7 @@
 23F8  E5       .                   push  hl
 23F9  E7       .                   rst   0x20
 23FA  C29523   ..#                 jp    nz,0x2395
-23FD  2A2179   *!y                 ld    hl,(0x7921)
+23FD  2A2179   *!y                 ld    hl,(FACLO)
 2400  E5       .                   push  hl
 2401  018C25   ..%                 ld    bc,0x258C
 2404  18C7     ..                  jr    $-55
@@ -5682,7 +5790,7 @@
 241C  CA7224   .r$                 jp    z,0x2472
 241F  7A       z                   ld    a,d
 2420  FE03     ..                  cp    0x03
-2422  CAF60A   ...                 jp    z,0x0AF6
+2422  CAF60A   ...                 jp    z,TMERR
 2425  D27C24   .|$                 jp    nc,0x247C
 2428  21BF18   !..                 ld    hl,0x18BF
 242B  0600     ..                  ld    b,0x00
@@ -5692,7 +5800,7 @@
 2430  23       #                   inc   hl
 2431  46       F                   ld    b,(hl)
 2432  D1       .                   pop   de
-2433  2A2179   *!y                 ld    hl,(0x7921)
+2433  2A2179   *!y                 ld    hl,(FACLO)
 2436  C5       .                   push  bc
 2437  C9       .                   ret   
 2438  CDDB0A   ...                 call  0x0ADB
@@ -5703,7 +5811,7 @@
 2443  221D79   ".y                 ld    (0x791D),hl
 2446  C1       .                   pop   bc
 2447  D1       .                   pop   de
-2448  CDB409   ...                 call  0x09B4
+2448  CDB409   ...                 call  MOVFR
 244B  CDDB0A   ...                 call  0x0ADB
 244E  21AB18   !..                 ld    hl,0x18AB
 2451  3AB078   :.x                 ld    a,(0x78B0)
@@ -5725,7 +5833,7 @@
 2468  FE04     ..                  cp    0x04
 246A  28DA     (.                  jr    z,$-36
 246C  E1       .                   pop   hl
-246D  222179   "!y                 ld    (0x7921),hl
+246D  222179   "!y                 ld    (FACLO),hl
 2470  18D9     ..                  jr    $-37
 2472  CDB10A   ...                 call  0x0AB1
 2475  C1       .                   pop   bc
@@ -5733,19 +5841,19 @@
 2477  21B518   !..                 ld    hl,0x18B5
 247A  18D5     ..                  jr    $-41
 247C  E1       .                   pop   hl
-247D  CDA409   ...                 call  0x09A4
+247D  CDA409   ...                 call  PUSHF
 2480  CDCF0A   ...                 call  0x0ACF
-2483  CDBF09   ...                 call  0x09BF
+2483  CDBF09   ...                 call  MOVRF
 2486  E1       .                   pop   hl
 2487  222379   "#y                 ld    (0x7923),hl
 248A  E1       .                   pop   hl
-248B  222179   "!y                 ld    (0x7921),hl
+248B  222179   "!y                 ld    (FACLO),hl
 248E  18E7     ..                  jr    $-23
 2490  E5       .                   push  hl
 2491  EB       .                   ex    de,hl
 2492  CDCF0A   ...                 call  0x0ACF
 2495  E1       .                   pop   hl
-2496  CDA409   ...                 call  0x09A4
+2496  CDA409   ...                 call  PUSHF
 2499  CDCF0A   ...                 call  0x0ACF
 249C  C3A008   ...                 jp    0x08A0
 249F  D7       .                   rst   0x10
@@ -5795,7 +5903,7 @@
 24F5  7C       |                   ld    a,h
 24F6  B5       .                   or    l
 24F7  CA4A1E   .J.                 jp    z,0x1E4A
-24FA  CD9A0A   ...                 call  0x0A9A
+24FA  CD9A0A   ...                 call  MAKINT
 24FD  E1       .                   pop   hl
 24FE  C9       .                   ret   
 24FF  FEC1     ..                  cp    0xC1
@@ -5824,13 +5932,13 @@
 2534  CD3A23   .:#                 call  0x233A
 2537  2AF378   *.x                 ld    hl,(0x78F3)
 253A  E5       .                   push  hl
-253B  CD7B09   .{.                 call  0x097B
+253B  CD7B09   .{.                 call  VNEG
 253E  E1       .                   pop   hl
 253F  C9       .                   ret   
 2540  CD0D26   ..&                 call  0x260D
 2543  E5       .                   push  hl
 2544  EB       .                   ex    de,hl
-2545  222179   "!y                 ld    (0x7921),hl
+2545  222179   "!y                 ld    (FACLO),hl
 2548  E7       .                   rst   0x20
 2549  C4F709   ...                 call  nz,0x09F7
 254C  E1       .                   pop   hl
@@ -5848,7 +5956,7 @@
 255D  2C       ,                   inc   l
 255E  CDF40A   ...                 call  0x0AF4
 2561  EB       .                   ex    de,hl
-2562  2A2179   *!y                 ld    hl,(0x7921)
+2562  2A2179   *!y                 ld    hl,(FACLO)
 2565  E3       .                   ex    (sp),hl
 2566  E5       .                   push  hl
 2567  EB       .                   ex    de,hl
@@ -5909,25 +6017,25 @@
 25B1  03       .                   inc   bc
 25B2  28ED     (.                  jr    z,$-17
 25B4  3F       ?                   ccf   
-25B5  C36009   .`.                 jp    0x0960
+25B5  C36009   .`.                 jp    SIGNS
 25B8  3C       <                   inc   a
 25B9  8F       .                   adc   a,a
 25BA  C1       .                   pop   bc
 25BB  A0       .                   and   b
 25BC  C6FF     ..                  add   a,0xFF
 25BE  9F       .                   sbc   a,a
-25BF  CD8D09   ...                 call  0x098D
+25BF  CD8D09   ...                 call  CONIA
 25C2  1812     ..                  jr    $+20
 25C4  165A     .Z                  ld    d,0x5A
 25C6  CD3A23   .:#                 call  0x233A
-25C9  CD7F0A   ...                 call  0x0A7F
+25C9  CD7F0A   ...                 call  FRCINT
 25CC  7D       }                   ld    a,l
 25CD  2F       /                   cpl   
 25CE  6F       o                   ld    l,a
 25CF  7C       |                   ld    a,h
 25D0  2F       /                   cpl   
 25D1  67       g                   ld    h,a
-25D2  222179   "!y                 ld    (0x7921),hl
+25D2  222179   "!y                 ld    (FACLO),hl
 25D5  C1       .                   pop   bc
 25D6  C34623   .F#                 jp    0x2346
 25D9  3AAF78   :.x                 ld    a,(0x78AF)
@@ -5941,7 +6049,7 @@
 25E7  B7       .                   or    a
 25E8  C9       .                   ret   
 25E9  C5       .                   push  bc
-25EA  CD7F0A   ...                 call  0x0A7F
+25EA  CD7F0A   ...                 call  FRCINT
 25ED  F1       .                   pop   af
 25EE  D1       .                   pop   de
 25EF  01FA27   ..'                 ld    bc,0x27FA
@@ -6103,15 +6211,15 @@
 26D2  F1       .                   pop   af
 26D3  E3       .                   ex    (sp),hl
 26D4  C9       .                   ret   
-26D5  322479   2$y                 ld    (0x7924),a
+26D5  322479   2$y                 ld    (FAC),a
 26D8  C1       .                   pop   bc
 26D9  67       g                   ld    h,a
 26DA  6F       o                   ld    l,a
-26DB  222179   "!y                 ld    (0x7921),hl
+26DB  222179   "!y                 ld    (FACLO),hl
 26DE  E7       .                   rst   0x20
 26DF  2006      .                  jr    nz,$+8
 26E1  212819   !(.                 ld    hl,0x1928
-26E4  222179   "!y                 ld    (0x7921),hl
+26E4  222179   "!y                 ld    (FACLO),hl
 26E7  E1       .                   pop   hl
 26E8  C9       .                   ret   
 26E9  E5       .                   push  hl
@@ -6297,7 +6405,7 @@
 27F8  6F       o                   ld    l,a
 27F9  AF       .                   xor   a
 27FA  67       g                   ld    h,a
-27FB  C39A0A   ...                 jp    0x0A9A
+27FB  C39A0A   ...                 jp    MAKINT
 27FE  CDA979   ..y                 call  0x79A9
 2801  D7       .                   rst   0x10
 2802  CD2C25   .,%                 call  0x252C
@@ -6383,7 +6491,7 @@
 2884  11D378   ..x                 ld    de,0x78D3
 2887  3ED5     >.                  ld    a,0xD5
 2889  2AB378   *.x                 ld    hl,(0x78B3)
-288C  222179   "!y                 ld    (0x7921),hl
+288C  222179   "!y                 ld    (FACLO),hl
 288F  3E03     >.                  ld    a,0x03
 2891  32AF78   2.x                 ld    (0x78AF),a
 2894  CDD309   ...                 call  0x09D3
@@ -6472,7 +6580,7 @@
 2927  CA6B29   .k)                 jp    z,0x296B
 292A  7E       ~                   ld    a,(hl)
 292B  23       #                   inc   hl
-292C  CDC209   ...                 call  0x09C2
+292C  CDC209   ...                 call  MOVRM
 292F  E5       .                   push  hl
 2930  09       .                   add   hl,bc
 2931  FE03     ..                  cp    0x03
@@ -6552,14 +6660,14 @@
 298C  C3E928   ..(                 jp    0x28E9
 298F  C5       .                   push  bc
 2990  E5       .                   push  hl
-2991  2A2179   *!y                 ld    hl,(0x7921)
+2991  2A2179   *!y                 ld    hl,(FACLO)
 2994  E3       .                   ex    (sp),hl
 2995  CD9F24   ..$                 call  0x249F
 2998  E3       .                   ex    (sp),hl
 2999  CDF40A   ...                 call  0x0AF4
 299C  7E       ~                   ld    a,(hl)
 299D  E5       .                   push  hl
-299E  2A2179   *!y                 ld    hl,(0x7921)
+299E  2A2179   *!y                 ld    hl,(FACLO)
 29A1  E5       .                   push  hl
 29A2  86       .                   add   a,(hl)
 29A3  1E1C     ..                  ld    e,0x1C
@@ -6595,7 +6703,7 @@
 29D4  13       .                   inc   de
 29D5  18F8     ..                  jr    $-6
 29D7  CDF40A   ...                 call  0x0AF4
-29DA  2A2179   *!y                 ld    hl,(0x7921)
+29DA  2A2179   *!y                 ld    hl,(FACLO)
 29DD  EB       .                   ex    de,hl
 29DE  CDF529   ..)                 call  0x29F5
 29E1  EB       .                   ex    de,hl
@@ -6790,7 +6898,7 @@
 2B01  D7       .                   rst   0x10
 2B02  CD3723   .7#                 call  0x2337
 2B05  E5       .                   push  hl
-2B06  CD7F0A   ...                 call  0x0A7F
+2B06  CD7F0A   ...                 call  FRCINT
 2B09  EB       .                   ex    de,hl
 2B0A  E1       .                   pop   hl
 2B0B  7A       z                   ld    a,d
@@ -7049,7 +7157,7 @@
 2CA4  CDBA3A   ..:                 call  0x3ABA
 2CA7  C9       .                   ret   
 2CA8  309D     0.                  jr    nc,$-97
-2CAA  CD7F0A   ...                 call  0x0A7F
+2CAA  CD7F0A   ...                 call  FRCINT
 2CAD  7E       ~                   ld    a,(hl)
 2CAE  C3F827   ..'                 jp    0x27F8
 2CB1  CD022B   ..+                 call  0x2B02
@@ -7065,7 +7173,7 @@
 2CC3  CF       .                   rst   8
 2CC4  3B       ;                   dec   sp
 2CC5  EB       .                   ex    de,hl
-2CC6  2A2179   *!y                 ld    hl,(0x7921)
+2CC6  2A2179   *!y                 ld    hl,(FACLO)
 2CC9  1808     ..                  jr    $+10
 2CCB  3ADE78   :.x                 ld    a,(0x78DE)
 2CCE  B7       .                   or    a
@@ -7294,13 +7402,13 @@
 2E27  C1       .                   pop   bc
 2E28  C5       .                   push  bc
 2E29  E5       .                   push  hl
-2E2A  2A2179   *!y                 ld    hl,(0x7921)
+2E2A  2A2179   *!y                 ld    hl,(FACLO)
 2E2D  41       A                   ld    b,c
 2E2E  0E00     ..                  ld    c,0x00
 2E30  C5       .                   push  bc
 2E31  CD682A   .h*                 call  0x2A68
 2E34  CDAA28   ..(                 call  0x28AA
-2E37  2A2179   *!y                 ld    hl,(0x7921)
+2E37  2A2179   *!y                 ld    hl,(FACLO)
 2E3A  F1       .                   pop   af
 2E3B  96       .                   sub   (hl)
 2E3C  47       G                   ld    b,a
@@ -8757,7 +8865,7 @@
 38F9  78       x                   ld    a,b
 38FA  3C       <                   inc   a
 38FB  E5       .                   push  hl
-38FC  CD8D09   ...                 call  0x098D
+38FC  CD8D09   ...                 call  CONIA
 38FF  E1       .                   pop   hl
 3900  C30F39   ..9                 jp    0x390F
 3903  47       G                   ld    b,a

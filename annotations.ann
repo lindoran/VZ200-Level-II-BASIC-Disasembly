@@ -269,6 +269,16 @@ offset = 1789
 end = 1790
 type = DATA_STRING
 
+[region]
+offset = 2040
+end = 2043
+type = DATA_BYTE
+
+[region]
+offset = 2044
+end = 2056
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -524,6 +534,206 @@ name = FP_SUB_Y_MINUS_X
 [label]
 offset = 1814
 name = FP_ADD_X_PLUS_Y
+
+[label]
+offset = 2007
+name = SHIFTR
+
+[label]
+offset = 2009
+name = SHIFTR1
+
+[label]
+offset = 2011
+name = SHIFTR1
+
+[label]
+offset = 2020
+name = SHFTR2
+
+[label]
+offset = 2023
+name = SHFTR3
+
+[label]
+offset = 2024
+name = SHFTR4
+
+[label]
+offset = 2040
+name = FONE
+
+[label]
+offset = 2044
+name = LOGCN2
+
+[label]
+offset = 2057
+name = FNLOG
+
+[label]
+offset = 2113
+name = MULLN2
+
+[label]
+offset = 2122
+name = FMLT
+
+[label]
+offset = 2150
+name = FMLT1
+
+[label]
+offset = 2153
+name = FMLT2
+
+[label]
+offset = 2199
+name = FDIV
+
+[label]
+offset = 2213
+name = DV0ERR_JMP
+
+[label]
+offset = 2311
+name = MULDVS
+
+[label]
+offset = 2313
+name = MULDVA_SKIP
+
+[label]
+offset = 2315
+name = MULDVA
+
+[label]
+offset = 2324
+name = MULDV
+
+[label]
+offset = 2389
+name = SIGN
+
+[label]
+offset = 2399
+name = ICOMPS
+
+[label]
+offset = 2400
+name = SIGNS
+
+[label]
+offset = 2404
+name = FLOAT
+
+[label]
+offset = 2409
+name = FLOATR
+
+[label]
+offset = 2423
+name = FNABS
+
+[label]
+offset = 2427
+name = VNEG
+
+[label]
+offset = 2434
+name = NNEG
+
+[label]
+offset = 2442
+name = FNSGN
+
+[label]
+offset = 2445
+name = CONIA
+
+[label]
+offset = 2452
+name = VSIGN
+
+[label]
+offset = 2459
+name = ISIGNA
+
+[label]
+offset = 2462
+name = ISIGN
+
+[label]
+offset = 2468
+name = PUSHF
+
+[label]
+offset = 2481
+name = MOVFM
+
+[label]
+offset = 2484
+name = MOVFR
+
+[label]
+offset = 2495
+name = MOVRF
+
+[label]
+offset = 2498
+name = MOVRM
+
+[label]
+offset = 2507
+name = MOVMF
+
+[label]
+offset = 2572
+name = FCOMP
+
+[label]
+offset = 2592
+name = FCOMP2
+
+[label]
+offset = 2595
+name = FCOMPD
+
+[label]
+offset = 2600
+name = FCOMP2
+
+[label]
+offset = 2617
+name = DCOMP
+
+[label]
+offset = 2687
+name = FRCINT
+
+[label]
+offset = 2714
+name = MAKINT
+
+[label]
+offset = 2723
+name = INT
+
+[label]
+offset = 2764
+name = INEG
+
+[label]
+offset = 2806
+name = TMERR
+
+[label]
+offset = 2811
+name = DROUND
+
+[label]
+offset = 3163
+name = INEG
 
 [comment]
 offset = 0
@@ -4169,6 +4379,362 @@ text = MSB Y = 0 - MSB Y
 offset = 2005
 text = Load c from a
 
+[comment]
+offset = 2007
+text = LSB of result = 0
+
+[comment]
+offset = 2009
+text = shift 8 or more places?
+
+[comment]
+offset = 2011
+text = no!
+
+[comment]
+offset = 2013
+text = shift Y right by one byte
+
+[comment]
+offset = 2020
+text = shift count + 1 in L
+
+[comment]
+offset = 2023
+text = clear Carry
+
+[comment]
+offset = 2024
+text = shift counter - 1
+
+[comment]
+offset = 2025
+text = = 0? yes-done
+
+[comment]
+offset = 2026
+text = MSB Y one bit right
+
+[comment]
+offset = 2029
+text = next byte Y one bit right
+
+[comment]
+offset = 2032
+text = next byte Y one bit right
+
+[comment]
+offset = 2035
+text = LSB Y one bit right
+
+[comment]
+offset = 2038
+text = continue
+
+[comment]
+offset = 2040
+text = = 1
+
+[comment]
+offset = 2044
+text = number of constants = 3
+
+[comment]
+offset = 2057
+text = argument <= 0?
+
+[comment]
+offset = 2060
+text = if FAC < 0, then an error
+
+[comment]
+offset = 2061
+text = yes, Function-Code Error
+
+[comment]
+offset = 2064
+text = exponent of argument in A
+
+[comment]
+offset = 2067
+text = get exponent
+
+[comment]
+offset = 2068
+text = Y = 0.707092
+
+[comment]
+offset = 2074
+text = offset Exp X in A
+
+[comment]
+offset = 2075
+text = save
+
+[comment]
+offset = 2076
+text = Exp. X = 0
+
+[comment]
+offset = 2077
+text = Y on stack
+
+[comment]
+offset = 2079
+text = X = X + 0.707092
+
+[comment]
+offset = 2082
+text = reload Y with constant
+
+[comment]
+offset = 2084
+text = Exp. Y + 1 (Y = SQR(2))
+
+[comment]
+offset = 2085
+text = X = SQR(2) / X
+
+[comment]
+offset = 2088
+text = load address of constant 1
+
+[comment]
+offset = 2091
+text = X = 1 - X
+
+[comment]
+offset = 2094
+text = address of 1st series constant
+
+[comment]
+offset = 2097
+text = calculate series
+
+[comment]
+offset = 2100
+text = Y = -0.5
+
+[comment]
+offset = 2106
+text = X = X - 0.5
+
+[comment]
+offset = 2109
+text = exponent of argument
+
+[comment]
+offset = 2110
+text = X = X + A
+
+[comment]
+offset = 2113
+text = Y = LOG(2) approx. 0.693147
+
+[comment]
+offset = 2119
+text = X = 0?
+
+[comment]
+offset = 2122
+text = yes, done
+
+[comment]
+offset = 2123
+text = flag for exponent processing
+
+[comment]
+offset = 2125
+text = process exponents and signs
+
+[comment]
+offset = 2128
+text = mantissa from Y to 794F...
+
+[comment]
+offset = 2129
+text = MSB
+
+[comment]
+offset = 2132
+text = LSB
+
+[comment]
+offset = 2136
+text = Y = clear result register
+
+[comment]
+offset = 2141
+text = different return addresses for
+
+[comment]
+offset = 2144
+text = 3 passes on stack
+
+[comment]
+offset = 2145
+text = to normalization after 3rd pass
+
+[comment]
+offset = 2148
+text = after 1st and 2nd pass
+
+[comment]
+offset = 2149
+text = repeat
+
+[comment]
+offset = 2150
+text = load LSB X address
+
+[comment]
+offset = 2153
+text = LSB X in A
+
+[comment]
+offset = 2154
+text = address next X-byte
+
+[comment]
+offset = 2155
+text = content = 0?
+
+[comment]
+offset = 2156
+text = yes, shift result 1 byte right
+
+[comment]
+offset = 2158
+text = save address pointer
+
+[comment]
+offset = 2159
+text = bit counter = 8
+
+[comment]
+offset = 2161
+text = shift a bit into carry
+
+[comment]
+offset = 2162
+text = save A in H
+
+[comment]
+offset = 2163
+text = load MSB of result
+
+[comment]
+offset = 2164
+text = bit in carry = 1?
+
+[comment]
+offset = 2166
+text = yes! - save HL
+
+[comment]
+offset = 2167
+text = load LSB of 2nd factor
+
+[comment]
+offset = 2170
+text = + result LSB
+
+[comment]
+offset = 2171
+text = in LSB Y
+
+[comment]
+offset = 2172
+text = reload HL
+
+[comment]
+offset = 2173
+text = load MSB of 2nd factor
+
+[comment]
+offset = 2176
+text = + result MSB
+
+[comment]
+offset = 2177
+text = shift result 1 bit right
+
+[comment]
+offset = 2178
+text = MSB
+
+[comment]
+offset = 2179
+text = next byte
+
+[comment]
+offset = 2182
+text = next byte
+
+[comment]
+offset = 2185
+text = LSB
+
+[comment]
+offset = 2188
+text = bit counter - 1
+
+[comment]
+offset = 2189
+text = reload X-byte
+
+[comment]
+offset = 2190
+text = bit counter = 0, no-back
+
+[comment]
+offset = 2192
+text = yes - load X-byte address
+
+[comment]
+offset = 2193
+text = continue
+
+[comment]
+offset = 2194
+text = result 1 byte right. B = E
+
+[comment]
+offset = 2195
+text = E = D
+
+[comment]
+offset = 2196
+text = D = C
+
+[comment]
+offset = 2197
+text = C = 0
+
+[comment]
+offset = 2199
+text = save value in X on stack
+
+[comment]
+offset = 2202
+text = address constant 10
+
+[comment]
+offset = 2205
+text = transfer to X
+
+[comment]
+offset = 2208
+text = load former X-value into Y
+
+[comment]
+offset = 2210
+text = divisor = 0?
+
+[comment]
+offset = 2213
+text = yes, DIVISION BY ZERO - Error
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -4573,4 +5139,178 @@ text = Single precision mantissa addition
 [block]
 offset = 1987
 text = Negate mantissa Y
+
+[block]
+offset = 2007
+text = SINGLE PRECISION MATH ROUTINE – “SHIFTR”
+              This routine will shift the number in C/D/E right the number of times
+              held in Register A. The general idea is to shift right 8 places
+              as many times as is possible within the number of times in A,
+              and then jump out to shift single bits once you can't shift 8
+              at a time anymore. Alters everything except Register H.
+
+[block]
+offset = 2011
+text = (none)
+
+[block]
+offset = 2020
+text = SINGLE PRECISION MATH ROUTINE – “SHFTR2”
+              This routine will shift the number in C/D/E right the number
+              of times held in Register A, but one byte at a time.
+
+[block]
+offset = 2040
+text = SINGLE PRECISION CONSTANT STORAGE LOCATION – “FONE”
+
+[block]
+offset = 2044
+text = SINGLE PRECISION CONSTANTS STORAGE LOCATION 2 – “LOGCN2”
+
+[block]
+offset = 2057
+text = LEVEL II BASIC LOG ROUTINE – “FNLOG”
+              Computes the natural log (base E) of the single precision value in
+              WRA1. The result is returned as a single precision value in WRA1.
+
+[block]
+offset = 2113
+text = SINGLE PRECISION MULTIPLICATION – “FMLT”
+
+[block]
+offset = 2199
+text = SINGLE PRECISION MATH ROUTINE – “FDIV”
+
+[block]
+offset = 2311
+text = DOUBLE PRECISION MATH ROUTINE – “MULDVS”
+              This routine is to check for special cases and to add exponents for
+              the FMULT and FDIV routines. Registers A, B, H and L are modified.
+
+[block]
+offset = 2324
+text = DOUBLE PRECISION MATH ROUTINE – “MULDV”
+
+[block]
+offset = 2389
+text = SINGLE DOUBLE MATH ROUTINE – “SIGN” (Accumulator)
+              This routine checks the sign of the value in the FAC.
+
+[block]
+offset = 2404
+text = MATH CONVERSION ROUTINE – “FLOAT”
+              This routine will take a signed integer held in Register A and
+              turn it into a floating point number. All registers are modified.
+
+[block]
+offset = 2423
+text = LEVEL II BASIC ABS() ROUTINE – “FNABS”
+
+[block]
+offset = 2427
+text = NEGATE ROUTINE – “VNEG”
+              This routine will negate any value in the ACCumulator.
+
+[block]
+offset = 2434
+text = NEGATE SINGLE/DOUBLE ROUTINE – “NNEG”
+              This routine will negate the single or double precision number in the ACCumulator.
+
+[block]
+offset = 2442
+text = LEVEL II BASIC SGN() ROUTINE – “FNSGN”
+
+[block]
+offset = 2445
+text = CONVERT SIGNED A TO INTEGER – “CONIA”
+
+[block]
+offset = 2452
+text = MATH COMPARE ROUTINE – “VSIGN” (Accumulator)
+              This routine checks the sign of the ACCumulator.
+
+[block]
+offset = 2459
+text = MATH COMPARE ROUTINE - INTEGER SIGN (Accumulator)
+              Finds the sign of the Integer value held in the Accumulator.
+
+[block]
+offset = 2462
+text = MATH COMPARE ROUTINE - INTEGER SIGN (HL)
+              Finds the sign of the value held at (HL).
+
+[block]
+offset = 2468
+text = SINGLE PRECISION MATH ROUTINE – “PUSHF” - MOVE
+              Moves the single precision value in the ACCumulator to the STACK.
+
+[block]
+offset = 2481
+text = SINGLE PRECISION MATH ROUTINE – “MOVFM” - MOVE
+              This routine moves a number from memory (pointed to by HL) into the ACC.
+
+[block]
+offset = 2484
+text = SINGLE PRECISION MATH ROUTINE – “MOVFR” - MOVE
+              Store the single precision value in BC:DE into ACC.
+
+[block]
+offset = 2495
+text = SINGLE PRECISION MATH ROUTINE – “MOVRF” - MOVE
+              It loads four bytes from ACCumulator (single) into the BC:DE Register Pairs.
+
+[block]
+offset = 2498
+text = SINGLE PRECISION MATH ROUTINE – “MOVRM” - MOVE
+              It loads four byte Single, pointed by HL, into the BC:DE Register Pairs.
+
+[block]
+offset = 2507
+text = SINGLE PRECISION MATH ROUTINE – “MOVMF” - MOVE
+              Copy a Single Precision value from ACCumulator to memory.
+
+[block]
+offset = 2572
+text = LEVEL II BASIC SINGLE PRECISION COMPARE – “FCOMP”
+              Compare two single precision numbers.
+
+[block]
+offset = 2600
+text = Compare two single precision numbers.
+              Alters all Registers.
+
+[block]
+offset = 2617
+text = Double precision compare.
+
+[block]
+offset = 2639
+text = Internal single precision compare.
+
+[block]
+offset = 2687
+text = LEVEL II BASIC FRCINT() ROUTINE – “FRCINT”
+              Returns the largest integer less than or equal to the value in the FAC.
+
+[block]
+offset = 2714
+text = LEVEL II BASIC CONVERSION ROUTINE - \
+
+[block]
+offset = 2723
+text = LEVEL II BASIC INT() ROUTINE – “INT”
+              Returns the largest integer less than or equal to the value in the FAC.
+
+[block]
+offset = 2737
+text = Internal INT logic.
+
+[block]
+offset = 2779
+text = Internal conversion routine.
+
+[block]
+offset = 2811
+text = SINGLE PRECISION MATH ROUTINE – “DROUND”
+              This routine rounds the single precision number in the Accumulator.
 

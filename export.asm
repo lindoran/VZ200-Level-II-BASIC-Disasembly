@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Wed Apr 22 13:51:01 2026
+; Generated: Wed Apr 22 23:24:14 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -336,7 +336,7 @@ RESET:
               ld    (hl),a
               jp    0x2884         ; Jump to 2884H
               ld    hl,0x1928      ; Load 1928H into 7921H
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               ld    a,0x03         ; Set 78AFH to 3
               ld    (0x78AF),a
               pop   hl             ; Restore HL
@@ -1090,27 +1090,27 @@ RAM_VECTOR_BLOCK:
 ; Various entry points according to the required function.
 FP_ADD_HALF:
               ld    hl,0x1380      ; address of constant 0.5
-              call  0x09C2         ; load constant into Y then add to X
+              call  MOVRM          ; load constant into Y then add to X
               jr    $+8            ; jump to addition
 FP_SUB_HALF:
-              call  0x09C2         ; load constant into Y
+              call  MOVRM          ; load constant into Y
 FP_SUB_Y_MINUS_X:
-              call  0x0982         ; X = -X
+              call  NNEG           ; X = -X
 FP_ADD_X_PLUS_Y:
               ld    a,b            ; Y = 0? (Exp. Y = 0)
               or    a              ; Test A
               ret   z              ; yes, done
-              ld    a,(0x7924)     ; X = 0? (Exp. X = 0)
+              ld    a,(FAC)        ; X = 0? (Exp. X = 0)
               or    a              ; Test A
-              jp    z,0x09B4       ; yes, done, X=Y
+              jp    z,MOVFR        ; yes, done, X=Y
               sub   b              ; Exp. Y <= Exp. X?
               jr    nc,$+14        ; yes
               cpl                  ; negate Exp.Diff
               inc   a              ; exchange X with Y
               ex    de,hl          ; save LSB Y
-              call  0x09A4         ; put X on stack
+              call  PUSHF          ; put X on stack
               ex    de,hl          ; restore LSB Y
-              call  0x09B4         ; transfer Y to X
+              call  MOVFR          ; transfer Y to X
               pop   bc             ; load stack to Y
               pop   de             ; Pop de
               cp    0x19           ; Exp.Diff > mantissa (24 bits)
@@ -1119,9 +1119,9 @@ FP_ADD_X_PLUS_Y:
               call  0x09DF         ; A(7) = 0 if different signs
               ld    h,a            ; save sign flag
               pop   af             ; reload Exp.Difference
-              call  0x07D7         ; shift Y right by this difference
+              call  SHIFTR         ; shift Y right by this difference
               or    h              ; signs equal?
-              ld    hl,0x7921      ; LSB X address in HL
+              ld    hl,FACLO       ; LSB X address in HL
               jp    p,0x0754       ; no, subtract
 
 ; Mantissa addition
@@ -1170,7 +1170,7 @@ FP_ADD_X_PLUS_Y:
 
 ; Set real value = 0
               xor   a              ; exponent in X = 0
-              ld    (0x7924),a     ; i.e. X = 0
+              ld    (FAC),a        ; i.e. X = 0
               ret                  ; Return
 
 ; 2nd part of normalization
@@ -1188,7 +1188,7 @@ FP_ADD_X_PLUS_Y:
               ld    b,l            ; Load b from l
               or    a              ; no shift?
               jr    z,$+10         ; yes
-              ld    hl,0x7924      ; address X exponent
+              ld    hl,FAC         ; address X exponent
               add   a,(hl)         ; Exp. X + number of shifts
               ld    (hl),a         ; = Exp. X. Underflow?
               jr    nc,$-27        ; yes! X=0 and back
@@ -1196,7 +1196,7 @@ FP_ADD_X_PLUS_Y:
 
 ; Finalize result: round and copy Y to X
               ld    a,b            ; load LSB Y
-              ld    hl,0x7924      ; address X exponent
+              ld    hl,FAC         ; address X exponent
               or    a              ; LSB Y(7) = 0?
               call  m,0x07A8       ; no - round Y
               ld    b,(hl)         ; Exp. X to Exp. Y
@@ -1205,7 +1205,7 @@ FP_ADD_X_PLUS_Y:
               and   0x80           ; mask out sign
               xor   c              ; link with MSB Y (invert)
               ld    c,a            ; and back to MSB Y
-              jp    0x09B4         ; Y to X as result
+              jp    MOVFR          ; Y to X as result
 
 ; Rounding
               inc   e              ; LSB Y + 1
@@ -1255,138 +1255,167 @@ FP_ADD_X_PLUS_Y:
               sbc   a,c            ; MSB Y = 0 - MSB Y
               ld    c,a            ; Load c from a
               ret   
-              ld    b,0x00
-              sub   0x08
-              jr    c,$+9
-              ld    b,e
+
+; SINGLE PRECISION MATH ROUTINE – “SHIFTR”
+; This routine will shift the number in C/D/E right the number of times
+; held in Register A. The general idea is to shift right 8 places
+; as many times as is possible within the number of times in A,
+; and then jump out to shift single bits once you can't shift 8
+; at a time anymore. Alters everything except Register H.
+SHIFTR:
+              ld    b,0x00         ; LSB of result = 0
+SHIFTR1:
+              sub   0x08           ; shift 8 or more places?
+
+; (none)
+SHIFTR1:
+              jr    c,$+9          ; no!
+              ld    b,e            ; shift Y right by one byte
               ld    e,d
               ld    d,c
               ld    c,0x00
               jr    $-9
-              add   a,0x09
+
+; SINGLE PRECISION MATH ROUTINE – “SHFTR2”
+; This routine will shift the number in C/D/E right the number
+; of times held in Register A, but one byte at a time.
+SHFTR2:
+              add   a,0x09         ; shift count + 1 in L
               ld    l,a
-              xor   a
-              dec   l
-              ret   z
-              ld    a,c
+SHFTR3:
+              xor   a              ; clear Carry
+SHFTR4:
+              dec   l              ; shift counter - 1
+              ret   z              ; = 0? yes-done
+              ld    a,c            ; MSB Y one bit right
               rra   
               ld    c,a
-              ld    a,d
+              ld    a,d            ; next byte Y one bit right
               rra   
               ld    d,a
-              ld    a,e
+              ld    a,e            ; next byte Y one bit right
               rra   
               ld    e,a
-              ld    a,b
+              ld    a,b            ; LSB Y one bit right
               rra   
               ld    b,a
-              jr    $-15
-              nop   
-              nop   
-              nop   
-              add   a,c
-              inc   bc
-              xor   d
-              ld    d,(hl)
-              add   hl,de
-              add   a,b
-              pop   af
-              ld    (0x8076),hl
-              ld    b,l
-              xor   d
-              jr    c,$-124
-              call  0x0955
-              or    a
-              jp    pe,0x1E4A
-              ld    hl,0x7924
-              ld    a,(hl)
-              ld    bc,0x8035
+              jr    $-15           ; continue
+
+; SINGLE PRECISION CONSTANT STORAGE LOCATION – “FONE”
+FONE:
+              DEFB  0x00,0x00,0x00,0x81 ; = 1
+
+; SINGLE PRECISION CONSTANTS STORAGE LOCATION 2 – “LOGCN2”
+LOGCN2:
+              DEFB  0x03,0xAA,0x56,0x19,0x80,0xF1,0x22,0x76 ; number of constants = 3
+              DEFB  0x80,0x45,0xAA,0x38,0x82
+
+; LEVEL II BASIC LOG ROUTINE – “FNLOG”
+; Computes the natural log (base E) of the single precision value in
+; WRA1. The result is returned as a single precision value in WRA1.
+FNLOG:
+              call  SIGN           ; argument <= 0?
+              or    a              ; if FAC < 0, then an error
+              jp    pe,0x1E4A      ; yes, Function-Code Error
+              ld    hl,FAC         ; exponent of argument in A
+              ld    a,(hl)         ; get exponent
+              ld    bc,0x8035      ; Y = 0.707092
               ld    de,0x04F3
-              sub   b
-              push  af
-              ld    (hl),b
-              push  de
+              sub   b              ; offset Exp X in A
+              push  af             ; save
+              ld    (hl),b         ; Exp. X = 0
+              push  de             ; Y on stack
               push  bc
-              call  FP_ADD_X_PLUS_Y
-              pop   bc
+              call  FP_ADD_X_PLUS_Y ; X = X + 0.707092
+              pop   bc             ; reload Y with constant
               pop   de
-              inc   b
-              call  0x08A2
-              ld    hl,0x07F8
-              call  FP_SUB_HALF
-              ld    hl,0x07FC
-              call  0x149A
-              ld    bc,0x8080
+              inc   b              ; Exp. Y + 1 (Y = SQR(2))
+              call  0x08A2         ; X = SQR(2) / X
+              ld    hl,FONE        ; load address of constant 1
+              call  FP_SUB_HALF    ; X = 1 - X
+              ld    hl,LOGCN2      ; address of 1st series constant
+              call  0x149A         ; calculate series
+              ld    bc,0x8080      ; Y = -0.5
               ld    de,START
-              call  FP_ADD_X_PLUS_Y
-              pop   af
-              call  0x0F89
-              ld    bc,0x8031
+              call  FP_ADD_X_PLUS_Y ; X = X - 0.5
+              pop   af             ; exponent of argument
+              call  0x0F89         ; X = X + A
+
+; SINGLE PRECISION MULTIPLICATION – “FMLT”
+MULLN2:
+              ld    bc,0x8031      ; Y = LOG(2) approx. 0.693147
               ld    de,0x7218
-              call  0x0955
-              ret   z
-              ld    l,0x00
-              call  0x0914
-              ld    a,c
-              ld    (0x794F),a
-              ex    de,hl
+              call  SIGN           ; X = 0?
+FMLT:
+              ret   z              ; yes, done
+              ld    l,0x00         ; flag for exponent processing
+              call  MULDV          ; process exponents and signs
+              ld    a,c            ; mantissa from Y to 794F...
+              ld    (0x794F),a     ; MSB
+              ex    de,hl          ; LSB
               ld    (0x7950),hl
-              ld    bc,START
+              ld    bc,START       ; Y = clear result register
               ld    d,b
               ld    e,b
-              ld    hl,0x0765
-              push  hl
-              ld    hl,0x0869
-              push  hl
-              push  hl
-              ld    hl,0x7921
-              ld    a,(hl)
-              inc   hl
-              or    a
-              jr    z,$+38
-              push  hl
-              ld    l,0x08
-              rra   
-              ld    h,a
-              ld    a,c
-              jr    nc,$+13
-              push  hl
-              ld    hl,(0x7950)
-              add   hl,de
-              ex    de,hl
-              pop   hl
-              ld    a,(0x794F)
-              adc   a,c
-              rra   
-              ld    c,a
-              ld    a,d
+              ld    hl,0x0765      ; different return addresses for
+              push  hl             ; 3 passes on stack
+              ld    hl,FMLT2       ; to normalization after 3rd pass
+              push  hl             ; after 1st and 2nd pass
+              push  hl             ; repeat
+FMLT1:
+              ld    hl,FACLO       ; load LSB X address
+FMLT2:
+              ld    a,(hl)         ; LSB X in A
+              inc   hl             ; address next X-byte
+              or    a              ; content = 0?
+              jr    z,$+38         ; yes, shift result 1 byte right
+              push  hl             ; save address pointer
+              ld    l,0x08         ; bit counter = 8
+              rra                  ; shift a bit into carry
+              ld    h,a            ; save A in H
+              ld    a,c            ; load MSB of result
+              jr    nc,$+13        ; bit in carry = 1?
+              push  hl             ; yes! - save HL
+              ld    hl,(0x7950)    ; load LSB of 2nd factor
+              add   hl,de          ; + result LSB
+              ex    de,hl          ; in LSB Y
+              pop   hl             ; reload HL
+              ld    a,(0x794F)     ; load MSB of 2nd factor
+              adc   a,c            ; + result MSB
+              rra                  ; shift result 1 bit right
+              ld    c,a            ; MSB
+              ld    a,d            ; next byte
               rra   
               ld    d,a
-              ld    a,e
+              ld    a,e            ; next byte
               rra   
               ld    e,a
-              ld    a,b
+              ld    a,b            ; LSB
               rra   
               ld    b,a
-              dec   l
-              ld    a,h
-              jr    nz,$-29
-              pop   hl
+              dec   l              ; bit counter - 1
+              ld    a,h            ; reload X-byte
+              jr    nz,$-29        ; bit counter = 0, no-back
+              pop   hl             ; yes - load X-byte address
+              ret                  ; continue
+              ld    b,e            ; result 1 byte right. B = E
+              ld    e,d            ; E = D
+              ld    d,c            ; D = C
+              ld    c,a            ; C = 0
               ret   
-              ld    b,e
-              ld    e,d
-              ld    d,c
-              ld    c,a
-              ret   
-              call  0x09A4
-              ld    hl,0x0DD8
-              call  0x09B1
-              pop   bc
+
+; SINGLE PRECISION MATH ROUTINE – “FDIV”
+FDIV:
+              call  PUSHF          ; save value in X on stack
+              ld    hl,0x0DD8      ; address constant 10
+              call  MOVFM          ; transfer to X
+              pop   bc             ; load former X-value into Y
               pop   de
-              call  0x0955
-              jp    z,0x199A
+              call  SIGN           ; divisor = 0?
+DV0ERR_JMP:
+              jp    z,0x199A       ; yes, DIVISION BY ZERO - Error
               ld    l,0xFF
-              call  0x0914
+              call  MULDV
               inc   (hl)
               inc   (hl)
               dec   hl
@@ -1444,24 +1473,34 @@ FP_ADD_X_PLUS_Y:
               or    e
               jr    nz,$-51
               push  hl
-              ld    hl,0x7924
+              ld    hl,FAC
               dec   (hl)
               pop   hl
               jr    nz,$-59
               jp    0x07B2
+
+; DOUBLE PRECISION MATH ROUTINE – “MULDVS”
+; This routine is to check for special cases and to add exponents for
+; the FMULT and FDIV routines. Registers A, B, H and L are modified.
+MULDVS:
               ld    a,0xFF
+MULDVA_SKIP:
               ld    l,0xAF
-              ld    hl,0x792D
+MULDVA:
+              ld    hl,ARG
               ld    c,(hl)
               inc   hl
               xor   (hl)
               ld    b,a
               ld    l,0x00
+
+; DOUBLE PRECISION MATH ROUTINE – “MULDV”
+MULDV:
               ld    a,b
               or    a
               jr    z,$+33
               ld    a,l
-              ld    hl,0x7924
+              ld    hl,FAC
               xor   (hl)
               add   a,b
               ld    b,a
@@ -1476,14 +1515,14 @@ FP_ADD_X_PLUS_Y:
               ld    (hl),a
               dec   hl
               ret   
-              call  0x0955
+              call  SIGN
               cpl   
               pop   hl
               or    a
               pop   hl
               jp    p,0x0778
               jp    0x07B2
-              call  0x09BF
+              call  MOVRF
               ld    a,b
               or    a
               ret   z
@@ -1491,23 +1530,35 @@ FP_ADD_X_PLUS_Y:
               jp    c,0x07B2
               ld    b,a
               call  FP_ADD_X_PLUS_Y
-              ld    hl,0x7924
+              ld    hl,FAC
               inc   (hl)
               ret   nz
               jp    0x07B2
-              ld    a,(0x7924)
+
+; SINGLE DOUBLE MATH ROUTINE – “SIGN” (Accumulator)
+; This routine checks the sign of the value in the FAC.
+SIGN:
+              ld    a,(FAC)
               or    a
               ret   z
               ld    a,(0x7923)
               cp    0x2F
+ICOMPS:
               rla   
+SIGNS:
               sbc   a,a
               ret   nz
               inc   a
               ret   
+
+; MATH CONVERSION ROUTINE – “FLOAT”
+; This routine will take a signed integer held in Register A and
+; turn it into a floating point number. All registers are modified.
+FLOAT:
               ld    b,0x88
               ld    de,START
-              ld    hl,0x7924
+FLOATR:
+              ld    hl,FAC
               ld    c,a
               ld    (hl),b
               ld    b,0x00
@@ -1515,33 +1566,67 @@ FP_ADD_X_PLUS_Y:
               ld    (hl),0x80
               rla   
               jp    0x0762
-              call  0x0994
+
+; LEVEL II BASIC ABS() ROUTINE – “FNABS”
+FNABS:
+              call  VSIGN
               ret   p
+
+; NEGATE ROUTINE – “VNEG”
+; This routine will negate any value in the ACCumulator.
+VNEG:
               rst   0x20
-              jp    m,0x0C5B
-              jp    z,0x0AF6
+              jp    m,INEG
+              jp    z,TMERR
+
+; NEGATE SINGLE/DOUBLE ROUTINE – “NNEG”
+; This routine will negate the single or double precision number in the 
+; ACCumulator.
+NNEG:
               ld    hl,0x7923
               ld    a,(hl)
               xor   0x80
               ld    (hl),a
               ret   
-              call  0x0994
+
+; LEVEL II BASIC SGN() ROUTINE – “FNSGN”
+FNSGN:
+              call  VSIGN
+
+; CONVERT SIGNED A TO INTEGER – “CONIA”
+CONIA:
               ld    l,a
               rla   
               sbc   a,a
               ld    h,a
-              jp    0x0A9A
+              jp    MAKINT
+
+; MATH COMPARE ROUTINE – “VSIGN” (Accumulator)
+; This routine checks the sign of the ACCumulator.
+VSIGN:
               rst   0x20
-              jp    z,0x0AF6
-              jp    p,0x0955
-              ld    hl,(0x7921)
+              jp    z,TMERR
+              jp    p,SIGN
+
+; MATH COMPARE ROUTINE - INTEGER SIGN (Accumulator)
+; Finds the sign of the Integer value held in the Accumulator.
+ISIGNA:
+              ld    hl,(FACLO)
+
+; MATH COMPARE ROUTINE - INTEGER SIGN (HL)
+; Finds the sign of the value held at (HL).
+ISIGN:
               ld    a,h
               or    l
               ret   z
               ld    a,h
               jr    $-67
+
+; SINGLE PRECISION MATH ROUTINE – “PUSHF” - MOVE
+; Moves the single precision value in the ACCumulator to the STACK.
+PUSHF:
               ex    de,hl
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               ex    (sp),hl
               push  hl
               ld    hl,(0x7923)
@@ -1549,15 +1634,31 @@ FP_ADD_X_PLUS_Y:
               push  hl
               ex    de,hl
               ret   
-              call  0x09C2
+
+; SINGLE PRECISION MATH ROUTINE – “MOVFM” - MOVE
+; This routine moves a number from memory (pointed to by HL) into the ACC.
+MOVFM:
+              call  MOVRM
+
+; SINGLE PRECISION MATH ROUTINE – “MOVFR” - MOVE
+; Store the single precision value in BC:DE into ACC.
+MOVFR:
               ex    de,hl
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               ld    h,b
               ld    l,c
               ld    (0x7923),hl
               ex    de,hl
               ret   
-              ld    hl,0x7921
+
+; SINGLE PRECISION MATH ROUTINE – “MOVRF” - MOVE
+; It loads four bytes from ACCumulator (single) into the BC:DE Register Pairs.
+MOVRF:
+              ld    hl,FACLO
+
+; SINGLE PRECISION MATH ROUTINE – “MOVRM” - MOVE
+; It loads four byte Single, pointed by HL, into the BC:DE Register Pairs.
+MOVRM:
               ld    e,(hl)
               inc   hl
               ld    d,(hl)
@@ -1567,7 +1668,11 @@ FP_ADD_X_PLUS_Y:
               ld    b,(hl)
               inc   hl
               ret   
-              ld    de,0x7921
+
+; SINGLE PRECISION MATH ROUTINE – “MOVMF” - MOVE
+; Copy a Single Precision value from ACCumulator to memory.
+MOVMF:
+              ld    de,FACLO
               ld    b,0x04
               jr    $+7
               ex    de,hl
@@ -1605,29 +1710,39 @@ FP_ADD_X_PLUS_Y:
               ld    hl,0x7927
               ld    de,0x09D3
               push  de
-              ld    de,0x7921
+              ld    de,FACLO
               rst   0x20
               ret   c
               ld    de,0x791D
               ret   
+
+; LEVEL II BASIC SINGLE PRECISION COMPARE – “FCOMP”
+; Compare two single precision numbers.
+FCOMP:
               ld    a,b
               or    a
-              jp    z,0x0955
+              jp    z,SIGN
               ld    hl,0x095E
               push  hl
-              call  0x0955
+              call  SIGN
               ld    a,c
               ret   z
               ld    hl,0x7923
               xor   (hl)
               ld    a,c
               ret   m
+FCOMP2:
               call  0x0A26
+FCOMPD:
               rra   
               xor   c
               ret   
               inc   hl
               ld    a,b
+
+; Compare two single precision numbers.
+; Alters all Registers.
+FCOMP2:
               cp    (hl)
               ret   nz
               dec   hl
@@ -1645,25 +1760,30 @@ FP_ADD_X_PLUS_Y:
               pop   hl
               pop   hl
               ret   
+
+; Double precision compare.
+DCOMP:
               ld    a,d
               xor   h
               ld    a,h
-              jp    m,0x095F
+              jp    m,ICOMPS
               cp    d
-              jp    nz,0x0960
+              jp    nz,SIGNS
               ld    a,l
               sub   e
-              jp    nz,0x0960
+              jp    nz,SIGNS
               ret   
               ld    hl,0x7927
               call  0x09D3
+
+; Internal single precision compare.
               ld    de,0x792E
               ld    a,(de)
               or    a
-              jp    z,0x0955
+              jp    z,SIGN
               ld    hl,0x095E
               push  hl
-              call  0x0955
+              call  SIGN
               dec   de
               ld    a,(de)
               ld    c,a
@@ -1677,7 +1797,7 @@ FP_ADD_X_PLUS_Y:
               ld    b,0x08
               ld    a,(de)
               sub   (hl)
-              jp    nz,0x0A23
+              jp    nz,FCOMPD
               dec   de
               dec   hl
               dec   b
@@ -1687,35 +1807,48 @@ FP_ADD_X_PLUS_Y:
               call  0x0A4F
               jp    nz,0x095E
               ret   
+
+; LEVEL II BASIC FRCINT() ROUTINE – “FRCINT”
+; Returns the largest integer less than or equal to the value in the FAC.
+FRCINT:
               rst   0x20
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               ret   m
-              jp    z,0x0AF6
+              jp    z,TMERR
               call  nc,0x0AB9
               ld    hl,0x07B2
               push  hl
-              ld    a,(0x7924)
+              ld    a,(FAC)
               cp    0x90
               jr    nc,$+16
-              call  0x0AFB
+              call  DROUND
               ex    de,hl
               pop   de
-              ld    (0x7921),hl
+
+; LEVEL II BASIC CONVERSION ROUTINE - \
+MAKINT:
+              ld    (FACLO),hl
               ld    a,0x02
               ld    (0x78AF),a
               ret   
+
+; LEVEL II BASIC INT() ROUTINE – “INT”
+; Returns the largest integer less than or equal to the value in the FAC.
+INT:
               ld    bc,0x9080
               ld    de,START
-              call  0x0A0C
+              call  FCOMP
               ret   nz
               ld    h,c
               ld    l,d
               jr    $-22
+
+; Internal INT logic.
               rst   0x20
               ret   po
-              jp    m,0x0ACC
-              jp    z,0x0AF6
-              call  0x09BF
+              jp    m,INEG
+              jp    z,TMERR
+              call  MOVRF
               call  0x0AEF
               ld    a,b
               or    a
@@ -1724,17 +1857,20 @@ FP_ADD_X_PLUS_Y:
               ld    hl,0x7920
               ld    b,(hl)
               jp    0x0796
-              ld    hl,(0x7921)
+INEG:
+              ld    hl,(FACLO)
               call  0x0AEF
               ld    a,h
               ld    d,l
               ld    e,0x00
               ld    b,0x90
-              jp    0x0969
+              jp    FLOATR
+
+; Internal conversion routine.
               rst   0x20
               ret   nc
-              jp    z,0x0AF6
-              call  m,0x0ACC
+              jp    z,TMERR
+              call  m,INEG
               ld    hl,START
               ld    (0x791D),hl
               ld    (0x791F),hl
@@ -1743,8 +1879,13 @@ FP_ADD_X_PLUS_Y:
               jp    0x0A9F
               rst   0x20
               ret   z
+TMERR:
               ld    e,0x18
               jp    0x19A2
+
+; SINGLE PRECISION MATH ROUTINE – “DROUND”
+; This routine rounds the single precision number in the Accumulator.
+DROUND:
               ld    b,a
               ld    c,a
               ld    d,a
@@ -1752,14 +1893,14 @@ FP_ADD_X_PLUS_Y:
               or    a
               ret   z
               push  hl
-              call  0x09BF
+              call  MOVRF
               call  0x09DF
               xor   (hl)
               ld    h,a
               call  m,0x0B1F
               ld    a,0x98
               sub   b
-              call  0x07D7
+              call  SHIFTR
               ld    a,h
               rla   
               call  c,0x07A8
@@ -1776,23 +1917,23 @@ FP_ADD_X_PLUS_Y:
               ret   
               rst   0x20
               ret   m
-              call  0x0955
+              call  SIGN
               jp    p,0x0B37
-              call  0x0982
+              call  NNEG
               call  0x0B37
-              jp    0x097B
+              jp    VNEG
               rst   0x20
               ret   m
               jr    nc,$+32
               jr    z,$-69
               call  0x0A8E
-              ld    hl,0x7924
+              ld    hl,FAC
               ld    a,(hl)
               cp    0x98
-              ld    a,(0x7921)
+              ld    a,(FACLO)
               ret   nc
               ld    a,(hl)
-              call  0x0AFB
+              call  DROUND
               ld    (hl),0x98
               ld    a,e
               push  af
@@ -1801,10 +1942,10 @@ FP_ADD_X_PLUS_Y:
               call  0x0762
               pop   af
               ret   
-              ld    hl,0x7924
+              ld    hl,FAC
               ld    a,(hl)
               cp    0x90
-              jp    c,0x0A7F
+              jp    c,FRCINT
               jr    nz,$+22
               ld    c,a
               dec   hl
@@ -1817,12 +1958,12 @@ FP_ADD_X_PLUS_Y:
               jr    nz,$-3
               or    a
               ld    hl,0x8000
-              jp    z,0x0A9A
+              jp    z,MAKINT
               ld    a,c
               cp    0xB8
               ret   nc
               push  af
-              call  0x09BF
+              call  MOVRF
               call  0x09DF
               xor   (hl)
               dec   hl
@@ -1892,13 +2033,13 @@ FP_ADD_X_PLUS_Y:
               call  0x0ACF
               pop   af
               pop   hl
-              call  0x09A4
+              call  PUSHF
               ex    de,hl
               call  0x0C6B
               jp    0x0F8F
               ld    a,h
               or    l
-              jp    z,0x0A9A
+              jp    z,MAKINT
               push  hl
               push  de
               call  0x0C45
@@ -1932,7 +2073,7 @@ FP_ADD_X_PLUS_Y:
               ld    bc,0xE1C1
               call  0x0ACF
               pop   hl
-              call  0x09A4
+              call  PUSHF
               call  0x0ACF
               pop   bc
               pop   de
@@ -1940,11 +2081,11 @@ FP_ADD_X_PLUS_Y:
               ld    a,b
               or    a
               pop   bc
-              jp    m,0x0A9A
+              jp    m,MAKINT
               push  de
               call  0x0ACF
               pop   de
-              jp    0x0982
+              jp    NNEG
               ld    a,h
               xor   d
               ld    b,a
@@ -1952,7 +2093,7 @@ FP_ADD_X_PLUS_Y:
               ex    de,hl
               ld    a,h
               or    a
-              jp    p,0x0A9A
+              jp    p,MAKINT
               xor   a
               ld    c,a
               sub   l
@@ -1960,8 +2101,9 @@ FP_ADD_X_PLUS_Y:
               ld    a,c
               sbc   a,h
               ld    h,a
-              jp    0x0A9A
-              ld    hl,(0x7921)
+              jp    MAKINT
+INEG:
+              ld    hl,(FACLO)
               call  0x0C51
               ld    a,h
               xor   0x80
@@ -1971,8 +2113,8 @@ FP_ADD_X_PLUS_Y:
               call  0x0AEF
               xor   a
               ld    b,0x98
-              jp    0x0969
-              ld    hl,0x792D
+              jp    FLOATR
+              ld    hl,ARG
               ld    a,(hl)
               xor   0x80
               ld    (hl),a
@@ -1983,7 +2125,7 @@ FP_ADD_X_PLUS_Y:
               ld    b,a
               dec   hl
               ld    c,(hl)
-              ld    de,0x7924
+              ld    de,FAC
               ld    a,(de)
               or    a
               jp    z,0x09F4
@@ -2017,7 +2159,7 @@ FP_ADD_X_PLUS_Y:
               ld    (hl),0x00
               ld    b,a
               pop   af
-              ld    hl,0x792D
+              ld    hl,ARG
               call  0x0D69
               ld    a,(0x7926)
               ld    (0x791C),a
@@ -2060,7 +2202,7 @@ FP_ADD_X_PLUS_Y:
               ld    a,b
               or    a
               jr    z,$+11
-              ld    hl,0x7924
+              ld    hl,FAC
               add   a,(hl)
               ld    (hl),a
               jp    nc,0x0778
@@ -2166,7 +2308,7 @@ FP_ADD_X_PLUS_Y:
               dec   c
               jr    nz,$-5
               ret   
-              call  0x0955
+              call  SIGN
               ret   z
               call  0x090A
               call  0x0E39
@@ -2208,7 +2350,7 @@ FP_ADD_X_PLUS_Y:
               ld    a,(0x792E)
               or    a
               jp    z,0x199A
-              call  0x0907
+              call  MULDVS
               inc   (hl)
               inc   (hl)
               call  0x0E39
@@ -2241,12 +2383,12 @@ FP_ADD_X_PLUS_Y:
               ld    a,b
               or    a
               jr    nz,$-53
-              ld    hl,0x7924
+              ld    hl,FAC
               dec   (hl)
               jr    nz,$-59
               jp    0x07B2
               ld    a,c
-              ld    (0x792D),a
+              ld    (ARG),a
               dec   hl
               ld    de,0x7950
               ld    bc,0x0700
@@ -2280,7 +2422,7 @@ FP_ADD_X_PLUS_Y:
               ld    bc,0x00FF
               ld    h,b
               ld    l,b
-              call  z,0x0A9A
+              call  z,MAKINT
               ex    de,hl
               ld    a,(hl)
               cp    0x2D
@@ -2337,14 +2479,14 @@ FP_ADD_X_PLUS_Y:
               pop   hl
               pop   af
               push  hl
-              call  z,0x097B
+              call  z,VNEG
               pop   hl
               rst   0x20
               ret   pe
               push  hl
               ld    hl,0x0890
               push  hl
-              call  0x0AA3
+              call  INT
               ret   
               rst   0x20
               inc   c
@@ -2384,7 +2526,7 @@ FP_ADD_X_PLUS_Y:
               push  af
               rst   0x20
               push  af
-              call  po,0x0897
+              call  po,FDIV
               pop   af
               call  pe,0x0DDC
               pop   af
@@ -2403,7 +2545,7 @@ FP_ADD_X_PLUS_Y:
               push  af
               rst   0x20
               jp    p,0x0F5D
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               ld    de,0x0CCD
               rst   0x18
               jr    nc,$+27
@@ -2419,19 +2561,19 @@ FP_ADD_X_PLUS_Y:
               ld    a,h
               or    a
               jp    m,0x0F57
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               pop   hl
               pop   bc
               pop   de
               jp    0x0E83
               ld    a,c
               push  af
-              call  0x0ACC
+              call  INEG
               scf   
               jr    nc,$+26
               ld    bc,0x9474
               ld    de,0x2400
-              call  0x0A0C
+              call  FCOMP
               jp    p,0x0F74
               call  0x093E
               pop   af
@@ -2441,12 +2583,12 @@ FP_ADD_X_PLUS_Y:
               call  0x0E4D
               call  0x09FC
               pop   af
-              call  0x0964
+              call  FLOAT
               call  0x0AE3
               call  0x0C77
               jr    $-54
-              call  0x09A4
-              call  0x0964
+              call  PUSHF
+              call  FLOAT
               pop   bc
               pop   de
               jp    FP_ADD_X_PLUS_Y
@@ -2466,7 +2608,7 @@ FP_ADD_X_PLUS_Y:
               ld    hl,0x1924
               call  0x28A7
               pop   hl
-              call  0x0A9A
+              call  MAKINT
               xor   a
               call  0x1034
               or    (hl)
@@ -2478,13 +2620,13 @@ FP_ADD_X_PLUS_Y:
               jr    z,$+4
               ld    (hl),0x2B
               ex    de,hl
-              call  0x0994
+              call  VSIGN
               ex    de,hl
               jp    p,0x0FD9
               ld    (hl),0x2D
               push  bc
               push  hl
-              call  0x097B
+              call  VNEG
               pop   hl
               pop   bc
               or    h
@@ -2681,10 +2823,10 @@ FP_ADD_X_PLUS_Y:
               ret   
               ld    bc,0xB60E
               ld    de,0x1BCA
-              call  0x0A0C
+              call  FCOMP
               jp    p,0x111B
               ld    d,0x06
-              call  0x0955
+              call  SIGN
               call  nz,0x1201
               pop   hl
               pop   bc
@@ -2751,13 +2893,13 @@ FP_ADD_X_PLUS_Y:
               jp    0x10BF
               push  hl
               push  de
-              call  0x0ACC
+              call  INEG
               pop   de
               xor   a
               jp    z,0x11B0
               ld    e,0x10
               ld    bc,0x061E
-              call  0x0955
+              call  SIGN
               scf   
               call  nz,0x1201
               pop   hl
@@ -2815,7 +2957,7 @@ FP_ADD_X_PLUS_Y:
               push  af
               rst   0x20
               jp    po,0x1222
-              ld    a,(0x7924)
+              ld    a,(FAC)
               cp    0x91
               jp    nc,0x1222
               ld    de,0x1364
@@ -2831,7 +2973,7 @@ FP_ADD_X_PLUS_Y:
               jp    pe,0x1234
               ld    bc,0x9143
               ld    de,0x4FF9
-              call  0x0A0C
+              call  FCOMP
               jr    $+8
               ld    de,0x136C
               call  0x0A49
@@ -2851,7 +2993,7 @@ FP_ADD_X_PLUS_Y:
               jp    pe,0x125E
               ld    bc,0x9474
               ld    de,0x23F8
-              call  0x0A0C
+              call  FCOMP
               jr    $+8
               ld    de,0x1374
               call  0x0A49
@@ -2937,14 +3079,14 @@ FP_ADD_X_PLUS_Y:
               push  bc
               push  hl
               ld    hl,0x791D
-              call  0x09B1
+              call  MOVFM
               jr    $+14
               push  bc
               push  hl
               call  FP_ADD_HALF
               inc   a
-              call  0x0AFB
-              call  0x09B4
+              call  DROUND
+              call  MOVFR
               pop   hl
               pop   bc
               xor   a
@@ -2955,7 +3097,7 @@ FP_ADD_X_PLUS_Y:
               push  af
               push  hl
               push  de
-              call  0x09BF
+              call  MOVRF
               pop   hl
               ld    b,0x2F
               inc   b
@@ -2975,7 +3117,7 @@ FP_ADD_X_PLUS_Y:
               jr    nc,$-14
               call  0x07B7
               inc   hl
-              call  0x09B4
+              call  MOVFR
               ex    de,hl
               pop   hl
               ld    (hl),b
@@ -3002,7 +3144,7 @@ FP_ADD_X_PLUS_Y:
               inc   hl
               ex    (sp),hl
               ex    de,hl
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               ld    b,0x2F
               inc   b
               ld    a,l
@@ -3013,7 +3155,7 @@ FP_ADD_X_PLUS_Y:
               ld    h,a
               jr    nc,$-7
               add   hl,de
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               pop   de
               pop   hl
               ld    (hl),b
@@ -3135,14 +3277,14 @@ FP_ADD_X_PLUS_Y:
               add   hl,bc
               ex    (sp),hl
               jp    (hl)
-              call  0x09A4
+              call  PUSHF
               ld    hl,0x1380
-              call  0x09B1
+              call  MOVFM
               jr    $+5
               call  0x0AB1
               pop   bc
               pop   de
-              call  0x0955
+              call  SIGN
               ld    a,b
               jr    z,$+62
               jp    p,0x1404
@@ -3154,7 +3296,7 @@ FP_ADD_X_PLUS_Y:
               push  bc
               ld    a,c
               or    0x7F
-              call  0x09BF
+              call  MOVRF
               jp    p,0x1421
               push  de
               push  bc
@@ -3162,27 +3304,27 @@ FP_ADD_X_PLUS_Y:
               pop   bc
               pop   de
               push  af
-              call  0x0A0C
+              call  FCOMP
               pop   hl
               ld    a,h
               rra   
               pop   hl
               ld    (0x7923),hl
               pop   hl
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               call  c,0x13E2
-              call  z,0x0982
+              call  z,NNEG
               push  de
               push  bc
-              call  0x0809
+              call  FNLOG
               pop   bc
               pop   de
               call  0x0847
-              call  0x09A4
+              call  PUSHF
               ld    bc,0x8138
               ld    de,0xAA3B
               call  0x0847
-              ld    a,(0x7924)
+              ld    a,(FAC)
               cp    0x88
               jp    nc,0x0931
               call  0x0B40
@@ -3190,15 +3332,15 @@ FP_ADD_X_PLUS_Y:
               add   a,0x02
               jp    c,0x0931
               push  af
-              ld    hl,0x07F8
+              ld    hl,FONE
               call  0x070B
-              call  0x0841
+              call  MULLN2
               pop   af
               pop   bc
               pop   de
               push  af
               call  FP_SUB_Y_MINUS_X
-              call  0x0982
+              call  NNEG
               ld    hl,0x1479
               call  0x14A9
               ld    de,START
@@ -3233,17 +3375,17 @@ FP_ADD_X_PLUS_Y:
               nop   
               nop   
               add   a,c
-              call  0x09A4
+              call  PUSHF
               ld    de,0x0C32
               push  de
               push  hl
-              call  0x09BF
+              call  MOVRF
               call  0x0847
               pop   hl
-              call  0x09A4
+              call  PUSHF
               ld    a,(hl)
               inc   hl
-              call  0x09B1
+              call  MOVFM
               ld    b,0xF1
               pop   bc
               pop   de
@@ -3255,12 +3397,12 @@ FP_ADD_X_PLUS_Y:
               push  hl
               call  0x0847
               pop   hl
-              call  0x09C2
+              call  MOVRM
               push  hl
               call  FP_ADD_X_PLUS_Y
               pop   hl
               jr    $-21
-              call  0x0A7F
+              call  FRCINT
               ld    a,h
               or    a
               jp    m,0x1E4A
@@ -3268,7 +3410,7 @@ FP_ADD_X_PLUS_Y:
               jp    z,0x14F0
               push  hl
               call  0x14F0
-              call  0x09BF
+              call  MOVRF
               ex    de,hl
               ex    (sp),hl
               push  bc
@@ -3276,7 +3418,7 @@ FP_ADD_X_PLUS_Y:
               pop   bc
               pop   de
               call  0x0847
-              ld    hl,0x07F8
+              ld    hl,FONE
               call  0x070B
               jp    0x0B40
               ld    hl,0x7890
@@ -3331,32 +3473,32 @@ FP_ADD_X_PLUS_Y:
               jp    0x0765
               ld    hl,0x158B
               call  0x070B
-              call  0x09A4
+              call  PUSHF
               ld    bc,0x8349
               ld    de,0x0FDB
-              call  0x09B4
+              call  MOVFR
               pop   bc
               pop   de
               call  0x08A2
-              call  0x09A4
+              call  PUSHF
               call  0x0B40
               pop   bc
               pop   de
               call  FP_SUB_Y_MINUS_X
               ld    hl,0x158F
               call  FP_SUB_HALF
-              call  0x0955
+              call  SIGN
               scf   
               jp    p,0x1577
               call  FP_ADD_HALF
-              call  0x0955
+              call  SIGN
               or    a
               push  af
-              call  p,0x0982
+              call  p,NNEG
               ld    hl,0x158F
               call  0x070B
               pop   af
-              call  nc,0x0982
+              call  nc,NNEG
               ld    hl,0x1593
               jp    0x149A
               in    a,(0x0F)
@@ -3383,19 +3525,19 @@ FP_ADD_X_PLUS_Y:
               add   a,(hl)
               jp    c,0x490F
               add   a,e
-              call  0x09A4
+              call  PUSHF
               call  0x1547
               pop   bc
               pop   hl
-              call  0x09A4
+              call  PUSHF
               ex    de,hl
-              call  0x09B4
+              call  MOVFR
               call  0x1541
               jp    0x08A0
-              call  0x0955
+              call  SIGN
               call  m,0x13E2
-              call  m,0x0982
-              ld    a,(0x7924)
+              call  m,NNEG
+              ld    a,(FAC)
               cp    0x81
               jr    c,$+14
               ld    bc,0x8100
@@ -4655,14 +4797,14 @@ FP_ADD_X_PLUS_Y:
               rst   8
               cp    l
               rst   0x20
-              jp    z,0x0AF6
-              jp    nc,0x0AF6
+              jp    z,TMERR
+              jp    nc,TMERR
               push  af
               call  0x2337
               pop   af
               push  hl
               jp    p,0x1CEC
-              call  0x0A7F
+              call  FRCINT
               ex    (sp),hl
               ld    de,0x0001
               ld    a,(hl)
@@ -4671,10 +4813,10 @@ FP_ADD_X_PLUS_Y:
               push  de
               push  hl
               ex    de,hl
-              call  0x099E
+              call  ISIGN
               jr    $+36
               call  0x0AB1
-              call  0x09BF
+              call  MOVRF
               pop   hl
               push  bc
               push  de
@@ -4688,8 +4830,8 @@ FP_ADD_X_PLUS_Y:
               call  0x2338
               push  hl
               call  0x0AB1
-              call  0x09BF
-              call  0x0955
+              call  MOVRF
+              call  SIGN
               pop   hl
               push  bc
               push  de
@@ -5018,7 +5160,7 @@ FP_ADD_X_PLUS_Y:
               call  0x0A03
               push  hl
               jr    nz,$+42
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               push  hl
               inc   hl
               ld    e,(hl)
@@ -5170,7 +5312,7 @@ FP_ADD_X_PLUS_Y:
               call  z,0x1D78
               dec   hl
               push  hl
-              call  0x0994
+              call  VSIGN
               pop   hl
               jr    z,$+9
               rst   0x10
@@ -5231,7 +5373,7 @@ FP_ADD_X_PLUS_Y:
               call  0x0FBD
               call  0x2865
               call  0x79CD
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               ld    a,(0x789C)
               or    a
               jp    m,0x20E9
@@ -5522,16 +5664,16 @@ FP_ADD_X_PLUS_Y:
               inc   hl
               or    a
               jp    m,0x22EA
-              call  0x09B1
+              call  MOVFM
               ex    (sp),hl
               push  hl
               call  0x070B
               pop   hl
-              call  0x09CB
+              call  MOVMF
               pop   hl
-              call  0x09C2
+              call  MOVRM
               push  hl
-              call  0x0A0C
+              call  FCOMP
               jr    $+43
               inc   hl
               inc   hl
@@ -5564,11 +5706,11 @@ FP_ADD_X_PLUS_Y:
               ld    d,(hl)
               inc   hl
               ex    (sp),hl
-              call  0x0A39
+              call  DCOMP
               pop   hl
               pop   bc
               sub   b
-              call  0x09C2
+              call  MOVRM
               jr    z,$+11
               ex    de,hl
               ld    (0x78A2),hl
@@ -5636,13 +5778,13 @@ FP_ADD_X_PLUS_Y:
               jp    z,0x23D4
               cp    0x51
               jp    c,0x23E1
-              ld    hl,0x7921
+              ld    hl,FACLO
               or    a
               ld    a,(0x78AF)
               dec   a
               dec   a
               dec   a
-              jp    z,0x0AF6
+              jp    z,TMERR
               ld    c,(hl)
               inc   hl
               ld    b,(hl)
@@ -5679,12 +5821,12 @@ FP_ADD_X_PLUS_Y:
               ld    hl,(0x78D8)
               jp    0x233A
               call  0x0AB1
-              call  0x09A4
+              call  PUSHF
               ld    bc,0x13F2
               ld    d,0x7F
               jr    $-18
               push  de
-              call  0x0A7F
+              call  FRCINT
               pop   de
               push  hl
               ld    bc,0x25E9
@@ -5699,7 +5841,7 @@ FP_ADD_X_PLUS_Y:
               push  hl
               rst   0x20
               jp    nz,0x2395
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               push  hl
               ld    bc,0x258C
               jr    $-55
@@ -5718,7 +5860,7 @@ FP_ADD_X_PLUS_Y:
               jp    z,0x2472
               ld    a,d
               cp    0x03
-              jp    z,0x0AF6
+              jp    z,TMERR
               jp    nc,0x247C
               ld    hl,0x18BF
               ld    b,0x00
@@ -5728,7 +5870,7 @@ FP_ADD_X_PLUS_Y:
               inc   hl
               ld    b,(hl)
               pop   de
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               push  bc
               ret   
               call  0x0ADB
@@ -5739,7 +5881,7 @@ FP_ADD_X_PLUS_Y:
               ld    (0x791D),hl
               pop   bc
               pop   de
-              call  0x09B4
+              call  MOVFR
               call  0x0ADB
               ld    hl,0x18AB
               ld    a,(0x78B0)
@@ -5761,7 +5903,7 @@ FP_ADD_X_PLUS_Y:
               cp    0x04
               jr    z,$-36
               pop   hl
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               jr    $-37
               call  0x0AB1
               pop   bc
@@ -5769,19 +5911,19 @@ FP_ADD_X_PLUS_Y:
               ld    hl,0x18B5
               jr    $-41
               pop   hl
-              call  0x09A4
+              call  PUSHF
               call  0x0ACF
-              call  0x09BF
+              call  MOVRF
               pop   hl
               ld    (0x7923),hl
               pop   hl
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               jr    $-23
               push  hl
               ex    de,hl
               call  0x0ACF
               pop   hl
-              call  0x09A4
+              call  PUSHF
               call  0x0ACF
               jp    0x08A0
               rst   0x10
@@ -5831,7 +5973,7 @@ FP_ADD_X_PLUS_Y:
               ld    a,h
               or    l
               jp    z,0x1E4A
-              call  0x0A9A
+              call  MAKINT
               pop   hl
               ret   
               cp    0xC1
@@ -5860,13 +6002,13 @@ FP_ADD_X_PLUS_Y:
               call  0x233A
               ld    hl,(0x78F3)
               push  hl
-              call  0x097B
+              call  VNEG
               pop   hl
               ret   
               call  0x260D
               push  hl
               ex    de,hl
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               rst   0x20
               call  nz,0x09F7
               pop   hl
@@ -5884,7 +6026,7 @@ FP_ADD_X_PLUS_Y:
               inc   l
               call  0x0AF4
               ex    de,hl
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               ex    (sp),hl
               push  hl
               ex    de,hl
@@ -5945,25 +6087,25 @@ FP_ADD_X_PLUS_Y:
               inc   bc
               jr    z,$-17
               ccf   
-              jp    0x0960
+              jp    SIGNS
               inc   a
               adc   a,a
               pop   bc
               and   b
               add   a,0xFF
               sbc   a,a
-              call  0x098D
+              call  CONIA
               jr    $+20
               ld    d,0x5A
               call  0x233A
-              call  0x0A7F
+              call  FRCINT
               ld    a,l
               cpl   
               ld    l,a
               ld    a,h
               cpl   
               ld    h,a
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               pop   bc
               jp    0x2346
               ld    a,(0x78AF)
@@ -5977,7 +6119,7 @@ FP_ADD_X_PLUS_Y:
               or    a
               ret   
               push  bc
-              call  0x0A7F
+              call  FRCINT
               pop   af
               pop   de
               ld    bc,0x27FA
@@ -6139,15 +6281,15 @@ FP_ADD_X_PLUS_Y:
               pop   af
               ex    (sp),hl
               ret   
-              ld    (0x7924),a
+              ld    (FAC),a
               pop   bc
               ld    h,a
               ld    l,a
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               rst   0x20
               jr    nz,$+8
               ld    hl,0x1928
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               pop   hl
               ret   
               push  hl
@@ -6333,7 +6475,7 @@ FP_ADD_X_PLUS_Y:
               ld    l,a
               xor   a
               ld    h,a
-              jp    0x0A9A
+              jp    MAKINT
               call  0x79A9
               rst   0x10
               call  0x252C
@@ -6419,7 +6561,7 @@ FP_ADD_X_PLUS_Y:
               ld    de,0x78D3
               ld    a,0xD5
               ld    hl,(0x78B3)
-              ld    (0x7921),hl
+              ld    (FACLO),hl
               ld    a,0x03
               ld    (0x78AF),a
               call  0x09D3
@@ -6508,7 +6650,7 @@ FP_ADD_X_PLUS_Y:
               jp    z,0x296B
               ld    a,(hl)
               inc   hl
-              call  0x09C2
+              call  MOVRM
               push  hl
               add   hl,bc
               cp    0x03
@@ -6588,14 +6730,14 @@ FP_ADD_X_PLUS_Y:
               jp    0x28E9
               push  bc
               push  hl
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               ex    (sp),hl
               call  0x249F
               ex    (sp),hl
               call  0x0AF4
               ld    a,(hl)
               push  hl
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               push  hl
               add   a,(hl)
               ld    e,0x1C
@@ -6631,7 +6773,7 @@ FP_ADD_X_PLUS_Y:
               inc   de
               jr    $-6
               call  0x0AF4
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               ex    de,hl
               call  0x29F5
               ex    de,hl
@@ -6826,7 +6968,7 @@ FP_ADD_X_PLUS_Y:
               rst   0x10
               call  0x2337
               push  hl
-              call  0x0A7F
+              call  FRCINT
               ex    de,hl
               pop   hl
               ld    a,d
@@ -7085,7 +7227,7 @@ FP_ADD_X_PLUS_Y:
               call  0x3ABA
               ret   
               jr    nc,$-97
-              call  0x0A7F
+              call  FRCINT
               ld    a,(hl)
               jp    0x27F8
               call  0x2B02
@@ -7101,7 +7243,7 @@ FP_ADD_X_PLUS_Y:
               rst   8
               dec   sp
               ex    de,hl
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               jr    $+10
               ld    a,(0x78DE)
               or    a
@@ -7330,13 +7472,13 @@ FP_ADD_X_PLUS_Y:
               pop   bc
               push  bc
               push  hl
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               ld    b,c
               ld    c,0x00
               push  bc
               call  0x2A68
               call  0x28AA
-              ld    hl,(0x7921)
+              ld    hl,(FACLO)
               pop   af
               sub   (hl)
               ld    b,a
@@ -8793,7 +8935,7 @@ FP_ADD_X_PLUS_Y:
               ld    a,b
               inc   a
               push  hl
-              call  0x098D
+              call  CONIA
               pop   hl
               jp    0x390F
               ld    b,a
