@@ -4,3 +4,6 @@
 [submodule "external/z80bench"]
 	path = external/z80bench
 	url = https://github.com/lindoran/z80bench.git
+[submodule "z80asm-vscode"]
+	path = z80asm-vscode
+	url = https://github.com/Imanolea/z80asm-vscode.git
