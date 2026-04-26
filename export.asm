@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Sat Apr 25 21:55:15 2026
+; Generated: Sat Apr 25 23:02:08 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -338,7 +338,7 @@ RESET:
               ld    hl,0x1928      ; Load 1928H into 7921H
               ld    (FACLO),hl
               ld    a,0x03         ; Set 78AFH to 3
-              ld    (0x78AF),a
+              ld    (VALTYP),a
               pop   hl             ; Restore HL
               ret                  ; Return
 
@@ -1492,111 +1492,106 @@ FDIV2:
 ; This routine is to check for special cases and to add exponents for
 ; the FMULT and FDIV routines. Registers A, B, H and L are modified.
 MULDVS:
-              ld    a,0xFF
+              ld    a,0xFF         ; Set flag for division
 MULDVA_SKIP:
-              ld    l,0xAF
+              ld    l,0xAF         ; LD L,0AFH to skip the XOR
 MULDVA:
-              ld    hl,ARG
-              ld    c,(hl)
-              inc   hl
-              xor   (hl)
-              ld    b,a
-              ld    l,0x00
+              ld    hl,ARG         ; Address MSB Y
+              ld    c,(hl)         ; Sign Y in C
+              inc   hl             ; HL to exponent X
+              xor   (hl)           ; Combine with sign flag
+              ld    b,a            ; Mult: B=Exp.Y Div: B=-Exp.Y-1
+              ld    l,0x00         ; Flag in L = 0
 
-; 0914H-0930H – SINGLE PRECISION MATH ROUTINE – “MULDIV”
+; Entry point: Multiplication, single precision (L=0)
 MULDV:
-              ld    a,b
-              or    a
-              jr    z,$+33
-              ld    a,l
-              ld    hl,FAC
-              xor   (hl)
-              add   a,b
-              ld    b,a
-              rra   
-              xor   b
-              ld    a,b
-MULDV1_INTERNAL:
-              jp    p,MULDV1
-              add   a,0x80
-              ld    (hl),a
+              ld    a,b            ; Exponent Y loaded
+              or    a              ; 0? (i.e. Y = 0)
+              jr    z,$+33         ; yes, return to main program immediately
+              ld    a,l            ; Load flag
+              ld    hl,FAC         ; Address Exp. X
+              xor   (hl)           ; Combine with flag
+              add   a,b            ; + Exponent Y
+              ld    b,a            ; Sum after Exponent Y
+              rra                  ; Over- or underflow?
+              xor   b              ; XOR B
+              ld    a,b            ; Load new Exponent Y
+; MULDV1_INTERNAL: (defined in symbols.sym)
+              jp    p,MULDV1       ; Under-/overflow
+              add   a,0x80         ; Add offset
+              ld    (hl),a         ; and save as new exponent X.
 POPHRT:
-              jp    z,0x0890
-              call  UNPACK
-              ld    (hl),a
+              jp    z,0x0890       ; = 0? yes-to main program back
+              call  UNPACK         ; Process sign
+              ld    (hl),a         ; in temporary storage
 DCXHRT:
-              dec   hl
+              dec   hl             ; Address exponent X
               ret   
 
-; 0931H-093DH – SINGLE PRECISION MATH ROUTINE – “MLDVEX”
+; Exponents over-/underflow
 MLDVEX:
-              call  SIGN
-              cpl   
-              pop   hl
-MULDV1:
-              or    a
-MULDV2:
-              pop   hl
-              jp    p,0x0778
-              jp    0x07B2
+              call  SIGN           ; Test signs of X
+              cpl                  ; Complement result
+              pop   hl             ; Remove return address from stack
+; MULDV1: (defined in symbols.sym)
+              or    a              ; Was it an underflow?
+; MULDV2: (defined in symbols.sym)
+              pop   hl             ; One more return address from stack
+              jp    p,0x0778       ; Underflow, X=0, RET
+              jp    0x07B2         ; OVERFLOW-Error
 
-; 093EH-0954H – SINGLE PRECISION MATH ROUTINE – “MUL10”
-; This routine multiplies the ACCumulator by 10. Every register is modified.
+; Single Precision Multiplication by 10
 MUL10:
-              call  MOVRF
-              ld    a,b
+              call  MOVRF          ; Transfer X to Y
+              ld    a,b            ; Value = 0? (Exp.Y=0)
               or    a
-              ret   z
-              add   a,0x02
-              jp    c,0x07B2
-              ld    b,a
-              call  FP_ADD_X_PLUS_Y
-              ld    hl,FAC
-              inc   (hl)
-              ret   nz
-              jp    0x07B2
+              ret   z              ; yes, done
+              add   a,0x02         ; Exp. Y + 2, i.e. Y = Value * 4
+              jp    c,0x07B2       ; at overflow OVERFLOW-Error
+              ld    b,a            ; Exponent back in Y
+              call  FP_ADD_X_PLUS_Y ; X = X + Y, i.e. X = Value * 5
+              ld    hl,FAC         ; Exponent X + 1
+              inc   (hl)           ; i.e. X = Value * 10
+              ret   nz             ; Overflow? no-back
+              jp    0x07B2         ; yes - OVERFLOW-Error
 
-; 0955H-0963H – SINGLE DOUBLE MATH ROUTINE – “SIGN” (Accumulator)
-; Puts the SIGN of the ACCumulator into Register A.
-; Only Register A is modified by this routine;
-; the ACCumulator is left untouched.
+; Test a real number
 SIGN:
-              ld    a,(FAC)
-              or    a
+              ld    a,(FAC)        ; Load Exponent X
+              or    a              ; = 0? (X = 0)
               ret   z
-              ld    a,(0x7923)
-              cp    0x2F
+              ld    a,(FAC_SIGN)   ; Load MSB X
+              cp    0x2F           ; CP 2F - Dummy instruction, elim. CPL
 ICOMPS:
-              rla   
+              rla                  ; Shift sign X into Carry
 SIGNS:
-              sbc   a,a
-              ret   nz
-              inc   a
+              sbc   a,a            ; A = 0 - Carry
+              ret   nz             ; X > 0? no - finished
+              inc   a              ; yes, set A = 1
               ret   
 
-; 0964H-0976H – MATH CONVERSION ROUTINE – “FLOAT”
-; This routine will take a signed integer held in Register A and
-; turn it into a floating point number. All registers are modified.
+; 8-bit signed integer to single precision conversion
 FLOAT:
-              ld    b,0x88
-              ld    de,START
+              ld    b,0x88         ; Exponent of result in B
+              ld    de,START       ; Clear for normalization
 
-; This routine will float the signed number in B/A/D/E.
-; All registers are modified.
+; Separate entry point
 FLOATR:
-              ld    hl,FAC
-              ld    c,a
-              ld    (hl),b
-              ld    b,0x00
-              inc   hl
-              ld    (hl),0x80
-              rla   
-              jp    0x0762
+              ld    hl,FAC         ; Address exponent in X
+              ld    c,a            ; Number to convert in C
+              ld    (hl),b         ; Exponent to X
+              ld    b,0x00         ; B=0 for normalization
+              inc   hl             ; Address MSB in X
+              ld    (hl),0x80      ; Sign = '-'
+              rla                  ; Sign of converted number into carry
+              jp    0x0762         ; to normalization
 
-; 0977H – LEVEL II BASIC ABS() ROUTINE – “FNABS”
+; LEVEL II BASIC ABS() ROUTINE – “FNABS”
+; Computes the absolute value of the FAC. The result is returned
+; as a single precision value in the FAC.
 FNABS:
-              call  VSIGN
-              ret   p
+              call  VSIGN          ; X > 0?
+              ret   p              ; yes, done
 
 ; This routine will negate any value in the ACCumulator. Every Register is 
 ; affected.
@@ -1610,7 +1605,7 @@ VNEG:
 ; ACCumulator.
 ; Registers A, H, and L are affected.
 NNEG:
-              ld    hl,0x7923
+              ld    hl,FAC_SIGN
               ld    a,(hl)
               xor   0x80
               ld    (hl),a
@@ -1659,7 +1654,7 @@ PUSHF:
               ld    hl,(FACLO)
               ex    (sp),hl
               push  hl
-              ld    hl,(0x7923)
+              ld    hl,(FAC_SIGN)
               ex    (sp),hl
               push  hl
               ex    de,hl
@@ -1677,7 +1672,7 @@ MOVFR:
               ld    (FACLO),hl
               ld    h,b
               ld    l,c
-              ld    (0x7923),hl
+              ld    (FAC_SIGN),hl
               ex    de,hl
               ret   
 
@@ -1721,7 +1716,7 @@ MOVVFM:
 ; moves the number of bytes specified in the variable type flag (VALTYP)
 ; from the address in DE to the address in HL. Uses A, B, DE and HL.
 VMOVE:
-              ld    a,(0x78AF)
+              ld    a,(VALTYP)
 
 ; 09D6H – MOVE VALUE FROM DE TO HL - “VMOVEA”
 ; moves the number of bytes specified in A register
@@ -1745,7 +1740,7 @@ MOVE1:
 ; This routine “UNPACKS” the ACCumulator and the Registers.
 ; Registers A, C, H, and L are altered.
 UNPACK:
-              ld    hl,0x7923
+              ld    hl,FAC_SIGN
               ld    a,(hl)
               rlca  
               scf   
@@ -1765,37 +1760,31 @@ UNPACK:
               xor   (hl)
               ret   
 
-; 09F4H-09FBH – MOVE FROM ACCUM2 TO ACCUM – “VMOVFA”
-; Copy any precision value from ACCUM2 to ACCUM.
-; Precision and number of bytes moved determined by NTF.
-VMOVFA:
-              ld    hl,0x7927
+; 09F4H-09FBH
+; VMOVFA: (defined in symbols.sym)
+              ld    hl,FAC2
 
 ; 09F7 – MOVE FROM (HL) TO ACCUM – “VMOVFA”
 ; Copy any precision value from address pointed to by HL to ACCUM
 ; Precision and number of bytes moved determined by NTF.
-VMOVFM:
+; VMOVFM: (defined in symbols.sym)
               ld    de,MOVVFM
               jr    $+8
 
-; 09FCH – MOVE FROM ACCUM TO ACCUM2 – “VMOVAF”
-; Copy any precision value from ACCUM to ACCUM2.
-; Precision and number of bytes moved determined by NTF.
-; All Registers except C are affected.
-VMOVAF:
-              ld    hl,0x7927
+; 09FCH
+; VMOVAF: (defined in symbols.sym)
+              ld    hl,FAC2
               ld    de,VMOVE
               push  de
-VDFACS:
+; VDFACS: (defined in symbols.sym)
               ld    de,FACLO
               rst   0x20
               ret   c
               ld    de,0x791D
               ret   
 
-; LEVEL II BASIC SINGLE PRECISION COMPARE – “FCOMP”
-; Compare two single precision numbers.
-FCOMP:
+; LEVEL
+; FCOMP: (defined in symbols.sym)
               ld    a,b
               or    a
               jp    z,SIGN
@@ -1804,23 +1793,24 @@ FCOMP:
               call  SIGN
               ld    a,c
               ret   z
-              ld    hl,0x7923
+              ld    hl,FAC_SIGN
               xor   (hl)
               ld    a,c
               ret   m
-FCOMP_SAME_SIGN:
+; FCOMP_SAME_SIGN: (defined in symbols.sym)
               call  FCOMP2_CORE
-FCOMPD:
+
+; Internal
+; FCOMPD: (defined in symbols.sym)
               rra   
               xor   c
               ret   
-FCOMP2_CORE:
+; FCOMP2_CORE: (defined in symbols.sym)
               inc   hl
               ld    a,b
 
-; Compare two single precision numbers.
-; Alters all Registers.
-FCOMP2:
+; Compare
+; FCOMP2: (defined in symbols.sym)
               cp    (hl)
               ret   nz
               dec   hl
@@ -1839,8 +1829,8 @@ FCOMP2:
               pop   hl
               ret   
 
-; Double precision compare.
-DCOMP:
+; Double
+; DCOMP: (defined in symbols.sym)
               ld    a,d
               xor   h
               ld    a,h
@@ -1851,11 +1841,11 @@ DCOMP:
               sub   e
               jp    nz,SIGNS
               ret   
-              ld    hl,0x7927
+              ld    hl,FAC2
               call  VMOVE
 
-; Internal single precision compare.
-              ld    de,0x792E
+; Internal
+              ld    de,ARG_EXP
               ld    a,(de)
               or    a
               jp    z,SIGN
@@ -1866,7 +1856,7 @@ DCOMP:
               ld    a,(de)
               ld    c,a
               ret   z
-              ld    hl,0x7923
+              ld    hl,FAC_SIGN
               xor   (hl)
               ld    a,c
               ret   m
@@ -1886,9 +1876,8 @@ DCOMP:
               jp    nz,0x095E
               ret   
 
-; LEVEL II BASIC FRCINT() ROUTINE – “FRCINT”
-; Returns the largest integer less than or equal to the value in the FAC.
-FRCINT:
+; LEVEL
+; FRCINT: (defined in symbols.sym)
               rst   0x20
               ld    hl,(FACLO)
               ret   m
@@ -1903,16 +1892,15 @@ FRCINT:
               ex    de,hl
               pop   de
 
-; LEVEL II BASIC CONVERSION ROUTINE - \
-MAKINT:
+; LEVEL
+; MAKINT: (defined in symbols.sym)
               ld    (FACLO),hl
               ld    a,0x02
-              ld    (0x78AF),a
+              ld    (VALTYP),a
               ret   
 
-; LEVEL II BASIC INT() ROUTINE – “INT”
-; Returns the largest integer less than or equal to the value in the FAC.
-INT:
+; LEVEL
+; INT: (defined in symbols.sym)
               ld    bc,0x9080
               ld    de,START
               call  FCOMP
@@ -1921,7 +1909,7 @@ INT:
               ld    l,d
               jr    $-22
 
-; Internal INT logic.
+; Internal
               rst   0x20
               ret   po
               jp    m,INEG
@@ -1935,7 +1923,7 @@ INT:
               ld    hl,0x7920
               ld    b,(hl)
               jp    0x0796
-INEG:
+; INEG: (defined in symbols.sym)
               ld    hl,(FACLO)
               call  0x0AEF
               ld    a,h
@@ -1944,7 +1932,7 @@ INEG:
               ld    b,0x90
               jp    FLOATR
 
-; Internal conversion routine.
+; Internal
               rst   0x20
               ret   nc
               jp    z,TMERR
@@ -1957,13 +1945,14 @@ INEG:
               jp    0x0A9F
               rst   0x20
               ret   z
-TMERR:
+
+; Type
+; TMERR: (defined in symbols.sym)
               ld    e,0x18
               jp    0x19A2
 
-; SINGLE PRECISION MATH ROUTINE – “DROUND”
-; This routine rounds the single precision number in the Accumulator.
-DROUND:
+; SINGLE
+; DROUND: (defined in symbols.sym)
               ld    b,a
               ld    c,a
               ld    d,a
@@ -2048,7 +2037,7 @@ DROUND:
               ld    (hl),0xB8
               push  af
               call  m,0x0BA0
-              ld    hl,0x7923
+              ld    hl,FAC_SIGN
               ld    a,0xB8
               sub   b
               call  0x0D69
@@ -2196,7 +2185,7 @@ INEG_B:
               ld    a,(hl)
               xor   0x80
               ld    (hl),a
-              ld    hl,0x792E
+              ld    hl,ARG_EXP
               ld    a,(hl)
               or    a
               ret   z
@@ -2256,7 +2245,7 @@ INEG_B:
               call  c,0x0D57
               xor   a
               ld    b,a
-              ld    a,(0x7923)
+              ld    a,(FAC_SIGN)
               or    a
               jr    nz,$+32
               ld    hl,0x791C
@@ -2308,7 +2297,7 @@ INEG_B:
               dec   hl
               ld    (hl),0x80
               ret   
-              ld    hl,0x7927
+              ld    hl,FAC2
               ld    de,0x791D
               ld    c,0x07
               xor   a
@@ -2320,7 +2309,7 @@ INEG_B:
               dec   c
               jr    nz,$-6
               ret   
-              ld    hl,0x7927
+              ld    hl,FAC2
               ld    de,0x791D
               ld    c,0x07
               xor   a
@@ -2375,7 +2364,7 @@ INEG_B:
               dec   e
               jr    nz,$-5
               jr    $-14
-              ld    hl,0x7923
+              ld    hl,FAC_SIGN
               ld    d,0x01
               jr    $-17
               ld    c,0x08
@@ -2412,7 +2401,7 @@ INEG_B:
               dec   b
               jr    nz,$-24
               jp    0x0CD8
-              ld    hl,0x7923
+              ld    hl,FAC_SIGN
               call  0x0D70
               jr    $-13
               nop   
@@ -2423,9 +2412,9 @@ INEG_B:
               nop   
               jr    nz,$-122
               ld    de,0x0DD4
-              ld    hl,0x7927
+              ld    hl,FAC2
               call  VMOVE
-              ld    a,(0x792E)
+              ld    a,(ARG_EXP)
               or    a
               jp    z,0x199A
               call  MULDVS
@@ -2436,18 +2425,18 @@ INEG_B:
               ld    (hl),c
               ld    b,c
               ld    de,0x794A
-              ld    hl,0x7927
+              ld    hl,FAC2
               call  0x0D4B
               ld    a,(de)
               sbc   a,c
               ccf   
               jr    c,$+13
               ld    de,0x794A
-              ld    hl,0x7927
+              ld    hl,FAC2
               call  0x0D39
               xor   a
               jp    c,0x0412
-              ld    a,(0x7923)
+              ld    a,(FAC_SIGN)
               inc   a
               dec   a
               rra   
@@ -2713,7 +2702,7 @@ INEG_B:
               ld    a,(0x78D8)
               ld    d,a
               rla   
-              ld    a,(0x78AF)
+              ld    a,(VALTYP)
               jp    c,0x109A
               jp    z,0x1092
               cp    0x04
@@ -3039,7 +3028,7 @@ INEG_B:
               cp    0x91
               jp    nc,0x1222
               ld    de,0x1364
-              ld    hl,0x7927
+              ld    hl,FAC2
               call  VMOVE
               call  0x0DA1
               pop   af
@@ -3387,7 +3376,7 @@ INEG_B:
               ld    a,h
               rra   
               pop   hl
-              ld    (0x7923),hl
+              ld    (FAC_SIGN),hl
               pop   hl
               ld    (FACLO),hl
               call  c,0x13E2
@@ -5769,7 +5758,7 @@ INEG_B:
               ld    l,c
               ld    h,b
               call  0x0BD2
-              ld    a,(0x78AF)
+              ld    a,(VALTYP)
               cp    0x04
               jp    z,0x07B2
               ex    de,hl
@@ -5838,7 +5827,7 @@ INEG_B:
               cp    0x07
               ret   nc
               ld    e,a
-              ld    a,(0x78AF)
+              ld    a,(VALTYP)
               sub   0x03
               or    e
               jp    z,0x298F
@@ -5858,7 +5847,7 @@ INEG_B:
               jp    c,0x23E1
               ld    hl,FACLO
               or    a
-              ld    a,(0x78AF)
+              ld    a,(VALTYP)
               dec   a
               dec   a
               dec   a
@@ -5929,7 +5918,7 @@ INEG_B:
               ld    a,b
               cp    0x08
               jr    z,$+42
-              ld    a,(0x78AF)
+              ld    a,(VALTYP)
               cp    0x08
               jp    z,0x2460
               ld    d,a
@@ -5977,7 +5966,7 @@ INEG_B:
               push  bc
               call  VMOVAF
               pop   af
-              ld    (0x78AF),a
+              ld    (VALTYP),a
               cp    0x04
               jr    z,$-36
               pop   hl
@@ -5993,7 +5982,7 @@ INEG_B:
               call  0x0ACF
               call  MOVRF
               pop   hl
-              ld    (0x7923),hl
+              ld    (FAC_SIGN),hl
               pop   hl
               ld    (FACLO),hl
               jr    $-23
@@ -6186,7 +6175,7 @@ INEG_B:
               ld    (FACLO),hl
               pop   bc
               jp    0x2346
-              ld    a,(0x78AF)
+              ld    a,(VALTYP)
               cp    0x08
               jr    nc,$+7
               sub   0x03
@@ -6269,7 +6258,7 @@ INEG_B:
               dec   hl
               ret   
               ld    a,d
-              ld    (0x78AF),a
+              ld    (VALTYP),a
               rst   0x10
               ld    a,(0x78DC)
               or    a
@@ -6400,7 +6389,7 @@ INEG_B:
               ld    hl,(0x78FD)
               ex    de,hl
               rst   0x18
-              ld    a,(0x78AF)
+              ld    a,(VALTYP)
               jr    z,$+41
               cp    (hl)
               inc   hl
@@ -6507,7 +6496,7 @@ INEG_B:
               ld    b,h
               ld    c,l
               jr    nz,$-19
-              ld    a,(0x78AF)
+              ld    a,(VALTYP)
               ld    b,h
               ld    c,l
               add   hl,hl
@@ -6526,7 +6515,7 @@ INEG_B:
               ret   
               xor   a
               push  hl
-              ld    (0x78AF),a
+              ld    (VALTYP),a
               call  0x27D4
               pop   hl
               rst   0x10
@@ -6560,7 +6549,7 @@ INEG_B:
               push  hl
               ld    hl,0x0890
               push  hl
-              ld    a,(0x78AF)
+              ld    a,(VALTYP)
               push  af
               cp    0x03
               call  z,0x29DA
@@ -6641,7 +6630,7 @@ INEG_B:
               ld    hl,(0x78B3)
               ld    (FACLO),hl
               ld    a,0x03
-              ld    (0x78AF),a
+              ld    (VALTYP),a
               call  VMOVE
               ld    de,0x78D6
               rst   0x18

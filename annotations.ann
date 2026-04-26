@@ -4992,6 +4992,262 @@ text = Quotient exp. not equal 0 - continue
 offset = 2308
 text = Exponent = 0, OVERFLOW - Error
 
+[comment]
+offset = 2311
+text = Set flag for division
+
+[comment]
+offset = 2313
+text = LD L,0AFH to skip the XOR
+
+[comment]
+offset = 2315
+text = Address MSB Y
+
+[comment]
+offset = 2318
+text = Sign Y in C
+
+[comment]
+offset = 2319
+text = HL to exponent X
+
+[comment]
+offset = 2320
+text = Combine with sign flag
+
+[comment]
+offset = 2321
+text = Mult: B=Exp.Y Div: B=-Exp.Y-1
+
+[comment]
+offset = 2322
+text = Flag in L = 0
+
+[comment]
+offset = 2324
+text = Exponent Y loaded
+
+[comment]
+offset = 2325
+text = 0? (i.e. Y = 0)
+
+[comment]
+offset = 2326
+text = yes, return to main program immediately
+
+[comment]
+offset = 2328
+text = Load flag
+
+[comment]
+offset = 2329
+text = Address Exp. X
+
+[comment]
+offset = 2332
+text = Combine with flag
+
+[comment]
+offset = 2333
+text = + Exponent Y
+
+[comment]
+offset = 2334
+text = Sum after Exponent Y
+
+[comment]
+offset = 2335
+text = Over- or underflow?
+
+[comment]
+offset = 2336
+text = XOR B
+
+[comment]
+offset = 2337
+text = Load new Exponent Y
+
+[comment]
+offset = 2338
+text = Under-/overflow
+
+[comment]
+offset = 2341
+text = Add offset
+
+[comment]
+offset = 2343
+text = and save as new exponent X.
+
+[comment]
+offset = 2344
+text = = 0? yes-to main program back
+
+[comment]
+offset = 2347
+text = Process sign
+
+[comment]
+offset = 2350
+text = in temporary storage
+
+[comment]
+offset = 2351
+text = Address exponent X
+
+[comment]
+offset = 2353
+text = Test signs of X
+
+[comment]
+offset = 2356
+text = Complement result
+
+[comment]
+offset = 2357
+text = Remove return address from stack
+
+[comment]
+offset = 2358
+text = Was it an underflow?
+
+[comment]
+offset = 2359
+text = One more return address from stack
+
+[comment]
+offset = 2360
+text = Underflow, X=0, RET
+
+[comment]
+offset = 2363
+text = OVERFLOW-Error
+
+[comment]
+offset = 2366
+text = Transfer X to Y
+
+[comment]
+offset = 2369
+text = Value = 0? (Exp.Y=0)
+
+[comment]
+offset = 2371
+text = yes, done
+
+[comment]
+offset = 2372
+text = Exp. Y + 2, i.e. Y = Value * 4
+
+[comment]
+offset = 2374
+text = at overflow OVERFLOW-Error
+
+[comment]
+offset = 2377
+text = Exponent back in Y
+
+[comment]
+offset = 2378
+text = X = X + Y, i.e. X = Value * 5
+
+[comment]
+offset = 2381
+text = Exponent X + 1
+
+[comment]
+offset = 2384
+text = i.e. X = Value * 10
+
+[comment]
+offset = 2385
+text = Overflow? no-back
+
+[comment]
+offset = 2386
+text = yes - OVERFLOW-Error
+
+[comment]
+offset = 2389
+text = Load Exponent X
+
+[comment]
+offset = 2392
+text = = 0? (X = 0)
+
+[comment]
+offset = 2394
+text = Load MSB X
+
+[comment]
+offset = 2397
+text = CP 2F - Dummy instruction, elim. CPL
+
+[comment]
+offset = 2399
+text = Shift sign X into Carry
+
+[comment]
+offset = 2400
+text = A = 0 - Carry
+
+[comment]
+offset = 2401
+text = X > 0? no - finished
+
+[comment]
+offset = 2402
+text = yes, set A = 1
+
+[comment]
+offset = 2404
+text = Exponent of result in B
+
+[comment]
+offset = 2406
+text = Clear for normalization
+
+[comment]
+offset = 2409
+text = Address exponent in X
+
+[comment]
+offset = 2412
+text = Number to convert in C
+
+[comment]
+offset = 2413
+text = Exponent to X
+
+[comment]
+offset = 2414
+text = B=0 for normalization
+
+[comment]
+offset = 2416
+text = Address MSB in X
+
+[comment]
+offset = 2417
+text = Sign = '-'
+
+[comment]
+offset = 2419
+text = Sign of converted number into carry
+
+[comment]
+offset = 2420
+text = to normalization
+
+[comment]
+offset = 2423
+text = X > 0?
+
+[comment]
+offset = 2426
+text = yes, done
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -5458,38 +5714,33 @@ text = 0907H-0913H – DOUBLE PRECISION MATH ROUTINE – “MULDVS”
 
 [block]
 offset = 2324
-text = 0914H-0930H – SINGLE PRECISION MATH ROUTINE – “MULDIV”
+text = Entry point: Multiplication, single precision (L=0)
 
 [block]
 offset = 2353
-text = 0931H-093DH – SINGLE PRECISION MATH ROUTINE – “MLDVEX”
+text = Exponents over-/underflow
 
 [block]
 offset = 2366
-text = 093EH-0954H – SINGLE PRECISION MATH ROUTINE – “MUL10”
-              This routine multiplies the ACCumulator by 10. Every register is modified.
+text = Single Precision Multiplication by 10
 
 [block]
 offset = 2389
-text = 0955H-0963H – SINGLE DOUBLE MATH ROUTINE – “SIGN” (Accumulator)
-              Puts the SIGN of the ACCumulator into Register A.
-              Only Register A is modified by this routine;
-              the ACCumulator is left untouched.
+text = Test a real number
 
 [block]
 offset = 2404
-text = 0964H-0976H – MATH CONVERSION ROUTINE – “FLOAT”
-              This routine will take a signed integer held in Register A and
-              turn it into a floating point number. All registers are modified.
+text = 8-bit signed integer to single precision conversion
 
 [block]
 offset = 2409
-text = This routine will float the signed number in B/A/D/E.
-              All registers are modified.
+text = Separate entry point
 
 [block]
 offset = 2423
-text = 0977H – LEVEL II BASIC ABS() ROUTINE – “FNABS”
+text = LEVEL II BASIC ABS() ROUTINE – “FNABS”
+              Computes the absolute value of the FAC. The result is returned
+              as a single precision value in the FAC.
 
 [block]
 offset = 2427
@@ -5591,9 +5842,7 @@ text = 09DFH-09F3H – SINGLE PRECISION MATH ROUTINE – “UNPACK”
 
 [block]
 offset = 2548
-text = 09F4H-09FBH – MOVE FROM ACCUM2 TO ACCUM – “VMOVFA”
-              Copy any precision value from ACCUM2 to ACCUM.
-              Precision and number of bytes moved determined by NTF.
+text = 09F4H-09FBH
 
 [block]
 offset = 2551
@@ -5603,53 +5852,53 @@ text = 09F7 – MOVE FROM (HL) TO ACCUM – “VMOVFA”
 
 [block]
 offset = 2556
-text = 09FCH – MOVE FROM ACCUM TO ACCUM2 – “VMOVAF”
-              Copy any precision value from ACCUM to ACCUM2.
-              Precision and number of bytes moved determined by NTF.
-              All Registers except C are affected.
+text = 09FCH
 
 [block]
 offset = 2572
-text = LEVEL II BASIC SINGLE PRECISION COMPARE – “FCOMP”
-              Compare two single precision numbers.
+text = LEVEL
+
+[block]
+offset = 2595
+text = Internal
 
 [block]
 offset = 2600
-text = Compare two single precision numbers.
-              Alters all Registers.
+text = Compare
 
 [block]
 offset = 2617
-text = Double precision compare.
+text = Double
 
 [block]
 offset = 2639
-text = Internal single precision compare.
+text = Internal
 
 [block]
 offset = 2687
-text = LEVEL II BASIC FRCINT() ROUTINE – “FRCINT”
-              Returns the largest integer less than or equal to the value in the FAC.
+text = LEVEL
 
 [block]
 offset = 2714
-text = LEVEL II BASIC CONVERSION ROUTINE - \
+text = LEVEL
 
 [block]
 offset = 2723
-text = LEVEL II BASIC INT() ROUTINE – “INT”
-              Returns the largest integer less than or equal to the value in the FAC.
+text = LEVEL
 
 [block]
 offset = 2737
-text = Internal INT logic.
+text = Internal
 
 [block]
 offset = 2779
-text = Internal conversion routine.
+text = Internal
+
+[block]
+offset = 2806
+text = Type
 
 [block]
 offset = 2811
-text = SINGLE PRECISION MATH ROUTINE – “DROUND”
-              This routine rounds the single precision number in the Accumulator.
+text = SINGLE
 
