@@ -18,15 +18,16 @@ to anyone familiar with Z80 assembly and vintage BASIC interpreters.
 | Path | Description |
 |---|---|
 | `./VZ200.bin` | VZ200 2.0 BASIC ROM binary |
-| `./z80bench` | GUI-based documentation tool (human use only; AI will not invoke this) |
 | `./z80bench-cli` | CLI tool AI uses to read and write project annotation files |
 | `./doc/` | PDF scans of the original VZ200 ROM listing |
 | `./old-progress/` | Previous attempt data — AI may read annotations for context, but must not copy any assembly |
 | `./z80bench_info/` | z80bench documentation, workflow guide, and licence file |
 | `./external/` | Git submodules, including a fully documented English listing of Level II BASIC for the TRS-80 |
-| `TRANSLATE.md` | Running raw translation notes with confidence markers |
-| `ORPHANS.md` | Unresolved byte ranges, decision log, and status labels |
-| `SOURCES.md` | External sources used, with date, title/URL, and reason for trust |
+| `./PROGRESS.md` | will contain all of the notes from the previous iteration (look below for details.)
+
+in the path on this system you have access to z88dk-z80asm for an assembler. you may use that.
+in the root of the repo there is a simlink to the z80bench-cli if it's not starting you can build it (its a submodule to the repo)
+
 
 ---
 
@@ -34,85 +35,51 @@ to anyone familiar with Z80 assembly and vintage BASIC interpreters.
 
 Before beginning work, an AI assistant should:
 
-1. Read `./z80bench_info/README.md` for the canonical tool workflow.
-2. Read `TRANSLATE.md`, `ORPHANS.md`, and `SOURCES.md` to understand current progress.
-3. Check `./old-progress/` annotations for useful context (do not copy assembly verbatim).
-4. Review the TRS-80 Level II BASIC listing in `./external/` to orient symbol naming.
-5. Confirm the current page range being translated with the user before proceeding.
+1) Read all relivent docs and understand how z80bench-cli works. (full source is in @./external/z80bench)
+2) Familiarize with the formatting expected in in export.lst (the project deleverable.)
+3) run a test build on export.asm, and compair the binary against VZ200.bin
+4) if the build fails, or there are any issues / questions ask at this time.
+5) sometimes there will be prior work in the requested range, use this work and verify it against the translation
 
----
 
-## AI Roles
+After that is completed go to work
 
-- Use `z80bench-cli` to create and update project annotation files, following the
-  workflow in `./z80bench_info/README.md`.
-- Translate **3 pages** of the PDF listing at a time, then pause and wait for user
-  instruction before continuing.
-- Preserve the original ROM's meaning exactly. Do not alter mnemonics, operands,
-  addresses, or byte output under any circumstances.
-- Use the generated disassembly listing to resolve bytes and numbers that are
-  ambiguous due to scan quality.
-- Cross-reference the TRS-80 Level II BASIC listing in `./external/` to identify
-  symbol names and infer scope. Read ahead in the listing when needed to make
-  informed naming suggestions.
-- Reference Level II BASIC documentation on the internet where useful; request
-  local PDF copies when a resource would be repeatedly consulted.
-- Explicitly report every external source used and update `SOURCES.md` accordingly.
-- Update `TRANSLATE.md` with raw translation notes and a confidence marker
-  (`high`, `medium`, or `low`) for each translated block.
-- Create and maintain `ORPHANS.md` after project setup. Collaborate with the user
-  to resolve orphan byte ranges; do not resolve them unilaterally.
-- Verify that the output `.asm` assembles cleanly after each dump once direct-byte
-  orphan ranges are resolved.
-- At the end of each translation batch, export both `export.lst` and `export.asm`
-  so the user can review changes directly in code without opening the GUI.
-- Ask clarifying questions when context is unclear.
-- Do not make ROM design or interpretation decisions without user approval.
-- Propose symbol name suggestions but wait for user approval before finalising.
+1) you are translating the annotations from the german pdf found in @"./doc/book - Laser310-ROM-Listing-german.pdf"
+2) these annotations include: Block comments (headers, separators made with astrix '*' symbols, and in line comments.
+3) please work on just the section given (this will be a memory range.)
+4) you can view the other pdf "book - other - Level II ROM Reference Manual.pdf" for information
+5) you can view the submodule @./external/TRS-80-ROMS for ideas for lable names and symbol names.
+6) only update the work files with z80bench-cli
+7) do not make any design changes to the rom, we are working on only annotations for the listing.
+8) keep track of annotation total count and symbol total count.
 
----
+After you have completed the listing work deliver the files
 
-## User Roles
+1) sumerize what was done by updating (or creating) PROGRESS.md
+  - this should include any work done to understand the toolchain
+  - this should include any issues incountered the user has to follow up on
+  - this should include the prompt from the user.
+  - should include annotation and symbol count and warn if getting close to maximums in z80bench
+2) export the deliverables using z80bench.cli (these are export.asm and export.lst)
+3) check export.lst for inline comments on the work section completed. 
+  - this is a common miss. if they are not there, recheck work and fix 
+  - after fixed you will need to go back to step 1 in this section (deliverables)
+  - iterate this until the inline comments are present
+4) make sure annotations are in english, if not go back and translate.
+5) build export.asm and compare to VZ200.bin
 
-- Verify translations for accuracy and contextual meaning.
-- Confirm that direct bytes are correctly selected and annotated.
-- Verify that AI output assembles cleanly at each agreed checkpoint.
-- Resolve ambiguous notation and naming decisions in collaboration with AI.
-- Approve or reject all inferred symbol names before they are finalised.
-- Make final calls when source scans are ambiguous or contradictory.
 
----
-
-## Checkpoint Protocol
-
-- Every **3 translated pages**, the AI will:
-  1. Run an assembly check on the current output.
-  2. Summarise any newly opened or unresolved items.
-  3. Update `ORPHANS.md` and `TRANSLATE.md`.
-  4. Export both `export.lst` and `export.asm` for code-first review.
-  5. Wait for user confirmation before continuing.
-
----
-
-## File Conventions
-
-### `TRANSLATE.md`
-Each entry should include:
-- Page range translated
-- Address range covered
-- Confidence marker: `high`, `medium`, or `low`
-- Any notable ambiguities or scan quality issues
-
-### `ORPHANS.md`
-Each entry should include:
-- Address range
-- Nature of the issue (e.g., unrecognised byte sequence, ambiguous branch target)
-- Status label: `open`, `needs-user`, or `resolved`
-- A **Decision Log** section for human-approved naming and context decisions
-
-### `SOURCES.md`
-Each entry should include:
-- Date accessed
-- URL or document title
-- What was used from it
-- Why it was considered trustworthy
+# Z80 bench maximums:
+<pre>
+  ┌────────────────┬─────────────────────────────────┬─────────────────┬───────────────────────────────────────────────┐
+  │ Component      │ Limit                           │ Location        │ Impact                                        │
+  ├────────────────┼─────────────────────────────────┼─────────────────┼───────────────────────────────────────────────┤
+  │ Annotations    │ 100000                          │ annotate.c      │ Total comments, labels, and block headers.    │
+  │ Symbols        │ 6000                            │ symbols.c       │ Total EQU definitions in symbols.sym.         │
+  │ Map Entries    │ 100                             │ memmap.c        │ Total segments in segments.map.               │
+  │ Regions        │ 100                             │ annotate.c      │ Total basic memory regions (CODE, DATA, etc). │
+  │ Total Lines    │ 100,000                         │ project.c       │ Maximum number of disassembled lines.         │
+  │ Label Length   │ 64 chars                        │ z80bench_core.h │ Maximum length of a symbol or label name.     │
+  │ Comment Length │ 1024 chars                      │ z80bench_core.h │ Maximum length of a single comment.           │
+  └────────────────┴─────────────────────────────────┴─────────────────┴───────────────────────────────────────────────┘
+</pre>

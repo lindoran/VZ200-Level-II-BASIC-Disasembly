@@ -1131,7 +1131,9 @@
 2261	1	pop	af
 2262	1	pop	af
 2263	1	scf	
-2264	3	jp	nc,0xE1C1
+2264	1	DEFB	0xD2
+2265	1	pop	bc
+2266	1	pop	hl
 2267	1	ld	a,c
 2268	1	inc	a
 2269	1	dec	a

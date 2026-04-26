@@ -5,7 +5,7 @@
 
                      ; Initialisation of the computer
                      START:
-0000  F3       .                   di                   ; Main entry point from RESET
+0000  F3       .                   di                   ; Test Start
 0001  AF       .                   xor   a              ; Clear A (color index 0)
 0002  320068   2.h                 ld    (0x6800),a     ; Set background color (black)
 0005  C37406   .t.                 jp    BASIC_INIT_1   ; Jump to RESET part 1 (at 0674H)
@@ -96,7 +96,7 @@
 0072  C3CC06   ...                 jp    0x06CC         ; Jump to warm start (06CCH)
                      ; BASIC initialisation part 2
                      BASIC_INIT_2:
-0075  118078   ..x                 ld    de,0x7880      ; Destination: 7880H (RAM hooks)
+0075  118078   ..x                 ld    de,FDIVC       ; Destination: 7880H (RAM hooks)
 0078  21F718   !..                 ld    hl,0x18F7      ; Source: 18F7H
 007B  012700   .'.                 ld    bc,0x0027      ; Length: 27H bytes
 007E  EDB0     ..                  ldir                 ; Copy routines to RAM
@@ -1090,7 +1090,7 @@
 072F  FE19     ..                  cp    0x19           ; Exp.Diff > mantissa (24 bits)
 0731  D0       .                   ret   nc             ; no, X = X, done
 0732  F5       .                   push  af             ; save Exp.Diff.
-0733  CDDF09   ...                 call  0x09DF         ; A(7) = 0 if different signs
+0733  CDDF09   ...                 call  UNPACK         ; A(7) = 0 if different signs
 0736  67       g                   ld    h,a            ; save sign flag
 0737  F1       .                   pop   af             ; reload Exp.Difference
 0738  CDD707   ...                 call  SHIFTR         ; shift Y right by this difference
@@ -1230,7 +1230,6 @@
                      SHIFTR1:
 07D9  D608     ..                  sub   0x08           ; shift 8 or more places?
                      ; (none)
-                     SHIFTR1:
 07DB  3807     8.                  jr    c,$+9          ; no!
 07DD  43       C                   ld    b,e            ; shift Y right by one byte
 07DE  5A       Z                   ld    e,d
@@ -1308,7 +1307,7 @@
                      FMLT:
 084A  C8       .                   ret   z              ; yes, done
 084B  2E00     ..                  ld    l,0x00         ; flag for exponent processing
-084D  CD1409   ...                 call  MULDV          ; process exponents and signs
+084D  CD1409   ...                 call  MULDIV         ; process exponents and signs
 0850  79       y                   ld    a,c            ; mantissa from Y to 794F...
 0851  324F79   2Oy                 ld    (0x794F),a     ; MSB
 0854  EB       .                   ex    de,hl          ; LSB
@@ -1369,49 +1368,56 @@
 089D  CDB109   ...                 call  MOVFM          ; transfer to X
 08A0  C1       .                   pop   bc             ; load former X-value into Y
 08A1  D1       .                   pop   de
+                     ; Single Precision Division
 08A2  CD5509   .U.                 call  SIGN           ; divisor = 0?
                      DV0ERR_JMP:
 08A5  CA9A19   ...                 jp    z,0x199A       ; yes, DIVISION BY ZERO - Error
-08A8  2EFF     ..                  ld    l,0xFF
-08AA  CD1409   ...                 call  MULDV
-08AD  34       4                   inc   (hl)
-08AE  34       4                   inc   (hl)
-08AF  2B       +                   dec   hl
-08B0  7E       ~                   ld    a,(hl)
-08B1  328978   2.x                 ld    (0x7889),a
-08B4  2B       +                   dec   hl
-08B5  7E       ~                   ld    a,(hl)
-08B6  328578   2.x                 ld    (0x7885),a
-08B9  2B       +                   dec   hl
-08BA  7E       ~                   ld    a,(hl)
-08BB  328178   2.x                 ld    (0x7881),a
-08BE  41       A                   ld    b,c
+                     ; X = Y / X
+08A8  2EFF     ..                  ld    l,0xFF         ; Flag for exponent processing for division
+08AA  CD1409   ...                 call  MULDIV         ; Process exponents and signs
+08AD  34       4                   inc   (hl)           ; Correct exponent result
+08AE  34       4                   inc   (hl)           ; + 2 (0914 = Exp.Y - Exp.X - 1)
+08AF  2B       +                   dec   hl             ; HL to MSB X
+08B0  7E       ~                   ld    a,(hl)         ; X in division subroutine (from 7840H)
+08B1  328978   2.x                 ld    (FDIVA_ARG),a  ; MSB
+08B4  2B       +                   dec   hl             ; DEC HL
+08B5  7E       ~                   ld    a,(hl)         ; Next byte
+08B6  328578   2.x                 ld    (FDIVB_ARG),a
+08B9  2B       +                   dec   hl             ; DEC HL
+08BA  7E       ~                   ld    a,(hl)         ; LSB
+08BB  328178   2.x                 ld    (FDIVC_ARG),a
+08BE  41       A                   ld    b,c            ; Transfer Y to B,H,L (dividend)
 08BF  EB       .                   ex    de,hl
-08C0  AF       .                   xor   a
+08C0  AF       .                   xor   a              ; Y = 0 (for quotient)
 08C1  4F       O                   ld    c,a
 08C2  57       W                   ld    d,a
 08C3  5F       _                   ld    e,a
-08C4  328C78   2.x                 ld    (0x788C),a
-08C7  E5       .                   push  hl
+08C4  328C78   2.x                 ld    (FDIVG_ARG),a  ; MSB divisor = 0 (for shifting)
+                     FDIV1:
+08C7  E5       .                   push  hl             ; Dividend on stack
 08C8  C5       .                   push  bc
-08C9  7D       }                   ld    a,l
-08CA  CD8078   ..x                 call  0x7880
-08CD  DE00     ..                  sbc   a,0x00
-08CF  3F       ?                   ccf   
-08D0  3007     0.                  jr    nc,$+9
-08D2  328C78   2.x                 ld    (0x788C),a
-08D5  F1       .                   pop   af
+08C9  7D       }                   ld    a,l            ; Load LSB dividend
+08CA  CD8078   ..x                 call  FDIVC          ; Dividend - divisor
+08CD  DE00     ..                  sbc   a,0x00         ; MSB dividend = carry, underflow?
+08CF  3F       ?                   ccf                  ; Complement carry
+08D0  3007     0.                  jr    nc,$+9         ; yes - restore subtraction, 0 in quotient
+08D2  328C78   2.x                 ld    (FDIVG_ARG),a  ; MSB dividend in subroutine
+08D5  F1       .                   pop   af             ; Remove dividend from stack
 08D6  F1       .                   pop   af
-08D7  37       7                   scf   
-08D8  D2C1E1   ...                 jp    nc,0xE1C1
-08DB  79       y                   ld    a,c
-08DC  3C       <                   inc   a
+08D7  37       7                   scf                  ; Set carry flag (1 in quotient)
+                     ; to skip following 2 POPs
+08D8  D2       .                   DEFB  0xD2           ; JP NC,0E1C1H is never executed.
+08D9  C1       .                   pop   bc             ; Get dividend from stack
+08DA  E1       .                   pop   hl             ; = undo subtraction
+                     FDIV2:
+08DB  79       y                   ld    a,c            ; MSB of quotient in A
+08DC  3C       <                   inc   a              ; Test bit 7
 08DD  3D       =                   dec   a
-08DE  1F       .                   rra   
-08DF  FA9707   ...                 jp    m,0x0797
-08E2  17       .                   rla   
-08E3  7B       {                   ld    a,e
-08E4  17       .                   rla   
+08DE  1F       .                   rra                  ; Last bit for rounding in bit 7
+08DF  FA9707   ...                 jp    m,0x0797       ; was bit 7 at INC/DEC=1, yes-done
+08E2  17       .                   rla                  ; Quotient 1 bit to the left
+08E3  7B       {                   ld    a,e            ; Result bit (0 or 1) is
+08E4  17       .                   rla                  ; shifted in from carry bit
 08E5  5F       _                   ld    e,a
 08E6  7A       z                   ld    a,d
 08E7  17       .                   rla   
@@ -1419,24 +1425,24 @@
 08E9  79       y                   ld    a,c
 08EA  17       .                   rla   
 08EB  4F       O                   ld    c,a
-08EC  29       )                   add   hl,hl
+08EC  29       )                   add   hl,hl          ; Dividend * 2
 08ED  78       x                   ld    a,b
 08EE  17       .                   rla   
 08EF  47       G                   ld    b,a
-08F0  3A8C78   :.x                 ld    a,(0x788C)
+08F0  3A8C78   :.x                 ld    a,(FDIVG_ARG)  ; = MSB dividend
 08F3  17       .                   rla   
-08F4  328C78   2.x                 ld    (0x788C),a
-08F7  79       y                   ld    a,c
+08F4  328C78   2.x                 ld    (FDIVG_ARG),a
+08F7  79       y                   ld    a,c            ; is the result still 0?
 08F8  B2       .                   or    d
 08F9  B3       .                   or    e
-08FA  20CB      .                  jr    nz,$-51
-08FC  E5       .                   push  hl
-08FD  212479   !$y                 ld    hl,FAC
-0900  35       5                   dec   (hl)
-0901  E1       .                   pop   hl
-0902  20C3      .                  jr    nz,$-59
-0904  C3B207   ...                 jp    0x07B2
-                     ; DOUBLE PRECISION MATH ROUTINE – “MULDVS”
+08FA  20CB      .                  jr    nz,$-51        ; no - continue
+08FC  E5       .                   push  hl             ; Save dividend LSB
+08FD  212479   !$y                 ld    hl,FAC         ; Address quotient exponent
+0900  35       5                   dec   (hl)           ; - 1
+0901  E1       .                   pop   hl             ; Reload dividend LSB
+0902  20C3      .                  jr    nz,$-59        ; Quotient exp. not equal 0 - continue
+0904  C3B207   ...                 jp    0x07B2         ; Exponent = 0, OVERFLOW - Error
+                     ; 0907H-0913H – DOUBLE PRECISION MATH ROUTINE – “MULDVS”
                      ; This routine is to check for special cases and to add exponents for
                      ; the FMULT and FDIV routines. Registers A, B, H and L are modified.
                      MULDVS:
@@ -1450,7 +1456,7 @@
 0910  AE       .                   xor   (hl)
 0911  47       G                   ld    b,a
 0912  2E00     ..                  ld    l,0x00
-                     ; DOUBLE PRECISION MATH ROUTINE – “MULDV”
+                     ; 0914H-0930H – SINGLE PRECISION MATH ROUTINE – “MULDIV”
                      MULDV:
 0914  78       x                   ld    a,b
 0915  B7       .                   or    a
@@ -1463,21 +1469,31 @@
 091F  1F       .                   rra   
 0920  A8       .                   xor   b
 0921  78       x                   ld    a,b
-0922  F23609   .6.                 jp    p,0x0936
+                     MULDV1_INTERNAL:
+0922  F23609   .6.                 jp    p,MULDV1
 0925  C680     ..                  add   a,0x80
 0927  77       w                   ld    (hl),a
+                     POPHRT:
 0928  CA9008   ...                 jp    z,0x0890
-092B  CDDF09   ...                 call  0x09DF
+092B  CDDF09   ...                 call  UNPACK
 092E  77       w                   ld    (hl),a
+                     DCXHRT:
 092F  2B       +                   dec   hl
 0930  C9       .                   ret   
+                     ; 0931H-093DH – SINGLE PRECISION MATH ROUTINE – “MLDVEX”
+                     MLDVEX:
 0931  CD5509   .U.                 call  SIGN
 0934  2F       /                   cpl   
 0935  E1       .                   pop   hl
+                     MULDV1:
 0936  B7       .                   or    a
+                     MULDV2:
 0937  E1       .                   pop   hl
 0938  F27807   .x.                 jp    p,0x0778
 093B  C3B207   ...                 jp    0x07B2
+                     ; 093EH-0954H – SINGLE PRECISION MATH ROUTINE – “MUL10”
+                     ; This routine multiplies the ACCumulator by 10. Every register is modified.
+                     MUL10:
 093E  CDBF09   ...                 call  MOVRF
 0941  78       x                   ld    a,b
 0942  B7       .                   or    a
@@ -1490,8 +1506,10 @@
 0950  34       4                   inc   (hl)
 0951  C0       .                   ret   nz
 0952  C3B207   ...                 jp    0x07B2
-                     ; SINGLE DOUBLE MATH ROUTINE – “SIGN” (Accumulator)
-                     ; This routine checks the sign of the value in the FAC.
+                     ; 0955H-0963H – SINGLE DOUBLE MATH ROUTINE – “SIGN” (Accumulator)
+                     ; Puts the SIGN of the ACCumulator into Register A.
+                     ; Only Register A is modified by this routine;
+                     ; the ACCumulator is left untouched.
                      SIGN:
 0955  3A2479   :$y                 ld    a,(FAC)
 0958  B7       .                   or    a
@@ -1505,12 +1523,14 @@
 0961  C0       .                   ret   nz
 0962  3C       <                   inc   a
 0963  C9       .                   ret   
-                     ; MATH CONVERSION ROUTINE – “FLOAT”
+                     ; 0964H-0976H – MATH CONVERSION ROUTINE – “FLOAT”
                      ; This routine will take a signed integer held in Register A and
                      ; turn it into a floating point number. All registers are modified.
                      FLOAT:
 0964  0688     ..                  ld    b,0x88
 0966  110000   ...                 ld    de,START
+                     ; This routine will float the signed number in B/A/D/E.
+                     ; All registers are modified.
                      FLOATR:
 0969  212479   !$y                 ld    hl,FAC
 096C  4F       O                   ld    c,a
@@ -1520,55 +1540,59 @@
 0971  3680     6.                  ld    (hl),0x80
 0973  17       .                   rla   
 0974  C36207   .b.                 jp    0x0762
-                     ; LEVEL II BASIC ABS() ROUTINE – “FNABS”
+                     ; 0977H – LEVEL II BASIC ABS() ROUTINE – “FNABS”
                      FNABS:
 0977  CD9409   ...                 call  VSIGN
 097A  F0       .                   ret   p
-                     ; NEGATE ROUTINE – “VNEG”
-                     ; This routine will negate any value in the ACCumulator.
+                     ; This routine will negate any value in the ACCumulator. Every Register is 
+                     ; affected.
                      VNEG:
 097B  E7       .                   rst   0x20
-097C  FA5B0C   .[.                 jp    m,INEG
+097C  FA5B0C   .[.                 jp    m,INEG_B
 097F  CAF60A   ...                 jp    z,TMERR
-                     ; NEGATE SINGLE/DOUBLE ROUTINE – “NNEG”
+                     ; 0982H – NEGATE SINGLE/DOUBLE ROUTINE – “NNEG”
                      ; This routine will negate the single or double precision number in the 
                      ; ACCumulator.
+                     ; Registers A, H, and L are affected.
                      NNEG:
 0982  212379   !#y                 ld    hl,0x7923
 0985  7E       ~                   ld    a,(hl)
 0986  EE80     ..                  xor   0x80
 0988  77       w                   ld    (hl),a
 0989  C9       .                   ret   
-                     ; LEVEL II BASIC SGN() ROUTINE – “FNSGN”
+                     ; 098AH-0993H – LEVEL II BASIC SGN() ROUTINE – “FNSGN”
                      FNSGN:
 098A  CD9409   ...                 call  VSIGN
-                     ; CONVERT SIGNED A TO INTEGER – “CONIA”
+                     ; This routine will convert a signed number (held in Register A) into an 
+                     ; integer.
                      CONIA:
 098D  6F       o                   ld    l,a
 098E  17       .                   rla   
 098F  9F       .                   sbc   a,a
 0990  67       g                   ld    h,a
 0991  C39A0A   ...                 jp    MAKINT
-                     ; MATH COMPARE ROUTINE – “VSIGN” (Accumulator)
-                     ; This routine checks the sign of the ACCumulator.
+                     ; 0994H – MATH COMPARE ROUTINE – “VSIGN” (Accumulator)
+                     ; This routine checks the sign of the ACCumulator. NTF must be set.
                      VSIGN:
 0994  E7       .                   rst   0x20
 0995  CAF60A   ...                 jp    z,TMERR
 0998  F25509   .U.                 jp    p,SIGN
-                     ; MATH COMPARE ROUTINE - INTEGER SIGN (Accumulator)
-                     ; Finds the sign of the Integer value held in the Accumulator.
+                     ; 099BH - MATH COMPARE ROUTINE - INTEGER SIGN (Accumulator)
+                     ; Finds the sign of the Integer value held in the Accumulator
                      ISIGNA:
 099B  2A2179   *!y                 ld    hl,(FACLO)
-                     ; MATH COMPARE ROUTINE - INTEGER SIGN (HL)
-                     ; Finds the sign of the value held at (HL).
+                     ; 099EH - MATH COMPARE ROUTINE - INTEGER SIGN (HL)
+                     ; Finds the sign of the value held at (HL). Only Register A is altered.
                      ISIGN:
 099E  7C       |                   ld    a,h
 099F  B5       .                   or    l
 09A0  C8       .                   ret   z
 09A1  7C       |                   ld    a,h
 09A2  18BB     ..                  jr    $-67
-                     ; SINGLE PRECISION MATH ROUTINE – “PUSHF” - MOVE
-                     ; Moves the single precision value in the ACCumulator to the STACK.
+                     ; 09A4H – SINGLE PRECISION MATH ROUTINE – “PUSHF” - MOVE
+                     ; Moves the single precision value in the ACCumulator to the STACK
+                     ; It is Assumed that ACCumulator contains a single precision value
+                     ; A, BC and HL are unchanged by this function.
                      PUSHF:
 09A4  EB       .                   ex    de,hl
 09A5  2A2179   *!y                 ld    hl,(FACLO)
@@ -1579,12 +1603,12 @@
 09AE  E5       .                   push  hl
 09AF  EB       .                   ex    de,hl
 09B0  C9       .                   ret   
-                     ; SINGLE PRECISION MATH ROUTINE – “MOVFM” - MOVE
-                     ; This routine moves a number from memory (pointed to by HL) into the ACC.
+                     ; 09B1H – SINGLE PRECISION MATH ROUTINE – “MOVFM” - MOVE
+                     ; This routine moves a number from memory (pointed to by HL) into the ACC
                      MOVFM:
 09B1  CDC209   ...                 call  MOVRM
-                     ; SINGLE PRECISION MATH ROUTINE – “MOVFR” - MOVE
-                     ; Store the single precision value in BC:DE into ACC.
+                     ; 09B4H – SINGLE PRECISION MATH ROUTINE – “MOVFR” - MOVE
+                     ; Store the single precision value in BC:DE into ACC. Destroys value in BC:DE.
                      MOVFR:
 09B4  EB       .                   ex    de,hl
 09B5  222179   "!y                 ld    (FACLO),hl
@@ -1593,31 +1617,52 @@
 09BA  222379   "#y                 ld    (0x7923),hl
 09BD  EB       .                   ex    de,hl
 09BE  C9       .                   ret   
-                     ; SINGLE PRECISION MATH ROUTINE – “MOVRF” - MOVE
+                     ; 09BFH – SINGLE PRECISION MATH ROUTINE – “MOVRF” - MOVE
                      ; It loads four bytes from ACCumulator (single) into the BC:DE Register Pairs.
+                     ; Only Register A is unchanged.
                      MOVRF:
 09BF  212179   !!y                 ld    hl,FACLO
-                     ; SINGLE PRECISION MATH ROUTINE – “MOVRM” - MOVE
+                     ; 09C2H – SINGLE PRECISION MATH ROUTINE – “MOVRM” - MOVE
                      ; It loads four byte Single, pointed by HL, into the BC:DE Register Pairs.
+                     ; HL is incremented. Only Register A and Flags are unchanged.
                      MOVRM:
 09C2  5E       ^                   ld    e,(hl)
 09C3  23       #                   inc   hl
+                     GETBCD:
 09C4  56       V                   ld    d,(hl)
 09C5  23       #                   inc   hl
 09C6  4E       N                   ld    c,(hl)
 09C7  23       #                   inc   hl
 09C8  46       F                   ld    b,(hl)
+                     INXHRT:
 09C9  23       #                   inc   hl
 09CA  C9       .                   ret   
-                     ; SINGLE PRECISION MATH ROUTINE – “MOVMF” - MOVE
-                     ; Copy a Single Precision value from ACCumulator to memory.
+                     ; 09CBH – SINGLE PRECISION MATH ROUTINE – “MOVMF” - MOVE
+                     ; Copy a Single Precision value from ACCumulator to memory address
+                     ; pointed to by HL. Modifies all Registers except for C
                      MOVMF:
 09CB  112179   .!y                 ld    de,FACLO
 09CE  0604     ..                  ld    b,0x04
 09D0  1805     ..                  jr    $+7
+                     ; 09D2H – MOVE VALUE FROM HL TO DE - “MOVVFM”
+                     ; moves the number of bytes specified in the variable type flag
+                     ; from the address in HL to the address in DE. Uses A, B, DE and HL.
+                     MOVVFM:
 09D2  EB       .                   ex    de,hl
+                     ; 09D3H – MOVE VALUE FROM DE TO HL - “VMOVE”
+                     ; moves the number of bytes specified in the variable type flag (VALTYP)
+                     ; from the address in DE to the address in HL. Uses A, B, DE and HL.
+                     VMOVE:
 09D3  3AAF78   :.x                 ld    a,(0x78AF)
+                     ; 09D6H – MOVE VALUE FROM DE TO HL - “VMOVEA”
+                     ; moves the number of bytes specified in A register
+                     ; from the address in DE to the address in HL. Uses A, B, DE and HL.
+                     VMOVEA:
 09D6  47       G                   ld    b,a
+                     ; 09D7H – MOVE VALUE FROM DE TO HL - “MOVE1”
+                     ; moves the number of bytes specified in B register
+                     ; from the address in DE to the address in HL. Uses A, B, DE and HL.
+                     MOVE1:
 09D7  1A       .                   ld    a,(de)
 09D8  77       w                   ld    (hl),a
 09D9  13       .                   inc   de
@@ -1625,6 +1670,10 @@
 09DB  05       .                   dec   b
 09DC  20F9      .                  jr    nz,$-5
 09DE  C9       .                   ret   
+                     ; 09DFH-09F3H – SINGLE PRECISION MATH ROUTINE – “UNPACK”
+                     ; This routine “UNPACKS” the ACCumulator and the Registers.
+                     ; Registers A, C, H, and L are altered.
+                     UNPACK:
 09DF  212379   !#y                 ld    hl,0x7923
 09E2  7E       ~                   ld    a,(hl)
 09E3  07       .                   rlca  
@@ -1644,12 +1693,26 @@
 09F1  1F       .                   rra   
 09F2  AE       .                   xor   (hl)
 09F3  C9       .                   ret   
+                     ; 09F4H-09FBH – MOVE FROM ACCUM2 TO ACCUM – “VMOVFA”
+                     ; Copy any precision value from ACCUM2 to ACCUM.
+                     ; Precision and number of bytes moved determined by NTF.
+                     VMOVFA:
 09F4  212779   !'y                 ld    hl,0x7927
-09F7  11D209   ...                 ld    de,0x09D2
+                     ; 09F7 – MOVE FROM (HL) TO ACCUM – “VMOVFA”
+                     ; Copy any precision value from address pointed to by HL to ACCUM
+                     ; Precision and number of bytes moved determined by NTF.
+                     VMOVFM:
+09F7  11D209   ...                 ld    de,MOVVFM
 09FA  1806     ..                  jr    $+8
+                     ; 09FCH – MOVE FROM ACCUM TO ACCUM2 – “VMOVAF”
+                     ; Copy any precision value from ACCUM to ACCUM2.
+                     ; Precision and number of bytes moved determined by NTF.
+                     ; All Registers except C are affected.
+                     VMOVAF:
 09FC  212779   !'y                 ld    hl,0x7927
-09FF  11D309   ...                 ld    de,0x09D3
+09FF  11D309   ...                 ld    de,VMOVE
 0A02  D5       .                   push  de
+                     VDFACS:
 0A03  112179   .!y                 ld    de,FACLO
 0A06  E7       .                   rst   0x20
 0A07  D8       .                   ret   c
@@ -1670,12 +1733,13 @@
 0A1D  AE       .                   xor   (hl)
 0A1E  79       y                   ld    a,c
 0A1F  F8       .                   ret   m
-                     FCOMP2:
-0A20  CD260A   .&.                 call  0x0A26
+                     FCOMP_SAME_SIGN:
+0A20  CD260A   .&.                 call  FCOMP2_CORE
                      FCOMPD:
 0A23  1F       .                   rra   
 0A24  A9       .                   xor   c
 0A25  C9       .                   ret   
+                     FCOMP2_CORE:
 0A26  23       #                   inc   hl
 0A27  78       x                   ld    a,b
                      ; Compare two single precision numbers.
@@ -1711,7 +1775,7 @@
 0A45  C26009   .`.                 jp    nz,SIGNS
 0A48  C9       .                   ret   
 0A49  212779   !'y                 ld    hl,0x7927
-0A4C  CDD309   ...                 call  0x09D3
+0A4C  CDD309   ...                 call  VMOVE
                      ; Internal single precision compare.
 0A4F  112E79   ..y                 ld    de,0x792E
 0A52  1A       .                   ld    a,(de)
@@ -1785,7 +1849,7 @@
 0ABF  78       x                   ld    a,b
 0AC0  B7       .                   or    a
 0AC1  C8       .                   ret   z
-0AC2  CDDF09   ...                 call  0x09DF
+0AC2  CDDF09   ...                 call  UNPACK
 0AC5  212079   ! y                 ld    hl,0x7920
 0AC8  46       F                   ld    b,(hl)
 0AC9  C39607   ...                 jp    0x0796
@@ -1824,7 +1888,7 @@
 0B00  C8       .                   ret   z
 0B01  E5       .                   push  hl
 0B02  CDBF09   ...                 call  MOVRF
-0B05  CDDF09   ...                 call  0x09DF
+0B05  CDDF09   ...                 call  UNPACK
 0B08  AE       .                   xor   (hl)
 0B09  67       g                   ld    h,a
 0B0A  FC1F0B   ...                 call  m,0x0B1F
@@ -1894,7 +1958,7 @@
 0B7A  D0       .                   ret   nc
 0B7B  F5       .                   push  af
 0B7C  CDBF09   ...                 call  MOVRF
-0B7F  CDDF09   ...                 call  0x09DF
+0B7F  CDDF09   ...                 call  UNPACK
 0B82  AE       .                   xor   (hl)
 0B83  2B       +                   dec   hl
 0B84  36B8     6.                  ld    (hl),0xB8
@@ -2032,7 +2096,7 @@
 0C56  9C       .                   sbc   a,h
 0C57  67       g                   ld    h,a
 0C58  C39A0A   ...                 jp    MAKINT
-                     INEG:
+                     INEG_B:
 0C5B  2A2179   *!y                 ld    hl,(FACLO)
 0C5E  CD510C   .Q.                 call  0x0C51
 0C61  7C       |                   ld    a,h
@@ -2058,7 +2122,7 @@
 0C80  112479   .$y                 ld    de,FAC
 0C83  1A       .                   ld    a,(de)
 0C84  B7       .                   or    a
-0C85  CAF409   ...                 jp    z,0x09F4
+0C85  CAF409   ...                 jp    z,VMOVFA
 0C88  90       .                   sub   b
 0C89  3016     0.                  jr    nc,$+24
 0C8B  2F       /                   cpl   
@@ -2084,7 +2148,7 @@
 0CA1  FE39     .9                  cp    0x39
 0CA3  D0       .                   ret   nc
 0CA4  F5       .                   push  af
-0CA5  CDDF09   ...                 call  0x09DF
+0CA5  CDDF09   ...                 call  UNPACK
 0CA8  23       #                   inc   hl
 0CA9  3600     6.                  ld    (hl),0x00
 0CAB  47       G                   ld    b,a
@@ -2276,7 +2340,7 @@
 0DDA  2084      .                  jr    nz,$-122
 0DDC  11D40D   ...                 ld    de,0x0DD4
 0DDF  212779   !'y                 ld    hl,0x7927
-0DE2  CDD309   ...                 call  0x09D3
+0DE2  CDD309   ...                 call  VMOVE
 0DE5  3A2E79   :.y                 ld    a,(0x792E)
 0DE8  B7       .                   or    a
 0DE9  CA9A19   ...                 jp    z,0x199A
@@ -2330,7 +2394,7 @@
 0E49  05       .                   dec   b
 0E4A  20F8      .                  jr    nz,$-6
 0E4C  C9       .                   ret   
-0E4D  CDFC09   ...                 call  0x09FC
+0E4D  CDFC09   ...                 call  VMOVAF
 0E50  EB       .                   ex    de,hl
 0E51  2B       +                   dec   hl
 0E52  7E       ~                   ld    a,(hl)
@@ -2445,7 +2509,7 @@
 0F0B  F5       .                   push  af
 0F0C  E7       .                   rst   0x20
 0F0D  F5       .                   push  af
-0F0E  E43E09   .>.                 call  po,0x093E
+0F0E  E43E09   .>.                 call  po,MUL10
 0F11  F1       .                   pop   af
 0F12  EC4D0E   .M.                 call  pe,0x0E4D
 0F15  F1       .                   pop   af
@@ -2505,13 +2569,13 @@
 0F62  110024   ..$                 ld    de,0x2400
 0F65  CD0C0A   ...                 call  FCOMP
 0F68  F2740F   .t.                 jp    p,0x0F74
-0F6B  CD3E09   .>.                 call  0x093E
+0F6B  CD3E09   .>.                 call  MUL10
 0F6E  F1       .                   pop   af
 0F6F  CD890F   ...                 call  0x0F89
 0F72  18DD     ..                  jr    $-33
 0F74  CDE30A   ...                 call  0x0AE3
 0F77  CD4D0E   .M.                 call  0x0E4D
-0F7A  CDFC09   ...                 call  0x09FC
+0F7A  CDFC09   ...                 call  VMOVAF
 0F7D  F1       .                   pop   af
 0F7E  CD6409   .d.                 call  FLOAT
 0F81  CDE30A   ...                 call  0x0AE3
@@ -2635,14 +2699,14 @@
 105A  F5       .                   push  af
 105B  CD9112   ...                 call  0x1291
 105E  3630     60                  ld    (hl),0x30
-1060  CCC909   ...                 call  z,0x09C9
+1060  CCC909   ...                 call  z,INXHRT
 1063  CDA412   ...                 call  0x12A4
 1066  2B       +                   dec   hl
 1067  7E       ~                   ld    a,(hl)
 1068  FE30     .0                  cp    0x30
 106A  28FA     (.                  jr    z,$-4
 106C  FE2E     ..                  cp    0x2E
-106E  C4C909   ...                 call  nz,0x09C9
+106E  C4C909   ...                 call  nz,INXHRT
 1071  F1       .                   pop   af
 1072  281F     (.                  jr    z,$+33
 1074  F5       .                   push  af
@@ -2687,7 +2751,7 @@
 10B3  CD2F13   ./.                 call  0x132F
 10B6  7B       {                   ld    a,e
 10B7  B7       .                   or    a
-10B8  CC2F09   ./.                 call  z,0x092F
+10B8  CC2F09   ./.                 call  z,DCXHRT
 10BB  3D       =                   dec   a
 10BC  F46912   .i.                 call  p,0x1269
 10BF  E5       .                   push  hl
@@ -2871,7 +2935,7 @@
 11EA  F47112   .q.                 call  p,0x1271
 11ED  C1       .                   pop   bc
 11EE  F1       .                   pop   af
-11EF  CC2F09   ./.                 call  z,0x092F
+11EF  CC2F09   ./.                 call  z,DCXHRT
 11F2  F1       .                   pop   af
 11F3  3803     8.                  jr    c,$+5
 11F5  83       .                   add   a,e
@@ -2892,7 +2956,7 @@
 120D  D22212   .".                 jp    nc,0x1222
 1210  116413   .d.                 ld    de,0x1364
 1213  212779   !'y                 ld    hl,0x7927
-1216  CDD309   ...                 call  0x09D3
+1216  CDD309   ...                 call  VMOVE
 1219  CDA10D   ...                 call  0x0DA1
 121C  F1       .                   pop   af
 121D  D60A     ..                  sub   0x0A
@@ -2975,9 +3039,9 @@
 12A6  E2EA12   ...                 jp    po,0x12EA
 12A9  C5       .                   push  bc
 12AA  E5       .                   push  hl
-12AB  CDFC09   ...                 call  0x09FC
+12AB  CDFC09   ...                 call  VMOVAF
 12AE  217C13   !|.                 ld    hl,0x137C
-12B1  CDF709   ...                 call  0x09F7
+12B1  CDF709   ...                 call  VMOVFM
 12B4  CD770C   .w.                 call  0x0C77
 12B7  AF       .                   xor   a
 12B8  CD7B0B   .{.                 call  0x0B7B
@@ -3256,11 +3320,11 @@
 1442  CD4708   .G.                 call  0x0847
 1445  3A2479   :$y                 ld    a,(FAC)
 1448  FE88     ..                  cp    0x88
-144A  D23109   .1.                 jp    nc,0x0931
+144A  D23109   .1.                 jp    nc,MLDVEX
 144D  CD400B   .@.                 call  0x0B40
 1450  C680     ..                  add   a,0x80
 1452  C602     ..                  add   a,0x02
-1454  DA3109   .1.                 jp    c,0x0931
+1454  DA3109   .1.                 jp    c,MLDVEX
 1457  F5       .                   push  af
 1458  21F807   !..                 ld    hl,FONE
 145B  CD0B07   ...                 call  0x070B
@@ -4375,7 +4439,7 @@
 1A91  23       #                   inc   hl
 1A92  7E       ~                   ld    a,(hl)
 1A93  FE20     .                   cp    0x20
-1A95  CCC909   ...                 call  z,0x09C9
+1A95  CCC909   ...                 call  z,INXHRT
 1A98  D5       .                   push  de
 1A99  CDC01B   ...                 call  0x1BC0
 1A9C  D1       .                   pop   de
@@ -5087,7 +5151,7 @@
 1F32  E3       .                   ex    (sp),hl
 1F33  C603     ..                  add   a,0x03
 1F35  CD1928   ..(                 call  0x2819
-1F38  CD030A   ...                 call  0x0A03
+1F38  CD030A   ...                 call  VDFACS
 1F3B  E5       .                   push  hl
 1F3C  2028      (                  jr    nz,$+42
 1F3E  2A2179   *!y                 ld    hl,(FACLO)
@@ -5112,7 +5176,7 @@
 1F5F  CD4328   .C(                 call  0x2843
 1F62  CDF529   ..)                 call  0x29F5
 1F65  E3       .                   ex    (sp),hl
-1F66  CDD309   ...                 call  0x09D3
+1F66  CDD309   ...                 call  VMOVE
 1F69  D1       .                   pop   de
 1F6A  E1       .                   pop   hl
 1F6B  C9       .                   ret   
@@ -5804,7 +5868,7 @@
 2436  C5       .                   push  bc
 2437  C9       .                   ret   
 2438  CDDB0A   ...                 call  0x0ADB
-243B  CDFC09   ...                 call  0x09FC
+243B  CDFC09   ...                 call  VMOVAF
 243E  E1       .                   pop   hl
 243F  221F79   ".y                 ld    (0x791F),hl
 2442  E1       .                   pop   hl
@@ -5827,7 +5891,7 @@
 245E  6F       o                   ld    l,a
 245F  E9       .                   jp    (hl)
 2460  C5       .                   push  bc
-2461  CDFC09   ...                 call  0x09FC
+2461  CDFC09   ...                 call  VMOVAF
 2464  F1       .                   pop   af
 2465  32AF78   2.x                 ld    (0x78AF),a
 2468  FE04     ..                  cp    0x04
@@ -5940,7 +6004,7 @@
 2544  EB       .                   ex    de,hl
 2545  222179   "!y                 ld    (FACLO),hl
 2548  E7       .                   rst   0x20
-2549  C4F709   ...                 call  nz,0x09F7
+2549  C4F709   ...                 call  nz,VMOVFM
 254C  E1       .                   pop   hl
 254D  C9       .                   ret   
 254E  0600     ..                  ld    b,0x00
@@ -6494,7 +6558,7 @@
 288C  222179   "!y                 ld    (FACLO),hl
 288F  3E03     >.                  ld    a,0x03
 2891  32AF78   2.x                 ld    (0x78AF),a
-2894  CDD309   ...                 call  0x09D3
+2894  CDD309   ...                 call  VMOVE
 2897  11D678   ..x                 ld    de,0x78D6
 289A  DF       .                   rst   0x18
 289B  22B378   ".x                 ld    (0x78B3),hl
@@ -6506,7 +6570,7 @@
 28A6  23       #                   inc   hl
 28A7  CD6528   .e(                 call  0x2865
 28AA  CDDA29   ..)                 call  0x29DA
-28AD  CDC409   ...                 call  0x09C4
+28AD  CDC409   ...                 call  GETBCD
 28B0  14       .                   inc   d
 28B1  15       .                   dec   d
 28B2  C8       .                   ret   z

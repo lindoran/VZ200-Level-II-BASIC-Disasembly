@@ -60,8 +60,7 @@ remove_file "$ROOT_DIR/export.sym"
 if [[ "$INCLUDE_BUILD" -eq 1 ]]; then
     # Local build outputs (root).
     remove_file "$ROOT_DIR/export.o"
-    remove_file "$ROOT_DIR/z80bench"
-    remove_file "$ROOT_DIR/z80bench-cli"
+
 
     # Local build outputs (submodule working tree).
     remove_file "$ROOT_DIR/external/z80bench/z80bench"
