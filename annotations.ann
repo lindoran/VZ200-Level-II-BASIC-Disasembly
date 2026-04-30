@@ -541,6 +541,14 @@ offset = 1814
 name = FP_ADD_X_PLUS_Y
 
 [label]
+offset = 1960
+name = ROUND
+
+[label]
+offset = 1987
+name = NGER
+
+[label]
 offset = 2007
 name = SHIFTR
 
@@ -815,6 +823,50 @@ name = TMERR
 [label]
 offset = 2811
 name = DROUND
+
+[label]
+offset = 2817
+name = QINT
+
+[label]
+offset = 2847
+name = QINTA
+
+[label]
+offset = 2854
+name = FSUB
+
+[label]
+offset = 2871
+name = FNINT
+
+[label]
+offset = 2905
+name = DINT
+
+[label]
+offset = 2976
+name = DINT_NEG
+
+[label]
+offset = 2986
+name = UMULT
+
+[label]
+offset = 3015
+name = ISUB
+
+[label]
+offset = 3026
+name = IADD
+
+[label]
+offset = 3041
+name = IDIV
+
+[label]
+offset = 3058
+name = IDIV2
 
 [label]
 offset = 3163
@@ -5248,6 +5300,1522 @@ text = X > 0?
 offset = 2426
 text = yes, done
 
+[comment]
+offset = 2427
+text = Test type of FAC X
+
+[comment]
+offset = 2428
+text = integer? yes - continue at 0x0C5B
+
+[comment]
+offset = 2431
+text = string? yes - TYPE MISMATCH Error
+
+[comment]
+offset = 2434
+text = Address MSB of FAC X
+
+[comment]
+offset = 2437
+text = and load
+
+[comment]
+offset = 2438
+text = Invert sign bit
+
+[comment]
+offset = 2440
+text = write MSB back to FAC X
+
+[comment]
+offset = 2442
+text = Test FAC X
+
+[comment]
+offset = 2445
+text = Number in L
+
+[comment]
+offset = 2446
+text = Number < 0?
+
+[comment]
+offset = 2447
+text = yes, -1 in A and H
+
+[comment]
+offset = 2448
+text = no, 0 in A and H
+
+[comment]
+offset = 2449
+text = Transfer HL to FAC X
+
+[comment]
+offset = 2452
+text = Test type
+
+[comment]
+offset = 2453
+text = String? yes - TYPE MISMATCH Error
+
+[comment]
+offset = 2456
+text = Single or double precision
+
+[comment]
+offset = 2459
+text = Integer number in HL
+
+[comment]
+offset = 2462
+text = is it 0?
+
+[comment]
+offset = 2464
+text = yes - done
+
+[comment]
+offset = 2465
+text = no - MSB in A
+
+[comment]
+offset = 2466
+text = continue at 0x095F
+
+[comment]
+offset = 2468
+text = Save HL in DE
+
+[comment]
+offset = 2469
+text = LSB of FAC X in HL
+
+[comment]
+offset = 2472
+text = swap RET address with HL on stack
+
+[comment]
+offset = 2473
+text = push RET address back on stack
+
+[comment]
+offset = 2474
+text = MSB X + Exp X in HL
+
+[comment]
+offset = 2477
+text = swap RET address with HL on stack
+
+[comment]
+offset = 2478
+text = push RET address back on stack
+
+[comment]
+offset = 2479
+text = Restore content of HL
+
+[comment]
+offset = 2481
+text = Transfer number to FAC Y
+
+[comment]
+offset = 2484
+text = LSB Y in HL, save HL in DE
+
+[comment]
+offset = 2485
+text = Transfer HL to LSB Y
+
+[comment]
+offset = 2488
+text = MSB Y + Exp Y in HL
+
+[comment]
+offset = 2490
+text = Store as MSB X and Exp X
+
+[comment]
+offset = 2493
+text = Restore content of HL
+
+[comment]
+offset = 2495
+text = Address LSB of FAC X
+
+[comment]
+offset = 2498
+text = Load LSB
+
+[comment]
+offset = 2499
+text = Next byte
+
+[comment]
+offset = 2500
+text = Load byte
+
+[comment]
+offset = 2501
+text = Next byte
+
+[comment]
+offset = 2502
+text = Load byte
+
+[comment]
+offset = 2503
+text = Load Exp
+
+[comment]
+offset = 2505
+text = HL behind the number
+
+[comment]
+offset = 2507
+text = X-address in DE
+
+[comment]
+offset = 2510
+text = Number of bytes for single precision
+
+[comment]
+offset = 2512
+text = continue at 0x09D7
+
+[comment]
+offset = 2514
+text = Swap destination and source address
+
+[comment]
+offset = 2515
+text = Load type of the number
+
+[comment]
+offset = 2518
+text = serves as byte counter
+
+[comment]
+offset = 2519
+text = Load byte
+
+[comment]
+offset = 2520
+text = and transfer to new area
+
+[comment]
+offset = 2521
+text = Addresses + 1
+
+[comment]
+offset = 2523
+text = Counter - 1
+
+[comment]
+offset = 2524
+text = > 0? yes - back
+
+[comment]
+offset = 2526
+text = done
+
+[comment]
+offset = 2527
+text = Address MSB of FAC X
+
+[comment]
+offset = 2530
+text = and load into A
+
+[comment]
+offset = 2531
+text = Sign in bit 0 of A
+
+[comment]
+offset = 2532
+text = Set Carry = 1
+
+[comment]
+offset = 2533
+text = Sign in Carry, MSB X(7) = 1
+
+[comment]
+offset = 2534
+text = back to MSB of FAC X
+
+[comment]
+offset = 2535
+text = Complement sign
+
+[comment]
+offset = 2536
+text = and into A(7)
+
+[comment]
+offset = 2537
+text = Address HL to sign flag
+
+[comment]
+offset = 2539
+text = store complemented sign
+
+[comment]
+offset = 2540
+text = MSB Y in A
+
+[comment]
+offset = 2541
+text = Sign of FAC Y in bit 0 of A
+
+[comment]
+offset = 2542
+text = Set Carry = 1
+
+[comment]
+offset = 2543
+text = MSB Y(7) = 1, sign Y in Carry
+
+[comment]
+offset = 2544
+text = MSB Y back
+
+[comment]
+offset = 2545
+text = Sign in A(7)
+
+[comment]
+offset = 2546
+text = Combine with complemented MSB X
+
+[comment]
+offset = 2548
+text = FAC Y address in HL
+
+[comment]
+offset = 2551
+text = Address of transport routine
+
+[comment]
+offset = 2556
+text = FAC Y address in HL
+
+[comment]
+offset = 2559
+text = Address of transport routine
+
+[comment]
+offset = 2562
+text = Transport routine address on stack
+
+[comment]
+offset = 2563
+text = X-address for Integer, Strings and single precision
+
+[comment]
+offset = 2566
+text = Test type
+
+[comment]
+offset = 2567
+text = Double precision? no - done
+
+[comment]
+offset = 2568
+text = X-address for double precision
+
+[comment]
+offset = 2571
+text = done
+
+[comment]
+offset = 2572
+text = FAC Y = 0?
+
+[comment]
+offset = 2574
+text = yes - test FAC X and back
+
+[comment]
+offset = 2577
+text = Address of test routine on stack
+
+[comment]
+offset = 2580
+text = push address
+
+[comment]
+offset = 2581
+text = FAC X = 0?
+
+[comment]
+offset = 2584
+text = MSB FAC Y in A
+
+[comment]
+offset = 2585
+text = yes - sign of FAC Y = result
+
+[comment]
+offset = 2586
+text = Load address of MSB FAC X
+
+[comment]
+offset = 2589
+text = Sign FAC X = Sign FAC Y?
+
+[comment]
+offset = 2590
+text = MSB FAC Y in A
+
+[comment]
+offset = 2591
+text = no, -sign of FAC Y = result
+
+[comment]
+offset = 2592
+text = Comparison for same signs
+
+[comment]
+offset = 2595
+text = Carry in bit 7 of A
+
+[comment]
+offset = 2596
+text = if FAC Y negative, invert A(7)
+
+[comment]
+offset = 2597
+text = done
+
+[comment]
+offset = 2598
+text = Address of FAC X exponent in HL
+
+[comment]
+offset = 2599
+text = Load FAC Y exponent
+
+[comment]
+offset = 2600
+text = Exponents equal, check mantissa
+
+[comment]
+offset = 2601
+text = Exponents not equal
+
+[comment]
+offset = 2602
+text = Address MSB
+
+[comment]
+offset = 2603
+text = MSB of Y
+
+[comment]
+offset = 2604
+text = compare with MSB of X
+
+[comment]
+offset = 2605
+text = different? yes - done
+
+[comment]
+offset = 2606
+text = Address middle byte
+
+[comment]
+offset = 2607
+text = Middle byte of Y
+
+[comment]
+offset = 2608
+text = compare with middle byte of X
+
+[comment]
+offset = 2609
+text = different? yes - done
+
+[comment]
+offset = 2610
+text = Address LSB
+
+[comment]
+offset = 2611
+text = LSB of Y
+
+[comment]
+offset = 2612
+text = compare with LSB of X
+
+[comment]
+offset = 2613
+text = different? yes - done
+
+[comment]
+offset = 2614
+text = Balance stack
+
+[comment]
+offset = 2615
+text = Balance stack
+
+[comment]
+offset = 2616
+text = done
+
+[comment]
+offset = 2617
+text = MSB of first integer
+
+[comment]
+offset = 2618
+text = Signs equal?
+
+[comment]
+offset = 2619
+text = Restore MSB
+
+[comment]
+offset = 2620
+text = no, result determined by sign
+
+[comment]
+offset = 2623
+text = MSB of second integer
+
+[comment]
+offset = 2624
+text = different? yes - done
+
+[comment]
+offset = 2627
+text = LSB of first integer
+
+[comment]
+offset = 2628
+text = compare with LSB of second integer
+
+[comment]
+offset = 2629
+text = different? yes - done
+
+[comment]
+offset = 2632
+text = done
+
+[comment]
+offset = 2633
+text = Address FAC2
+
+[comment]
+offset = 2636
+text = Transfer to FAC2
+
+[comment]
+offset = 2639
+text = Address ARG_EXP
+
+[comment]
+offset = 2642
+text = Load exponent
+
+[comment]
+offset = 2643
+text = Zero?
+
+[comment]
+offset = 2644
+text = yes, sign of X determines result
+
+[comment]
+offset = 2647
+text = Address of result routine
+
+[comment]
+offset = 2650
+text = onto stack
+
+[comment]
+offset = 2651
+text = Test FAC X
+
+[comment]
+offset = 2654
+text = Address ARG_SIGN
+
+[comment]
+offset = 2655
+text = Load sign
+
+[comment]
+offset = 2656
+text = Save sign
+
+[comment]
+offset = 2657
+text = Zero? yes - done
+
+[comment]
+offset = 2658
+text = Address FAC_SIGN
+
+[comment]
+offset = 2661
+text = Signs equal?
+
+[comment]
+offset = 2662
+text = Restore sign of Y
+
+[comment]
+offset = 2663
+text = no, sign of Y determines result
+
+[comment]
+offset = 2664
+text = Address MSB of Y
+
+[comment]
+offset = 2665
+text = Address MSB of X
+
+[comment]
+offset = 2666
+text = 8 bytes for double precision
+
+[comment]
+offset = 2668
+text = Load byte from Y
+
+[comment]
+offset = 2669
+text = compare with byte from X
+
+[comment]
+offset = 2670
+text = different? yes - done
+
+[comment]
+offset = 2673
+text = Address next byte
+
+[comment]
+offset = 2674
+text = Address next byte
+
+[comment]
+offset = 2675
+text = Decrement counter
+
+[comment]
+offset = 2676
+text = more? yes - back
+
+[comment]
+offset = 2678
+text = Balance stack
+
+[comment]
+offset = 2679
+text = done
+
+[comment]
+offset = 2680
+text = Compare X and Y
+
+[comment]
+offset = 2683
+text = different? yes - done
+
+[comment]
+offset = 2686
+text = done
+
+[comment]
+offset = 2687
+text = Test type
+
+[comment]
+offset = 2688
+text = Load integer from FACLO
+
+[comment]
+offset = 2691
+text = Integer? yes - done
+
+[comment]
+offset = 2692
+text = String? yes - error
+
+[comment]
+offset = 2695
+text = Double precision? yes - convert to single
+
+[comment]
+offset = 2698
+text = Address of OVERFLOW Error
+
+[comment]
+offset = 2701
+text = onto stack
+
+[comment]
+offset = 2702
+text = FAC exponent
+
+[comment]
+offset = 2705
+text = > 16 bits?
+
+[comment]
+offset = 2707
+text = yes - check if -32768
+
+[comment]
+offset = 2709
+text = Convert to integer
+
+[comment]
+offset = 2712
+text = HL = integer
+
+[comment]
+offset = 2713
+text = Balance stack
+
+[comment]
+offset = 2714
+text = Store in FACLO
+
+[comment]
+offset = 2717
+text = Type = Integer
+
+[comment]
+offset = 2719
+text = Store in VALTYP
+
+[comment]
+offset = 2722
+text = done
+
+[comment]
+offset = 2723
+text = -32768 in floating point
+
+[comment]
+offset = 2726
+text = more bytes
+
+[comment]
+offset = 2729
+text = Compare with FAC X
+
+[comment]
+offset = 2732
+text = not -32768? yes - back (OVERFLOW)
+
+[comment]
+offset = 2733
+text = H = 0x80
+
+[comment]
+offset = 2734
+text = L = 0x00
+
+[comment]
+offset = 2735
+text = continue at MAKINT
+
+[comment]
+offset = 2737
+text = Test type
+
+[comment]
+offset = 2738
+text = Single precision? yes - done
+
+[comment]
+offset = 2739
+text = Integer? yes - convert
+
+[comment]
+offset = 2742
+text = String? yes - error
+
+[comment]
+offset = 2745
+text = Transfer FAC X to FAC Y
+
+[comment]
+offset = 2748
+text = Set type to single
+
+[comment]
+offset = 2751
+text = Exponent in A
+
+[comment]
+offset = 2752
+text = Zero?
+
+[comment]
+offset = 2753
+text = yes - done
+
+[comment]
+offset = 2754
+text = Prepare for rounding
+
+[comment]
+offset = 2757
+text = FACLO - 1
+
+[comment]
+offset = 2760
+text = chopped byte
+
+[comment]
+offset = 2761
+text = round
+
+[comment]
+offset = 2764
+text = Load integer from FACLO
+
+[comment]
+offset = 2767
+text = Set type to single
+
+[comment]
+offset = 2770
+text = H in A
+
+[comment]
+offset = 2771
+text = L in D
+
+[comment]
+offset = 2772
+text = E = 0
+
+[comment]
+offset = 2774
+text = Exponent for 16-bit integer
+
+[comment]
+offset = 2776
+text = Normalize
+
+[comment]
+offset = 2779
+text = Test type
+
+[comment]
+offset = 2780
+text = Double precision? yes - done
+
+[comment]
+offset = 2781
+text = String? yes - error
+
+[comment]
+offset = 2784
+text = Integer? yes - convert to single first
+
+[comment]
+offset = 2787
+text = zero
+
+[comment]
+offset = 2790
+text = clear low bytes
+
+[comment]
+offset = 2793
+text = clear low bytes
+
+[comment]
+offset = 2796
+text = Type = Double
+
+[comment]
+offset = 2798
+text = Skip VALSNG (ld bc, 0x043E)
+
+[comment]
+offset = 2801
+text = Store in VALTYP
+
+[comment]
+offset = 2804
+text = Test type
+
+[comment]
+offset = 2805
+text = String? yes - done
+
+[comment]
+offset = 2806
+text = Error code
+
+[comment]
+offset = 2808
+text = Display error
+
+[comment]
+offset = 2811
+text = A in B
+
+[comment]
+offset = 2812
+text = A in C
+
+[comment]
+offset = 2813
+text = A in D
+
+[comment]
+offset = 2814
+text = A in E
+
+[comment]
+offset = 2815
+text = A = 0?
+
+[comment]
+offset = 2816
+text = yes - done
+
+[comment]
+offset = 2817
+text = Save HL
+
+[comment]
+offset = 2818
+text = Get SINGLE in FAC X into BC:DE
+
+[comment]
+offset = 2821
+text = Unpack FAC X
+
+[comment]
+offset = 2824
+text = XOR with MSB of FAC X (sign bit)
+
+[comment]
+offset = 2825
+text = Save result in H
+
+[comment]
+offset = 2826
+text = If negative, decrement DE (adjust for INT of negative)
+
+[comment]
+offset = 2829
+text = Load A with maximum exponent (0x98)
+
+[comment]
+offset = 2831
+text = Subtract exponent of FAC X
+
+[comment]
+offset = 2832
+text = Shift BC:DE right by A times
+
+[comment]
+offset = 2835
+text = Load A with H (stored sign bit)
+
+[comment]
+offset = 2836
+text = Shift sign into carry
+
+[comment]
+offset = 2837
+text = If negative, round
+
+[comment]
+offset = 2840
+text = B = 0
+
+[comment]
+offset = 2842
+text = If negative, negate
+
+[comment]
+offset = 2845
+text = Restore HL
+
+[comment]
+offset = 2846
+text = Done
+
+[comment]
+offset = 2847
+text = Decrement DE
+
+[comment]
+offset = 2848
+text = Check if DE became 0xFFFF
+
+[comment]
+offset = 2849
+text = AND D with E
+
+[comment]
+offset = 2850
+text = Increment A
+
+[comment]
+offset = 2851
+text = If not zero, return
+
+[comment]
+offset = 2852
+text = Decrement BC
+
+[comment]
+offset = 2853
+text = Done
+
+[comment]
+offset = 2854
+text = Check current number type
+
+[comment]
+offset = 2855
+text = Return if Double Precision
+
+[comment]
+offset = 2856
+text = Get sign of FAC X
+
+[comment]
+offset = 2859
+text = If positive, proceed to addition
+
+[comment]
+offset = 2862
+text = Negate FAC X
+
+[comment]
+offset = 2865
+text = Call addition
+
+[comment]
+offset = 2868
+text = Negate result and return
+
+[comment]
+offset = 2871
+text = Check current number type
+
+[comment]
+offset = 2872
+text = Already integer? Return
+
+[comment]
+offset = 2873
+text = If double, go to DINT
+
+[comment]
+offset = 2875
+text = If string, Type Mismatch error
+
+[comment]
+offset = 2877
+text = Check if fits in integer
+
+[comment]
+offset = 2880
+text = FAC address
+
+[comment]
+offset = 2883
+text = Get exponent
+
+[comment]
+offset = 2884
+text = Test for fractional bits
+
+[comment]
+offset = 2886
+text = FACLO
+
+[comment]
+offset = 2889
+text = Return if no fractional bits
+
+[comment]
+offset = 2890
+text = Get exponent
+
+[comment]
+offset = 2891
+text = Convert to integer
+
+[comment]
+offset = 2894
+text = Set exponent to 0x98
+
+[comment]
+offset = 2896
+text = E to A
+
+[comment]
+offset = 2897
+text = Save AF
+
+[comment]
+offset = 2898
+text = C to A
+
+[comment]
+offset = 2899
+text = Rotate
+
+[comment]
+offset = 2900
+text = Float the integer
+
+[comment]
+offset = 2903
+text = Restore AF
+
+[comment]
+offset = 2904
+text = Done
+
+[comment]
+offset = 2905
+text = Address of FAC
+
+[comment]
+offset = 2908
+text = Get exponent
+
+[comment]
+offset = 2909
+text = Compare with 0x90
+
+[comment]
+offset = 2911
+text = If < 0x90, force integer
+
+[comment]
+offset = 2914
+text = If zero, done
+
+[comment]
+offset = 2916
+text = A to C
+
+[comment]
+offset = 2917
+text = HL to FAC MSB
+
+[comment]
+offset = 2918
+text = Get byte
+
+[comment]
+offset = 2919
+text = XOR 0x80
+
+[comment]
+offset = 2921
+text = B = 6 (mantissa bytes)
+
+[comment]
+offset = 2923
+text = HL-1
+
+[comment]
+offset = 2924
+text = OR with (HL)
+
+[comment]
+offset = 2925
+text = Decrement B
+
+[comment]
+offset = 2926
+text = Loop
+
+[comment]
+offset = 2928
+text = OR A
+
+[comment]
+offset = 2929
+text = LD HL, 0x8000
+
+[comment]
+offset = 2932
+text = Jump to MAKINT
+
+[comment]
+offset = 2935
+text = A = C
+
+[comment]
+offset = 2936
+text = Compare with 0xB8
+
+[comment]
+offset = 2938
+text = Done if NC
+
+[comment]
+offset = 2939
+text = Save A
+
+[comment]
+offset = 2940
+text = Move FAC X to Y
+
+[comment]
+offset = 2943
+text = Unpack FAC X
+
+[comment]
+offset = 2946
+text = XOR (HL)
+
+[comment]
+offset = 2947
+text = HL-1
+
+[comment]
+offset = 2948
+text = LD (HL), 0xB8
+
+[comment]
+offset = 2950
+text = Save AF
+
+[comment]
+offset = 2951
+text = Call m, DINT_NEG
+
+[comment]
+offset = 2954
+text = HL to FAC sign
+
+[comment]
+offset = 2957
+text = A = 0xB8
+
+[comment]
+offset = 2959
+text = Subtract exponent
+
+[comment]
+offset = 2960
+text = Shift right
+
+[comment]
+offset = 2963
+text = Restore AF
+
+[comment]
+offset = 2964
+text = Call m, 0x0D20
+
+[comment]
+offset = 2967
+text = XOR A
+
+[comment]
+offset = 2968
+text = Store A at 0x791C
+
+[comment]
+offset = 2971
+text = Restore AF
+
+[comment]
+offset = 2972
+text = Done if NC
+
+[comment]
+offset = 2973
+text = Jump to 0x0CD8
+
+[comment]
+offset = 2976
+text = LD HL, FAC-7
+
+[comment]
+offset = 2979
+text = Get byte
+
+[comment]
+offset = 2980
+text = Decrement (HL)
+
+[comment]
+offset = 2981
+text = OR A
+
+[comment]
+offset = 2982
+text = HL+1
+
+[comment]
+offset = 2983
+text = Loop if zero
+
+[comment]
+offset = 2985
+text = Done
+
+[comment]
+offset = 2986
+text = Save HL
+
+[comment]
+offset = 2987
+text = HL = 0
+
+[comment]
+offset = 2990
+text = A = B
+
+[comment]
+offset = 2991
+text = OR C
+
+[comment]
+offset = 2992
+text = If zero, done
+
+[comment]
+offset = 2994
+text = A = 16 bits
+
+[comment]
+offset = 2996
+text = HL = HL * 2
+
+[comment]
+offset = 2997
+text = Overflow? BS ERROR
+
+[comment]
+offset = 3000
+text = EX DE, HL
+
+[comment]
+offset = 3001
+text = HL = HL * 2
+
+[comment]
+offset = 3002
+text = EX DE, HL
+
+[comment]
+offset = 3003
+text = If no carry, skip addition
+
+[comment]
+offset = 3005
+text = HL = HL + BC
+
+[comment]
+offset = 3006
+text = Overflow? BS ERROR
+
+[comment]
+offset = 3009
+text = Decrement bit counter
+
+[comment]
+offset = 3010
+text = Loop
+
+[comment]
+offset = 3012
+text = Result to DE
+
+[comment]
+offset = 3013
+text = Restore HL
+
+[comment]
+offset = 3014
+text = Done
+
+[comment]
+offset = 3015
+text = A = H
+
+[comment]
+offset = 3016
+text = Sign to carry
+
+[comment]
+offset = 3017
+text = A = 0x00 or 0xFF
+
+[comment]
+offset = 3018
+text = B = A
+
+[comment]
+offset = 3019
+text = Prepare DE for subtraction
+
+[comment]
+offset = 3022
+text = A = C
+
+[comment]
+offset = 3023
+text = SBC A, B
+
+[comment]
+offset = 3024
+text = Skip next instruction
+
+[comment]
+offset = 3026
+text = A = H
+
+[comment]
+offset = 3027
+text = Sign to carry
+
+[comment]
+offset = 3028
+text = A = 0x00 or 0xFF
+
+[comment]
+offset = 3029
+text = B = A
+
+[comment]
+offset = 3030
+text = Save HL
+
+[comment]
+offset = 3031
+text = A = D
+
+[comment]
+offset = 3032
+text = Sign to carry
+
+[comment]
+offset = 3033
+text = A = 0x00 or 0xFF
+
+[comment]
+offset = 3034
+text = HL = HL + DE
+
+[comment]
+offset = 3035
+text = ADC A, B
+
+[comment]
+offset = 3036
+text = Rotate
+
+[comment]
+offset = 3037
+text = Check for overflow
+
+[comment]
+offset = 3038
+text = Jump if no overflow
+
+[comment]
+offset = 3041
+text = Save BC
+
+[comment]
+offset = 3042
+text = EX DE, HL
+
+[comment]
+offset = 3043
+text = Division core
+
+[comment]
+offset = 3046
+text = Restore AF
+
+[comment]
+offset = 3047
+text = Restore HL
+
+[comment]
+offset = 3048
+text = Check signs
+
+[comment]
+offset = 3051
+text = EX DE, HL
+
+[comment]
+offset = 3052
+text = Negate DE if needed
+
+[comment]
+offset = 3055
+text = Done
+
+[comment]
+offset = 3058
+text = A = H
+
+[comment]
+offset = 3059
+text = OR L
+
+[comment]
+offset = 3060
+text = If zero, result 0
+
+[comment]
+offset = 3063
+text = Save HL
+
+[comment]
+offset = 3064
+text = Save DE
+
+[comment]
+offset = 3065
+text = Division core
+
+[comment]
+offset = 3068
+text = Save BC
+
+[comment]
+offset = 3069
+text = B = H
+
+[comment]
+offset = 3070
+text = C = L
+
+[comment]
+offset = 3071
+text = HL = 0
+
+[comment]
+offset = 3074
+text = A = 16 bits
+
+[comment]
+offset = 3076
+text = HL = HL * 2
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -5744,31 +7312,27 @@ text = LEVEL II BASIC ABS() ROUTINE – “FNABS”
 
 [block]
 offset = 2427
-text = This routine will negate any value in the ACCumulator. Every Register is affected.
+text = Invert number in FAC X
 
 [block]
 offset = 2434
-text = 0982H – NEGATE SINGLE/DOUBLE ROUTINE – “NNEG”
-              This routine will negate the single or double precision number in the ACCumulator.
-              Registers A, H, and L are affected.
+text = Invert real number in FAC X
 
 [block]
 offset = 2442
-text = 098AH-0993H – LEVEL II BASIC SGN() ROUTINE – “FNSGN”
+text = SGN function
 
 [block]
 offset = 2445
-text = This routine will convert a signed number (held in Register A) into an integer.
+text = Convert A to 16-bit signed integer
 
 [block]
 offset = 2452
-text = 0994H – MATH COMPARE ROUTINE – “VSIGN” (Accumulator)
-              This routine checks the sign of the ACCumulator. NTF must be set.
+text = Test all numeric types
 
 [block]
 offset = 2459
-text = 099BH - MATH COMPARE ROUTINE - INTEGER SIGN (Accumulator)
-              Finds the sign of the Integer value held in the Accumulator
+text = Test integer number
 
 [block]
 offset = 2462
@@ -5777,86 +7341,53 @@ text = 099EH - MATH COMPARE ROUTINE - INTEGER SIGN (HL)
 
 [block]
 offset = 2468
-text = 09A4H – SINGLE PRECISION MATH ROUTINE – “PUSHF” - MOVE
-              Moves the single precision value in the ACCumulator to the STACK
-              It is Assumed that ACCumulator contains a single precision value
-              A, BC and HL are unchanged by this function.
+text = Transport numbers of different types
+              From FAC X to stack (single precision)
 
 [block]
 offset = 2481
-text = 09B1H – SINGLE PRECISION MATH ROUTINE – “MOVFM” - MOVE
-              This routine moves a number from memory (pointed to by HL) into the ACC
+text = Transfer single precision number from RAM to FAC X
 
 [block]
 offset = 2484
-text = 09B4H – SINGLE PRECISION MATH ROUTINE – “MOVFR” - MOVE
-              Store the single precision value in BC:DE into ACC. Destroys value in BC:DE.
+text = Transfer single precision number from FAC Y to FAC X
 
 [block]
 offset = 2495
-text = 09BFH – SINGLE PRECISION MATH ROUTINE – “MOVRF” - MOVE
-              It loads four bytes from ACCumulator (single) into the BC:DE Register Pairs.
-              Only Register A is unchanged.
-
-[block]
-offset = 2498
-text = 09C2H – SINGLE PRECISION MATH ROUTINE – “MOVRM” - MOVE
-              It loads four byte Single, pointed by HL, into the BC:DE Register Pairs.
-              HL is incremented. Only Register A and Flags are unchanged.
+text = Transfer single precision number from FAC X to FAC Y
 
 [block]
 offset = 2507
-text = 09CBH – SINGLE PRECISION MATH ROUTINE – “MOVMF” - MOVE
-              Copy a Single Precision value from ACCumulator to memory address
-              pointed to by HL. Modifies all Registers except for C
+text = Transfer single precision number from FAC X to RAM
 
 [block]
 offset = 2514
-text = 09D2H – MOVE VALUE FROM HL TO DE - “MOVVFM”
-              moves the number of bytes specified in the variable type flag
-              from the address in HL to the address in DE. Uses A, B, DE and HL.
+text = Transfer any type from (HL) to (DE)
 
 [block]
 offset = 2515
-text = 09D3H – MOVE VALUE FROM DE TO HL - “VMOVE”
-              moves the number of bytes specified in the variable type flag (VALTYP)
-              from the address in DE to the address in HL. Uses A, B, DE and HL.
-
-[block]
-offset = 2518
-text = 09D6H – MOVE VALUE FROM DE TO HL - “VMOVEA”
-              moves the number of bytes specified in A register
-              from the address in DE to the address in HL. Uses A, B, DE and HL.
-
-[block]
-offset = 2519
-text = 09D7H – MOVE VALUE FROM DE TO HL - “MOVE1”
-              moves the number of bytes specified in B register
-              from the address in DE to the address in HL. Uses A, B, DE and HL.
+text = Transfer any type from (DE) to (HL)
 
 [block]
 offset = 2527
-text = 09DFH-09F3H – SINGLE PRECISION MATH ROUTINE – “UNPACK”
-              This routine “UNPACKS” the ACCumulator and the Registers.
-              Registers A, C, H, and L are altered.
+text = Processing of signs for real numbers
 
 [block]
 offset = 2548
-text = 09F4H-09FBH
-
-[block]
-offset = 2551
-text = 09F7 – MOVE FROM (HL) TO ACCUM – “VMOVFA”
-              Copy any precision value from address pointed to by HL to ACCUM
-              Precision and number of bytes moved determined by NTF.
+text = Transfer any type from FAC Y to FAC X
 
 [block]
 offset = 2556
-text = 09FCH
+text = Transfer any type from FAC X to FAC Y
+
+[block]
+offset = 2563
+text = Determine address of FAC X depending on type
 
 [block]
 offset = 2572
-text = LEVEL
+text = Comparison routines
+              Comparison of single precision numbers
 
 [block]
 offset = 2595
@@ -5864,41 +7395,101 @@ text = Internal
 
 [block]
 offset = 2600
-text = Compare
+text = Comparison for same signs
 
 [block]
 offset = 2617
-text = Double
+text = Comparison of integers
+
+[block]
+offset = 2633
+text = Comparison of double precision numbers
 
 [block]
 offset = 2639
 text = Internal
 
 [block]
+offset = 2680
+text = Comparison of X and Y
+
+[block]
 offset = 2687
-text = LEVEL
+text = Convert to integer
 
 [block]
 offset = 2714
-text = LEVEL
+text = Transfer HL to FAC X and set type to integer
 
 [block]
 offset = 2723
-text = LEVEL
+text = Test for -32768
 
 [block]
 offset = 2737
-text = Internal
+text = Force single precision
+
+[block]
+offset = 2764
+text = Convert integer to single precision
 
 [block]
 offset = 2779
-text = Internal
+text = Force double precision
+
+[block]
+offset = 2804
+text = Ensure string type
 
 [block]
 offset = 2806
-text = Type
+text = TYPE MISMATCH Error
 
 [block]
 offset = 2811
-text = SINGLE
+text = Quick integer conversion / Rounding
+
+[block]
+offset = 2817
+text = SINGLE PRECISION MATH ROUTINE – “QINT”
+              This routine is a quick “Greatest Integer” function.
+              The result of INT(FAC X) is left in BC:DE as a signed number.
+
+[block]
+offset = 2854
+text = SINGLE PRECISION MATH ROUTINE – “FSUB”
+              Subtract the single precision value in (BC:DE) from the single
+              precision value in FAC X. The difference is left in FAC X.
+
+[block]
+offset = 2871
+text = LEVEL II BASIC INT() ROUTINE – “FNINT”
+              Returns the integer portion of a floating point number.
+              If the value is positive, the integer portion is returned.
+              If negative with a fractional part, it is rounded up before truncation.
+
+[block]
+offset = 2905
+text = DOUBLE PRECISION INT() ROUTINE – “DINT”
+              Double precision INT routine. Works by adding 0.5 and truncating.
+
+[block]
+offset = 2986
+text = INTEGER MULTIPLY ROUTINE – “UMULT”
+
+[block]
+offset = 3015
+text = INTEGER SUBTRACTION – “ISUB”
+
+[block]
+offset = 3026
+text = INTEGER ADDITION – “IADD”
+
+[block]
+offset = 3041
+text = INTEGER DIVISION – “IDIV”
+
+[block]
+offset = 3058
+text = INTEGER DIVISION FOR ARRAYS – “IDIV2”
 
