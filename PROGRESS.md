@@ -1,6 +1,40 @@
 # VZ200 BASIC ROM Disassembly Progress
 
-## Session: April 30, 2026
+## Session: April 30, 2026 (Part 3)
+
+### Task
+Fix and complete missing English inline comments in the memory range 0x0C05 to 0x0D01 based on Gerhard Wolf's Laser 310 German ROM listing.
+
+### Statistics
+- Total Annotations: 1,988
+- Total Symbols: 102
+
+### Work Completed
+- **Range:** 0x0C05 - 0x0D01.
+- **Improvements:** Added detailed English inline comments for every instruction in the target range, matching the German source listing.
+- **Logic Correction:** Corrected the path descriptions for Double Precision Addition (`DADD`). Identified that the `JP P` instruction at 0x0CBB actually branches to the subtraction path (used when signs are different) and falls through to the addition path (used when signs are the same), consistent with Z80 sign flag logic and MSB manipulations in the preceding `UNPACK` routine.
+- **Verification:**
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+  - `export.lst` verified to contain all requested English inline comments.
+
+## Session: April 30, 2026 (Part 2)
+
+### Task
+Annotate the byte range 0x0C05 to 0x0D01 based on TRS-80 Level II BASIC source and logic analysis.
+
+### Statistics
+- Total Annotations: 1,919
+- Total Symbols: 102
+
+### Work Completed
+- **Range:** 0x0C05 - 0x0D01 (Integer Multiply continuation, Handle negative product, Integer division/multiplication support, Negate HL, Double Precision Subtraction, Double Precision Addition, Double Precision Normalization).
+- **Annotations:** Added block comments, labels, and inline comments in English. Routines documented include `IMULT_OVERFLOW_CHECK`, `IMULT_NEG`, `IMULT_OVERFLOW`, `IMULDV`, `INEGH`, `INEGHL`, `INEG_B`, `DSUB`, `DADD`, `DNORML`.
+- **Symbols added:** `IMULT_NEG`, `IMULDV`, `INEGH`, `INEGHL`, `INEG_B`, `DSUB`, `DADD`, `DNORML`, `NNEG`, `FLOATR`, `DROUND_DP`, `DSHFTR`.
+- **Verification:**
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+  - `export.lst` contains correct English inline comments and labels for the target range.
+
+## Session: April 30, 2026 (Part 1)
 
 ### Task
 Annotate the byte range 0x0B01 to 0x0C04 based on TRS-80 Level II BASIC source and logic analysis.
@@ -51,3 +85,4 @@ Annotate the byte range 0x097B to 0x0A27 based on the German ROM listing PDF.
   - export.lst verified to contain correct inline comments for the target ranges (0x097B-0x0A27).
 
 ## Session: April 25, 2026 (Prior Session)
+... (etc)

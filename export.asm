@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Thu Apr 30 11:25:59 2026
+; Generated: Thu Apr 30 18:07:47 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -1578,7 +1578,7 @@ FLOAT:
               ld    de,START       ; Clear for normalization
 
 ; Separate entry point
-FLOATR:
+; FLOATR: (defined in symbols.sym)
               ld    hl,FAC         ; Address exponent in X
               ld    c,a            ; Number to convert in C
               ld    (hl),b         ; Exponent to X
@@ -1602,7 +1602,7 @@ VNEG:
               jp    z,TMERR        ; string? yes - TYPE MISMATCH Error
 
 ; Invert real number in FAC X
-NNEG:
+; NNEG: (defined in symbols.sym)
               ld    hl,FAC_SIGN    ; Address MSB of FAC X
               ld    a,(hl)         ; and load
               xor   0x80           ; Invert sign bit
@@ -2037,14 +2037,14 @@ UNPACK:
               ld    hl,FAC_SIGN    ; HL to FAC sign
               ld    a,0xB8         ; A = 0xB8
               sub   b              ; Subtract exponent
-              call  0x0D69         ; Shift right
+              call  DSHFTR         ; Shift right
               pop   af             ; Restore AF
               call  m,0x0D20       ; Call m, 0x0D20
               xor   a              ; XOR A
               ld    (0x791C),a     ; Store A at 0x791C
               pop   af             ; Restore AF
               ret   nc             ; Done if NC
-              jp    0x0CD8         ; Jump to 0x0CD8
+              jp    DNORML         ; Jump to 0x0CD8
 ; DINT_NEG: (defined in symbols.sym)
               ld    hl,0x791D      ; LD HL, FAC-7
               ld    a,(hl)         ; Get byte
@@ -2082,7 +2082,7 @@ UNPACK:
               rla                  ; Sign to carry
               sbc   a,a            ; A = 0x00 or 0xFF
               ld    b,a            ; B = A
-              call  0x0C51         ; Prepare DE for subtraction
+              call  INEGHL         ; Prepare DE for subtraction
               ld    a,c            ; A = C
               sbc   a,b            ; SBC A, B
               jr    $+5            ; Skip next instruction
@@ -2122,164 +2122,207 @@ UNPACK:
               jp    z,MAKINT       ; If zero, result 0
               push  hl             ; Save HL
               push  de             ; Save DE
-              call  0x0C45         ; Division core
+              call  IMULDV         ; Division core
               push  bc             ; Save BC
               ld    b,h            ; B = H
               ld    c,l            ; C = L
               ld    hl,START       ; HL = 0
               ld    a,0x10         ; A = 16 bits
               add   hl,hl          ; HL = HL * 2
-              jr    c,$+33
-              ex    de,hl
+IMULT_OVERFLOW_CHECK:
+              jr    c,$+33         ; on overflow, special routine
+              ex    de,hl          ; 1st factor * 2
               add   hl,hl
               ex    de,hl
-              jr    nc,$+6
-              add   hl,bc
-              jp    c,0x0C26
-              dec   a
-              jr    nz,$-13
-              pop   bc
-              pop   de
-              ld    a,h
+IMULT_NEXT:
+              jr    nc,$+6         ; no, no addition
+              add   hl,bc          ; yes, result + 2nd factor
+              jp    c,IMULT_OVERFLOW ; on overflow, special routine
+IMULT_LOOP_END:
+              dec   a              ; Counter - 1
+              jr    nz,$-13        ; not 0, next pass
+              pop   bc             ; load sign flag
+              pop   de             ; get 1st factor from stack
+              ld    a,h            ; Result > 32767 ?
               or    a
-              jp    m,0x0C1F
-              pop   de
-              ld    a,b
-              jp    0x0C4D
-              xor   0x80
+              jp    m,IMULT_NEG    ; yes, overflow!
+              pop   de             ; get 2nd factor from stack
+              ld    a,b            ; result with sign flag
+              jp    INEGA          ; correct
+
+; Handle negative integer multiplication result
+; IMULT_NEG: (defined in symbols.sym)
+              xor   0x80           ; Result = 32768 ?
               or    l
-              jr    z,$+21
-              ex    de,hl
-              ld    bc,0xE1C1
-              call  0x0ACF
-              pop   hl
-              call  PUSHF
-              call  0x0ACF
-              pop   bc
+              jr    z,$+21         ; yes!
+              ex    de,hl          ; 1st factor in HL
+IMULT_LD_BC_TRICK:
+              DEFB  0x01           ; Dummy instruction
+IMULT_OVERFLOW:
+              pop   bc             ; load sign flag
+              pop   hl             ; load 1st factor in HL
+              call  0x0ACF         ; 1st factor to single precision in X
+              pop   hl             ; get 2nd factor from stack
+              call  PUSHF          ; 1st factor from X to stack
+              call  0x0ACF         ; 2nd factor to single precision in X
+              pop   bc             ; 1st factor from stack to Y
               pop   de
-              jp    0x0847
-              ld    a,b
-              or    a
-              pop   bc
-              jp    m,MAKINT
-              push  de
-              call  0x0ACF
-              pop   de
-              jp    NNEG
-              ld    a,h
-              xor   d
+              jp    0x0847         ; X = Y * X
+IMULT_CHECK_SIGN:
+              ld    a,b            ; sign flag in A
+              or    a              ; result should be negative
+              pop   bc             ; clean up stack
+              jp    m,MAKINT       ; is negative, HL (-32768) in X
+              push  de             ; 1st factor on stack
+              call  0x0ACF         ; HL (-32768) to single precision in X
+              pop   de             ; load 1st factor again
+              jp    NNEG           ; complement X, done
+
+; Integer division/multiplication support
+; IMULDV: (defined in symbols.sym)
+              ld    a,h            ; if signs equal,
+              xor   d              ; B(7)=0, if different B(7)=1
               ld    b,a
-              call  0x0C4C
+; INEGH: (defined in symbols.sym)
+              call  INEGH2         ; form absolute values
               ex    de,hl
-              ld    a,h
-              or    a
-              jp    p,MAKINT
-              xor   a
-              ld    c,a
-              sub   l
+INEGH2:
+              ld    a,h            ; sign negative?
+INEGA:
+              or    a              ; Is HL positive?
+              jp    p,MAKINT       ; no, HL in X, done
+
+; Negate HL register pair
+; INEGHL: (defined in symbols.sym)
+              xor   a              ; A = 0
+              ld    c,a            ; C = 0
+              sub   l              ; 0 - L in L
               ld    l,a
-              ld    a,c
-              sbc   a,h
+              ld    a,c            ; A = 0
+              sbc   a,h            ; 0 - H in H
               ld    h,a
-              jp    MAKINT
-INEG_B:
-              ld    hl,(FACLO)
-              call  0x0C51
-              ld    a,h
+              jp    MAKINT         ; transfer HL to X
+
+; Integer negation of FACLO
+; INEG_B: (defined in symbols.sym)
+              ld    hl,(FACLO)     ; transfer argument to HL
+              call  INEGHL         ; 0 - argument in HL and X
+              ld    a,h            ; HL = 32768 ?
               xor   0x80
               or    l
-              ret   nz
-              ex    de,hl
-              call  VALSNG
+              ret   nz             ; no, done!
+INEG_OVERFLOW:
+              ex    de,hl          ; yes, convert HL to single precision
+              call  VALSNG         ; set type = single precision
               xor   a
-              ld    b,0x98
-              jp    FLOATR
-              ld    hl,ARG
-              ld    a,(hl)
+              ld    b,0x98         ; set exponent = 152 (0x98)
+              jp    FLOATR         ; continue at 0969H
+
+; Double Precision Subtraction (FAC = FAC - ARG)
+; DSUB: (defined in symbols.sym)
+              ld    hl,ARG         ; address MSB Y
+              ld    a,(hl)         ; invert sign Y
               xor   0x80
               ld    (hl),a
-              ld    hl,ARG_EXP
-              ld    a,(hl)
+
+; Double Precision Addition (FAC = FAC + ARG)
+; DADD: (defined in symbols.sym)
+              ld    hl,ARG_EXP     ; address exponent Y
+              ld    a,(hl)         ; Y = 0 ?
               or    a
-              ret   z
-              ld    b,a
-              dec   hl
-              ld    c,(hl)
-              ld    de,FAC
+              ret   z              ; yes, X = result
+              ld    b,a            ; exponent Y in B
+              dec   hl             ; address MSB Y
+              ld    c,(hl)         ; sign Y in C
+              ld    de,FAC         ; address exponent X
               ld    a,(de)
-              or    a
-              jp    z,VMOVFA
-              sub   b
-              jr    nc,$+24
-              cpl   
+              or    a              ; X = 0 ?
+              jp    z,VMOVFA       ; yes, Y to X as result
+              sub   b              ; exponent X >= exponent Y ?
+DADD_SWAP:
+              jr    nc,$+24        ; yes
+              cpl                  ; no, invert exponent diff.
               inc   a
-              push  af
-              ld    c,0x08
-              inc   hl
-              push  hl
-              ld    a,(de)
+              push  af             ; and save on stack
+              ld    c,0x08         ; byte counter
+              inc   hl             ; address exponent Y
+              push  hl             ; and on stack
+DADD_SWAP_LOOP:
+              ld    a,(de)         ; exchange 1 byte
               ld    b,(hl)
               ld    (hl),a
               ld    a,b
               ld    (de),a
-              dec   de
+              dec   de             ; address pointer - 1
               dec   hl
-              dec   c
-              jr    nz,$-8
+              dec   c              ; done ?
+              jr    nz,$-8         ; no, next byte
               pop   hl
-              ld    b,(hl)
-              dec   hl
-              ld    c,(hl)
-              pop   af
-              cp    0x39
-              ret   nc
-              push  af
-              call  UNPACK
-              inc   hl
-              ld    (hl),0x00
-              ld    b,a
-              pop   af
-              ld    hl,ARG
-              call  0x0D69
-              ld    a,(0x7926)
-              ld    (0x791C),a
-              ld    a,b
+              ld    b,(hl)         ; exponent Y in B
+              dec   hl             ; address MSB Y in HL
+              ld    c,(hl)         ; MSB Y in C
+              pop   af             ; load exponent diff.
+DADD_CHECK_EXP:
+              cp    0x39           ; >= mantissa length + 1 ?
+              ret   nc             ; yes, done!
+              push  af             ; exponent diff. on stack
+              call  UNPACK         ; remove sign bits, form sign flag of result
+              inc   hl             ; extra byte for right shift
+              ld    (hl),0x00      ; clear (7926H)
+              ld    b,a            ; sign flag in B
+              pop   af             ; load exponent diff. (shift counter)
+              ld    hl,ARG         ; address MSB Y
+              call  DSHFTR         ; shift Y right
+              ld    a,(0x7926)     ; shifted out byte
+              ld    (0x791C),a     ; transfer to X
+              ld    a,b            ; both signs equal ?
               or    a
-              jp    p,0x0CCF
-              call  0x0D33
-              jp    nc,0x0D0E
-              ex    de,hl
-              inc   (hl)
-              jp    z,0x07B2
-              call  0x0D90
-              jp    0x0D0E
-              call  0x0D45
-              ld    hl,0x7925
-              call  c,0x0D57
-              xor   a
+DADD_POS:
+              jp    p,DADD_ADD     ; if different signs, subtraction
+              call  0x0D33         ; if same signs, addition
+              jp    nc,DROUND_DP   ; no overflow, to end
+              ex    de,hl          ; HL = address exponent X
+              inc   (hl)           ; exponent X + 1, overflow ?
+              jp    z,0x07B2       ; yes, OVERFLOW - error
+              call  0x0D90         ; shift mantissa 1 bit right
+              jp    DROUND_DP      ; continue at 0D0EH
+
+; Add mantissas
+DADD_ADD:
+              call  0x0D45         ; mantissa subtraction
+              ld    hl,0x7925      ; address sign flag
+              call  c,0x0D57       ; underflow ? yes, complement mantissa X
+
+; Double Precision Normalization
+; DNORML: (defined in symbols.sym)
+              xor   a              ; shift counter = 0
+DNORM_LOOP:
               ld    b,a
-              ld    a,(FAC_SIGN)
-              or    a
-              jr    nz,$+32
-              ld    hl,0x791C
-              ld    c,0x08
-              ld    d,(hl)
-              ld    (hl),a
+              ld    a,(FAC_SIGN)   ; load MSB X
+              or    a              ; = 0 ?
+              jr    nz,$+32        ; no !
+DNORM_SHIFT_8:
+              ld    hl,0x791C      ; yes, shift X left by 1 byte
+              ld    c,0x08         ; byte counter
+DNORM_SHIFT_LOOP:
+              ld    d,(hl)         ; load byte
+              ld    (hl),a         ; last byte at this position
               ld    a,d
-              inc   hl
-              dec   c
-              jr    nz,$-5
-              ld    a,b
+              inc   hl             ; increment address
+              dec   c              ; done ?
+              jr    nz,$-5         ; no, continue
+              ld    a,b            ; shift counter - 8
               sub   0x08
-              cp    0xC0
-              jr    nz,$-24
-              jp    0x0778
-              dec   b
-              ld    hl,0x791C
-              call  0x0D97
-              or    a
-              jp    p,0x0CF6
-              ld    a,b
+              cp    0xC0           ; 40 shifts? (X = 0)
+              jr    nz,$-24        ; no, continue
+              jp    0x0778         ; yes, X = 0, done!
+DNORM_BIT_LOOP:
+              dec   b              ; shifts - 1
+              ld    hl,0x791C      ; address LSB X
+              call  0x0D97         ; shift X left 1 bit
+              or    a              ; highest bit set?
+              jp    p,DNORM_BIT_LOOP ; no, continue
+              ld    a,b            ; number of shifts = 0 ?
               or    a
               jr    z,$+11
               ld    hl,FAC
@@ -2413,7 +2456,7 @@ INEG_B:
               pop   de
               dec   b
               jr    nz,$-24
-              jp    0x0CD8
+              jp    DNORML
               ld    hl,FAC_SIGN
               call  0x0D70
               jr    $-13
@@ -2490,7 +2533,7 @@ INEG_B:
               jp    c,0x07B2
               ld    (hl),a
               push  hl
-              call  0x0C77
+              call  DADD
               pop   hl
               inc   (hl)
               ret   nz
@@ -2665,7 +2708,7 @@ INEG_B:
               pop   af
               call  FLOAT
               call  CONDS
-              call  0x0C77
+              call  DADD
               jr    $-54
               call  PUSHF
               call  FLOAT
@@ -3128,7 +3171,7 @@ INEG_B:
               call  VMOVAF
               ld    hl,0x137C
               call  VMOVFM
-              call  0x0C77
+              call  DADD
               xor   a
               call  0x0B7B
               pop   hl
@@ -6037,7 +6080,7 @@ INEG_B:
               rst   0x10
               push  hl
               ld    hl,(0x78EA)
-              call  0x0C66
+              call  INEG_OVERFLOW
               pop   hl
               ret   
               cp    0xC0
@@ -6550,7 +6593,7 @@ INEG_B:
               ld    a,h
               sbc   a,d
               ld    h,a
-              jp    0x0C66
+              jp    INEG_OVERFLOW
               ld    a,(0x78A6)
               ld    l,a
               xor   a

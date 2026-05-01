@@ -284,6 +284,11 @@ offset = 2264
 end = 2264
 type = DATA_BYTE
 
+[region]
+offset = 3109
+end = 3109
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -869,8 +874,108 @@ offset = 3058
 name = IDIV2
 
 [label]
+offset = 3077
+name = IMULT_OVERFLOW_CHECK
+
+[label]
+offset = 3082
+name = IMULT_NEXT
+
+[label]
+offset = 3088
+name = IMULT_LOOP_END
+
+[label]
+offset = 3103
+name = IMULT_NEG
+
+[label]
+offset = 3109
+name = IMULT_LD_BC_TRICK
+
+[label]
+offset = 3110
+name = IMULT_OVERFLOW
+
+[label]
+offset = 3127
+name = IMULT_CHECK_SIGN
+
+[label]
+offset = 3141
+name = IMULDV
+
+[label]
+offset = 3144
+name = INEGH
+
+[label]
+offset = 3148
+name = INEGH2
+
+[label]
+offset = 3149
+name = INEGA
+
+[label]
+offset = 3153
+name = INEGHL
+
+[label]
 offset = 3163
 name = INEG_B
+
+[label]
+offset = 3174
+name = INEG_OVERFLOW
+
+[label]
+offset = 3184
+name = DSUB
+
+[label]
+offset = 3191
+name = DADD
+
+[label]
+offset = 3209
+name = DADD_SWAP
+
+[label]
+offset = 3218
+name = DADD_SWAP_LOOP
+
+[label]
+offset = 3233
+name = DADD_CHECK_EXP
+
+[label]
+offset = 3259
+name = DADD_POS
+
+[label]
+offset = 3279
+name = DADD_ADD
+
+[label]
+offset = 3288
+name = DNORML
+
+[label]
+offset = 3289
+name = DNORM_LOOP
+
+[label]
+offset = 3296
+name = DNORM_SHIFT_8
+
+[label]
+offset = 3301
+name = DNORM_SHIFT_LOOP
+
+[label]
+offset = 3318
+name = DNORM_BIT_LOOP
 
 [comment]
 offset = 0
@@ -6816,6 +6921,506 @@ text = A = 16 bits
 offset = 3076
 text = HL = HL * 2
 
+[comment]
+offset = 3077
+text = on overflow, special routine
+
+[comment]
+offset = 3079
+text = 1st factor * 2
+
+[comment]
+offset = 3082
+text = no, no addition
+
+[comment]
+offset = 3084
+text = yes, result + 2nd factor
+
+[comment]
+offset = 3085
+text = on overflow, special routine
+
+[comment]
+offset = 3088
+text = Counter - 1
+
+[comment]
+offset = 3089
+text = not 0, next pass
+
+[comment]
+offset = 3091
+text = load sign flag
+
+[comment]
+offset = 3092
+text = get 1st factor from stack
+
+[comment]
+offset = 3093
+text = Result > 32767 ?
+
+[comment]
+offset = 3095
+text = yes, overflow!
+
+[comment]
+offset = 3098
+text = get 2nd factor from stack
+
+[comment]
+offset = 3099
+text = result with sign flag
+
+[comment]
+offset = 3100
+text = correct
+
+[comment]
+offset = 3103
+text = Result = 32768 ?
+
+[comment]
+offset = 3106
+text = yes!
+
+[comment]
+offset = 3108
+text = 1st factor in HL
+
+[comment]
+offset = 3109
+text = Dummy instruction
+
+[comment]
+offset = 3110
+text = load sign flag
+
+[comment]
+offset = 3111
+text = load 1st factor in HL
+
+[comment]
+offset = 3112
+text = 1st factor to single precision in X
+
+[comment]
+offset = 3115
+text = get 2nd factor from stack
+
+[comment]
+offset = 3116
+text = 1st factor from X to stack
+
+[comment]
+offset = 3119
+text = 2nd factor to single precision in X
+
+[comment]
+offset = 3122
+text = 1st factor from stack to Y
+
+[comment]
+offset = 3124
+text = X = Y * X
+
+[comment]
+offset = 3127
+text = sign flag in A
+
+[comment]
+offset = 3128
+text = result should be negative
+
+[comment]
+offset = 3129
+text = clean up stack
+
+[comment]
+offset = 3130
+text = is negative, HL (-32768) in X
+
+[comment]
+offset = 3133
+text = 1st factor on stack
+
+[comment]
+offset = 3134
+text = HL (-32768) to single precision in X
+
+[comment]
+offset = 3137
+text = load 1st factor again
+
+[comment]
+offset = 3138
+text = complement X, done
+
+[comment]
+offset = 3141
+text = if signs equal,
+
+[comment]
+offset = 3142
+text = B(7)=0, if different B(7)=1
+
+[comment]
+offset = 3144
+text = form absolute values
+
+[comment]
+offset = 3148
+text = sign negative?
+
+[comment]
+offset = 3149
+text = Is HL positive?
+
+[comment]
+offset = 3150
+text = no, HL in X, done
+
+[comment]
+offset = 3153
+text = A = 0
+
+[comment]
+offset = 3154
+text = C = 0
+
+[comment]
+offset = 3155
+text = 0 - L in L
+
+[comment]
+offset = 3157
+text = A = 0
+
+[comment]
+offset = 3158
+text = 0 - H in H
+
+[comment]
+offset = 3160
+text = transfer HL to X
+
+[comment]
+offset = 3163
+text = transfer argument to HL
+
+[comment]
+offset = 3166
+text = 0 - argument in HL and X
+
+[comment]
+offset = 3169
+text = HL = 32768 ?
+
+[comment]
+offset = 3173
+text = no, done!
+
+[comment]
+offset = 3174
+text = yes, convert HL to single precision
+
+[comment]
+offset = 3175
+text = set type = single precision
+
+[comment]
+offset = 3179
+text = set exponent = 152 (0x98)
+
+[comment]
+offset = 3181
+text = continue at 0969H
+
+[comment]
+offset = 3184
+text = address MSB Y
+
+[comment]
+offset = 3187
+text = invert sign Y
+
+[comment]
+offset = 3191
+text = address exponent Y
+
+[comment]
+offset = 3194
+text = Y = 0 ?
+
+[comment]
+offset = 3196
+text = yes, X = result
+
+[comment]
+offset = 3197
+text = exponent Y in B
+
+[comment]
+offset = 3198
+text = address MSB Y
+
+[comment]
+offset = 3199
+text = sign Y in C
+
+[comment]
+offset = 3200
+text = address exponent X
+
+[comment]
+offset = 3204
+text = X = 0 ?
+
+[comment]
+offset = 3205
+text = yes, Y to X as result
+
+[comment]
+offset = 3208
+text = exponent X >= exponent Y ?
+
+[comment]
+offset = 3209
+text = yes
+
+[comment]
+offset = 3211
+text = no, invert exponent diff.
+
+[comment]
+offset = 3213
+text = and save on stack
+
+[comment]
+offset = 3214
+text = byte counter
+
+[comment]
+offset = 3216
+text = address exponent Y
+
+[comment]
+offset = 3217
+text = and on stack
+
+[comment]
+offset = 3218
+text = exchange 1 byte
+
+[comment]
+offset = 3223
+text = address pointer - 1
+
+[comment]
+offset = 3225
+text = done ?
+
+[comment]
+offset = 3226
+text = no, next byte
+
+[comment]
+offset = 3229
+text = exponent Y in B
+
+[comment]
+offset = 3230
+text = address MSB Y in HL
+
+[comment]
+offset = 3231
+text = MSB Y in C
+
+[comment]
+offset = 3232
+text = load exponent diff.
+
+[comment]
+offset = 3233
+text = >= mantissa length + 1 ?
+
+[comment]
+offset = 3235
+text = yes, done!
+
+[comment]
+offset = 3236
+text = exponent diff. on stack
+
+[comment]
+offset = 3237
+text = remove sign bits, form sign flag of result
+
+[comment]
+offset = 3240
+text = extra byte for right shift
+
+[comment]
+offset = 3241
+text = clear (7926H)
+
+[comment]
+offset = 3243
+text = sign flag in B
+
+[comment]
+offset = 3244
+text = load exponent diff. (shift counter)
+
+[comment]
+offset = 3245
+text = address MSB Y
+
+[comment]
+offset = 3248
+text = shift Y right
+
+[comment]
+offset = 3251
+text = shifted out byte
+
+[comment]
+offset = 3254
+text = transfer to X
+
+[comment]
+offset = 3257
+text = both signs equal ?
+
+[comment]
+offset = 3259
+text = if different signs, subtraction
+
+[comment]
+offset = 3262
+text = if same signs, addition
+
+[comment]
+offset = 3265
+text = no overflow, to end
+
+[comment]
+offset = 3268
+text = HL = address exponent X
+
+[comment]
+offset = 3269
+text = exponent X + 1, overflow ?
+
+[comment]
+offset = 3270
+text = yes, OVERFLOW - error
+
+[comment]
+offset = 3273
+text = shift mantissa 1 bit right
+
+[comment]
+offset = 3276
+text = continue at 0D0EH
+
+[comment]
+offset = 3279
+text = mantissa subtraction
+
+[comment]
+offset = 3282
+text = address sign flag
+
+[comment]
+offset = 3285
+text = underflow ? yes, complement mantissa X
+
+[comment]
+offset = 3288
+text = shift counter = 0
+
+[comment]
+offset = 3290
+text = load MSB X
+
+[comment]
+offset = 3293
+text = = 0 ?
+
+[comment]
+offset = 3294
+text = no !
+
+[comment]
+offset = 3296
+text = yes, shift X left by 1 byte
+
+[comment]
+offset = 3299
+text = byte counter
+
+[comment]
+offset = 3301
+text = load byte
+
+[comment]
+offset = 3302
+text = last byte at this position
+
+[comment]
+offset = 3304
+text = increment address
+
+[comment]
+offset = 3305
+text = done ?
+
+[comment]
+offset = 3306
+text = no, continue
+
+[comment]
+offset = 3308
+text = shift counter - 8
+
+[comment]
+offset = 3311
+text = 40 shifts? (X = 0)
+
+[comment]
+offset = 3313
+text = no, continue
+
+[comment]
+offset = 3315
+text = yes, X = 0, done!
+
+[comment]
+offset = 3318
+text = shifts - 1
+
+[comment]
+offset = 3319
+text = address LSB X
+
+[comment]
+offset = 3322
+text = shift X left 1 bit
+
+[comment]
+offset = 3325
+text = highest bit set?
+
+[comment]
+offset = 3326
+text = no, continue
+
+[comment]
+offset = 3329
+text = number of shifts = 0 ?
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -7492,4 +8097,36 @@ text = INTEGER DIVISION – “IDIV”
 [block]
 offset = 3058
 text = INTEGER DIVISION FOR ARRAYS – “IDIV2”
+
+[block]
+offset = 3103
+text = Handle negative integer multiplication result
+
+[block]
+offset = 3141
+text = Integer division/multiplication support
+
+[block]
+offset = 3153
+text = Negate HL register pair
+
+[block]
+offset = 3163
+text = Integer negation of FACLO
+
+[block]
+offset = 3184
+text = Double Precision Subtraction (FAC = FAC - ARG)
+
+[block]
+offset = 3191
+text = Double Precision Addition (FAC = FAC + ARG)
+
+[block]
+offset = 3279
+text = Add mantissas
+
+[block]
+offset = 3288
+text = Double Precision Normalization
 
