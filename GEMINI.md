@@ -23,7 +23,8 @@ to anyone familiar with Z80 assembly and vintage BASIC interpreters.
 | `./old-progress/` | Previous attempt data — AI may read annotations for context, but must not copy any assembly |
 | `./z80bench_info/` | z80bench documentation, workflow guide, and licence file |
 | `./external/` | Git submodules, including a fully documented English listing of Level II BASIC for the TRS-80 |
-| `./PROGRESS.md` | will contain all of the notes from the previous iteration (look below for details.)
+| `./PROGRESS.md` | will contain all of the notes from the previous iteration (look below for details.) |
+| `./Z80BENCH_WORKFLOW.md` | helpfull information on how to use z80bench-cli and work within the workflow guidlines |
 
 in the path on this system you have access to z88dk-z80asm for an assembler. you may use that.
 in the root of the repo there is a simlink to the z80bench-cli if it's not starting you can build it (its a submodule to the repo)

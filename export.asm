@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Thu Apr 30 18:07:47 2026
+; Generated: Thu Apr 30 22:10:36 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -2039,7 +2039,7 @@ UNPACK:
               sub   b              ; Subtract exponent
               call  DSHFTR         ; Shift right
               pop   af             ; Restore AF
-              call  m,0x0D20       ; Call m, 0x0D20
+              call  m,DROUNA       ; Call m, 0x0D20
               xor   a              ; XOR A
               ld    (0x791C),a     ; Store A at 0x791C
               pop   af             ; Restore AF
@@ -2279,7 +2279,7 @@ DADD_CHECK_EXP:
               or    a
 DADD_POS:
               jp    p,DADD_ADD     ; if different signs, subtraction
-              call  0x0D33         ; if same signs, addition
+              call  DADDAA         ; if same signs, addition
               jp    nc,DROUND_DP   ; no overflow, to end
               ex    de,hl          ; HL = address exponent X
               inc   (hl)           ; exponent X + 1, overflow ?
@@ -2289,7 +2289,7 @@ DADD_POS:
 
 ; Add mantissas
 DADD_ADD:
-              call  0x0D45         ; mantissa subtraction
+              call  DADDAS         ; mantissa subtraction
               ld    hl,0x7925      ; address sign flag
               call  c,0x0D57       ; underflow ? yes, complement mantissa X
 
@@ -2323,59 +2323,65 @@ DNORM_BIT_LOOP:
               or    a              ; highest bit set?
               jp    p,DNORM_BIT_LOOP ; no, continue
               ld    a,b            ; number of shifts = 0 ?
-              or    a
-              jr    z,$+11
-              ld    hl,FAC
-              add   a,(hl)
-              ld    (hl),a
-              jp    nc,0x0778
-              ret   z
-              ld    a,(0x791C)
-              or    a
-              call  m,0x0D20
-              ld    hl,0x7925
-              ld    a,(hl)
-              and   0x80
+              or    a              ; A = 0 ?
+              jr    z,$+11         ; yes, to the end
+              ld    hl,FAC         ; address exponent X
+              add   a,(hl)         ; new exponent = old exponent + number of shifts
+              ld    (hl),a         ; back to X
+              jp    nc,0x0778      ; underflow? yes, X=0, done
+              ret   z              ; X = 0? yes, done!
+              ld    a,(0x791C)     ; highest bit of LSB X = 0?
+              or    a              ; test A
+              call  m,DROUNA       ; no, round X
+              ld    hl,0x7925      ; address sign flag
+              ld    a,(hl)         ; load and sign
+              and   0x80           ; mask out
+              dec   hl             ; address MSB X load
               dec   hl
-              dec   hl
-              xor   (hl)
-              ld    (hl),a
+              xor   (hl)           ; invert sign and combine with MSB X
+              ld    (hl),a         ; MSB back to X
               ret   
-              ld    hl,0x791D
-              ld    b,0x07
-              inc   (hl)
-              ret   nz
-              inc   hl
-              dec   b
-              jr    nz,$-4
-              inc   (hl)
-              jp    z,0x07B2
-              dec   hl
+
+; Rounding
+              ld    hl,0x791D      ; load address LSB X
+              ld    b,0x07         ; mantissa length = 7 bytes
+              inc   (hl)           ; byte content + 1, overflow?
+              ret   nz             ; no, done
+              inc   hl             ; yes, next byte
+              dec   b              ; all mantissa bytes?
+              jr    nz,$-4         ; no, continue
+              inc   (hl)           ; carry through whole mantissa?
+              jp    z,0x07B2       ; yes, OVERFLOW - Error
+              dec   hl             ; set MSB X = 80H
               ld    (hl),0x80
               ret   
-              ld    hl,FAC2
-              ld    de,0x791D
-              ld    c,0x07
-              xor   a
-              ld    a,(de)
-              adc   a,(hl)
-              ld    (de),a
-              inc   de
+
+; Double Precision Mantissa Addition
+              ld    hl,FAC2        ; address LSB Y
+              ld    de,0x791D      ; address LSB X
+              ld    c,0x07         ; counter = 7 bytes
+              xor   a              ; clear carry
+              ld    a,(de)         ; load byte from X
+              adc   a,(hl)         ; add byte from Y
+              ld    (de),a         ; save sum in X
+              inc   de             ; increase address pointers
               inc   hl
-              dec   c
-              jr    nz,$-6
+              dec   c              ; done?
+              jr    nz,$-6         ; no, continue
               ret   
-              ld    hl,FAC2
-              ld    de,0x791D
-              ld    c,0x07
-              xor   a
-              ld    a,(de)
-              sbc   a,(hl)
-              ld    (de),a
-              inc   de
+
+; Double Precision Mantissa Subtraction
+              ld    hl,FAC2        ; address LSB Y
+              ld    de,0x791D      ; address LSB X
+              ld    c,0x07         ; counter as counter
+              xor   a              ; clear carry
+              ld    a,(de)         ; load byte from X
+              sbc   a,(hl)         ; subtract byte from Y
+              ld    (de),a         ; difference in X save
+              inc   de             ; address pointer + 1
               inc   hl
-              dec   c
-              jr    nz,$-6
+              dec   c              ; done?
+              jr    nz,$-6         ; no, continue
               ret   
               ld    a,(hl)
               cpl   
@@ -2447,7 +2453,7 @@ DNORM_BIT_LOOP:
               push  bc
               rra   
               ld    b,a
-              call  c,0x0D33
+              call  c,DADDAA
               call  0x0D90
               ld    a,b
               pop   bc

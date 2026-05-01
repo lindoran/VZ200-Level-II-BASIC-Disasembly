@@ -1,5 +1,23 @@
 # VZ200 BASIC ROM Disassembly Progress
 
+## Session: April 30, 2026 (Part 4)
+
+### Task
+Annotate the byte range 0x0D02 to 0x0D56 based on Gerhard Wolf's Laser 310 German ROM listing.
+
+### Statistics
+- Total Annotations: 1,990
+- Total Symbols: 105
+
+### Work Completed
+- **Range:** 0x0D02 - 0x0D56 (Normalization/Rounding continuation, Sign flag manipulation, Rounding routine, Double Precision Mantissa Addition, Double Precision Mantissa Subtraction).
+- **Annotations:** Added block comments, labels, and inline comments in English. Routines documented include `DROUNA`, `DADDAA`, and `DADDAS`.
+- **Symbols added:** `DROUNA`, `DADDAA`, `DADDAS`.
+- **Verification:**
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+  - `export.lst` verified to contain all requested English inline comments.
+- **Workflow Improvement:** Created `Z80BENCH_WORKFLOW.md` to document the toolchain usage for future sessions.
+
 ## Session: April 30, 2026 (Part 3)
 
 ### Task

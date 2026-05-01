@@ -7421,6 +7421,190 @@ text = no, continue
 offset = 3329
 text = number of shifts = 0 ?
 
+[comment]
+offset = 3330
+text = A = 0 ?
+
+[comment]
+offset = 3331
+text = yes, to the end
+
+[comment]
+offset = 3333
+text = address exponent X
+
+[comment]
+offset = 3336
+text = new exponent = old exponent + number of shifts
+
+[comment]
+offset = 3337
+text = back to X
+
+[comment]
+offset = 3338
+text = underflow? yes, X=0, done
+
+[comment]
+offset = 3341
+text = X = 0? yes, done!
+
+[comment]
+offset = 3342
+text = highest bit of LSB X = 0?
+
+[comment]
+offset = 3345
+text = test A
+
+[comment]
+offset = 3346
+text = no, round X
+
+[comment]
+offset = 3349
+text = address sign flag
+
+[comment]
+offset = 3352
+text = load and sign
+
+[comment]
+offset = 3353
+text = mask out
+
+[comment]
+offset = 3355
+text = address MSB X load
+
+[comment]
+offset = 3357
+text = invert sign and combine with MSB X
+
+[comment]
+offset = 3358
+text = MSB back to X
+
+[comment]
+offset = 3360
+text = load address LSB X
+
+[comment]
+offset = 3363
+text = mantissa length = 7 bytes
+
+[comment]
+offset = 3365
+text = byte content + 1, overflow?
+
+[comment]
+offset = 3366
+text = no, done
+
+[comment]
+offset = 3367
+text = yes, next byte
+
+[comment]
+offset = 3368
+text = all mantissa bytes?
+
+[comment]
+offset = 3369
+text = no, continue
+
+[comment]
+offset = 3371
+text = carry through whole mantissa?
+
+[comment]
+offset = 3372
+text = yes, OVERFLOW - Error
+
+[comment]
+offset = 3375
+text = set MSB X = 80H
+
+[comment]
+offset = 3379
+text = address LSB Y
+
+[comment]
+offset = 3382
+text = address LSB X
+
+[comment]
+offset = 3385
+text = counter = 7 bytes
+
+[comment]
+offset = 3387
+text = clear carry
+
+[comment]
+offset = 3388
+text = load byte from X
+
+[comment]
+offset = 3389
+text = add byte from Y
+
+[comment]
+offset = 3390
+text = save sum in X
+
+[comment]
+offset = 3391
+text = increase address pointers
+
+[comment]
+offset = 3393
+text = done?
+
+[comment]
+offset = 3394
+text = no, continue
+
+[comment]
+offset = 3397
+text = address LSB Y
+
+[comment]
+offset = 3400
+text = address LSB X
+
+[comment]
+offset = 3403
+text = counter as counter
+
+[comment]
+offset = 3405
+text = clear carry
+
+[comment]
+offset = 3406
+text = load byte from X
+
+[comment]
+offset = 3407
+text = subtract byte from Y
+
+[comment]
+offset = 3408
+text = difference in X save
+
+[comment]
+offset = 3409
+text = address pointer + 1
+
+[comment]
+offset = 3411
+text = done?
+
+[comment]
+offset = 3412
+text = no, continue
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -8129,4 +8313,16 @@ text = Add mantissas
 [block]
 offset = 3288
 text = Double Precision Normalization
+
+[block]
+offset = 3360
+text = Rounding
+
+[block]
+offset = 3379
+text = Double Precision Mantissa Addition
+
+[block]
+offset = 3397
+text = Double Precision Mantissa Subtraction
 
