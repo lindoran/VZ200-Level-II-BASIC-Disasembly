@@ -58,6 +58,23 @@ To get accurate counts for `PROGRESS.md`:
   2. Ensure you ran `project export . both export` AFTER setting the annotations.
   3. Check that the address used for the annotation matches the instruction's start address in `export.lst`.
 
+## Advanced Techniques
+
+### Overlapping Instructions (The 'Z80 Trick')
+Vintage ROMs often use "tricks" to save bytes, such as a multi-byte instruction (e.g., `LD BC,nnnn` or `CP nnnn`) where the operand bytes are actually executable instructions if entered from a different jump point.
+
+- **Problem**: The disassembler often "swallows" these entry points as operands, making it impossible to set labels or comments on the "hidden" instructions.
+- **Solution**: Use `segments.map` to force an instruction break.
+  1. Identify the byte immediately *preceding* the hidden entry point (the opcode of the "swallowing" instruction).
+  2. Add a `DIRECT_BYTE` entry to `segments.map` for that single address.
+  3. This prevents the disassembler from combining that byte with the subsequent one as an operand.
+
+**Example**:
+If `0x0E6B` is `F6` (OR opcode) and `0x0E6C` is `AF` (XOR A opcode), the disassembler may show a single `OR 0xAF` instruction. To label `0x0E6C` (the `FIN` entry point):
+1. Add `0x0E6B  0x0E6B  DIRECT_BYTE  FIN_OR_TRICK` to `segments.map`.
+2. Re-export the project: `./z80bench-cli project export . both export`.
+3. The listing will now show `0E6B` as a `DEFB` and `0E6C` as a fresh `XOR A` instruction, allowing you to use `annotation set 0x0E6C label FIN`.
+
 ## Deliverables
 Always update `PROGRESS.md` with:
 - Target memory range.

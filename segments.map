@@ -59,3 +59,5 @@
 0x08D8	0x08D8	DIRECT_BYTE	JP NC trick	Used to skip next two bytes
 0x0C25	0x0C25	DIRECT_BYTE	IMULT_LD_BC_TRICK	Skip next 2 bytes
 0x0E11	0x0E11	DIRECT_BYTE	DMULT_JP_C_TRICK	Skip next 2 bytes
+0x0E6B	0x0E6B	DIRECT_BYTE	FIN_OR_TRICK	Used to skip XOR A if entered at 0E6B
+0x0FA1	0x0FA1	DIRECT_BYTE	FINEDG_TRICK	Used to skip LD E,32 if entered at 0FA1

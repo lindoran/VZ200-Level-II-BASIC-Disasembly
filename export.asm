@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Fri May  1 20:20:07 2026
+; Generated: Fri May  1 21:38:40 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -227,7 +227,7 @@ INIT_VARS_2:
               call  0x1B4D         ; call the NEW routine (1B4DH)
               call  0x3484         ; initialize counters and pointers (3484H)
               ld    hl,0x010F      ; Load banner string address (010FH)
-              call  0x28A7         ; Print banner string (OUTSTR)
+              call  OUTSTR         ; Print banner string (OUTSTR)
               im    1              ; Set Interrupt Mode 1
               jp    BASIC_INIT_3   ; Jump to memory expansion check (068EH)
               DEFB  0x00,0x7E,0x23,0xFE,0x0D ; Artifact? No caller
@@ -307,7 +307,7 @@ RESET:
               ld    hl,0x7839      ; Load 7839H (Cursor flags?)
               res   3,(hl)         ; Reset bit 3
               ld    hl,0x0384      ; Load address of 'ERROR' message
-              call  0x28A7         ; Print string (OUTSTR)
+              call  OUTSTR         ; Print string (OUTSTR)
               jp    0x36CF         ; Jump to 36CFH
 
 ;
@@ -706,7 +706,7 @@ INPUT_LINE_READ:
               jp    0x0502         ; check text end identifier (BREAK?)
               ret   c              ; BREAK, back to BASIC
               ld    hl,0x3E1A      ; text \
-              call  0x28A7         ; output
+              call  OUTSTR         ; output
               jp    INPUT_LINE_READ ; back to line entry
               cp    0x22           ; string identifier?
               jr    nz,$+51        ; no, continue
@@ -1340,7 +1340,7 @@ FNLOG:
               ld    de,START
               call  FP_ADD_X_PLUS_Y ; X = X - 0.5
               pop   af             ; exponent of argument
-              call  0x0F89         ; X = X + A
+              call  FADD8          ; X = X + A
 
 ; SINGLE PRECISION MULTIPLICATION – “FMLT”
 MULLN2:
@@ -1539,7 +1539,7 @@ MLDVEX:
               or    a              ; Was it an underflow?
 ; MULDV2: (defined in symbols.sym)
               pop   hl             ; One more return address from stack
-              jp    p,0x0778       ; Underflow, X=0, RET
+              jp    p,FA_ZERO      ; Underflow, X=0, RET
               jp    0x07B2         ; OVERFLOW-Error
 
 ; Single Precision Multiplication by 10
@@ -2315,7 +2315,7 @@ DNORM_SHIFT_LOOP:
               sub   0x08
               cp    0xC0           ; 40 shifts? (X = 0)
               jr    nz,$-24        ; no, continue
-              jp    0x0778         ; yes, X = 0, done!
+              jp    FA_ZERO        ; yes, X = 0, done!
 DNORM_BIT_LOOP:
               dec   b              ; shifts - 1
               ld    hl,0x791C      ; address LSB X
@@ -2328,7 +2328,7 @@ DNORM_BIT_LOOP:
               ld    hl,FAC         ; address exponent X
               add   a,(hl)         ; new exponent = old exponent + number of shifts
               ld    (hl),a         ; back to X
-              jp    nc,0x0778      ; underflow? yes, X=0, done
+              jp    nc,FA_ZERO     ; underflow? yes, X=0, done
               ret   z              ; X = 0? yes, done!
               ld    a,(0x791C)     ; highest bit of LSB X = 0?
               or    a              ; test A
@@ -2564,273 +2564,316 @@ DNORM_BIT_LOOP:
               inc   (hl)           ; Exponent X + 1 (X = Factor * 10)
               ret   nz             ; Overflow? No, done
               jp    0x07B2         ; Yes, OVERFLOW error
-              call  0x0778
-              call  VALDBL
-              or    0xAF
-              ex    de,hl
-              ld    bc,0x00FF
-              ld    h,b
+
+; Convert string to double precision number
+              call  FA_ZERO        ; X = 0
+              call  VALDBL         ; Type = double precision
+              DEFB  0xF6           ; Zero-Flag = 0
+
+; Convert string to number of appropriate type
+              xor   a              ; Zero-Flag = 1 (Byte also in instruction E68)
+              ex    de,hl          ; Address pointer in DE
+              ld    bc,0x00FF      ; Decimal places = 0, '.'-Flag = FF
+              ld    h,b            ; HL = 0
               ld    l,b
-              call  z,MAKINT
-              ex    de,hl
-              ld    a,(hl)
-              cp    0x2D
-              push  af
-              jp    z,0x0E83
-              cp    0x2B
-              jr    z,$+3
-              dec   hl
-              rst   0x10
-              jp    c,0x0F29
-              cp    0x2E
-              jp    z,0x0EE4
-              cp    0x45
-              jr    z,$+22
-              cp    0x25
-              jp    z,0x0EEE
-              cp    0x23
-              jp    z,0x0EF5
-              cp    0x21
-              jp    z,0x0EF6
-              cp    0x44
-              jr    nz,$+38
-              or    a
-              call  0x0EFB
-              push  hl
-              ld    hl,0x0EBD
-              ex    (sp),hl
-              rst   0x10
-              dec   d
-              cp    0xCE
-              ret   z
-              cp    0x2D
-              ret   z
-              inc   d
-              cp    0xCD
-              ret   z
-              cp    0x2B
-              ret   z
-              dec   hl
-              pop   af
-              rst   0x10
-              jp    c,0x0F94
-              inc   d
-              jr    nz,$+5
-              xor   a
-              sub   e
+              call  z,MAKINT       ; Jump if 0E6C? yes, type=integer
+              ex    de,hl          ; Address pointer back in HL
+              ld    a,(hl)         ; Load character
+              cp    0x2D           ; '-'? yes -> Z-Flag = 1
+              push  af             ; Flag on stack
+              jp    z,FINC         ; yes, next character
+              cp    0x2B           ; '+' ?
+              jr    z,$+3          ; yes, next character
+              dec   hl             ; no sign, address pointer - 1
+              rst   0x10           ; followed by a digit?
+              jp    c,FINDIG       ; yes!
+              cp    0x2E           ; '.'
+              jp    z,FINDP        ; yes!
+              cp    0x45           ; 'E'? (Exponent for single precision)
+              jr    z,$+22         ; yes!
+              cp    0x25           ; '%'? (Treat number as integer)
+              jp    z,FININT       ; yes!
+              cp    0x23           ; '#'? (Treat number as double precision)
+              jp    z,FINDBF       ; yes!
+              cp    0x21           ; '!'? (Treat number as single precision)
+              jp    z,FINSNF       ; yes!
+              cp    0x44           ; 'D'? (Exponent for double precision)
+              jr    nz,$+38        ; no!
+
+; Determine exponent
+              or    a              ; Set flag for type adjustment
+              call  FINFRC         ; X to single or double precision
+              push  hl             ; Save address pointer
+              ld    hl,FINEC       ; Load return address
+              ex    (sp),hl        ; Exchange on stack with address pointer
+              rst   0x10           ; Next character
+              dec   d              ; Exp.-Sign-Flag to '-'
+              cp    0xCE           ; '-' (Token)
+              ret   z              ; yes!
+              cp    0x2D           ; '-'
+              ret   z              ; yes!
+              inc   d              ; Exp.-Sign-Flag to '+'
+              cp    0xCD           ; '+' (Token)
+              ret   z              ; yes!
+              cp    0x2B           ; '+'
+              ret   z              ; yes!
+              dec   hl             ; no sign, address pointer back
+              pop   af             ; Remove return address from stack
+              rst   0x10           ; Next character
+              jp    c,FINEDG       ; Digit? yes-continue at 0F94H
+              inc   d              ; no, Exp.-Sign-Flag = '-' ?
+              jr    nz,$+5         ; no!
+              xor   a              ; yes, invert exponent
+              sub   e              ; and back into E
               ld    e,a
+              push  hl             ; Save address pointer
+              ld    a,e            ; Exponent - decimal places
+              sub   b              ; Difference > 0 ?
+              call  p,FINMUL       ; yes, Number * 10, Difference - 1
+              call  m,FINDIV       ; no, Number / 10, Difference + 1
+              jr    nz,$-6         ; repeat until difference = 0
+              pop   hl             ; Load address pointer
+              pop   af             ; Sign flag back on stack
+              push  hl             ; Address pointer back on stack
+              call  z,VNEG         ; Sign-Flag='-'? yes, X = -X
+              pop   hl             ; Address pointer back
+              rst   0x20           ; Test type
+              ret   pe             ; Double precision? yes-done
+              push  hl             ; Address pointer back on stack
+              ld    hl,0x0890      ; Return address on stack
               push  hl
-              ld    a,e
-              sub   b
-              call  p,0x0F0A
-              call  m,0x0F18
-              jr    nz,$-6
-              pop   hl
-              pop   af
-              push  hl
-              call  z,VNEG
-              pop   hl
-              rst   0x20
-              ret   pe
-              push  hl
-              ld    hl,0x0890
-              push  hl
-              call  INT
-              ret   
-              rst   0x20
-              inc   c
-              jr    nz,$-31
-              call  c,0x0EFB
-              jp    0x0E83
-              rst   0x20
-              jp    p,0x1997
-              inc   hl
-              jr    $-44
-              or    a
-              call  0x0EFB
-              jr    $-7
-              push  hl
+              call  INT            ; Single precision, if possible, convert to integer
+              ret                  ; continue at 0890H
+
+; Process decimal point
+              rst   0x20           ; Test type
+              inc   c              ; '.'-Flag = 0? (was there already a '.')
+              jr    nz,$-31        ; yes, done
+              call  c,FINFRC       ; Single precision! convert integer to single precision
+              jp    FINC           ; next character
+
+; '%' found
+              rst   0x20           ; Test type
+              jp    p,0x1997       ; not integer, SYNTAX - Error
+              inc   hl             ; address pointer + 1
+              jr    $-44           ; done!
+
+; '#' found
+              or    a              ; Set flag for type adjustment
+              call  FINFRC         ; X to single or double precision
+              jr    $-7            ; continue at 0EF2H
+
+; Convert number to single or double precision
+              push  hl             ; Save registers on stack
               push  de
               push  bc
-              push  af
-              call  z,FRCSNG
-              pop   af
-              call  nz,FRCDBL
-              pop   bc
+              push  af             ; Save flag
+              call  z,FRCSNG       ; Z-flag=1, convert to single precision
+              pop   af             ; Reload flag
+              call  nz,FRCDBL      ; Z-flag=0, convert to double precision
+              pop   bc             ; Restore register contents
               pop   de
               pop   hl
               ret   
-              ret   z
-              push  af
-              rst   0x20
-              push  af
-              call  po,MUL10
-              pop   af
-              call  pe,DMUL10
-              pop   af
-              dec   a
+
+; Multiply real number by 10
+              ret   z              ; Z-Flag = 1?, return
+              push  af             ; A on stack
+              rst   0x20           ; Test type
+              push  af             ; Remember type-flag
+              call  po,MUL10       ; type=single prec? => * 10
+              pop   af             ; Reload type-flag
+              call  pe,DMUL10      ; type=double prec? => * 10
+              pop   af             ; Restore A-reg
+              dec   a              ; A - 1
               ret   
-              push  de
+
+; Divide real number by 10
+              push  de             ; Save register
               push  hl
               push  af
-              rst   0x20
-              push  af
-              call  po,FDIV
-              pop   af
-              call  pe,DDIV10
-              pop   af
+              rst   0x20           ; Test type
+              push  af             ; Save type-flag
+              call  po,FDIV        ; type=single prec? => / 10
+              pop   af             ; Reload type-flag
+              call  pe,DDIV10      ; type=double prec? => / 10
+              pop   af             ; Restore register contents
               pop   hl
               pop   de
-              inc   a
+              inc   a              ; A + 1
               ret   
-              push  de
-              ld    a,b
+
+; Process digit
+              push  de             ; Save Exp.-Sign-Flag and Exponent
+              ld    a,b            ; Next character. + 1, if '.'-Flag 0
               adc   a,c
-              ld    b,a
-              push  bc
-              push  hl
-              ld    a,(hl)
-              sub   0x30
-              push  af
-              rst   0x20
-              jp    p,0x0F5D
-              ld    hl,(FACLO)
-              ld    de,0x0CCD
-              rst   0x18
-              jr    nc,$+27
-              ld    d,h
+              ld    b,a            ; in B
+              push  bc             ; Save decimal places and flag
+              push  hl             ; Save address pointer
+              ld    a,(hl)         ; Load digit
+              sub   0x30           ; Remove zone part
+              push  af             ; Adjusted digit on stack
+              rst   0x20           ; Test type
+              jp    p,FINDGV       ; single or double precision!
+
+; Integer
+              ld    hl,(FACLO)     ; Load value from X
+              ld    de,0x0CCD      ; > = 3277 ? (i.e. 10 * X >= 32770)
+              rst   0x18           ; Compare with HL
+              jr    nc,$+27        ; yes, convert to single precision
+              ld    d,h            ; Multiply number by 10
               ld    e,l
-              add   hl,hl
-              add   hl,hl
-              add   hl,de
-              add   hl,hl
-              pop   af
-              ld    c,a
-              add   hl,bc
-              ld    a,h
-              or    a
-              jp    m,0x0F57
-              ld    (FACLO),hl
-              pop   hl
-              pop   bc
-              pop   de
-              jp    0x0E83
-              ld    a,c
-              push  af
-              call  INEG
-              scf   
-              jr    nc,$+26
-              ld    bc,0x9474
+              add   hl,hl          ; * 2
+              add   hl,hl          ; * 4
+              add   hl,de          ; * 5
+              add   hl,hl          ; * 10
+              pop   af             ; Reload digit
+              ld    c,a            ; in BC (B = 0)
+              add   hl,bc          ; and add to number
+              ld    a,h            ; new number > 32767 ?
+              or    a              ; Test A
+              jp    m,FINDG1       ; yes, convert to single precision
+              ld    (FACLO),hl     ; new number back in X
+              pop   hl             ; Reload address pointer
+              pop   bc             ; Reload decimal places + flag
+              pop   de             ; Restore Exp.-Sign-Flag + Exponent
+              jp    FINC           ; next character
+              ld    a,c            ; Save digit
+              push  af             ; A on stack
+              call  INEG           ; convert HL to single precision
+              scf                  ; ignore in jump instruction
+              jr    nc,$+26        ; double precision? yes-jump!
+
+; Single precision number
+              ld    bc,0x9474      ; Constant 1E6 in Y
               ld    de,0x2400
-              call  FCOMP
-              jp    p,0x0F74
-              call  MUL10
-              pop   af
-              call  0x0F89
-              jr    $-33
-              call  CONDS
-              call  DMUL10
-              call  VMOVAF
-              pop   af
-              call  FLOAT
-              call  CONDS
-              call  DADD
-              jr    $-54
-              call  PUSHF
-              call  FLOAT
-              pop   bc
+              call  FCOMP          ; Value >= 1E6 ?
+              jp    p,FINDG3       ; yes, convert to double precision
+              call  MUL10          ; Value * 10
+              pop   af             ; Reload digit
+              call  FADD8          ; and add to number
+              jr    $-33           ; back
+
+; Double precision number
+              call  CONDS          ; convert to double precision
+              call  DMUL10         ; Value * 10
+              call  VMOVAF         ; Transfer number to Y
+              pop   af             ; Reload digit
+              call  FLOAT          ; Transfer to X
+              call  CONDS          ; convert to double precision
+              call  DADD           ; and add to number
+              jr    $-54           ; back
+
+; Add 8 Bit Integer to single precision number
+              call  PUSHF          ; Save 1st addend on stack
+              call  FLOAT          ; 2. Addend with single precision in X
+              pop   bc             ; 1. Addend from stack in Y
               pop   de
-              jp    FP_ADD_X_PLUS_Y
-              ld    a,e
+              jp    FP_ADD_X_PLUS_Y ; form sum
+
+; Process exponent digit
+              ld    a,e            ; Exponent > 9 ?
               cp    0x0A
-              jr    nc,$+11
-              rlca  
+              jr    nc,$+11        ; yes, generate overflow
+              rlca                 ; Exponent * 10
               rlca  
               add   a,e
               rlca  
-              add   a,(hl)
-              sub   0x30
-              ld    e,a
-              jp    m,0x321E
-              jp    0x0EBD
-              push  hl
-              ld    hl,0x1924
-              call  0x28A7
-              pop   hl
-              call  MAKINT
+              add   a,(hl)         ; Add digit
+              sub   0x30           ; Eliminate zone part
+              ld    e,a            ; new exponent
+              DEFB  0xFA           ; Dummy, will never be executed
+              ld    e,0x32         ; Exponent = 32, causes overflow later
+              jp    FINEC          ; process next digit
+
+; To complete an error message
+; output ' IN line number'
+              push  hl             ; line number on stack
+              ld    hl,MSG_IN      ; Load text address 'IN '
+              call  OUTSTR         ; output text
+              pop   hl             ; reload line number
+
+; Output line number
+              call  MAKINT         ; line number as integer in X
+              xor   a              ; clear format-flag
+              call  FOUINI         ; initialize buffer
+              or    (hl)           ; X as integer without sign
+              call  0x0FD9         ; convert to string
+              jp    0x28A6         ; output string
               xor   a
-              call  0x1034
-              or    (hl)
-              call  0x0FD9
-              jp    0x28A6
-              xor   a
-              call  0x1034
-              and   0x08
-              jr    z,$+4
-              ld    (hl),0x2B
-              ex    de,hl
-              call  VSIGN
-              ex    de,hl
-              jp    p,0x0FD9
-              ld    (hl),0x2D
-              push  bc
-              push  hl
-              call  VNEG
-              pop   hl
-              pop   bc
-              or    h
-              inc   hl
-              ld    (hl),0x30
-              ld    a,(0x78D8)
+
+; Convert number to formatted string
+              call  FOUINI         ; address buffer start (7930H)
+              and   0x08           ; output '+'?
+              jr    z,$+4          ; no!
+              ld    (hl),0x2B      ; '+' in buffer
+              ex    de,hl          ; buffer pointer in DE
+              call  VSIGN          ; Number >= 0?
+              ex    de,hl          ; buffer pointer back in HL
+              jp    p,0x0FD9       ; yes!
+              ld    (hl),0x2D      ; '-' in buffer
+              push  bc             ; length parameter on stack
+              push  hl             ; buffer pointer on stack
+              call  VNEG           ; save signs
+              pop   hl             ; reload buffer pointer
+              pop   bc             ; reload length parameter
+              or    h              ; reset null-flag
+              inc   hl             ; buffer pointer behind sign
+              ld    (hl),0x30      ; '0' in buffer
+              ld    a,(FMT_FLAG)   ; Format-Flag in D
               ld    d,a
-              rla   
-              ld    a,(VALTYP)
-              jp    c,0x109A
-              jp    z,0x1092
-              cp    0x04
-              jp    nc,0x103D
-              ld    bc,START
-              call  0x132F
-              ld    hl,0x7930
-              ld    b,(hl)
-              ld    c,0x20
-              ld    a,(0x78D8)
-              ld    e,a
-              and   0x20
-              jr    z,$+9
-              ld    a,b
+              rla                  ; execute formatting?
+              ld    a,(VALTYP)     ; load type
+              jp    c,0x109A       ; yes!
+              jp    z,0x1092       ; Value = 0, done
+              cp    0x04           ; single or double precision?
+              jp    nc,FOUFRV      ; yes!
+
+; Convert integer to string
+              ld    bc,START       ; delete parameter for '.' and ','
+              call  0x132F         ; generate string
+
+; Process format-flag bits 2-5
+              ld    hl,FBUFFR      ; buffer pointer on start
+              ld    b,(hl)         ; load character
+              ld    c,0x20         ; fill leading blanks
+              ld    a,(FMT_FLAG)   ; load format-flag
+              ld    e,a            ; in E
+              and   0x20           ; fill with '*'? (Bit 5)
+              jr    z,$+9          ; no!
+              ld    a,b            ; sign = filler?
               cp    c
-              ld    c,0x2A
-              jr    nz,$+3
-              ld    b,c
-              ld    (hl),c
-              rst   0x10
-              jr    z,$+22
-              cp    0x45
-              jr    z,$+18
-              cp    0x44
-              jr    z,$+14
-              cp    0x30
-              jr    z,$-14
-              cp    0x2C
-              jr    z,$-18
-              cp    0x2E
-              jr    nz,$+5
-              dec   hl
+              ld    c,0x2A         ; filler = '*'
+              jr    nz,$+3         ; no!
+              ld    b,c            ; sign = filler
+              ld    (hl),c         ; filler in buffer
+              rst   0x10           ; next character = line end?
+              jr    z,$+22         ; yes, do not fill further
+              cp    0x45           ; Exp. indicator for single precision?
+              jr    z,$+18         ; yes, do not fill further
+              cp    0x44           ; Exp. indicator for double precision?
+              jr    z,$+14         ; yes, do not fill further
+              cp    0x30           ; '0'?
+              jr    z,$-14         ; yes, continue filling
+              cp    0x2C           ; ','?
+              jr    z,$-18         ; yes, continue filling
+              cp    0x2E           ; '.'
+              jr    nz,$+5         ; no, do not fill further
+              dec   hl             ; insert a '0' before '.', 'E' or 'D'
               ld    (hl),0x30
-              ld    a,e
-              and   0x10
-              jr    z,$+5
-              dec   hl
-              ld    (hl),0x24
-              ld    a,e
-              and   0x04
-              ret   nz
-              dec   hl
-              ld    (hl),b
+              ld    a,e            ; dollar sign before number?
+              and   0x10           ; (Bit 4 of format-flag)
+              jr    z,$+5          ; no!
+              dec   hl             ; buffer pointer - 1
+              ld    (hl),0x24      ; '$' in buffer
+              ld    a,e            ; sign behind number?
+              and   0x04           ; (Bit 2 of format-flag)
+              ret   nz             ; yes, return
+              dec   hl             ; buffer pointer before number
+              ld    (hl),b         ; sign before number
               ret   
-              ld    (0x78D8),a
-              ld    hl,0x7930
+              ld    (FMT_FLAG),a
+              ld    hl,FBUFFR
               ld    (hl),0x20
               ret   
               cp    0x05
@@ -2888,7 +2931,7 @@ DNORM_BIT_LOOP:
               inc   hl
               ld    (hl),0x00
               ex    de,hl
-              ld    hl,0x7930
+              ld    hl,FBUFFR
               ret   
               inc   hl
               push  bc
@@ -2910,7 +2953,7 @@ DNORM_BIT_LOOP:
               dec   a
               call  p,0x1269
               push  hl
-              call  0x0FF5
+              call  PUSTR_BITS_2_5
               pop   hl
               jr    z,$+4
               ld    (hl),b
@@ -3003,7 +3046,7 @@ DNORM_BIT_LOOP:
               xor   a
               push  bc
               push  af
-              call  m,0x0F18
+              call  m,FINDIV
               jp    m,0x1164
               pop   bc
               ld    a,e
@@ -3070,7 +3113,7 @@ DNORM_BIT_LOOP:
               sub   e
               push  af
               push  bc
-              call  m,0x0F18
+              call  m,FINDIV
               jp    m,0x11D0
               pop   bc
               pop   af
@@ -3132,7 +3175,7 @@ DNORM_BIT_LOOP:
               push  af
               jr    $-29
               pop   af
-              call  0x0F18
+              call  FINDIV
               push  af
               call  0x124F
               pop   af
@@ -3171,7 +3214,7 @@ DNORM_BIT_LOOP:
               jr    nc,$-2
               add   a,0x05
               ld    c,a
-              ld    a,(0x78D8)
+              ld    a,(FMT_FLAG)
               and   0x40
               ret   nz
               ld    c,a
@@ -4520,7 +4563,7 @@ DNORM_BIT_LOOP:
               push  hl
               ld    hl,(0x78EA)
               ex    (sp),hl
-              call  0x28A7
+              call  OUTSTR
               pop   hl
               ld    de,0xFFFE
               rst   0x18
@@ -4528,7 +4571,7 @@ DNORM_BIT_LOOP:
               ld    a,h
               and   l
               inc   a
-              call  nz,0x0FA7
+              call  nz,INPRT
               ld    a,0xC1
               call  OUTPUT_SCREEN_SELECT
               call  0x79AC
@@ -4537,7 +4580,7 @@ DNORM_BIT_LOOP:
               nop   
               call  0x20F9
               ld    hl,0x1929
-              call  0x28A7
+              call  OUTSTR
               ld    a,(0x789A)
               sub   0x02
               nop   
@@ -4550,7 +4593,7 @@ DNORM_BIT_LOOP:
               jr    z,$+60
               ld    hl,(0x78E2)
               push  hl
-              call  0x0FAF
+              call  LINPRT
               ld    a,0x20
               call  CHAR_OUTPUT_DISPATCH
               pop   de
@@ -5021,7 +5064,7 @@ DNORM_BIT_LOOP:
               push  de
               ld    a,0x3C
               call  CHAR_OUTPUT_DISPATCH
-              call  0x0FAF
+              call  LINPRT
               ld    a,0x3E
               call  CHAR_OUTPUT_DISPATCH
               pop   de
@@ -5625,7 +5668,7 @@ DNORM_BIT_LOOP:
               jp    z,0x19A2
               pop   bc
               ld    hl,0x2178
-              call  0x28A7
+              call  OUTSTR
               ld    hl,(0x78E6)
               ret   
               call  0x2828
@@ -5734,8 +5777,8 @@ DNORM_BIT_LOOP:
               push  af
               ld    bc,0x2243
               push  bc
-              jp    c,0x0E6C
-              jp    nc,0x0E65
+              jp    c,FIN
+              jp    nc,STR_TO_DOUBLE
               dec   hl
               rst   0x10
               jr    z,$+7
@@ -5759,7 +5802,7 @@ DNORM_BIT_LOOP:
               call  0x79DF
               or    (hl)
               ld    hl,0x2286
-              call  nz,0x28A7
+              call  nz,OUTSTR
               pop   hl
               jp    0x2169
               ccf   
@@ -5896,14 +5939,14 @@ DNORM_BIT_LOOP:
               cp    d
               ld    d,a
               jp    c,0x1997
-              ld    (0x78D8),hl
+              ld    (FMT_FLAG),hl
               rst   0x10
               jr    $-21
               ld    a,d
               or    a
               jp    nz,0x23EC
               ld    a,(hl)
-              ld    (0x78D8),hl
+              ld    (FMT_FLAG),hl
               sub   0xCD
               ret   c
               cp    0x07
@@ -5967,7 +6010,7 @@ DNORM_BIT_LOOP:
               push  bc
               ld    bc,0x2406
               push  bc
-              ld    hl,(0x78D8)
+              ld    hl,(FMT_FLAG)
               jp    0x233A
               call  FRCSNG
               call  PUSHF
@@ -6078,13 +6121,13 @@ DNORM_BIT_LOOP:
               rst   0x10
               ld    e,0x28
               jp    z,0x19A2
-              jp    c,0x0E6C
+              jp    c,FIN
               call  0x1E3D
               jp    nc,0x2540
               cp    0xCD
               jr    z,$-17
               cp    0x2E
-              jp    z,0x0E6C
+              jp    z,FIN
               cp    0xCE
               jp    z,0x2532
               cp    0x22
@@ -6511,7 +6554,7 @@ DNORM_BIT_LOOP:
               call  0x1963
               inc   hl
               inc   hl
-              ld    (0x78D8),hl
+              ld    (FMT_FLAG),hl
               ld    (hl),c
               inc   hl
               ld    a,(0x78AE)
@@ -6544,7 +6587,7 @@ DNORM_BIT_LOOP:
               jr    nz,$-4
               inc   bc
               ld    d,a
-              ld    hl,(0x78D8)
+              ld    hl,(FMT_FLAG)
               ld    e,(hl)
               ex    de,hl
               add   hl,hl
@@ -6804,7 +6847,7 @@ DNORM_BIT_LOOP:
               add   hl,bc
               cp    0x03
               jr    nz,$-19
-              ld    (0x78D8),hl
+              ld    (FMT_FLAG),hl
               pop   hl
               ld    c,(hl)
               ld    b,0x00
@@ -6812,7 +6855,7 @@ DNORM_BIT_LOOP:
               add   hl,bc
               inc   hl
               ex    de,hl
-              ld    hl,(0x78D8)
+              ld    hl,(FMT_FLAG)
               ex    de,hl
               rst   0x18
               jr    z,$-36
@@ -7092,7 +7135,7 @@ DNORM_BIT_LOOP:
               ex    (sp),hl
               push  bc
               ld    a,(hl)
-              call  0x0E65
+              call  STR_TO_DOUBLE
               pop   bc
               pop   hl
               ld    (hl),b
@@ -7171,7 +7214,7 @@ DNORM_BIT_LOOP:
               push  bc
               ex    de,hl
               ld    (0x78EC),hl
-              call  0x0FAF
+              call  LINPRT
               ld    a,0x20
               pop   hl
               call  CHAR_OUTPUT_DISPATCH
@@ -7248,7 +7291,7 @@ DNORM_BIT_LOOP:
               rst   0x18
               jp    nc,0x1E4A
               ld    hl,0x1929
-              call  0x28A7
+              call  OUTSTR
               pop   bc
               ld    hl,0x1AE8
               ex    (sp),hl
@@ -7565,8 +7608,8 @@ DNORM_BIT_LOOP:
               jp    nc,0x1E4A
               ld    a,d
               or    0x80
-              call  0x0FBE
-              call  0x28A7
+              call  PUFOUT
+              call  OUTSTR
               pop   hl
               dec   hl
               rst   0x10
@@ -8775,7 +8818,7 @@ DNORM_BIT_LOOP:
               ld    hl,(0x781E)
               jp    (hl)
               ld    hl,0x1929
-              call  0x28A7
+              call  OUTSTR
               ld    hl,(0x78A4)
               push  hl
               ld    hl,0x7839
@@ -8805,7 +8848,7 @@ DNORM_BIT_LOOP:
               jp    0x1A81
               ld    hl,0x384A
               ei    
-              call  0x28A7
+              call  OUTSTR
               di    
               ld    a,(0x784C)
               or    a
@@ -8830,7 +8873,7 @@ DNORM_BIT_LOOP:
               cp    (hl)
               jr    z,$+11
               ld    hl,0x376C
-              call  0x28A7
+              call  OUTSTR
               jp    0x0183
               inc   hl
               dec   bc
@@ -8840,9 +8883,9 @@ DNORM_BIT_LOOP:
               ld    hl,0x7839
               res   3,(hl)
               ld    hl,0x376C
-              call  0x28A7
+              call  OUTSTR
               ld    hl,0x0380
-              call  0x28A7
+              call  OUTSTR
               jp    0x36CF
               dec   c
               ld    d,(hl)
@@ -10000,7 +10043,7 @@ DNORM_BIT_LOOP:
               jp    0x0502
               ret   c
               ld    hl,0x3E1A
-              call  0x28A7
+              call  OUTSTR
               jp    INPUT_LINE_READ
               cp    0x62
               jr    nz,$+59

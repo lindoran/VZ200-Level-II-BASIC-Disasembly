@@ -1,5 +1,23 @@
 # VZ200 BASIC ROM Disassembly Progress
 
+## Session: May 1, 2026 (Part 2)
+
+### Task
+Annotate the byte range 0x0E65 to 0x1033 based on Gerhard Wolf's Laser 310 German ROM listing and cross-referenced with TRS-80 Level II BASIC sources.
+
+### Statistics
+- Total Annotations: 2,044
+- Total Symbols: 147
+
+### Work Completed
+- **Range:** 0x0E65 - 0x1033 (String to number conversion, numeric type handling, precision force routines, multiply/divide real by 10, process digit, 8-bit addition, exponent processing, error message IN, output line number, formatted string conversion (PRINT USING support), integer to string).
+- **Annotations:** Added block comments, labels, and inline comments in English. Routines documented include `STR_TO_DOUBLE`, `FIN`, `FINC`, `FINEX`, `FINEC`, `FINDP`, `FININT`, `FINDBF`, `FINSNF`, `FINFRC`, `FINMUL`, `FINDIV`, `FINDIG`, `FINDGV`, `FINDG1`, `FINDG2`, `FINDG3`, `FINDGD`, `FADD8`, `FINEDG`, `INPRT`, `LINPRT`, `PUFOUT`, `INT_TO_STR`, and `PUSTR_BITS_2_5`.
+- **Symbols added:** `STR_TO_DOUBLE`, `FIN`, `FINC`, `FINEX`, `FINEC`, `FINDP`, `FININT`, `FINDBF`, `FINSNF`, `FINFRC`, `FINMUL`, `FINDIV`, `FINDIG`, `FINDGV`, `FINDG1`, `FINDG2`, `FINDG3`, `FINDGD`, `FADD8`, `FINEDG`, `INPRT`, `LINPRT`, `PUFOUT`, `INT_TO_STR`, `PUSTR_BITS_2_5`, `FOUINI`, `FOUFRV`, `OUTSTR`, `MSG_IN`, `FA_ZERO`, `FBUFFR`, `FMT_FLAG`.
+- **Bug Fix / Trick:** Handled overlapping instructions at 0x0E6C and 0x0FA2 by adding `DIRECT_BYTE` segments at 0x0E6B and 0x0FA1 in `segments.map`. This allowed setting labels and comments on these addresses which were previously "swallowed" by the disassembler as operands.
+- **Verification:**
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+  - `export.lst` verified to contain correct English inline comments for the range 0x0E65-0x1033.
+
 ## Session: May 1, 2026 (Part 1)
 
 ### Task

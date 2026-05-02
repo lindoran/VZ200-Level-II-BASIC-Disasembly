@@ -294,6 +294,16 @@ offset = 3601
 end = 3601
 type = DATA_BYTE
 
+[region]
+offset = 3691
+end = 3691
+type = DATA_BYTE
+
+[region]
+offset = 4001
+end = 4001
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -8178,6 +8188,966 @@ text = Overflow? No, done
 offset = 3682
 text = Yes, OVERFLOW error
 
+[comment]
+offset = 3685
+text = X = 0
+
+[comment]
+offset = 3688
+text = Type = double precision
+
+[comment]
+offset = 3691
+text = Zero-Flag = 0
+
+[comment]
+offset = 3692
+text = Zero-Flag = 1 (Byte also in instruction E68)
+
+[comment]
+offset = 3693
+text = Address pointer in DE
+
+[comment]
+offset = 3694
+text = Decimal places = 0, '.'-Flag = FF
+
+[comment]
+offset = 3697
+text = HL = 0
+
+[comment]
+offset = 3699
+text = Jump if 0E6C? yes, type=integer
+
+[comment]
+offset = 3702
+text = Address pointer back in HL
+
+[comment]
+offset = 3703
+text = Load character
+
+[comment]
+offset = 3704
+text = '-'? yes -> Z-Flag = 1
+
+[comment]
+offset = 3706
+text = Flag on stack
+
+[comment]
+offset = 3707
+text = yes, next character
+
+[comment]
+offset = 3710
+text = '+' ?
+
+[comment]
+offset = 3712
+text = yes, next character
+
+[comment]
+offset = 3714
+text = no sign, address pointer - 1
+
+[comment]
+offset = 3715
+text = followed by a digit?
+
+[comment]
+offset = 3716
+text = yes!
+
+[comment]
+offset = 3719
+text = '.'
+
+[comment]
+offset = 3721
+text = yes!
+
+[comment]
+offset = 3724
+text = 'E'? (Exponent for single precision)
+
+[comment]
+offset = 3726
+text = yes!
+
+[comment]
+offset = 3728
+text = '%'? (Treat number as integer)
+
+[comment]
+offset = 3730
+text = yes!
+
+[comment]
+offset = 3733
+text = '#'? (Treat number as double precision)
+
+[comment]
+offset = 3735
+text = yes!
+
+[comment]
+offset = 3738
+text = '!'? (Treat number as single precision)
+
+[comment]
+offset = 3740
+text = yes!
+
+[comment]
+offset = 3743
+text = 'D'? (Exponent for double precision)
+
+[comment]
+offset = 3745
+text = no!
+
+[comment]
+offset = 3747
+text = Set flag for type adjustment
+
+[comment]
+offset = 3748
+text = X to single or double precision
+
+[comment]
+offset = 3751
+text = Save address pointer
+
+[comment]
+offset = 3752
+text = Load return address
+
+[comment]
+offset = 3755
+text = Exchange on stack with address pointer
+
+[comment]
+offset = 3756
+text = Next character
+
+[comment]
+offset = 3757
+text = Exp.-Sign-Flag to '-'
+
+[comment]
+offset = 3758
+text = '-' (Token)
+
+[comment]
+offset = 3760
+text = yes!
+
+[comment]
+offset = 3761
+text = '-'
+
+[comment]
+offset = 3763
+text = yes!
+
+[comment]
+offset = 3764
+text = Exp.-Sign-Flag to '+'
+
+[comment]
+offset = 3765
+text = '+' (Token)
+
+[comment]
+offset = 3767
+text = yes!
+
+[comment]
+offset = 3768
+text = '+'
+
+[comment]
+offset = 3770
+text = yes!
+
+[comment]
+offset = 3771
+text = no sign, address pointer back
+
+[comment]
+offset = 3772
+text = Remove return address from stack
+
+[comment]
+offset = 3773
+text = Next character
+
+[comment]
+offset = 3774
+text = Digit? yes-continue at 0F94H
+
+[comment]
+offset = 3777
+text = no, Exp.-Sign-Flag = '-' ?
+
+[comment]
+offset = 3778
+text = no!
+
+[comment]
+offset = 3780
+text = yes, invert exponent
+
+[comment]
+offset = 3781
+text = and back into E
+
+[comment]
+offset = 3783
+text = Save address pointer
+
+[comment]
+offset = 3784
+text = Exponent - decimal places
+
+[comment]
+offset = 3785
+text = Difference > 0 ?
+
+[comment]
+offset = 3786
+text = yes, Number * 10, Difference - 1
+
+[comment]
+offset = 3789
+text = no, Number / 10, Difference + 1
+
+[comment]
+offset = 3792
+text = repeat until difference = 0
+
+[comment]
+offset = 3794
+text = Load address pointer
+
+[comment]
+offset = 3795
+text = Sign flag back on stack
+
+[comment]
+offset = 3796
+text = Address pointer back on stack
+
+[comment]
+offset = 3797
+text = Sign-Flag='-'? yes, X = -X
+
+[comment]
+offset = 3800
+text = Address pointer back
+
+[comment]
+offset = 3801
+text = Test type
+
+[comment]
+offset = 3802
+text = Double precision? yes-done
+
+[comment]
+offset = 3803
+text = Address pointer back on stack
+
+[comment]
+offset = 3804
+text = Return address on stack
+
+[comment]
+offset = 3808
+text = Single precision, if possible, convert to integer
+
+[comment]
+offset = 3811
+text = continue at 0890H
+
+[comment]
+offset = 3812
+text = Test type
+
+[comment]
+offset = 3813
+text = '.'-Flag = 0? (was there already a '.')
+
+[comment]
+offset = 3814
+text = yes, done
+
+[comment]
+offset = 3816
+text = Single precision! convert integer to single precision
+
+[comment]
+offset = 3819
+text = next character
+
+[comment]
+offset = 3822
+text = Test type
+
+[comment]
+offset = 3823
+text = not integer, SYNTAX - Error
+
+[comment]
+offset = 3826
+text = address pointer + 1
+
+[comment]
+offset = 3827
+text = done!
+
+[comment]
+offset = 3829
+text = Set flag for type adjustment
+
+[comment]
+offset = 3830
+text = X to single or double precision
+
+[comment]
+offset = 3833
+text = continue at 0EF2H
+
+[comment]
+offset = 3835
+text = Save registers on stack
+
+[comment]
+offset = 3838
+text = Save flag
+
+[comment]
+offset = 3839
+text = Z-flag=1, convert to single precision
+
+[comment]
+offset = 3842
+text = Reload flag
+
+[comment]
+offset = 3843
+text = Z-flag=0, convert to double precision
+
+[comment]
+offset = 3846
+text = Restore register contents
+
+[comment]
+offset = 3850
+text = Z-Flag = 1?, return
+
+[comment]
+offset = 3851
+text = A on stack
+
+[comment]
+offset = 3852
+text = Test type
+
+[comment]
+offset = 3853
+text = Remember type-flag
+
+[comment]
+offset = 3854
+text = type=single prec? => * 10
+
+[comment]
+offset = 3857
+text = Reload type-flag
+
+[comment]
+offset = 3858
+text = type=double prec? => * 10
+
+[comment]
+offset = 3861
+text = Restore A-reg
+
+[comment]
+offset = 3862
+text = A - 1
+
+[comment]
+offset = 3864
+text = Save register
+
+[comment]
+offset = 3867
+text = Test type
+
+[comment]
+offset = 3868
+text = Save type-flag
+
+[comment]
+offset = 3869
+text = type=single prec? => / 10
+
+[comment]
+offset = 3872
+text = Reload type-flag
+
+[comment]
+offset = 3873
+text = type=double prec? => / 10
+
+[comment]
+offset = 3876
+text = Restore register contents
+
+[comment]
+offset = 3879
+text = A + 1
+
+[comment]
+offset = 3881
+text = Save Exp.-Sign-Flag and Exponent
+
+[comment]
+offset = 3882
+text = Next character. + 1, if '.'-Flag 0
+
+[comment]
+offset = 3884
+text = in B
+
+[comment]
+offset = 3885
+text = Save decimal places and flag
+
+[comment]
+offset = 3886
+text = Save address pointer
+
+[comment]
+offset = 3887
+text = Load digit
+
+[comment]
+offset = 3888
+text = Remove zone part
+
+[comment]
+offset = 3890
+text = Adjusted digit on stack
+
+[comment]
+offset = 3891
+text = Test type
+
+[comment]
+offset = 3892
+text = single or double precision!
+
+[comment]
+offset = 3895
+text = Load value from X
+
+[comment]
+offset = 3898
+text = > = 3277 ? (i.e. 10 * X >= 32770)
+
+[comment]
+offset = 3901
+text = Compare with HL
+
+[comment]
+offset = 3902
+text = yes, convert to single precision
+
+[comment]
+offset = 3904
+text = Multiply number by 10
+
+[comment]
+offset = 3906
+text = * 2
+
+[comment]
+offset = 3907
+text = * 4
+
+[comment]
+offset = 3908
+text = * 5
+
+[comment]
+offset = 3909
+text = * 10
+
+[comment]
+offset = 3910
+text = Reload digit
+
+[comment]
+offset = 3911
+text = in BC (B = 0)
+
+[comment]
+offset = 3912
+text = and add to number
+
+[comment]
+offset = 3913
+text = new number > 32767 ?
+
+[comment]
+offset = 3914
+text = Test A
+
+[comment]
+offset = 3915
+text = yes, convert to single precision
+
+[comment]
+offset = 3918
+text = new number back in X
+
+[comment]
+offset = 3921
+text = Reload address pointer
+
+[comment]
+offset = 3922
+text = Reload decimal places + flag
+
+[comment]
+offset = 3923
+text = Restore Exp.-Sign-Flag + Exponent
+
+[comment]
+offset = 3924
+text = next character
+
+[comment]
+offset = 3927
+text = Save digit
+
+[comment]
+offset = 3928
+text = A on stack
+
+[comment]
+offset = 3929
+text = convert HL to single precision
+
+[comment]
+offset = 3932
+text = ignore in jump instruction
+
+[comment]
+offset = 3933
+text = double precision? yes-jump!
+
+[comment]
+offset = 3935
+text = Constant 1E6 in Y
+
+[comment]
+offset = 3941
+text = Value >= 1E6 ?
+
+[comment]
+offset = 3944
+text = yes, convert to double precision
+
+[comment]
+offset = 3947
+text = Value * 10
+
+[comment]
+offset = 3950
+text = Reload digit
+
+[comment]
+offset = 3951
+text = and add to number
+
+[comment]
+offset = 3954
+text = back
+
+[comment]
+offset = 3956
+text = convert to double precision
+
+[comment]
+offset = 3959
+text = Value * 10
+
+[comment]
+offset = 3962
+text = Transfer number to Y
+
+[comment]
+offset = 3965
+text = Reload digit
+
+[comment]
+offset = 3966
+text = Transfer to X
+
+[comment]
+offset = 3969
+text = convert to double precision
+
+[comment]
+offset = 3972
+text = and add to number
+
+[comment]
+offset = 3975
+text = back
+
+[comment]
+offset = 3977
+text = Save 1st addend on stack
+
+[comment]
+offset = 3980
+text = 2. Addend with single precision in X
+
+[comment]
+offset = 3983
+text = 1. Addend from stack in Y
+
+[comment]
+offset = 3985
+text = form sum
+
+[comment]
+offset = 3988
+text = Exponent > 9 ?
+
+[comment]
+offset = 3991
+text = yes, generate overflow
+
+[comment]
+offset = 3993
+text = Exponent * 10
+
+[comment]
+offset = 3997
+text = Add digit
+
+[comment]
+offset = 3998
+text = Eliminate zone part
+
+[comment]
+offset = 4000
+text = new exponent
+
+[comment]
+offset = 4001
+text = Dummy, will never be executed
+
+[comment]
+offset = 4002
+text = Exponent = 32, causes overflow later
+
+[comment]
+offset = 4004
+text = process next digit
+
+[comment]
+offset = 4007
+text = line number on stack
+
+[comment]
+offset = 4008
+text = Load text address 'IN '
+
+[comment]
+offset = 4011
+text = output text
+
+[comment]
+offset = 4014
+text = reload line number
+
+[comment]
+offset = 4015
+text = line number as integer in X
+
+[comment]
+offset = 4018
+text = clear format-flag
+
+[comment]
+offset = 4019
+text = initialize buffer
+
+[comment]
+offset = 4022
+text = X as integer without sign
+
+[comment]
+offset = 4023
+text = convert to string
+
+[comment]
+offset = 4026
+text = output string
+
+[comment]
+offset = 4030
+text = address buffer start (7930H)
+
+[comment]
+offset = 4033
+text = output '+'?
+
+[comment]
+offset = 4035
+text = no!
+
+[comment]
+offset = 4037
+text = '+' in buffer
+
+[comment]
+offset = 4039
+text = buffer pointer in DE
+
+[comment]
+offset = 4040
+text = Number >= 0?
+
+[comment]
+offset = 4043
+text = buffer pointer back in HL
+
+[comment]
+offset = 4044
+text = yes!
+
+[comment]
+offset = 4047
+text = '-' in buffer
+
+[comment]
+offset = 4049
+text = length parameter on stack
+
+[comment]
+offset = 4050
+text = buffer pointer on stack
+
+[comment]
+offset = 4051
+text = save signs
+
+[comment]
+offset = 4054
+text = reload buffer pointer
+
+[comment]
+offset = 4055
+text = reload length parameter
+
+[comment]
+offset = 4056
+text = reset null-flag
+
+[comment]
+offset = 4057
+text = buffer pointer behind sign
+
+[comment]
+offset = 4058
+text = '0' in buffer
+
+[comment]
+offset = 4060
+text = Format-Flag in D
+
+[comment]
+offset = 4064
+text = execute formatting?
+
+[comment]
+offset = 4065
+text = load type
+
+[comment]
+offset = 4068
+text = yes!
+
+[comment]
+offset = 4071
+text = Value = 0, done
+
+[comment]
+offset = 4074
+text = single or double precision?
+
+[comment]
+offset = 4076
+text = yes!
+
+[comment]
+offset = 4079
+text = delete parameter for '.' and ','
+
+[comment]
+offset = 4082
+text = generate string
+
+[comment]
+offset = 4085
+text = buffer pointer on start
+
+[comment]
+offset = 4088
+text = load character
+
+[comment]
+offset = 4089
+text = fill leading blanks
+
+[comment]
+offset = 4091
+text = load format-flag
+
+[comment]
+offset = 4094
+text = in E
+
+[comment]
+offset = 4095
+text = fill with '*'? (Bit 5)
+
+[comment]
+offset = 4097
+text = no!
+
+[comment]
+offset = 4099
+text = sign = filler?
+
+[comment]
+offset = 4101
+text = filler = '*'
+
+[comment]
+offset = 4103
+text = no!
+
+[comment]
+offset = 4105
+text = sign = filler
+
+[comment]
+offset = 4106
+text = filler in buffer
+
+[comment]
+offset = 4107
+text = next character = line end?
+
+[comment]
+offset = 4108
+text = yes, do not fill further
+
+[comment]
+offset = 4110
+text = Exp. indicator for single precision?
+
+[comment]
+offset = 4112
+text = yes, do not fill further
+
+[comment]
+offset = 4114
+text = Exp. indicator for double precision?
+
+[comment]
+offset = 4116
+text = yes, do not fill further
+
+[comment]
+offset = 4118
+text = '0'?
+
+[comment]
+offset = 4120
+text = yes, continue filling
+
+[comment]
+offset = 4122
+text = ','?
+
+[comment]
+offset = 4124
+text = yes, continue filling
+
+[comment]
+offset = 4126
+text = '.'
+
+[comment]
+offset = 4128
+text = no, do not fill further
+
+[comment]
+offset = 4130
+text = insert a '0' before '.', 'E' or 'D'
+
+[comment]
+offset = 4133
+text = dollar sign before number?
+
+[comment]
+offset = 4134
+text = (Bit 4 of format-flag)
+
+[comment]
+offset = 4136
+text = no!
+
+[comment]
+offset = 4138
+text = buffer pointer - 1
+
+[comment]
+offset = 4139
+text = '$' in buffer
+
+[comment]
+offset = 4141
+text = sign behind number?
+
+[comment]
+offset = 4142
+text = (Bit 2 of format-flag)
+
+[comment]
+offset = 4144
+text = yes, return
+
+[comment]
+offset = 4145
+text = buffer pointer before number
+
+[comment]
+offset = 4146
+text = sign before number
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -8934,4 +9904,85 @@ text = Subroutine for Double Precision Multiplication and Division
 [block]
 offset = 3661
 text = Double Precision Multiplication by 10
+
+[block]
+offset = 3685
+text = Convert string to double precision number
+
+[block]
+offset = 3692
+text = Convert string to number of appropriate type
+
+[block]
+offset = 3747
+text = Determine exponent
+
+[block]
+offset = 3812
+text = Process decimal point
+
+[block]
+offset = 3822
+text = '%' found
+
+[block]
+offset = 3829
+text = '#' found
+
+[block]
+offset = 3835
+text = Convert number to single or double precision
+
+[block]
+offset = 3850
+text = Multiply real number by 10
+
+[block]
+offset = 3864
+text = Divide real number by 10
+
+[block]
+offset = 3881
+text = Process digit
+
+[block]
+offset = 3895
+text = Integer
+
+[block]
+offset = 3935
+text = Single precision number
+
+[block]
+offset = 3956
+text = Double precision number
+
+[block]
+offset = 3977
+text = Add 8 Bit Integer to single precision number
+
+[block]
+offset = 3988
+text = Process exponent digit
+
+[block]
+offset = 4007
+text = To complete an error message
+              output ' IN line number'
+
+[block]
+offset = 4015
+text = Output line number
+
+[block]
+offset = 4030
+text = Convert number to formatted string
+
+[block]
+offset = 4079
+text = Convert integer to string
+
+[block]
+offset = 4085
+text = Process format-flag bits 2-5
 

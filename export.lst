@@ -204,7 +204,7 @@
 00F9  CD4D1B   .M.                 call  0x1B4D         ; call the NEW routine (1B4DH)
 00FC  CD8434   ..4                 call  0x3484         ; initialize counters and pointers (3484H)
 00FF  210F01   !..                 ld    hl,0x010F      ; Load banner string address (010FH)
-0102  CDA728   ..(                 call  0x28A7         ; Print banner string (OUTSTR)
+0102  CDA728   ..(                 call  OUTSTR         ; Print banner string (OUTSTR)
 0105  ED56     .V                  im    1              ; Set Interrupt Mode 1
 0107  C38E06   ...                 jp    BASIC_INIT_3   ; Jump to memory expansion check (068EH)
 010A  007E23FE .~#.                DEFB  0x00,0x7E,0x23,0xFE,0x0D ; Artifact? No caller
@@ -286,7 +286,7 @@
 0183  213978   !9x                 ld    hl,0x7839      ; Load 7839H (Cursor flags?)
 0186  CB9E     ..                  res   3,(hl)         ; Reset bit 3
 0188  218403   !..                 ld    hl,0x0384      ; Load address of 'ERROR' message
-018B  CDA728   ..(                 call  0x28A7         ; Print string (OUTSTR)
+018B  CDA728   ..(                 call  OUTSTR         ; Print string (OUTSTR)
 018E  C3CF36   ..6                 jp    0x36CF         ; Jump to 36CFH
                      ;
                      ; *******************************************************
@@ -701,7 +701,7 @@
 04A1  C30205   ...                 jp    0x0502         ; check text end identifier (BREAK?)
 04A4  D8       .                   ret   c              ; BREAK, back to BASIC
 04A5  211A3E   !.>                 ld    hl,0x3E1A      ; text \
-04A8  CDA728   ..(                 call  0x28A7         ; output
+04A8  CDA728   ..(                 call  OUTSTR         ; output
 04AB  C3E303   ...                 jp    INPUT_LINE_READ ; back to line entry
 04AE  FE22     ."                  cp    0x22           ; string identifier?
 04B0  2031      1                  jr    nz,$+51        ; no, continue
@@ -1300,7 +1300,7 @@
 0837  110000   ...                 ld    de,START
 083A  CD1607   ...                 call  FP_ADD_X_PLUS_Y ; X = X - 0.5
 083D  F1       .                   pop   af             ; exponent of argument
-083E  CD890F   ...                 call  0x0F89         ; X = X + A
+083E  CD890F   ...                 call  FADD8          ; X = X + A
                      ; SINGLE PRECISION MULTIPLICATION – “FMLT”
                      MULLN2:
 0841  013180   .1.                 ld    bc,0x8031      ; Y = LOG(2) approx. 0.693147
@@ -1491,7 +1491,7 @@
 0936  B7       .                   or    a              ; Was it an underflow?
                      MULDV2:
 0937  E1       .                   pop   hl             ; One more return address from stack
-0938  F27807   .x.                 jp    p,0x0778       ; Underflow, X=0, RET
+0938  F27807   .x.                 jp    p,FA_ZERO      ; Underflow, X=0, RET
 093B  C3B207   ...                 jp    0x07B2         ; OVERFLOW-Error
                      ; Single Precision Multiplication by 10
                      MUL10:
@@ -2211,7 +2211,7 @@
 0CED  D608     ..                  sub   0x08
 0CEF  FEC0     ..                  cp    0xC0           ; 40 shifts? (X = 0)
 0CF1  20E6      .                  jr    nz,$-24        ; no, continue
-0CF3  C37807   .x.                 jp    0x0778         ; yes, X = 0, done!
+0CF3  C37807   .x.                 jp    FA_ZERO        ; yes, X = 0, done!
                      DNORM_BIT_LOOP:
 0CF6  05       .                   dec   b              ; shifts - 1
 0CF7  211C79   !.y                 ld    hl,0x791C      ; address LSB X
@@ -2224,7 +2224,7 @@
 0D05  212479   !$y                 ld    hl,FAC         ; address exponent X
 0D08  86       .                   add   a,(hl)         ; new exponent = old exponent + number of sh
 0D09  77       w                   ld    (hl),a         ; back to X
-0D0A  D27807   .x.                 jp    nc,0x0778      ; underflow? yes, X=0, done
+0D0A  D27807   .x.                 jp    nc,FA_ZERO     ; underflow? yes, X=0, done
 0D0D  C8       .                   ret   z              ; X = 0? yes, done!
 0D0E  3A1C79   :.y                 ld    a,(0x791C)     ; highest bit of LSB X = 0?
 0D11  B7       .                   or    a              ; test A
@@ -2448,273 +2448,296 @@
 0E60  34       4                   inc   (hl)           ; Exponent X + 1 (X = Factor * 10)
 0E61  C0       .                   ret   nz             ; Overflow? No, done
 0E62  C3B207   ...                 jp    0x07B2         ; Yes, OVERFLOW error
-0E65  CD7807   .x.                 call  0x0778
-0E68  CDEC0A   ...                 call  VALDBL
-0E6B  F6AF     ..                  or    0xAF
-0E6D  EB       .                   ex    de,hl
-0E6E  01FF00   ...                 ld    bc,0x00FF
-0E71  60       `                   ld    h,b
+                     ; Convert string to double precision number
+0E65  CD7807   .x.                 call  FA_ZERO        ; X = 0
+0E68  CDEC0A   ...                 call  VALDBL         ; Type = double precision
+0E6B  F6       .                   DEFB  0xF6           ; Zero-Flag = 0
+                     ; Convert string to number of appropriate type
+0E6C  AF       .                   xor   a              ; Zero-Flag = 1 (Byte also in instruction E6
+0E6D  EB       .                   ex    de,hl          ; Address pointer in DE
+0E6E  01FF00   ...                 ld    bc,0x00FF      ; Decimal places = 0, '.'-Flag = FF
+0E71  60       `                   ld    h,b            ; HL = 0
 0E72  68       h                   ld    l,b
-0E73  CC9A0A   ...                 call  z,MAKINT
-0E76  EB       .                   ex    de,hl
-0E77  7E       ~                   ld    a,(hl)
-0E78  FE2D     .-                  cp    0x2D
-0E7A  F5       .                   push  af
-0E7B  CA830E   ...                 jp    z,0x0E83
-0E7E  FE2B     .+                  cp    0x2B
-0E80  2801     (.                  jr    z,$+3
-0E82  2B       +                   dec   hl
-0E83  D7       .                   rst   0x10
-0E84  DA290F   .).                 jp    c,0x0F29
-0E87  FE2E     ..                  cp    0x2E
-0E89  CAE40E   ...                 jp    z,0x0EE4
-0E8C  FE45     .E                  cp    0x45
-0E8E  2814     (.                  jr    z,$+22
-0E90  FE25     .%                  cp    0x25
-0E92  CAEE0E   ...                 jp    z,0x0EEE
-0E95  FE23     .#                  cp    0x23
-0E97  CAF50E   ...                 jp    z,0x0EF5
-0E9A  FE21     .!                  cp    0x21
-0E9C  CAF60E   ...                 jp    z,0x0EF6
-0E9F  FE44     .D                  cp    0x44
-0EA1  2024      $                  jr    nz,$+38
-0EA3  B7       .                   or    a
-0EA4  CDFB0E   ...                 call  0x0EFB
-0EA7  E5       .                   push  hl
-0EA8  21BD0E   !..                 ld    hl,0x0EBD
-0EAB  E3       .                   ex    (sp),hl
-0EAC  D7       .                   rst   0x10
-0EAD  15       .                   dec   d
-0EAE  FECE     ..                  cp    0xCE
-0EB0  C8       .                   ret   z
-0EB1  FE2D     .-                  cp    0x2D
-0EB3  C8       .                   ret   z
-0EB4  14       .                   inc   d
-0EB5  FECD     ..                  cp    0xCD
-0EB7  C8       .                   ret   z
-0EB8  FE2B     .+                  cp    0x2B
-0EBA  C8       .                   ret   z
-0EBB  2B       +                   dec   hl
-0EBC  F1       .                   pop   af
-0EBD  D7       .                   rst   0x10
-0EBE  DA940F   ...                 jp    c,0x0F94
-0EC1  14       .                   inc   d
-0EC2  2003      .                  jr    nz,$+5
-0EC4  AF       .                   xor   a
-0EC5  93       .                   sub   e
+0E73  CC9A0A   ...                 call  z,MAKINT       ; Jump if 0E6C? yes, type=integer
+0E76  EB       .                   ex    de,hl          ; Address pointer back in HL
+0E77  7E       ~                   ld    a,(hl)         ; Load character
+0E78  FE2D     .-                  cp    0x2D           ; '-'? yes -> Z-Flag = 1
+0E7A  F5       .                   push  af             ; Flag on stack
+0E7B  CA830E   ...                 jp    z,FINC         ; yes, next character
+0E7E  FE2B     .+                  cp    0x2B           ; '+' ?
+0E80  2801     (.                  jr    z,$+3          ; yes, next character
+0E82  2B       +                   dec   hl             ; no sign, address pointer - 1
+0E83  D7       .                   rst   0x10           ; followed by a digit?
+0E84  DA290F   .).                 jp    c,FINDIG       ; yes!
+0E87  FE2E     ..                  cp    0x2E           ; '.'
+0E89  CAE40E   ...                 jp    z,FINDP        ; yes!
+0E8C  FE45     .E                  cp    0x45           ; 'E'? (Exponent for single precision)
+0E8E  2814     (.                  jr    z,$+22         ; yes!
+0E90  FE25     .%                  cp    0x25           ; '%'? (Treat number as integer)
+0E92  CAEE0E   ...                 jp    z,FININT       ; yes!
+0E95  FE23     .#                  cp    0x23           ; '#'? (Treat number as double precision)
+0E97  CAF50E   ...                 jp    z,FINDBF       ; yes!
+0E9A  FE21     .!                  cp    0x21           ; '!'? (Treat number as single precision)
+0E9C  CAF60E   ...                 jp    z,FINSNF       ; yes!
+0E9F  FE44     .D                  cp    0x44           ; 'D'? (Exponent for double precision)
+0EA1  2024      $                  jr    nz,$+38        ; no!
+                     ; Determine exponent
+0EA3  B7       .                   or    a              ; Set flag for type adjustment
+0EA4  CDFB0E   ...                 call  FINFRC         ; X to single or double precision
+0EA7  E5       .                   push  hl             ; Save address pointer
+0EA8  21BD0E   !..                 ld    hl,FINEC       ; Load return address
+0EAB  E3       .                   ex    (sp),hl        ; Exchange on stack with address pointer
+0EAC  D7       .                   rst   0x10           ; Next character
+0EAD  15       .                   dec   d              ; Exp.-Sign-Flag to '-'
+0EAE  FECE     ..                  cp    0xCE           ; '-' (Token)
+0EB0  C8       .                   ret   z              ; yes!
+0EB1  FE2D     .-                  cp    0x2D           ; '-'
+0EB3  C8       .                   ret   z              ; yes!
+0EB4  14       .                   inc   d              ; Exp.-Sign-Flag to '+'
+0EB5  FECD     ..                  cp    0xCD           ; '+' (Token)
+0EB7  C8       .                   ret   z              ; yes!
+0EB8  FE2B     .+                  cp    0x2B           ; '+'
+0EBA  C8       .                   ret   z              ; yes!
+0EBB  2B       +                   dec   hl             ; no sign, address pointer back
+0EBC  F1       .                   pop   af             ; Remove return address from stack
+0EBD  D7       .                   rst   0x10           ; Next character
+0EBE  DA940F   ...                 jp    c,FINEDG       ; Digit? yes-continue at 0F94H
+0EC1  14       .                   inc   d              ; no, Exp.-Sign-Flag = '-' ?
+0EC2  2003      .                  jr    nz,$+5         ; no!
+0EC4  AF       .                   xor   a              ; yes, invert exponent
+0EC5  93       .                   sub   e              ; and back into E
 0EC6  5F       _                   ld    e,a
-0EC7  E5       .                   push  hl
-0EC8  7B       {                   ld    a,e
-0EC9  90       .                   sub   b
-0ECA  F40A0F   ...                 call  p,0x0F0A
-0ECD  FC180F   ...                 call  m,0x0F18
-0ED0  20F8      .                  jr    nz,$-6
-0ED2  E1       .                   pop   hl
-0ED3  F1       .                   pop   af
-0ED4  E5       .                   push  hl
-0ED5  CC7B09   .{.                 call  z,VNEG
-0ED8  E1       .                   pop   hl
-0ED9  E7       .                   rst   0x20
-0EDA  E8       .                   ret   pe
-0EDB  E5       .                   push  hl
-0EDC  219008   !..                 ld    hl,0x0890
+0EC7  E5       .                   push  hl             ; Save address pointer
+0EC8  7B       {                   ld    a,e            ; Exponent - decimal places
+0EC9  90       .                   sub   b              ; Difference > 0 ?
+0ECA  F40A0F   ...                 call  p,FINMUL       ; yes, Number * 10, Difference - 1
+0ECD  FC180F   ...                 call  m,FINDIV       ; no, Number / 10, Difference + 1
+0ED0  20F8      .                  jr    nz,$-6         ; repeat until difference = 0
+0ED2  E1       .                   pop   hl             ; Load address pointer
+0ED3  F1       .                   pop   af             ; Sign flag back on stack
+0ED4  E5       .                   push  hl             ; Address pointer back on stack
+0ED5  CC7B09   .{.                 call  z,VNEG         ; Sign-Flag='-'? yes, X = -X
+0ED8  E1       .                   pop   hl             ; Address pointer back
+0ED9  E7       .                   rst   0x20           ; Test type
+0EDA  E8       .                   ret   pe             ; Double precision? yes-done
+0EDB  E5       .                   push  hl             ; Address pointer back on stack
+0EDC  219008   !..                 ld    hl,0x0890      ; Return address on stack
 0EDF  E5       .                   push  hl
-0EE0  CDA30A   ...                 call  INT
-0EE3  C9       .                   ret   
-0EE4  E7       .                   rst   0x20
-0EE5  0C       .                   inc   c
-0EE6  20DF      .                  jr    nz,$-31
-0EE8  DCFB0E   ...                 call  c,0x0EFB
-0EEB  C3830E   ...                 jp    0x0E83
-0EEE  E7       .                   rst   0x20
-0EEF  F29719   ...                 jp    p,0x1997
-0EF2  23       #                   inc   hl
-0EF3  18D2     ..                  jr    $-44
-0EF5  B7       .                   or    a
-0EF6  CDFB0E   ...                 call  0x0EFB
-0EF9  18F7     ..                  jr    $-7
-0EFB  E5       .                   push  hl
+0EE0  CDA30A   ...                 call  INT            ; Single precision, if possible, convert to 
+0EE3  C9       .                   ret                  ; continue at 0890H
+                     ; Process decimal point
+0EE4  E7       .                   rst   0x20           ; Test type
+0EE5  0C       .                   inc   c              ; '.'-Flag = 0? (was there already a '.')
+0EE6  20DF      .                  jr    nz,$-31        ; yes, done
+0EE8  DCFB0E   ...                 call  c,FINFRC       ; Single precision! convert integer to singl
+0EEB  C3830E   ...                 jp    FINC           ; next character
+                     ; '%' found
+0EEE  E7       .                   rst   0x20           ; Test type
+0EEF  F29719   ...                 jp    p,0x1997       ; not integer, SYNTAX - Error
+0EF2  23       #                   inc   hl             ; address pointer + 1
+0EF3  18D2     ..                  jr    $-44           ; done!
+                     ; '#' found
+0EF5  B7       .                   or    a              ; Set flag for type adjustment
+0EF6  CDFB0E   ...                 call  FINFRC         ; X to single or double precision
+0EF9  18F7     ..                  jr    $-7            ; continue at 0EF2H
+                     ; Convert number to single or double precision
+0EFB  E5       .                   push  hl             ; Save registers on stack
 0EFC  D5       .                   push  de
 0EFD  C5       .                   push  bc
-0EFE  F5       .                   push  af
-0EFF  CCB10A   ...                 call  z,FRCSNG
-0F02  F1       .                   pop   af
-0F03  C4DB0A   ...                 call  nz,FRCDBL
-0F06  C1       .                   pop   bc
+0EFE  F5       .                   push  af             ; Save flag
+0EFF  CCB10A   ...                 call  z,FRCSNG       ; Z-flag=1, convert to single precision
+0F02  F1       .                   pop   af             ; Reload flag
+0F03  C4DB0A   ...                 call  nz,FRCDBL      ; Z-flag=0, convert to double precision
+0F06  C1       .                   pop   bc             ; Restore register contents
 0F07  D1       .                   pop   de
 0F08  E1       .                   pop   hl
 0F09  C9       .                   ret   
-0F0A  C8       .                   ret   z
-0F0B  F5       .                   push  af
-0F0C  E7       .                   rst   0x20
-0F0D  F5       .                   push  af
-0F0E  E43E09   .>.                 call  po,MUL10
-0F11  F1       .                   pop   af
-0F12  EC4D0E   .M.                 call  pe,DMUL10
-0F15  F1       .                   pop   af
-0F16  3D       =                   dec   a
+                     ; Multiply real number by 10
+0F0A  C8       .                   ret   z              ; Z-Flag = 1?, return
+0F0B  F5       .                   push  af             ; A on stack
+0F0C  E7       .                   rst   0x20           ; Test type
+0F0D  F5       .                   push  af             ; Remember type-flag
+0F0E  E43E09   .>.                 call  po,MUL10       ; type=single prec? => * 10
+0F11  F1       .                   pop   af             ; Reload type-flag
+0F12  EC4D0E   .M.                 call  pe,DMUL10      ; type=double prec? => * 10
+0F15  F1       .                   pop   af             ; Restore A-reg
+0F16  3D       =                   dec   a              ; A - 1
 0F17  C9       .                   ret   
-0F18  D5       .                   push  de
+                     ; Divide real number by 10
+0F18  D5       .                   push  de             ; Save register
 0F19  E5       .                   push  hl
 0F1A  F5       .                   push  af
-0F1B  E7       .                   rst   0x20
-0F1C  F5       .                   push  af
-0F1D  E49708   ...                 call  po,FDIV
-0F20  F1       .                   pop   af
-0F21  ECDC0D   ...                 call  pe,DDIV10
-0F24  F1       .                   pop   af
+0F1B  E7       .                   rst   0x20           ; Test type
+0F1C  F5       .                   push  af             ; Save type-flag
+0F1D  E49708   ...                 call  po,FDIV        ; type=single prec? => / 10
+0F20  F1       .                   pop   af             ; Reload type-flag
+0F21  ECDC0D   ...                 call  pe,DDIV10      ; type=double prec? => / 10
+0F24  F1       .                   pop   af             ; Restore register contents
 0F25  E1       .                   pop   hl
 0F26  D1       .                   pop   de
-0F27  3C       <                   inc   a
+0F27  3C       <                   inc   a              ; A + 1
 0F28  C9       .                   ret   
-0F29  D5       .                   push  de
-0F2A  78       x                   ld    a,b
+                     ; Process digit
+0F29  D5       .                   push  de             ; Save Exp.-Sign-Flag and Exponent
+0F2A  78       x                   ld    a,b            ; Next character. + 1, if '.'-Flag 0
 0F2B  89       .                   adc   a,c
-0F2C  47       G                   ld    b,a
-0F2D  C5       .                   push  bc
-0F2E  E5       .                   push  hl
-0F2F  7E       ~                   ld    a,(hl)
-0F30  D630     .0                  sub   0x30
-0F32  F5       .                   push  af
-0F33  E7       .                   rst   0x20
-0F34  F25D0F   .].                 jp    p,0x0F5D
-0F37  2A2179   *!y                 ld    hl,(FACLO)
-0F3A  11CD0C   ...                 ld    de,0x0CCD
-0F3D  DF       .                   rst   0x18
-0F3E  3019     0.                  jr    nc,$+27
-0F40  54       T                   ld    d,h
+0F2C  47       G                   ld    b,a            ; in B
+0F2D  C5       .                   push  bc             ; Save decimal places and flag
+0F2E  E5       .                   push  hl             ; Save address pointer
+0F2F  7E       ~                   ld    a,(hl)         ; Load digit
+0F30  D630     .0                  sub   0x30           ; Remove zone part
+0F32  F5       .                   push  af             ; Adjusted digit on stack
+0F33  E7       .                   rst   0x20           ; Test type
+0F34  F25D0F   .].                 jp    p,FINDGV       ; single or double precision!
+                     ; Integer
+0F37  2A2179   *!y                 ld    hl,(FACLO)     ; Load value from X
+0F3A  11CD0C   ...                 ld    de,0x0CCD      ; > = 3277 ? (i.e. 10 * X >= 32770)
+0F3D  DF       .                   rst   0x18           ; Compare with HL
+0F3E  3019     0.                  jr    nc,$+27        ; yes, convert to single precision
+0F40  54       T                   ld    d,h            ; Multiply number by 10
 0F41  5D       ]                   ld    e,l
-0F42  29       )                   add   hl,hl
-0F43  29       )                   add   hl,hl
-0F44  19       .                   add   hl,de
-0F45  29       )                   add   hl,hl
-0F46  F1       .                   pop   af
-0F47  4F       O                   ld    c,a
-0F48  09       .                   add   hl,bc
-0F49  7C       |                   ld    a,h
-0F4A  B7       .                   or    a
-0F4B  FA570F   .W.                 jp    m,0x0F57
-0F4E  222179   "!y                 ld    (FACLO),hl
-0F51  E1       .                   pop   hl
-0F52  C1       .                   pop   bc
-0F53  D1       .                   pop   de
-0F54  C3830E   ...                 jp    0x0E83
-0F57  79       y                   ld    a,c
-0F58  F5       .                   push  af
-0F59  CDCC0A   ...                 call  INEG
-0F5C  37       7                   scf   
-0F5D  3018     0.                  jr    nc,$+26
-0F5F  017494   .t.                 ld    bc,0x9474
+0F42  29       )                   add   hl,hl          ; * 2
+0F43  29       )                   add   hl,hl          ; * 4
+0F44  19       .                   add   hl,de          ; * 5
+0F45  29       )                   add   hl,hl          ; * 10
+0F46  F1       .                   pop   af             ; Reload digit
+0F47  4F       O                   ld    c,a            ; in BC (B = 0)
+0F48  09       .                   add   hl,bc          ; and add to number
+0F49  7C       |                   ld    a,h            ; new number > 32767 ?
+0F4A  B7       .                   or    a              ; Test A
+0F4B  FA570F   .W.                 jp    m,FINDG1       ; yes, convert to single precision
+0F4E  222179   "!y                 ld    (FACLO),hl     ; new number back in X
+0F51  E1       .                   pop   hl             ; Reload address pointer
+0F52  C1       .                   pop   bc             ; Reload decimal places + flag
+0F53  D1       .                   pop   de             ; Restore Exp.-Sign-Flag + Exponent
+0F54  C3830E   ...                 jp    FINC           ; next character
+0F57  79       y                   ld    a,c            ; Save digit
+0F58  F5       .                   push  af             ; A on stack
+0F59  CDCC0A   ...                 call  INEG           ; convert HL to single precision
+0F5C  37       7                   scf                  ; ignore in jump instruction
+0F5D  3018     0.                  jr    nc,$+26        ; double precision? yes-jump!
+                     ; Single precision number
+0F5F  017494   .t.                 ld    bc,0x9474      ; Constant 1E6 in Y
 0F62  110024   ..$                 ld    de,0x2400
-0F65  CD0C0A   ...                 call  FCOMP
-0F68  F2740F   .t.                 jp    p,0x0F74
-0F6B  CD3E09   .>.                 call  MUL10
-0F6E  F1       .                   pop   af
-0F6F  CD890F   ...                 call  0x0F89
-0F72  18DD     ..                  jr    $-33
-0F74  CDE30A   ...                 call  CONDS
-0F77  CD4D0E   .M.                 call  DMUL10
-0F7A  CDFC09   ...                 call  VMOVAF
-0F7D  F1       .                   pop   af
-0F7E  CD6409   .d.                 call  FLOAT
-0F81  CDE30A   ...                 call  CONDS
-0F84  CD770C   .w.                 call  DADD
-0F87  18C8     ..                  jr    $-54
-0F89  CDA409   ...                 call  PUSHF
-0F8C  CD6409   .d.                 call  FLOAT
-0F8F  C1       .                   pop   bc
+0F65  CD0C0A   ...                 call  FCOMP          ; Value >= 1E6 ?
+0F68  F2740F   .t.                 jp    p,FINDG3       ; yes, convert to double precision
+0F6B  CD3E09   .>.                 call  MUL10          ; Value * 10
+0F6E  F1       .                   pop   af             ; Reload digit
+0F6F  CD890F   ...                 call  FADD8          ; and add to number
+0F72  18DD     ..                  jr    $-33           ; back
+                     ; Double precision number
+0F74  CDE30A   ...                 call  CONDS          ; convert to double precision
+0F77  CD4D0E   .M.                 call  DMUL10         ; Value * 10
+0F7A  CDFC09   ...                 call  VMOVAF         ; Transfer number to Y
+0F7D  F1       .                   pop   af             ; Reload digit
+0F7E  CD6409   .d.                 call  FLOAT          ; Transfer to X
+0F81  CDE30A   ...                 call  CONDS          ; convert to double precision
+0F84  CD770C   .w.                 call  DADD           ; and add to number
+0F87  18C8     ..                  jr    $-54           ; back
+                     ; Add 8 Bit Integer to single precision number
+0F89  CDA409   ...                 call  PUSHF          ; Save 1st addend on stack
+0F8C  CD6409   .d.                 call  FLOAT          ; 2. Addend with single precision in X
+0F8F  C1       .                   pop   bc             ; 1. Addend from stack in Y
 0F90  D1       .                   pop   de
-0F91  C31607   ...                 jp    FP_ADD_X_PLUS_Y
-0F94  7B       {                   ld    a,e
+0F91  C31607   ...                 jp    FP_ADD_X_PLUS_Y ; form sum
+                     ; Process exponent digit
+0F94  7B       {                   ld    a,e            ; Exponent > 9 ?
 0F95  FE0A     ..                  cp    0x0A
-0F97  3009     0.                  jr    nc,$+11
-0F99  07       .                   rlca  
+0F97  3009     0.                  jr    nc,$+11        ; yes, generate overflow
+0F99  07       .                   rlca                 ; Exponent * 10
 0F9A  07       .                   rlca  
 0F9B  83       .                   add   a,e
 0F9C  07       .                   rlca  
-0F9D  86       .                   add   a,(hl)
-0F9E  D630     .0                  sub   0x30
-0FA0  5F       _                   ld    e,a
-0FA1  FA1E32   ..2                 jp    m,0x321E
-0FA4  C3BD0E   ...                 jp    0x0EBD
-0FA7  E5       .                   push  hl
-0FA8  212419   !$.                 ld    hl,0x1924
-0FAB  CDA728   ..(                 call  0x28A7
-0FAE  E1       .                   pop   hl
-0FAF  CD9A0A   ...                 call  MAKINT
-0FB2  AF       .                   xor   a
-0FB3  CD3410   .4.                 call  0x1034
-0FB6  B6       .                   or    (hl)
-0FB7  CDD90F   ...                 call  0x0FD9
-0FBA  C3A628   ..(                 jp    0x28A6
+0F9D  86       .                   add   a,(hl)         ; Add digit
+0F9E  D630     .0                  sub   0x30           ; Eliminate zone part
+0FA0  5F       _                   ld    e,a            ; new exponent
+0FA1  FA       .                   DEFB  0xFA           ; Dummy, will never be executed
+0FA2  1E32     .2                  ld    e,0x32         ; Exponent = 32, causes overflow later
+0FA4  C3BD0E   ...                 jp    FINEC          ; process next digit
+                     ; To complete an error message
+                     ; output ' IN line number'
+0FA7  E5       .                   push  hl             ; line number on stack
+0FA8  212419   !$.                 ld    hl,MSG_IN      ; Load text address 'IN '
+0FAB  CDA728   ..(                 call  OUTSTR         ; output text
+0FAE  E1       .                   pop   hl             ; reload line number
+                     ; Output line number
+0FAF  CD9A0A   ...                 call  MAKINT         ; line number as integer in X
+0FB2  AF       .                   xor   a              ; clear format-flag
+0FB3  CD3410   .4.                 call  FOUINI         ; initialize buffer
+0FB6  B6       .                   or    (hl)           ; X as integer without sign
+0FB7  CDD90F   ...                 call  0x0FD9         ; convert to string
+0FBA  C3A628   ..(                 jp    0x28A6         ; output string
 0FBD  AF       .                   xor   a
-0FBE  CD3410   .4.                 call  0x1034
-0FC1  E608     ..                  and   0x08
-0FC3  2802     (.                  jr    z,$+4
-0FC5  362B     6+                  ld    (hl),0x2B
-0FC7  EB       .                   ex    de,hl
-0FC8  CD9409   ...                 call  VSIGN
-0FCB  EB       .                   ex    de,hl
-0FCC  F2D90F   ...                 jp    p,0x0FD9
-0FCF  362D     6-                  ld    (hl),0x2D
-0FD1  C5       .                   push  bc
-0FD2  E5       .                   push  hl
-0FD3  CD7B09   .{.                 call  VNEG
-0FD6  E1       .                   pop   hl
-0FD7  C1       .                   pop   bc
-0FD8  B4       .                   or    h
-0FD9  23       #                   inc   hl
-0FDA  3630     60                  ld    (hl),0x30
-0FDC  3AD878   :.x                 ld    a,(0x78D8)
+                     ; Convert number to formatted string
+0FBE  CD3410   .4.                 call  FOUINI         ; address buffer start (7930H)
+0FC1  E608     ..                  and   0x08           ; output '+'?
+0FC3  2802     (.                  jr    z,$+4          ; no!
+0FC5  362B     6+                  ld    (hl),0x2B      ; '+' in buffer
+0FC7  EB       .                   ex    de,hl          ; buffer pointer in DE
+0FC8  CD9409   ...                 call  VSIGN          ; Number >= 0?
+0FCB  EB       .                   ex    de,hl          ; buffer pointer back in HL
+0FCC  F2D90F   ...                 jp    p,0x0FD9       ; yes!
+0FCF  362D     6-                  ld    (hl),0x2D      ; '-' in buffer
+0FD1  C5       .                   push  bc             ; length parameter on stack
+0FD2  E5       .                   push  hl             ; buffer pointer on stack
+0FD3  CD7B09   .{.                 call  VNEG           ; save signs
+0FD6  E1       .                   pop   hl             ; reload buffer pointer
+0FD7  C1       .                   pop   bc             ; reload length parameter
+0FD8  B4       .                   or    h              ; reset null-flag
+0FD9  23       #                   inc   hl             ; buffer pointer behind sign
+0FDA  3630     60                  ld    (hl),0x30      ; '0' in buffer
+0FDC  3AD878   :.x                 ld    a,(FMT_FLAG)   ; Format-Flag in D
 0FDF  57       W                   ld    d,a
-0FE0  17       .                   rla   
-0FE1  3AAF78   :.x                 ld    a,(VALTYP)
-0FE4  DA9A10   ...                 jp    c,0x109A
-0FE7  CA9210   ...                 jp    z,0x1092
-0FEA  FE04     ..                  cp    0x04
-0FEC  D23D10   .=.                 jp    nc,0x103D
-0FEF  010000   ...                 ld    bc,START
-0FF2  CD2F13   ./.                 call  0x132F
-0FF5  213079   !0y                 ld    hl,0x7930
-0FF8  46       F                   ld    b,(hl)
-0FF9  0E20     .                   ld    c,0x20
-0FFB  3AD878   :.x                 ld    a,(0x78D8)
-0FFE  5F       _                   ld    e,a
-0FFF  E620     .                   and   0x20
-1001  2807     (.                  jr    z,$+9
-1003  78       x                   ld    a,b
+0FE0  17       .                   rla                  ; execute formatting?
+0FE1  3AAF78   :.x                 ld    a,(VALTYP)     ; load type
+0FE4  DA9A10   ...                 jp    c,0x109A       ; yes!
+0FE7  CA9210   ...                 jp    z,0x1092       ; Value = 0, done
+0FEA  FE04     ..                  cp    0x04           ; single or double precision?
+0FEC  D23D10   .=.                 jp    nc,FOUFRV      ; yes!
+                     ; Convert integer to string
+0FEF  010000   ...                 ld    bc,START       ; delete parameter for '.' and ','
+0FF2  CD2F13   ./.                 call  0x132F         ; generate string
+                     ; Process format-flag bits 2-5
+0FF5  213079   !0y                 ld    hl,FBUFFR      ; buffer pointer on start
+0FF8  46       F                   ld    b,(hl)         ; load character
+0FF9  0E20     .                   ld    c,0x20         ; fill leading blanks
+0FFB  3AD878   :.x                 ld    a,(FMT_FLAG)   ; load format-flag
+0FFE  5F       _                   ld    e,a            ; in E
+0FFF  E620     .                   and   0x20           ; fill with '*'? (Bit 5)
+1001  2807     (.                  jr    z,$+9          ; no!
+1003  78       x                   ld    a,b            ; sign = filler?
 1004  B9       .                   cp    c
-1005  0E2A     .*                  ld    c,0x2A
-1007  2001      .                  jr    nz,$+3
-1009  41       A                   ld    b,c
-100A  71       q                   ld    (hl),c
-100B  D7       .                   rst   0x10
-100C  2814     (.                  jr    z,$+22
-100E  FE45     .E                  cp    0x45
-1010  2810     (.                  jr    z,$+18
-1012  FE44     .D                  cp    0x44
-1014  280C     (.                  jr    z,$+14
-1016  FE30     .0                  cp    0x30
-1018  28F0     (.                  jr    z,$-14
-101A  FE2C     .,                  cp    0x2C
-101C  28EC     (.                  jr    z,$-18
-101E  FE2E     ..                  cp    0x2E
-1020  2003      .                  jr    nz,$+5
-1022  2B       +                   dec   hl
+1005  0E2A     .*                  ld    c,0x2A         ; filler = '*'
+1007  2001      .                  jr    nz,$+3         ; no!
+1009  41       A                   ld    b,c            ; sign = filler
+100A  71       q                   ld    (hl),c         ; filler in buffer
+100B  D7       .                   rst   0x10           ; next character = line end?
+100C  2814     (.                  jr    z,$+22         ; yes, do not fill further
+100E  FE45     .E                  cp    0x45           ; Exp. indicator for single precision?
+1010  2810     (.                  jr    z,$+18         ; yes, do not fill further
+1012  FE44     .D                  cp    0x44           ; Exp. indicator for double precision?
+1014  280C     (.                  jr    z,$+14         ; yes, do not fill further
+1016  FE30     .0                  cp    0x30           ; '0'?
+1018  28F0     (.                  jr    z,$-14         ; yes, continue filling
+101A  FE2C     .,                  cp    0x2C           ; ','?
+101C  28EC     (.                  jr    z,$-18         ; yes, continue filling
+101E  FE2E     ..                  cp    0x2E           ; '.'
+1020  2003      .                  jr    nz,$+5         ; no, do not fill further
+1022  2B       +                   dec   hl             ; insert a '0' before '.', 'E' or 'D'
 1023  3630     60                  ld    (hl),0x30
-1025  7B       {                   ld    a,e
-1026  E610     ..                  and   0x10
-1028  2803     (.                  jr    z,$+5
-102A  2B       +                   dec   hl
-102B  3624     6$                  ld    (hl),0x24
-102D  7B       {                   ld    a,e
-102E  E604     ..                  and   0x04
-1030  C0       .                   ret   nz
-1031  2B       +                   dec   hl
-1032  70       p                   ld    (hl),b
+1025  7B       {                   ld    a,e            ; dollar sign before number?
+1026  E610     ..                  and   0x10           ; (Bit 4 of format-flag)
+1028  2803     (.                  jr    z,$+5          ; no!
+102A  2B       +                   dec   hl             ; buffer pointer - 1
+102B  3624     6$                  ld    (hl),0x24      ; '$' in buffer
+102D  7B       {                   ld    a,e            ; sign behind number?
+102E  E604     ..                  and   0x04           ; (Bit 2 of format-flag)
+1030  C0       .                   ret   nz             ; yes, return
+1031  2B       +                   dec   hl             ; buffer pointer before number
+1032  70       p                   ld    (hl),b         ; sign before number
 1033  C9       .                   ret   
-1034  32D878   2.x                 ld    (0x78D8),a
-1037  213079   !0y                 ld    hl,0x7930
+1034  32D878   2.x                 ld    (FMT_FLAG),a
+1037  213079   !0y                 ld    hl,FBUFFR
 103A  3620     6                   ld    (hl),0x20
 103C  C9       .                   ret   
 103D  FE05     ..                  cp    0x05
@@ -2772,7 +2795,7 @@
 1092  23       #                   inc   hl
 1093  3600     6.                  ld    (hl),0x00
 1095  EB       .                   ex    de,hl
-1096  213079   !0y                 ld    hl,0x7930
+1096  213079   !0y                 ld    hl,FBUFFR
 1099  C9       .                   ret   
 109A  23       #                   inc   hl
 109B  C5       .                   push  bc
@@ -2794,7 +2817,7 @@
 10BB  3D       =                   dec   a
 10BC  F46912   .i.                 call  p,0x1269
 10BF  E5       .                   push  hl
-10C0  CDF50F   ...                 call  0x0FF5
+10C0  CDF50F   ...                 call  PUSTR_BITS_2_5
 10C3  E1       .                   pop   hl
 10C4  2802     (.                  jr    z,$+4
 10C6  70       p                   ld    (hl),b
@@ -2887,7 +2910,7 @@
 1161  AF       .                   xor   a
 1162  C5       .                   push  bc
 1163  F5       .                   push  af
-1164  FC180F   ...                 call  m,0x0F18
+1164  FC180F   ...                 call  m,FINDIV
 1167  FA6411   .d.                 jp    m,0x1164
 116A  C1       .                   pop   bc
 116B  7B       {                   ld    a,e
@@ -2954,7 +2977,7 @@
 11CD  93       .                   sub   e
 11CE  F5       .                   push  af
 11CF  C5       .                   push  bc
-11D0  FC180F   ...                 call  m,0x0F18
+11D0  FC180F   ...                 call  m,FINDIV
 11D3  FAD011   ...                 jp    m,0x11D0
 11D6  C1       .                   pop   bc
 11D7  F1       .                   pop   af
@@ -3016,7 +3039,7 @@
 1241  F5       .                   push  af
 1242  18E1     ..                  jr    $-29
 1244  F1       .                   pop   af
-1245  CD180F   ...                 call  0x0F18
+1245  CD180F   ...                 call  FINDIV
 1248  F5       .                   push  af
 1249  CD4F12   .O.                 call  0x124F
 124C  F1       .                   pop   af
@@ -3055,7 +3078,7 @@
 1284  30FC     0.                  jr    nc,$-2
 1286  C605     ..                  add   a,0x05
 1288  4F       O                   ld    c,a
-1289  3AD878   :.x                 ld    a,(0x78D8)
+1289  3AD878   :.x                 ld    a,(FMT_FLAG)
 128C  E640     .@                  and   0x40
 128E  C0       .                   ret   nz
 128F  4F       O                   ld    c,a
@@ -4404,7 +4427,7 @@
 1A01  E5       .                   push  hl
 1A02  2AEA78   *.x                 ld    hl,(0x78EA)
 1A05  E3       .                   ex    (sp),hl
-1A06  CDA728   ..(                 call  0x28A7
+1A06  CDA728   ..(                 call  OUTSTR
 1A09  E1       .                   pop   hl
 1A0A  11FEFF   ...                 ld    de,0xFFFE
 1A0D  DF       .                   rst   0x18
@@ -4412,7 +4435,7 @@
 1A11  7C       |                   ld    a,h
 1A12  A5       .                   and   l
 1A13  3C       <                   inc   a
-1A14  C4A70F   ...                 call  nz,0x0FA7
+1A14  C4A70F   ...                 call  nz,INPRT
 1A17  3EC1     >.                  ld    a,0xC1
 1A19  CD8B03   ...                 call  OUTPUT_SCREEN_SELECT
 1A1C  CDAC79   ..y                 call  0x79AC
@@ -4421,7 +4444,7 @@
 1A21  00       .                   nop   
 1A22  CDF920   ..                  call  0x20F9
 1A25  212919   !).                 ld    hl,0x1929
-1A28  CDA728   ..(                 call  0x28A7
+1A28  CDA728   ..(                 call  OUTSTR
 1A2B  3A9A78   :.x                 ld    a,(0x789A)
 1A2E  D602     ..                  sub   0x02
 1A30  00       .                   nop   
@@ -4434,7 +4457,7 @@
 1A3D  283A     (:                  jr    z,$+60
 1A3F  2AE278   *.x                 ld    hl,(0x78E2)
 1A42  E5       .                   push  hl
-1A43  CDAF0F   ...                 call  0x0FAF
+1A43  CDAF0F   ...                 call  LINPRT
 1A46  3E20     >                   ld    a,0x20
 1A48  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH
 1A4B  D1       .                   pop   de
@@ -4905,7 +4928,7 @@
 1D4A  D5       .                   push  de
 1D4B  3E3C     ><                  ld    a,0x3C
 1D4D  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH
-1D50  CDAF0F   ...                 call  0x0FAF
+1D50  CDAF0F   ...                 call  LINPRT
 1D53  3E3E     >>                  ld    a,0x3E
 1D55  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH
 1D58  D1       .                   pop   de
@@ -5509,7 +5532,7 @@
 218C  CAA219   ...                 jp    z,0x19A2
 218F  C1       .                   pop   bc
 2190  217821   !x!                 ld    hl,0x2178
-2193  CDA728   ..(                 call  0x28A7
+2193  CDA728   ..(                 call  OUTSTR
 2196  2AE678   *.x                 ld    hl,(0x78E6)
 2199  C9       .                   ret   
 219A  CD2828   .((                 call  0x2828
@@ -5618,8 +5641,8 @@
 224F  F5       .                   push  af
 2250  014322   .C"                 ld    bc,0x2243
 2253  C5       .                   push  bc
-2254  DA6C0E   .l.                 jp    c,0x0E6C
-2257  D2650E   .e.                 jp    nc,0x0E65
+2254  DA6C0E   .l.                 jp    c,FIN
+2257  D2650E   .e.                 jp    nc,STR_TO_DOUBLE
 225A  2B       +                   dec   hl
 225B  D7       .                   rst   0x10
 225C  2805     (.                  jr    z,$+7
@@ -5643,7 +5666,7 @@
 2278  CDDF79   ..y                 call  0x79DF
 227B  B6       .                   or    (hl)
 227C  218622   !."                 ld    hl,0x2286
-227F  C4A728   ..(                 call  nz,0x28A7
+227F  C4A728   ..(                 call  nz,OUTSTR
 2282  E1       .                   pop   hl
 2283  C36921   .i!                 jp    0x2169
 2286  3F       ?                   ccf   
@@ -5780,14 +5803,14 @@
 2359  BA       .                   cp    d
 235A  57       W                   ld    d,a
 235B  DA9719   ...                 jp    c,0x1997
-235E  22D878   ".x                 ld    (0x78D8),hl
+235E  22D878   ".x                 ld    (FMT_FLAG),hl
 2361  D7       .                   rst   0x10
 2362  18E9     ..                  jr    $-21
 2364  7A       z                   ld    a,d
 2365  B7       .                   or    a
 2366  C2EC23   ..#                 jp    nz,0x23EC
 2369  7E       ~                   ld    a,(hl)
-236A  22D878   ".x                 ld    (0x78D8),hl
+236A  22D878   ".x                 ld    (FMT_FLAG),hl
 236D  D6CD     ..                  sub   0xCD
 236F  D8       .                   ret   c
 2370  FE07     ..                  cp    0x07
@@ -5851,7 +5874,7 @@
 23C9  C5       .                   push  bc
 23CA  010624   ..$                 ld    bc,0x2406
 23CD  C5       .                   push  bc
-23CE  2AD878   *.x                 ld    hl,(0x78D8)
+23CE  2AD878   *.x                 ld    hl,(FMT_FLAG)
 23D1  C33A23   .:#                 jp    0x233A
 23D4  CDB10A   ...                 call  FRCSNG
 23D7  CDA409   ...                 call  PUSHF
@@ -5962,13 +5985,13 @@
 249F  D7       .                   rst   0x10
 24A0  1E28     .(                  ld    e,0x28
 24A2  CAA219   ...                 jp    z,0x19A2
-24A5  DA6C0E   .l.                 jp    c,0x0E6C
+24A5  DA6C0E   .l.                 jp    c,FIN
 24A8  CD3D1E   .=.                 call  0x1E3D
 24AB  D24025   .@%                 jp    nc,0x2540
 24AE  FECD     ..                  cp    0xCD
 24B0  28ED     (.                  jr    z,$-17
 24B2  FE2E     ..                  cp    0x2E
-24B4  CA6C0E   .l.                 jp    z,0x0E6C
+24B4  CA6C0E   .l.                 jp    z,FIN
 24B7  FECE     ..                  cp    0xCE
 24B9  CA3225   .2%                 jp    z,0x2532
 24BC  FE22     ."                  cp    0x22
@@ -6395,7 +6418,7 @@
 274D  CD6319   .c.                 call  0x1963
 2750  23       #                   inc   hl
 2751  23       #                   inc   hl
-2752  22D878   ".x                 ld    (0x78D8),hl
+2752  22D878   ".x                 ld    (FMT_FLAG),hl
 2755  71       q                   ld    (hl),c
 2756  23       #                   inc   hl
 2757  3AAE78   :.x                 ld    a,(0x78AE)
@@ -6428,7 +6451,7 @@
 2780  20FA      .                  jr    nz,$-4
 2782  03       .                   inc   bc
 2783  57       W                   ld    d,a
-2784  2AD878   *.x                 ld    hl,(0x78D8)
+2784  2AD878   *.x                 ld    hl,(FMT_FLAG)
 2787  5E       ^                   ld    e,(hl)
 2788  EB       .                   ex    de,hl
 2789  29       )                   add   hl,hl
@@ -6688,7 +6711,7 @@
 2930  09       .                   add   hl,bc
 2931  FE03     ..                  cp    0x03
 2933  20EB      .                  jr    nz,$-19
-2935  22D878   ".x                 ld    (0x78D8),hl
+2935  22D878   ".x                 ld    (FMT_FLAG),hl
 2938  E1       .                   pop   hl
 2939  4E       N                   ld    c,(hl)
 293A  0600     ..                  ld    b,0x00
@@ -6696,7 +6719,7 @@
 293D  09       .                   add   hl,bc
 293E  23       #                   inc   hl
 293F  EB       .                   ex    de,hl
-2940  2AD878   *.x                 ld    hl,(0x78D8)
+2940  2AD878   *.x                 ld    hl,(FMT_FLAG)
 2943  EB       .                   ex    de,hl
 2944  DF       .                   rst   0x18
 2945  28DA     (.                  jr    z,$-36
@@ -6976,7 +6999,7 @@
 2AD5  E3       .                   ex    (sp),hl
 2AD6  C5       .                   push  bc
 2AD7  7E       ~                   ld    a,(hl)
-2AD8  CD650E   .e.                 call  0x0E65
+2AD8  CD650E   .e.                 call  STR_TO_DOUBLE
 2ADB  C1       .                   pop   bc
 2ADC  E1       .                   pop   hl
 2ADD  70       p                   ld    (hl),b
@@ -7055,7 +7078,7 @@
 2B59  C5       .                   push  bc
 2B5A  EB       .                   ex    de,hl
 2B5B  22EC78   ".x                 ld    (0x78EC),hl
-2B5E  CDAF0F   ...                 call  0x0FAF
+2B5E  CDAF0F   ...                 call  LINPRT
 2B61  3E20     >                   ld    a,0x20
 2B63  E1       .                   pop   hl
 2B64  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH
@@ -7132,7 +7155,7 @@
 2BD5  DF       .                   rst   0x18
 2BD6  D24A1E   .J.                 jp    nc,0x1E4A
 2BD9  212919   !).                 ld    hl,0x1929
-2BDC  CDA728   ..(                 call  0x28A7
+2BDC  CDA728   ..(                 call  OUTSTR
 2BDF  C1       .                   pop   bc
 2BE0  21E81A   !..                 ld    hl,0x1AE8
 2BE3  E3       .                   ex    (sp),hl
@@ -7449,8 +7472,8 @@
 2DC7  D24A1E   .J.                 jp    nc,0x1E4A
 2DCA  7A       z                   ld    a,d
 2DCB  F680     ..                  or    0x80
-2DCD  CDBE0F   ...                 call  0x0FBE
-2DD0  CDA728   ..(                 call  0x28A7
+2DCD  CDBE0F   ...                 call  PUFOUT
+2DD0  CDA728   ..(                 call  OUTSTR
 2DD3  E1       .                   pop   hl
 2DD4  2B       +                   dec   hl
 2DD5  D7       .                   rst   0x10
@@ -8659,7 +8682,7 @@
 36CB  2A1E78   *.x                 ld    hl,(0x781E)
 36CE  E9       .                   jp    (hl)
 36CF  212919   !).                 ld    hl,0x1929
-36D2  CDA728   ..(                 call  0x28A7
+36D2  CDA728   ..(                 call  OUTSTR
 36D5  2AA478   *.x                 ld    hl,(0x78A4)
 36D8  E5       .                   push  hl
 36D9  213978   !9x                 ld    hl,0x7839
@@ -8689,7 +8712,7 @@
 370E  C3811A   ...                 jp    0x1A81
 3711  214A38   !J8                 ld    hl,0x384A
 3714  FB       .                   ei    
-3715  CDA728   ..(                 call  0x28A7
+3715  CDA728   ..(                 call  OUTSTR
 3718  F3       .                   di    
 3719  3A4C78   :Lx                 ld    a,(0x784C)
 371C  B7       .                   or    a
@@ -8714,7 +8737,7 @@
 3746  BE       .                   cp    (hl)
 3747  2809     (.                  jr    z,$+11
 3749  216C37   !l7                 ld    hl,0x376C
-374C  CDA728   ..(                 call  0x28A7
+374C  CDA728   ..(                 call  OUTSTR
 374F  C38301   ...                 jp    0x0183
 3752  23       #                   inc   hl
 3753  0B       .                   dec   bc
@@ -8724,9 +8747,9 @@
 3758  213978   !9x                 ld    hl,0x7839
 375B  CB9E     ..                  res   3,(hl)
 375D  216C37   !l7                 ld    hl,0x376C
-3760  CDA728   ..(                 call  0x28A7
+3760  CDA728   ..(                 call  OUTSTR
 3763  218003   !..                 ld    hl,0x0380
-3766  CDA728   ..(                 call  0x28A7
+3766  CDA728   ..(                 call  OUTSTR
 3769  C3CF36   ..6                 jp    0x36CF
 376C  0D       .                   dec   c
 376D  56       V                   ld    d,(hl)
@@ -9884,7 +9907,7 @@
 3E50  C30205   ...                 jp    0x0502
 3E53  D8       .                   ret   c
 3E54  211A3E   !.>                 ld    hl,0x3E1A
-3E57  CDA728   ..(                 call  0x28A7
+3E57  CDA728   ..(                 call  OUTSTR
 3E5A  C3E303   ...                 jp    INPUT_LINE_READ
 3E5D  FE62     .b                  cp    0x62
 3E5F  2039      9                  jr    nz,$+59
