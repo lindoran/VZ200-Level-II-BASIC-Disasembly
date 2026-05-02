@@ -1,5 +1,23 @@
 # VZ200 BASIC ROM Disassembly Progress
 
+## Session: May 1, 2026 (Part 1)
+
+### Task
+Annotate the byte range 0x0D56 to 0x0E61 based on Gerhard Wolf's Laser 310 German ROM listing and cross-referenced with TRS-80 Level II BASIC sources.
+
+### Statistics
+- Total Annotations: 2,141
+- Total Symbols: 115
+
+### Work Completed
+- **Range:** 0x0D56 - 0x0E61 (Complement mantissa, Shift right, Shift X right, Shift area left, Double Precision Multiplication, Division by 10, Double Precision Division, DP Multi-purpose subroutine, DP Multiply by 10).
+- **Annotations:** Added block comments, labels, and inline comments in English. Routines documented include `DNEGR`, `DXSHFT`, `DLSHFT`, `DMULT`, `DDIV10`, `DDIV`, `DMULDV`, and `DMUL10`.
+- **Symbols added:** `DNEGR`, `DSHFR3`, `DSHFR4`, `DXSHFT`, `DLSHFT`, `DMULT`, `DDIV10`, `DDIV`, `DMULDV`, `DMUL10`.
+- **Bug Fix / Trick:** Handled the "JP C trick" at 0x0E11 (overlapping code) by defining it as a `DIRECT_BYTE` segment to allow proper annotation of the nested instructions at 0x0E12 and 0x0E13.
+- **Verification:**
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+  - `export.lst` verified to contain correct English inline comments for the range 0x0D56-0x0E61.
+
 ## Session: April 30, 2026 (Part 4)
 
 ### Task

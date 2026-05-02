@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Thu Apr 30 22:10:36 2026
+; Generated: Fri May  1 20:20:07 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -2284,14 +2284,14 @@ DADD_POS:
               ex    de,hl          ; HL = address exponent X
               inc   (hl)           ; exponent X + 1, overflow ?
               jp    z,0x07B2       ; yes, OVERFLOW - error
-              call  0x0D90         ; shift mantissa 1 bit right
+              call  DXSHFT         ; shift mantissa 1 bit right
               jp    DROUND_DP      ; continue at 0D0EH
 
 ; Add mantissas
 DADD_ADD:
               call  DADDAS         ; mantissa subtraction
               ld    hl,0x7925      ; address sign flag
-              call  c,0x0D57       ; underflow ? yes, complement mantissa X
+              call  c,DNEGR        ; underflow ? yes, complement mantissa X
 
 ; Double Precision Normalization
 ; DNORML: (defined in symbols.sym)
@@ -2319,7 +2319,7 @@ DNORM_SHIFT_LOOP:
 DNORM_BIT_LOOP:
               dec   b              ; shifts - 1
               ld    hl,0x791C      ; address LSB X
-              call  0x0D97         ; shift X left 1 bit
+              call  DLSHFT         ; shift X left 1 bit
               or    a              ; highest bit set?
               jp    p,DNORM_BIT_LOOP ; no, continue
               ld    a,b            ; number of shifts = 0 ?
@@ -2383,89 +2383,99 @@ DNORM_BIT_LOOP:
               dec   c              ; done?
               jr    nz,$-6         ; no, continue
               ret   
-              ld    a,(hl)
+
+; DOUBLE PRECISION MATH ROUTINE - \
+              ld    a,(hl)         ; complement sign flag
               cpl   
               ld    (hl),a
-              ld    hl,0x791C
-              ld    b,0x08
-              xor   a
-              ld    c,a
-              ld    a,c
-              sbc   a,(hl)
-              ld    (hl),a
-              inc   hl
-              dec   b
-              jr    nz,$-5
+              ld    hl,0x791C      ; Address of X LSB
+              ld    b,0x08         ; Byte counter = 8
+              xor   a              ; Clear carry
+              ld    c,a            ; C = 0
+              ld    a,c            ; A = 0
+              sbc   a,(hl)         ; Subtract byte from 0
+              ld    (hl),a         ; and store back
+              inc   hl             ; Address pointer + 1
+              dec   b              ; Done?
+              jr    nz,$-5         ; No, continue
               ret   
-              ld    (hl),c
-              push  hl
-              sub   0x08
-              jr    c,$+16
-              pop   hl
-              push  hl
-              ld    de,0x0800
-              ld    c,(hl)
-              ld    (hl),e
-              ld    e,c
-              dec   hl
-              dec   d
-              jr    nz,$-5
-              jr    $-16
-              add   a,0x09
-              ld    d,a
-              xor   a
-              pop   hl
-              dec   d
-              ret   z
-              push  hl
-              ld    e,0x08
-              ld    a,(hl)
-              rra   
-              ld    (hl),a
-              dec   hl
-              dec   e
-              jr    nz,$-5
-              jr    $-14
-              ld    hl,FAC_SIGN
-              ld    d,0x01
-              jr    $-17
-              ld    c,0x08
-              ld    a,(hl)
-              rla   
-              ld    (hl),a
-              inc   hl
-              dec   c
-              jr    nz,$-5
+
+; DOUBLE PRECISION MATH ROUTINE - \
+              ld    (hl),c         ; Store MSB
+              push  hl             ; MSB address on stack
+              sub   0x08           ; More than 8 shifts?
+              jr    c,$+16         ; No!
+              pop   hl             ; Address back from stack
+              push  hl             ; and back on stack
+              ld    de,0x0800      ; Byte counter = 8 (D), Clear temporary storage (E)
+              ld    c,(hl)         ; Load byte into C
+              ld    (hl),e         ; Enter last byte from temporary storage
+              ld    e,c            ; Byte from C into temporary storage
+              dec   hl             ; Address pointer - 1
+              dec   d              ; Byte counter - 1
+              jr    nz,$-5         ; Done? No, back
+              jr    $-16           ; Next byte shift
+              add   a,0x09         ; Bit shifts + 1
+              ld    d,a            ; in D
+              xor   a              ; Clear carry
+              pop   hl             ; Load address pointer from stack
+              dec   d              ; Another shift?
+              ret   z              ; No, done
+              push  hl             ; Save address pointer
+              ld    e,0x08         ; Byte counter = 8
+              ld    a,(hl)         ; Load byte
+              rra                  ; Shift 1 bit right
+              ld    (hl),a         ; and back to memory
+              dec   hl             ; Address pointer - 1
+              dec   e              ; Byte counter - 1
+              jr    nz,$-5         ; Done? No, back
+              jr    $-14           ; Next bit shift
+
+; Shift X Register Right by 1 Bit
+              ld    hl,FAC_SIGN    ; Address MSB of X
+              ld    d,0x01         ; Bit counter = 1
+              jr    $-17           ; Continue at 0D84H
+
+; Shift Memory Area Left by 1 Bit
+              ld    c,0x08         ; Byte counter = 8
+              ld    a,(hl)         ; Load byte
+              rla                  ; Shift left
+              ld    (hl),a         ; and back to memory
+              inc   hl             ; Address pointer + 1
+              dec   c              ; Byte counter - 1
+              jr    nz,$-5         ; Done? No, back
               ret   
-              call  SIGN
-              ret   z
-              call  0x090A
-              call  0x0E39
-              ld    (hl),c
-              inc   de
-              ld    b,0x07
-              ld    a,(de)
-              inc   de
-              or    a
-              push  de
-              jr    z,$+25
-              ld    c,0x08
-              push  bc
-              rra   
-              ld    b,a
-              call  c,DADDAA
-              call  0x0D90
-              ld    a,b
-              pop   bc
-              dec   c
-              jr    nz,$-12
-              pop   de
-              dec   b
-              jr    nz,$-24
-              jp    DNORML
-              ld    hl,FAC_SIGN
+
+; LEVEL II BASIC DOUBLE PRECISION MULTIPLICATION - \
+              call  SIGN           ; 1st factor = 0?
+              ret   z              ; Yes, done
+              call  0x090A         ; Process exponent and sign
+              call  DMULDV         ; Transfer mantissa of 1st factor from X to 414A-4150. Clear X.
+              ld    (hl),c         ; Clear LSB of X
+              inc   de             ; Address LSB of 1st factor
+              ld    b,0x07         ; Byte counter = 7
+              ld    a,(de)         ; Load byte from 1st factor
+              inc   de             ; Address pointer 1st factor + 1
+              or    a              ; Is it 0?
+              push  de             ; Address pointer on stack
+              jr    z,$+25         ; Byte is 0!
+              ld    c,0x08         ; Not 0, bit counter = 8
+              push  bc             ; Save bit counter
+              rra                  ; Next bit set?
+              ld    b,a            ; Transfer byte to B
+              call  c,DADDAA       ; Yes, add 2nd factor to X
+              call  DXSHFT         ; Rotate X one bit right
+              ld    a,b            ; Transfer byte from B back to A
+              pop   bc             ; Reload bit counter
+              dec   c              ; Byte finished processing?
+              jr    nz,$-12        ; No, next bit
+              pop   de             ; Reload address pointer
+              dec   b              ; All 7 bytes processed?
+              jr    nz,$-24        ; No, next byte
+              jp    DNORML         ; To normalization
+              ld    hl,FAC_SIGN    ; Shift result right by 1 byte
               call  0x0D70
-              jr    $-13
+              jr    $-13           ; Next byte
               nop   
               nop   
               nop   
@@ -2473,77 +2483,87 @@ DNORM_BIT_LOOP:
               nop   
               nop   
               jr    nz,$-122
-              ld    de,0x0DD4
-              ld    hl,FAC2
-              call  VMOVE
-              ld    a,(ARG_EXP)
+
+; Division by 10 with Double Precision
+              ld    de,0x0DD4      ; Load address of constant 10
+              ld    hl,FAC2        ; Load address of Y
+              call  VMOVE          ; Constant 10 in Y
+
+; LEVEL II BASIC DOUBLE PRECISION DIVISION - \
+              ld    a,(ARG_EXP)    ; Divisor = 0?
               or    a
-              jp    z,0x199A
-              call  MULDVS
-              inc   (hl)
-              inc   (hl)
-              call  0x0E39
-              ld    hl,0x7951
+              jp    z,0x199A       ; Yes, DIVISION BY ZERO error
+              call  MULDVS         ; Process sign and exponent
+              inc   (hl)           ; Exponent correction (+2)
+              inc   (hl)           ; (0907 results in Exp X - Exp Y - 1)
+              call  DMULDV         ; Dividend in area 414A-4150. Clear X for result
+              ld    hl,0x7951      ; Highest byte of dividend = 0
               ld    (hl),c
-              ld    b,c
-              ld    de,0x794A
-              ld    hl,FAC2
-              call  0x0D4B
-              ld    a,(de)
-              sbc   a,c
-              ccf   
-              jr    c,$+13
-              ld    de,0x794A
-              ld    hl,FAC2
-              call  0x0D39
-              xor   a
-              jp    c,0x0412
-              ld    a,(FAC_SIGN)
-              inc   a
+              ld    b,c            ; Clear flag
+              ld    de,0x794A      ; Address dividend
+              ld    hl,FAC2        ; Address divisor
+              call  0x0D4B         ; Dividend - divisor in dividend
+              ld    a,(de)         ; Load MSB of dividend
+              sbc   a,c            ; - Carry (C=0)
+              ccf                  ; Invert carry, underflow?
+              jr    c,$+13         ; No, shift 1 into result
+              ld    de,0x794A      ; Yes, undo subtraction
+              ld    hl,FAC2        ; DE=Dividend, HL=Divisor
+              call  0x0D39         ; Dividend + divisor in dividend
+              xor   a              ; Clear carry
+              DEFB  0xDA           ; Dummy instruction (JP C, 0x0412)
+              ld    (de),a         ; Store MSB of dividend
+              inc   b              ; Set flag
+              ld    a,(FAC_SIGN)   ; Load MSB of result
+              inc   a              ; Bit 7 set?
               dec   a
-              rra   
-              jp    m,0x0D11
-              rla   
-              ld    hl,0x791D
-              ld    c,0x07
-              call  0x0D99
-              ld    hl,0x794A
-              call  0x0D97
-              ld    a,b
+              rra                  ; Found bit in A(7) for rounding
+              jp    m,0x0D11       ; Done, to rounding
+              rla                  ; Shift bit back into carry
+              ld    hl,0x791D      ; Address LSB of result (X)
+              ld    c,0x07         ; Byte counter = 7
+              call  0x0D99         ; Rotate result left, shift in bit.
+              ld    hl,0x794A      ; Address of dividend
+              call  DLSHFT         ; Rotate dividend 1 bit left
+              ld    a,b            ; Flag set?
               or    a
-              jr    nz,$-53
-              ld    hl,FAC
-              dec   (hl)
-              jr    nz,$-59
-              jp    0x07B2
-              ld    a,c
+              jr    nz,$-53        ; Yes, continue
+              ld    hl,FAC         ; No, exponent of result - 1
+              dec   (hl)           ; Underflow?
+              jr    nz,$-59        ; No, continue
+              jp    0x07B2         ; Yes, OVERFLOW error
+
+; Subroutine for Double Precision Multiplication and Division
+              ld    a,c            ; MSB of Y in memory
               ld    (ARG),a
+              dec   hl             ; Load MSB of X address
+              ld    de,0x7950      ; Pointer to auxiliary register
+              ld    bc,0x0700      ; Transfer X to auxiliary register. Clear X, byte counter = 7
+              ld    a,(hl)         ; Load byte from X
+              ld    (de),a         ; in auxiliary register
+              ld    (hl),c         ; Clear byte in X
+              dec   de             ; Address pointer - 1
               dec   hl
-              ld    de,0x7950
-              ld    bc,0x0700
-              ld    a,(hl)
-              ld    (de),a
-              ld    (hl),c
-              dec   de
-              dec   hl
-              dec   b
-              jr    nz,$-6
+              dec   b              ; Byte counter - 1
+              jr    nz,$-6         ; Done? No, back
               ret   
-              call  VMOVAF
-              ex    de,hl
+
+; Double Precision Multiplication by 10
+              call  VMOVAF         ; Transfer X to Y
+              ex    de,hl          ; Load address of exponent X
               dec   hl
-              ld    a,(hl)
+              ld    a,(hl)         ; Factor in X = 0?
               or    a
-              ret   z
-              add   a,0x02
-              jp    c,0x07B2
-              ld    (hl),a
-              push  hl
-              call  DADD
-              pop   hl
-              inc   (hl)
-              ret   nz
-              jp    0x07B2
+              ret   z              ; Yes, result = 0
+              add   a,0x02         ; Exponent X + 2 (Factor * 4)
+              jp    c,0x07B2       ; Overflow? Yes, OVERFLOW error
+              ld    (hl),a         ; Store exponent back
+              push  hl             ; Address of exponent X on stack
+              call  DADD           ; X + Y to X (X = Factor * 5)
+              pop   hl             ; Address of exponent X from stack
+              inc   (hl)           ; Exponent X + 1 (X = Factor * 10)
+              ret   nz             ; Overflow? No, done
+              jp    0x07B2         ; Yes, OVERFLOW error
               call  0x0778
               call  VALDBL
               or    0xAF
@@ -2646,7 +2666,7 @@ DNORM_BIT_LOOP:
               push  af
               call  po,MUL10
               pop   af
-              call  pe,0x0E4D
+              call  pe,DMUL10
               pop   af
               dec   a
               ret   
@@ -2657,7 +2677,7 @@ DNORM_BIT_LOOP:
               push  af
               call  po,FDIV
               pop   af
-              call  pe,0x0DDC
+              call  pe,DDIV10
               pop   af
               pop   hl
               pop   de
@@ -2709,7 +2729,7 @@ DNORM_BIT_LOOP:
               call  0x0F89
               jr    $-33
               call  CONDS
-              call  0x0E4D
+              call  DMUL10
               call  VMOVAF
               pop   af
               call  FLOAT
@@ -3092,7 +3112,7 @@ DNORM_BIT_LOOP:
               ld    de,0x1364
               ld    hl,FAC2
               call  VMOVE
-              call  0x0DA1
+              call  DMULT
               pop   af
               sub   0x0A
               push  af

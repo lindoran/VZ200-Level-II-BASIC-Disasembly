@@ -289,6 +289,11 @@ offset = 3109
 end = 3109
 type = DATA_BYTE
 
+[region]
+offset = 3601
+end = 3601
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -7605,6 +7610,574 @@ text = done?
 offset = 3412
 text = no, continue
 
+[comment]
+offset = 3415
+text = complement sign flag
+
+[comment]
+offset = 3418
+text = Address of X LSB
+
+[comment]
+offset = 3421
+text = Byte counter = 8
+
+[comment]
+offset = 3423
+text = Clear carry
+
+[comment]
+offset = 3424
+text = C = 0
+
+[comment]
+offset = 3425
+text = A = 0
+
+[comment]
+offset = 3426
+text = Subtract byte from 0
+
+[comment]
+offset = 3427
+text = and store back
+
+[comment]
+offset = 3428
+text = Address pointer + 1
+
+[comment]
+offset = 3429
+text = Done?
+
+[comment]
+offset = 3430
+text = No, continue
+
+[comment]
+offset = 3433
+text = Store MSB
+
+[comment]
+offset = 3434
+text = MSB address on stack
+
+[comment]
+offset = 3435
+text = More than 8 shifts?
+
+[comment]
+offset = 3437
+text = No!
+
+[comment]
+offset = 3439
+text = Address back from stack
+
+[comment]
+offset = 3440
+text = and back on stack
+
+[comment]
+offset = 3441
+text = Byte counter = 8 (D), Clear temporary storage (E)
+
+[comment]
+offset = 3444
+text = Load byte into C
+
+[comment]
+offset = 3445
+text = Enter last byte from temporary storage
+
+[comment]
+offset = 3446
+text = Byte from C into temporary storage
+
+[comment]
+offset = 3447
+text = Address pointer - 1
+
+[comment]
+offset = 3448
+text = Byte counter - 1
+
+[comment]
+offset = 3449
+text = Done? No, back
+
+[comment]
+offset = 3451
+text = Next byte shift
+
+[comment]
+offset = 3453
+text = Bit shifts + 1
+
+[comment]
+offset = 3455
+text = in D
+
+[comment]
+offset = 3456
+text = Clear carry
+
+[comment]
+offset = 3457
+text = Load address pointer from stack
+
+[comment]
+offset = 3458
+text = Another shift?
+
+[comment]
+offset = 3459
+text = No, done
+
+[comment]
+offset = 3460
+text = Save address pointer
+
+[comment]
+offset = 3461
+text = Byte counter = 8
+
+[comment]
+offset = 3463
+text = Load byte
+
+[comment]
+offset = 3464
+text = Shift 1 bit right
+
+[comment]
+offset = 3465
+text = and back to memory
+
+[comment]
+offset = 3466
+text = Address pointer - 1
+
+[comment]
+offset = 3467
+text = Byte counter - 1
+
+[comment]
+offset = 3468
+text = Done? No, back
+
+[comment]
+offset = 3470
+text = Next bit shift
+
+[comment]
+offset = 3472
+text = Address MSB of X
+
+[comment]
+offset = 3475
+text = Bit counter = 1
+
+[comment]
+offset = 3477
+text = Continue at 0D84H
+
+[comment]
+offset = 3479
+text = Byte counter = 8
+
+[comment]
+offset = 3481
+text = Load byte
+
+[comment]
+offset = 3482
+text = Shift left
+
+[comment]
+offset = 3483
+text = and back to memory
+
+[comment]
+offset = 3484
+text = Address pointer + 1
+
+[comment]
+offset = 3485
+text = Byte counter - 1
+
+[comment]
+offset = 3486
+text = Done? No, back
+
+[comment]
+offset = 3489
+text = 1st factor = 0?
+
+[comment]
+offset = 3492
+text = Yes, done
+
+[comment]
+offset = 3493
+text = Process exponent and sign
+
+[comment]
+offset = 3496
+text = Transfer mantissa of 1st factor from X to 414A-4150. Clear X.
+
+[comment]
+offset = 3499
+text = Clear LSB of X
+
+[comment]
+offset = 3500
+text = Address LSB of 1st factor
+
+[comment]
+offset = 3501
+text = Byte counter = 7
+
+[comment]
+offset = 3503
+text = Load byte from 1st factor
+
+[comment]
+offset = 3504
+text = Address pointer 1st factor + 1
+
+[comment]
+offset = 3505
+text = Is it 0?
+
+[comment]
+offset = 3506
+text = Address pointer on stack
+
+[comment]
+offset = 3507
+text = Byte is 0!
+
+[comment]
+offset = 3509
+text = Not 0, bit counter = 8
+
+[comment]
+offset = 3511
+text = Save bit counter
+
+[comment]
+offset = 3512
+text = Next bit set?
+
+[comment]
+offset = 3513
+text = Transfer byte to B
+
+[comment]
+offset = 3514
+text = Yes, add 2nd factor to X
+
+[comment]
+offset = 3517
+text = Rotate X one bit right
+
+[comment]
+offset = 3520
+text = Transfer byte from B back to A
+
+[comment]
+offset = 3521
+text = Reload bit counter
+
+[comment]
+offset = 3522
+text = Byte finished processing?
+
+[comment]
+offset = 3523
+text = No, next bit
+
+[comment]
+offset = 3525
+text = Reload address pointer
+
+[comment]
+offset = 3526
+text = All 7 bytes processed?
+
+[comment]
+offset = 3527
+text = No, next byte
+
+[comment]
+offset = 3529
+text = To normalization
+
+[comment]
+offset = 3532
+text = Shift result right by 1 byte
+
+[comment]
+offset = 3538
+text = Next byte
+
+[comment]
+offset = 3548
+text = Load address of constant 10
+
+[comment]
+offset = 3551
+text = Load address of Y
+
+[comment]
+offset = 3554
+text = Constant 10 in Y
+
+[comment]
+offset = 3557
+text = Divisor = 0?
+
+[comment]
+offset = 3561
+text = Yes, DIVISION BY ZERO error
+
+[comment]
+offset = 3564
+text = Process sign and exponent
+
+[comment]
+offset = 3567
+text = Exponent correction (+2)
+
+[comment]
+offset = 3568
+text = (0907 results in Exp X - Exp Y - 1)
+
+[comment]
+offset = 3569
+text = Dividend in area 414A-4150. Clear X for result
+
+[comment]
+offset = 3572
+text = Highest byte of dividend = 0
+
+[comment]
+offset = 3576
+text = Clear flag
+
+[comment]
+offset = 3577
+text = Address dividend
+
+[comment]
+offset = 3580
+text = Address divisor
+
+[comment]
+offset = 3583
+text = Dividend - divisor in dividend
+
+[comment]
+offset = 3586
+text = Load MSB of dividend
+
+[comment]
+offset = 3587
+text = - Carry (C=0)
+
+[comment]
+offset = 3588
+text = Invert carry, underflow?
+
+[comment]
+offset = 3589
+text = No, shift 1 into result
+
+[comment]
+offset = 3591
+text = Yes, undo subtraction
+
+[comment]
+offset = 3594
+text = DE=Dividend, HL=Divisor
+
+[comment]
+offset = 3597
+text = Dividend + divisor in dividend
+
+[comment]
+offset = 3600
+text = Clear carry
+
+[comment]
+offset = 3601
+text = Dummy instruction (JP C, 0x0412)
+
+[comment]
+offset = 3602
+text = Store MSB of dividend
+
+[comment]
+offset = 3603
+text = Set flag
+
+[comment]
+offset = 3604
+text = Load MSB of result
+
+[comment]
+offset = 3607
+text = Bit 7 set?
+
+[comment]
+offset = 3609
+text = Found bit in A(7) for rounding
+
+[comment]
+offset = 3610
+text = Done, to rounding
+
+[comment]
+offset = 3613
+text = Shift bit back into carry
+
+[comment]
+offset = 3614
+text = Address LSB of result (X)
+
+[comment]
+offset = 3617
+text = Byte counter = 7
+
+[comment]
+offset = 3619
+text = Rotate result left, shift in bit.
+
+[comment]
+offset = 3622
+text = Address of dividend
+
+[comment]
+offset = 3625
+text = Rotate dividend 1 bit left
+
+[comment]
+offset = 3628
+text = Flag set?
+
+[comment]
+offset = 3630
+text = Yes, continue
+
+[comment]
+offset = 3632
+text = No, exponent of result - 1
+
+[comment]
+offset = 3635
+text = Underflow?
+
+[comment]
+offset = 3636
+text = No, continue
+
+[comment]
+offset = 3638
+text = Yes, OVERFLOW error
+
+[comment]
+offset = 3641
+text = MSB of Y in memory
+
+[comment]
+offset = 3645
+text = Load MSB of X address
+
+[comment]
+offset = 3646
+text = Pointer to auxiliary register
+
+[comment]
+offset = 3649
+text = Transfer X to auxiliary register. Clear X, byte counter = 7
+
+[comment]
+offset = 3652
+text = Load byte from X
+
+[comment]
+offset = 3653
+text = in auxiliary register
+
+[comment]
+offset = 3654
+text = Clear byte in X
+
+[comment]
+offset = 3655
+text = Address pointer - 1
+
+[comment]
+offset = 3657
+text = Byte counter - 1
+
+[comment]
+offset = 3658
+text = Done? No, back
+
+[comment]
+offset = 3661
+text = Transfer X to Y
+
+[comment]
+offset = 3664
+text = Load address of exponent X
+
+[comment]
+offset = 3666
+text = Factor in X = 0?
+
+[comment]
+offset = 3668
+text = Yes, result = 0
+
+[comment]
+offset = 3669
+text = Exponent X + 2 (Factor * 4)
+
+[comment]
+offset = 3671
+text = Overflow? Yes, OVERFLOW error
+
+[comment]
+offset = 3674
+text = Store exponent back
+
+[comment]
+offset = 3675
+text = Address of exponent X on stack
+
+[comment]
+offset = 3676
+text = X + Y to X (X = Factor * 5)
+
+[comment]
+offset = 3679
+text = Address of exponent X from stack
+
+[comment]
+offset = 3680
+text = Exponent X + 1 (X = Factor * 10)
+
+[comment]
+offset = 3681
+text = Overflow? No, done
+
+[comment]
+offset = 3682
+text = Yes, OVERFLOW error
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -8325,4 +8898,40 @@ text = Double Precision Mantissa Addition
 [block]
 offset = 3397
 text = Double Precision Mantissa Subtraction
+
+[block]
+offset = 3415
+text = DOUBLE PRECISION MATH ROUTINE - \
+
+[block]
+offset = 3433
+text = DOUBLE PRECISION MATH ROUTINE - \
+
+[block]
+offset = 3472
+text = Shift X Register Right by 1 Bit
+
+[block]
+offset = 3479
+text = Shift Memory Area Left by 1 Bit
+
+[block]
+offset = 3489
+text = LEVEL II BASIC DOUBLE PRECISION MULTIPLICATION - \
+
+[block]
+offset = 3548
+text = Division by 10 with Double Precision
+
+[block]
+offset = 3557
+text = LEVEL II BASIC DOUBLE PRECISION DIVISION - \
+
+[block]
+offset = 3641
+text = Subroutine for Double Precision Multiplication and Division
+
+[block]
+offset = 3661
+text = Double Precision Multiplication by 10
 

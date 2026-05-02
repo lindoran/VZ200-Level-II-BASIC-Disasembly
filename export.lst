@@ -2182,13 +2182,13 @@
 0CC4  EB       .                   ex    de,hl          ; HL = address exponent X
 0CC5  34       4                   inc   (hl)           ; exponent X + 1, overflow ?
 0CC6  CAB207   ...                 jp    z,0x07B2       ; yes, OVERFLOW - error
-0CC9  CD900D   ...                 call  0x0D90         ; shift mantissa 1 bit right
+0CC9  CD900D   ...                 call  DXSHFT         ; shift mantissa 1 bit right
 0CCC  C30E0D   ...                 jp    DROUND_DP      ; continue at 0D0EH
                      ; Add mantissas
                      DADD_ADD:
 0CCF  CD450D   .E.                 call  DADDAS         ; mantissa subtraction
 0CD2  212579   !%y                 ld    hl,0x7925      ; address sign flag
-0CD5  DC570D   .W.                 call  c,0x0D57       ; underflow ? yes, complement mantissa X
+0CD5  DC570D   .W.                 call  c,DNEGR        ; underflow ? yes, complement mantissa X
                      ; Double Precision Normalization
                      DNORML:
 0CD8  AF       .                   xor   a              ; shift counter = 0
@@ -2215,7 +2215,7 @@
                      DNORM_BIT_LOOP:
 0CF6  05       .                   dec   b              ; shifts - 1
 0CF7  211C79   !.y                 ld    hl,0x791C      ; address LSB X
-0CFA  CD970D   ...                 call  0x0D97         ; shift X left 1 bit
+0CFA  CD970D   ...                 call  DLSHFT         ; shift X left 1 bit
 0CFD  B7       .                   or    a              ; highest bit set?
 0CFE  F2F60C   ...                 jp    p,DNORM_BIT_LOOP ; no, continue
 0D01  78       x                   ld    a,b            ; number of shifts = 0 ?
@@ -2276,89 +2276,94 @@
 0D53  0D       .                   dec   c              ; done?
 0D54  20F8      .                  jr    nz,$-6         ; no, continue
 0D56  C9       .                   ret   
-0D57  7E       ~                   ld    a,(hl)
+                     ; DOUBLE PRECISION MATH ROUTINE - \
+0D57  7E       ~                   ld    a,(hl)         ; complement sign flag
 0D58  2F       /                   cpl   
 0D59  77       w                   ld    (hl),a
-0D5A  211C79   !.y                 ld    hl,0x791C
-0D5D  0608     ..                  ld    b,0x08
-0D5F  AF       .                   xor   a
-0D60  4F       O                   ld    c,a
-0D61  79       y                   ld    a,c
-0D62  9E       .                   sbc   a,(hl)
-0D63  77       w                   ld    (hl),a
-0D64  23       #                   inc   hl
-0D65  05       .                   dec   b
-0D66  20F9      .                  jr    nz,$-5
+0D5A  211C79   !.y                 ld    hl,0x791C      ; Address of X LSB
+0D5D  0608     ..                  ld    b,0x08         ; Byte counter = 8
+0D5F  AF       .                   xor   a              ; Clear carry
+0D60  4F       O                   ld    c,a            ; C = 0
+0D61  79       y                   ld    a,c            ; A = 0
+0D62  9E       .                   sbc   a,(hl)         ; Subtract byte from 0
+0D63  77       w                   ld    (hl),a         ; and store back
+0D64  23       #                   inc   hl             ; Address pointer + 1
+0D65  05       .                   dec   b              ; Done?
+0D66  20F9      .                  jr    nz,$-5         ; No, continue
 0D68  C9       .                   ret   
-0D69  71       q                   ld    (hl),c
-0D6A  E5       .                   push  hl
-0D6B  D608     ..                  sub   0x08
-0D6D  380E     8.                  jr    c,$+16
-0D6F  E1       .                   pop   hl
-0D70  E5       .                   push  hl
-0D71  110008   ...                 ld    de,0x0800
-0D74  4E       N                   ld    c,(hl)
-0D75  73       s                   ld    (hl),e
-0D76  59       Y                   ld    e,c
-0D77  2B       +                   dec   hl
-0D78  15       .                   dec   d
-0D79  20F9      .                  jr    nz,$-5
-0D7B  18EE     ..                  jr    $-16
-0D7D  C609     ..                  add   a,0x09
-0D7F  57       W                   ld    d,a
-0D80  AF       .                   xor   a
-0D81  E1       .                   pop   hl
-0D82  15       .                   dec   d
-0D83  C8       .                   ret   z
-0D84  E5       .                   push  hl
-0D85  1E08     ..                  ld    e,0x08
-0D87  7E       ~                   ld    a,(hl)
-0D88  1F       .                   rra   
-0D89  77       w                   ld    (hl),a
-0D8A  2B       +                   dec   hl
-0D8B  1D       .                   dec   e
-0D8C  20F9      .                  jr    nz,$-5
-0D8E  18F0     ..                  jr    $-14
-0D90  212379   !#y                 ld    hl,FAC_SIGN
-0D93  1601     ..                  ld    d,0x01
-0D95  18ED     ..                  jr    $-17
-0D97  0E08     ..                  ld    c,0x08
-0D99  7E       ~                   ld    a,(hl)
-0D9A  17       .                   rla   
-0D9B  77       w                   ld    (hl),a
-0D9C  23       #                   inc   hl
-0D9D  0D       .                   dec   c
-0D9E  20F9      .                  jr    nz,$-5
+                     ; DOUBLE PRECISION MATH ROUTINE - \
+0D69  71       q                   ld    (hl),c         ; Store MSB
+0D6A  E5       .                   push  hl             ; MSB address on stack
+0D6B  D608     ..                  sub   0x08           ; More than 8 shifts?
+0D6D  380E     8.                  jr    c,$+16         ; No!
+0D6F  E1       .                   pop   hl             ; Address back from stack
+0D70  E5       .                   push  hl             ; and back on stack
+0D71  110008   ...                 ld    de,0x0800      ; Byte counter = 8 (D), Clear temporary stor
+0D74  4E       N                   ld    c,(hl)         ; Load byte into C
+0D75  73       s                   ld    (hl),e         ; Enter last byte from temporary storage
+0D76  59       Y                   ld    e,c            ; Byte from C into temporary storage
+0D77  2B       +                   dec   hl             ; Address pointer - 1
+0D78  15       .                   dec   d              ; Byte counter - 1
+0D79  20F9      .                  jr    nz,$-5         ; Done? No, back
+0D7B  18EE     ..                  jr    $-16           ; Next byte shift
+0D7D  C609     ..                  add   a,0x09         ; Bit shifts + 1
+0D7F  57       W                   ld    d,a            ; in D
+0D80  AF       .                   xor   a              ; Clear carry
+0D81  E1       .                   pop   hl             ; Load address pointer from stack
+0D82  15       .                   dec   d              ; Another shift?
+0D83  C8       .                   ret   z              ; No, done
+0D84  E5       .                   push  hl             ; Save address pointer
+0D85  1E08     ..                  ld    e,0x08         ; Byte counter = 8
+0D87  7E       ~                   ld    a,(hl)         ; Load byte
+0D88  1F       .                   rra                  ; Shift 1 bit right
+0D89  77       w                   ld    (hl),a         ; and back to memory
+0D8A  2B       +                   dec   hl             ; Address pointer - 1
+0D8B  1D       .                   dec   e              ; Byte counter - 1
+0D8C  20F9      .                  jr    nz,$-5         ; Done? No, back
+0D8E  18F0     ..                  jr    $-14           ; Next bit shift
+                     ; Shift X Register Right by 1 Bit
+0D90  212379   !#y                 ld    hl,FAC_SIGN    ; Address MSB of X
+0D93  1601     ..                  ld    d,0x01         ; Bit counter = 1
+0D95  18ED     ..                  jr    $-17           ; Continue at 0D84H
+                     ; Shift Memory Area Left by 1 Bit
+0D97  0E08     ..                  ld    c,0x08         ; Byte counter = 8
+0D99  7E       ~                   ld    a,(hl)         ; Load byte
+0D9A  17       .                   rla                  ; Shift left
+0D9B  77       w                   ld    (hl),a         ; and back to memory
+0D9C  23       #                   inc   hl             ; Address pointer + 1
+0D9D  0D       .                   dec   c              ; Byte counter - 1
+0D9E  20F9      .                  jr    nz,$-5         ; Done? No, back
 0DA0  C9       .                   ret   
-0DA1  CD5509   .U.                 call  SIGN
-0DA4  C8       .                   ret   z
-0DA5  CD0A09   ...                 call  0x090A
-0DA8  CD390E   .9.                 call  0x0E39
-0DAB  71       q                   ld    (hl),c
-0DAC  13       .                   inc   de
-0DAD  0607     ..                  ld    b,0x07
-0DAF  1A       .                   ld    a,(de)
-0DB0  13       .                   inc   de
-0DB1  B7       .                   or    a
-0DB2  D5       .                   push  de
-0DB3  2817     (.                  jr    z,$+25
-0DB5  0E08     ..                  ld    c,0x08
-0DB7  C5       .                   push  bc
-0DB8  1F       .                   rra   
-0DB9  47       G                   ld    b,a
-0DBA  DC330D   .3.                 call  c,DADDAA
-0DBD  CD900D   ...                 call  0x0D90
-0DC0  78       x                   ld    a,b
-0DC1  C1       .                   pop   bc
-0DC2  0D       .                   dec   c
-0DC3  20F2      .                  jr    nz,$-12
-0DC5  D1       .                   pop   de
-0DC6  05       .                   dec   b
-0DC7  20E6      .                  jr    nz,$-24
-0DC9  C3D80C   ...                 jp    DNORML
-0DCC  212379   !#y                 ld    hl,FAC_SIGN
+                     ; LEVEL II BASIC DOUBLE PRECISION MULTIPLICATION - \
+0DA1  CD5509   .U.                 call  SIGN           ; 1st factor = 0?
+0DA4  C8       .                   ret   z              ; Yes, done
+0DA5  CD0A09   ...                 call  0x090A         ; Process exponent and sign
+0DA8  CD390E   .9.                 call  DMULDV         ; Transfer mantissa of 1st factor from X to 
+0DAB  71       q                   ld    (hl),c         ; Clear LSB of X
+0DAC  13       .                   inc   de             ; Address LSB of 1st factor
+0DAD  0607     ..                  ld    b,0x07         ; Byte counter = 7
+0DAF  1A       .                   ld    a,(de)         ; Load byte from 1st factor
+0DB0  13       .                   inc   de             ; Address pointer 1st factor + 1
+0DB1  B7       .                   or    a              ; Is it 0?
+0DB2  D5       .                   push  de             ; Address pointer on stack
+0DB3  2817     (.                  jr    z,$+25         ; Byte is 0!
+0DB5  0E08     ..                  ld    c,0x08         ; Not 0, bit counter = 8
+0DB7  C5       .                   push  bc             ; Save bit counter
+0DB8  1F       .                   rra                  ; Next bit set?
+0DB9  47       G                   ld    b,a            ; Transfer byte to B
+0DBA  DC330D   .3.                 call  c,DADDAA       ; Yes, add 2nd factor to X
+0DBD  CD900D   ...                 call  DXSHFT         ; Rotate X one bit right
+0DC0  78       x                   ld    a,b            ; Transfer byte from B back to A
+0DC1  C1       .                   pop   bc             ; Reload bit counter
+0DC2  0D       .                   dec   c              ; Byte finished processing?
+0DC3  20F2      .                  jr    nz,$-12        ; No, next bit
+0DC5  D1       .                   pop   de             ; Reload address pointer
+0DC6  05       .                   dec   b              ; All 7 bytes processed?
+0DC7  20E6      .                  jr    nz,$-24        ; No, next byte
+0DC9  C3D80C   ...                 jp    DNORML         ; To normalization
+0DCC  212379   !#y                 ld    hl,FAC_SIGN    ; Shift result right by 1 byte
 0DCF  CD700D   .p.                 call  0x0D70
-0DD2  18F1     ..                  jr    $-13
+0DD2  18F1     ..                  jr    $-13           ; Next byte
 0DD4  00       .                   nop   
 0DD5  00       .                   nop   
 0DD6  00       .                   nop   
@@ -2366,77 +2371,83 @@
 0DD8  00       .                   nop   
 0DD9  00       .                   nop   
 0DDA  2084      .                  jr    nz,$-122
-0DDC  11D40D   ...                 ld    de,0x0DD4
-0DDF  212779   !'y                 ld    hl,FAC2
-0DE2  CDD309   ...                 call  VMOVE
-0DE5  3A2E79   :.y                 ld    a,(ARG_EXP)
+                     ; Division by 10 with Double Precision
+0DDC  11D40D   ...                 ld    de,0x0DD4      ; Load address of constant 10
+0DDF  212779   !'y                 ld    hl,FAC2        ; Load address of Y
+0DE2  CDD309   ...                 call  VMOVE          ; Constant 10 in Y
+                     ; LEVEL II BASIC DOUBLE PRECISION DIVISION - \
+0DE5  3A2E79   :.y                 ld    a,(ARG_EXP)    ; Divisor = 0?
 0DE8  B7       .                   or    a
-0DE9  CA9A19   ...                 jp    z,0x199A
-0DEC  CD0709   ...                 call  MULDVS
-0DEF  34       4                   inc   (hl)
-0DF0  34       4                   inc   (hl)
-0DF1  CD390E   .9.                 call  0x0E39
-0DF4  215179   !Qy                 ld    hl,0x7951
+0DE9  CA9A19   ...                 jp    z,0x199A       ; Yes, DIVISION BY ZERO error
+0DEC  CD0709   ...                 call  MULDVS         ; Process sign and exponent
+0DEF  34       4                   inc   (hl)           ; Exponent correction (+2)
+0DF0  34       4                   inc   (hl)           ; (0907 results in Exp X - Exp Y - 1)
+0DF1  CD390E   .9.                 call  DMULDV         ; Dividend in area 414A-4150. Clear X for re
+0DF4  215179   !Qy                 ld    hl,0x7951      ; Highest byte of dividend = 0
 0DF7  71       q                   ld    (hl),c
-0DF8  41       A                   ld    b,c
-0DF9  114A79   .Jy                 ld    de,0x794A
-0DFC  212779   !'y                 ld    hl,FAC2
-0DFF  CD4B0D   .K.                 call  0x0D4B
-0E02  1A       .                   ld    a,(de)
-0E03  99       .                   sbc   a,c
-0E04  3F       ?                   ccf   
-0E05  380B     8.                  jr    c,$+13
-0E07  114A79   .Jy                 ld    de,0x794A
-0E0A  212779   !'y                 ld    hl,FAC2
-0E0D  CD390D   .9.                 call  0x0D39
-0E10  AF       .                   xor   a
-0E11  DA1204   ...                 jp    c,0x0412
-0E14  3A2379   :#y                 ld    a,(FAC_SIGN)
-0E17  3C       <                   inc   a
+0DF8  41       A                   ld    b,c            ; Clear flag
+0DF9  114A79   .Jy                 ld    de,0x794A      ; Address dividend
+0DFC  212779   !'y                 ld    hl,FAC2        ; Address divisor
+0DFF  CD4B0D   .K.                 call  0x0D4B         ; Dividend - divisor in dividend
+0E02  1A       .                   ld    a,(de)         ; Load MSB of dividend
+0E03  99       .                   sbc   a,c            ; - Carry (C=0)
+0E04  3F       ?                   ccf                  ; Invert carry, underflow?
+0E05  380B     8.                  jr    c,$+13         ; No, shift 1 into result
+0E07  114A79   .Jy                 ld    de,0x794A      ; Yes, undo subtraction
+0E0A  212779   !'y                 ld    hl,FAC2        ; DE=Dividend, HL=Divisor
+0E0D  CD390D   .9.                 call  0x0D39         ; Dividend + divisor in dividend
+0E10  AF       .                   xor   a              ; Clear carry
+0E11  DA       .                   DEFB  0xDA           ; Dummy instruction (JP C, 0x0412)
+0E12  12       .                   ld    (de),a         ; Store MSB of dividend
+0E13  04       .                   inc   b              ; Set flag
+0E14  3A2379   :#y                 ld    a,(FAC_SIGN)   ; Load MSB of result
+0E17  3C       <                   inc   a              ; Bit 7 set?
 0E18  3D       =                   dec   a
-0E19  1F       .                   rra   
-0E1A  FA110D   ...                 jp    m,0x0D11
-0E1D  17       .                   rla   
-0E1E  211D79   !.y                 ld    hl,0x791D
-0E21  0E07     ..                  ld    c,0x07
-0E23  CD990D   ...                 call  0x0D99
-0E26  214A79   !Jy                 ld    hl,0x794A
-0E29  CD970D   ...                 call  0x0D97
-0E2C  78       x                   ld    a,b
+0E19  1F       .                   rra                  ; Found bit in A(7) for rounding
+0E1A  FA110D   ...                 jp    m,0x0D11       ; Done, to rounding
+0E1D  17       .                   rla                  ; Shift bit back into carry
+0E1E  211D79   !.y                 ld    hl,0x791D      ; Address LSB of result (X)
+0E21  0E07     ..                  ld    c,0x07         ; Byte counter = 7
+0E23  CD990D   ...                 call  0x0D99         ; Rotate result left, shift in bit.
+0E26  214A79   !Jy                 ld    hl,0x794A      ; Address of dividend
+0E29  CD970D   ...                 call  DLSHFT         ; Rotate dividend 1 bit left
+0E2C  78       x                   ld    a,b            ; Flag set?
 0E2D  B7       .                   or    a
-0E2E  20C9      .                  jr    nz,$-53
-0E30  212479   !$y                 ld    hl,FAC
-0E33  35       5                   dec   (hl)
-0E34  20C3      .                  jr    nz,$-59
-0E36  C3B207   ...                 jp    0x07B2
-0E39  79       y                   ld    a,c
+0E2E  20C9      .                  jr    nz,$-53        ; Yes, continue
+0E30  212479   !$y                 ld    hl,FAC         ; No, exponent of result - 1
+0E33  35       5                   dec   (hl)           ; Underflow?
+0E34  20C3      .                  jr    nz,$-59        ; No, continue
+0E36  C3B207   ...                 jp    0x07B2         ; Yes, OVERFLOW error
+                     ; Subroutine for Double Precision Multiplication and Division
+0E39  79       y                   ld    a,c            ; MSB of Y in memory
 0E3A  322D79   2-y                 ld    (ARG),a
-0E3D  2B       +                   dec   hl
-0E3E  115079   .Py                 ld    de,0x7950
-0E41  010007   ...                 ld    bc,0x0700
-0E44  7E       ~                   ld    a,(hl)
-0E45  12       .                   ld    (de),a
-0E46  71       q                   ld    (hl),c
-0E47  1B       .                   dec   de
+0E3D  2B       +                   dec   hl             ; Load MSB of X address
+0E3E  115079   .Py                 ld    de,0x7950      ; Pointer to auxiliary register
+0E41  010007   ...                 ld    bc,0x0700      ; Transfer X to auxiliary register. Clear X,
+0E44  7E       ~                   ld    a,(hl)         ; Load byte from X
+0E45  12       .                   ld    (de),a         ; in auxiliary register
+0E46  71       q                   ld    (hl),c         ; Clear byte in X
+0E47  1B       .                   dec   de             ; Address pointer - 1
 0E48  2B       +                   dec   hl
-0E49  05       .                   dec   b
-0E4A  20F8      .                  jr    nz,$-6
+0E49  05       .                   dec   b              ; Byte counter - 1
+0E4A  20F8      .                  jr    nz,$-6         ; Done? No, back
 0E4C  C9       .                   ret   
-0E4D  CDFC09   ...                 call  VMOVAF
-0E50  EB       .                   ex    de,hl
+                     ; Double Precision Multiplication by 10
+0E4D  CDFC09   ...                 call  VMOVAF         ; Transfer X to Y
+0E50  EB       .                   ex    de,hl          ; Load address of exponent X
 0E51  2B       +                   dec   hl
-0E52  7E       ~                   ld    a,(hl)
+0E52  7E       ~                   ld    a,(hl)         ; Factor in X = 0?
 0E53  B7       .                   or    a
-0E54  C8       .                   ret   z
-0E55  C602     ..                  add   a,0x02
-0E57  DAB207   ...                 jp    c,0x07B2
-0E5A  77       w                   ld    (hl),a
-0E5B  E5       .                   push  hl
-0E5C  CD770C   .w.                 call  DADD
-0E5F  E1       .                   pop   hl
-0E60  34       4                   inc   (hl)
-0E61  C0       .                   ret   nz
-0E62  C3B207   ...                 jp    0x07B2
+0E54  C8       .                   ret   z              ; Yes, result = 0
+0E55  C602     ..                  add   a,0x02         ; Exponent X + 2 (Factor * 4)
+0E57  DAB207   ...                 jp    c,0x07B2       ; Overflow? Yes, OVERFLOW error
+0E5A  77       w                   ld    (hl),a         ; Store exponent back
+0E5B  E5       .                   push  hl             ; Address of exponent X on stack
+0E5C  CD770C   .w.                 call  DADD           ; X + Y to X (X = Factor * 5)
+0E5F  E1       .                   pop   hl             ; Address of exponent X from stack
+0E60  34       4                   inc   (hl)           ; Exponent X + 1 (X = Factor * 10)
+0E61  C0       .                   ret   nz             ; Overflow? No, done
+0E62  C3B207   ...                 jp    0x07B2         ; Yes, OVERFLOW error
 0E65  CD7807   .x.                 call  0x0778
 0E68  CDEC0A   ...                 call  VALDBL
 0E6B  F6AF     ..                  or    0xAF
@@ -2539,7 +2550,7 @@
 0F0D  F5       .                   push  af
 0F0E  E43E09   .>.                 call  po,MUL10
 0F11  F1       .                   pop   af
-0F12  EC4D0E   .M.                 call  pe,0x0E4D
+0F12  EC4D0E   .M.                 call  pe,DMUL10
 0F15  F1       .                   pop   af
 0F16  3D       =                   dec   a
 0F17  C9       .                   ret   
@@ -2550,7 +2561,7 @@
 0F1C  F5       .                   push  af
 0F1D  E49708   ...                 call  po,FDIV
 0F20  F1       .                   pop   af
-0F21  ECDC0D   ...                 call  pe,0x0DDC
+0F21  ECDC0D   ...                 call  pe,DDIV10
 0F24  F1       .                   pop   af
 0F25  E1       .                   pop   hl
 0F26  D1       .                   pop   de
@@ -2602,7 +2613,7 @@
 0F6F  CD890F   ...                 call  0x0F89
 0F72  18DD     ..                  jr    $-33
 0F74  CDE30A   ...                 call  CONDS
-0F77  CD4D0E   .M.                 call  0x0E4D
+0F77  CD4D0E   .M.                 call  DMUL10
 0F7A  CDFC09   ...                 call  VMOVAF
 0F7D  F1       .                   pop   af
 0F7E  CD6409   .d.                 call  FLOAT
@@ -2985,7 +2996,7 @@
 1210  116413   .d.                 ld    de,0x1364
 1213  212779   !'y                 ld    hl,FAC2
 1216  CDD309   ...                 call  VMOVE
-1219  CDA10D   ...                 call  0x0DA1
+1219  CDA10D   ...                 call  DMULT
 121C  F1       .                   pop   af
 121D  D60A     ..                  sub   0x0A
 121F  F5       .                   push  af
