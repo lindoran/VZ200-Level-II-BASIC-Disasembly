@@ -304,6 +304,11 @@ offset = 4001
 end = 4001
 type = DATA_BYTE
 
+[region]
+offset = 4344
+end = 4344
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -9148,6 +9153,566 @@ text = buffer pointer before number
 offset = 4146
 text = sign before number
 
+[comment]
+offset = 4148
+text = Save format flag
+
+[comment]
+offset = 4151
+text = Address start of buffer
+
+[comment]
+offset = 4154
+text = Space at start of buffer
+
+[comment]
+offset = 4156
+text = Return
+
+[comment]
+offset = 4157
+text = Determine number of places
+
+[comment]
+offset = 4159
+text = Buffer pointer on stack
+
+[comment]
+offset = 4160
+text = Type - Carry in A
+
+[comment]
+offset = 4162
+text = * 2 = number of places
+
+[comment]
+offset = 4163
+text = Number of places in D
+
+[comment]
+offset = 4164
+text = + 1
+
+[comment]
+offset = 4165
+text = Determine power of 10 exponent
+
+[comment]
+offset = 4168
+text = Set parameters for '.' and ','
+
+[comment]
+offset = 4171
+text = Exponent + 2 >= 0?
+
+[comment]
+offset = 4172
+text = no, exponent in buffer
+
+[comment]
+offset = 4175
+text = Number of places + 2 in D
+
+[comment]
+offset = 4176
+text = Exponent < number of places?
+
+[comment]
+offset = 4177
+text = no, exponent in buffer
+
+[comment]
+offset = 4179
+text = yes, exponent + 3 = decimal point
+
+[comment]
+offset = 4180
+text = B = exponent + 3
+
+[comment]
+offset = 4181
+text = no exponent is output
+
+[comment]
+offset = 4183
+text = Exponent - 2 in A
+
+[comment]
+offset = 4185
+text = Reload buffer pointer
+
+[comment]
+offset = 4186
+text = Exponent on stack
+
+[comment]
+offset = 4187
+text = Set '.' and ','
+
+[comment]
+offset = 4190
+text = '0' in buffer
+
+[comment]
+offset = 4192
+text = '.' set? yes, buffer pointer + 1
+
+[comment]
+offset = 4195
+text = Convert mantissa to string
+
+[comment]
+offset = 4198
+text = Buffer pointer - 1
+
+[comment]
+offset = 4199
+text = Load character
+
+[comment]
+offset = 4200
+text = = '0'?
+
+[comment]
+offset = 4202
+text = yes, continue
+
+[comment]
+offset = 4204
+text = '.' before the last zero?
+
+[comment]
+offset = 4206
+text = no! buffer pointer + 1
+
+[comment]
+offset = 4209
+text = Load exponent. = 0?
+
+[comment]
+offset = 4210
+text = yes, no exponent in buffer
+
+[comment]
+offset = 4212
+text = Exponent back on stack
+
+[comment]
+offset = 4213
+text = Test type, Carry=1 for single precision
+
+[comment]
+offset = 4214
+text = Load 'D' / 2
+
+[comment]
+offset = 4216
+text = Exp. identifier = 'D' or 'E'
+
+[comment]
+offset = 4217
+text = Enter in buffer
+
+[comment]
+offset = 4218
+text = Buffer pointer + 1
+
+[comment]
+offset = 4219
+text = Load exponent. < 0?
+
+[comment]
+offset = 4220
+text = '+' in buffer
+
+[comment]
+offset = 4222
+text = Exponent > 0!
+
+[comment]
+offset = 4225
+text = '-' in buffer
+
+[comment]
+offset = 4227
+text = Remove sign
+
+[comment]
+offset = 4228
+text = Increment A
+
+[comment]
+offset = 4229
+text = Digit = '0' - 1
+
+[comment]
+offset = 4231
+text = Digit + 1 (yields 1st digit)
+
+[comment]
+offset = 4232
+text = Exponent - 10 = underflow?
+
+[comment]
+offset = 4234
+text = no, continue
+
+[comment]
+offset = 4236
+text = yes, undo last subtraction. + '0' yields 2nd digit
+
+[comment]
+offset = 4238
+text = Buffer pointer + 1
+
+[comment]
+offset = 4239
+text = 1st digit in buffer
+
+[comment]
+offset = 4240
+text = Buffer pointer + 1 in buffer
+
+[comment]
+offset = 4241
+text = 2nd digit in buffer
+
+[comment]
+offset = 4242
+text = Buffer pointer + 1
+
+[comment]
+offset = 4243
+text = End marker in buffer
+
+[comment]
+offset = 4245
+text = Buffer end address in DE
+
+[comment]
+offset = 4246
+text = Buffer start address in HL
+
+[comment]
+offset = 4249
+text = done !!!
+
+[comment]
+offset = 4250
+text = Buffer pointer + 1
+
+[comment]
+offset = 4251
+text = Length parameters on stack
+
+[comment]
+offset = 4252
+text = Single or double precision?
+
+[comment]
+offset = 4254
+text = Format flag in A
+
+[comment]
+offset = 4255
+text = yes!
+
+[comment]
+offset = 4258
+text = Exponent output? (Bit 0)
+
+[comment]
+offset = 4259
+text = yes!
+
+[comment]
+offset = 4262
+text = Parameters for '.' and ','
+
+[comment]
+offset = 4265
+text = no ',' output?
+
+[comment]
+offset = 4268
+text = Load length parameter into DE
+
+[comment]
+offset = 4269
+text = Pre-decimal places - 5 >= 0?
+
+[comment]
+offset = 4272
+text = output corresponding number of zeros
+
+[comment]
+offset = 4275
+text = Convert number to string
+
+[comment]
+offset = 4278
+text = no post-decimal places?
+
+[comment]
+offset = 4279
+text = OR A
+
+[comment]
+offset = 4280
+text = yes, delete '.' in buffer
+
+[comment]
+offset = 4283
+text = Post-decimal places - 1 > 0?
+
+[comment]
+offset = 4284
+text = output corresponding number of zeros
+
+[comment]
+offset = 4287
+text = Buffer pointer on stack
+
+[comment]
+offset = 4288
+text = Process remaining format specifications
+
+[comment]
+offset = 4291
+text = Reload buffer pointer
+
+[comment]
+offset = 4292
+text = Sign behind number?
+
+[comment]
+offset = 4294
+text = Set sign behind number
+
+[comment]
+offset = 4295
+text = Buffer pointer + 1
+
+[comment]
+offset = 4296
+text = Mark end of line with X'00'
+
+[comment]
+offset = 4298
+text = Load address before buffer
+
+[comment]
+offset = 4301
+text = Buffer address + 1
+
+[comment]
+offset = 4302
+text = LSB '.'-position
+
+[comment]
+offset = 4305
+text = SUB L
+
+[comment]
+offset = 4306
+text = - pre-decimal places = 0?
+
+[comment]
+offset = 4307
+text = yes, done
+
+[comment]
+offset = 4308
+text = Load character
+
+[comment]
+offset = 4309
+text = = ' '?
+
+[comment]
+offset = 4311
+text = yes, continue
+
+[comment]
+offset = 4313
+text = = '*'?
+
+[comment]
+offset = 4315
+text = yes, continue
+
+[comment]
+offset = 4317
+text = Buffer pointer - 1
+
+[comment]
+offset = 4318
+text = and onto stack
+
+[comment]
+offset = 4319
+text = Character + flag on stack
+
+[comment]
+offset = 4320
+text = Set return address
+
+[comment]
+offset = 4323
+text = PUSH BC
+
+[comment]
+offset = 4324
+text = next character
+
+[comment]
+offset = 4325
+text = = '-'?
+
+[comment]
+offset = 4327
+text = yes, continue
+
+[comment]
+offset = 4328
+text = = '+'?
+
+[comment]
+offset = 4330
+text = yes, continue
+
+[comment]
+offset = 4331
+text = = '$'?
+
+[comment]
+offset = 4333
+text = yes, continue
+
+[comment]
+offset = 4334
+text = Remove return address again
+
+[comment]
+offset = 4335
+text = = '0'?
+
+[comment]
+offset = 4337
+text = no, field overflow
+
+[comment]
+offset = 4339
+text = Buffer pointer + 1 (behind '.')
+
+[comment]
+offset = 4340
+text = next character. = digit?
+
+[comment]
+offset = 4341
+text = no, field overflow
+
+[comment]
+offset = 4343
+text = Buffer pointer to '.'
+
+[comment]
+offset = 4344
+text = LD BC,772B Dummy instruction
+
+[comment]
+offset = 4347
+text = Get character from stack
+
+[comment]
+offset = 4348
+text = last character? no-to 10F9H
+
+[comment]
+offset = 4350
+text = Get buffer pointer from stack
+
+[comment]
+offset = 4351
+text = continue at 10CEH
+
+[comment]
+offset = 4354
+text = Get character from stack
+
+[comment]
+offset = 4355
+text = last character?
+
+[comment]
+offset = 4357
+text = Reload buffer pointer
+
+[comment]
+offset = 4358
+text = '%' for field overflow before number
+
+[comment]
+offset = 4360
+text = Return
+
+[comment]
+offset = 4361
+text = Buffer pointer on stack
+
+[comment]
+offset = 4362
+text = Exponent output?
+
+[comment]
+offset = 4363
+text = yes!
+
+[comment]
+offset = 4366
+text = for single precision => jump
+
+[comment]
+offset = 4368
+text = Address constant 1D16
+
+[comment]
+offset = 4371
+text = Value >= 1D16?
+
+[comment]
+offset = 4374
+text = Precision (16 places) in D
+
+[comment]
+offset = 4376
+text = Value < 1D16!
+
+[comment]
+offset = 4379
+text = Reload buffer pointer
+
+[comment]
+offset = 4380
+text = Load length parameter
+
+[comment]
+offset = 4381
+text = Generate unformatted string
+
+[comment]
+offset = 4384
+text = Buffer pointer - 1
+
+[comment]
+offset = 4385
+text = '%' for field overflow before string
+
+[comment]
+offset = 4387
+text = Return
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -9985,4 +10550,32 @@ text = Convert integer to string
 [block]
 offset = 4085
 text = Process format-flag bits 2-5
+
+[block]
+offset = 4157
+text = Convert single or double precision unformatted into string
+
+[block]
+offset = 4250
+text = Generate formatted string
+
+[block]
+offset = 4258
+text = Convert integer to string
+
+[block]
+offset = 4288
+text = Remaining formatting. Establish correct field length
+
+[block]
+offset = 4354
+text = Field overflow
+
+[block]
+offset = 4361
+text = Generate formatted string of single or double precision numbers
+
+[block]
+offset = 4379
+text = Field overflow
 

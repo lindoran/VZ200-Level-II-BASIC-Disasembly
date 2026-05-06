@@ -1,5 +1,23 @@
 # VZ200 BASIC ROM Disassembly Progress
 
+## Session: May 5, 2026
+
+### Task
+Annotate the byte range 0x1033 to 0x1123 based on Gerhard Wolf's Laser 310 German ROM listing and cross-referenced with TRS-80 Level II BASIC sources.
+
+### Statistics
+- Total Annotations: 2,184
+- Total Symbols: 167
+
+### Work Completed
+- **Range:** 0x1033 - 0x1123 (Buffer initialization, unformatted string conversion for single/double precision, formatted string generation, integer to string conversion, field length handling, and overflow management).
+- **Annotations:** Added block comments, labels, and inline comments in English. Routines documented include `FOUINI`, `FOUFRV`, `PUSTR_FORM`, `PUSTR_INT`, `PUSTR_REST`, `PUSTR_LOOP`, `PUSTR_OVERFLOW`, `PUSTR_VAL`, and `PUSTR_OVERFLOW_STR`.
+- **Symbols added:** `GET_10_EXP`, `SET_DOT_COMMA`, `FAC_TO_STR`, `PUT_ZEROS`, `PUSTR_INT_SUB`, `PUSTR_UNFORM_INIT`, `PUSTR_FORM`, `PUSTR_INT`, `PUSTR_REST`, `PUSTR_LOOP`, `PUSTR_OVERFLOW`, `PUSTR_VAL`, `PUSTR_OVERFLOW_STR`, `PUSTR_SINGLE`, `FOUFRV_END`, `FOUFRV_POS`, `PUSTR_EXP`, `PUSTR_LOOP_CONT`, `PUSTR_LOOP_NEXT`, `PUSTR_STACK_CHAR`.
+- **Bug Fix / Trick:** Handled the "LD BC trick" at 0x10F8 (overlapping code) by defining it as a `DIRECT_BYTE` segment in `segments.map`. This enabled proper disassembly and annotation of the `DEC HL` and `LD (HL),A` instructions at 0x10F9 and 0x10FA.
+- **Verification:**
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+  - `export.lst` verified to contain correct English inline comments for the range 0x1033-0x1123.
+
 ## Session: May 1, 2026 (Part 2)
 
 ### Task

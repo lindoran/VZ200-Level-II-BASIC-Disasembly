@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Fri May  1 21:38:40 2026
+; Generated: Tue May  5 23:12:35 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -2824,14 +2824,14 @@ DNORM_BIT_LOOP:
               ld    d,a
               rla                  ; execute formatting?
               ld    a,(VALTYP)     ; load type
-              jp    c,0x109A       ; yes!
+              jp    c,PUSTR_FORM   ; yes!
               jp    z,0x1092       ; Value = 0, done
               cp    0x04           ; single or double precision?
               jp    nc,FOUFRV      ; yes!
 
 ; Convert integer to string
               ld    bc,START       ; delete parameter for '.' and ','
-              call  0x132F         ; generate string
+              call  PUSTR_INT_SUB  ; generate string
 
 ; Process format-flag bits 2-5
               ld    hl,FBUFFR      ; buffer pointer on start
@@ -2872,154 +2872,170 @@ DNORM_BIT_LOOP:
               dec   hl             ; buffer pointer before number
               ld    (hl),b         ; sign before number
               ret   
-              ld    (FMT_FLAG),a
-              ld    hl,FBUFFR
-              ld    (hl),0x20
-              ret   
-              cp    0x05
-              push  hl
-              sbc   a,0x00
-              rla   
-              ld    d,a
-              inc   d
-              call  0x1201
-              ld    bc,0x0300
-              add   a,d
-              jp    m,0x1057
-              inc   d
-              cp    d
-              jr    nc,$+6
-              inc   a
-              ld    b,a
-              ld    a,0x02
-              sub   0x02
-              pop   hl
-              push  af
-              call  0x1291
-              ld    (hl),0x30
-              call  z,INXHRT
-              call  0x12A4
-              dec   hl
-              ld    a,(hl)
-              cp    0x30
-              jr    z,$-4
-              cp    0x2E
-              call  nz,INXHRT
-              pop   af
-              jr    z,$+33
-              push  af
-              rst   0x20
-              ld    a,0x22
-              adc   a,a
-              ld    (hl),a
-              inc   hl
-              pop   af
-              ld    (hl),0x2B
-              jp    p,0x1085
-              ld    (hl),0x2D
-              cpl   
-              inc   a
-              ld    b,0x2F
-              inc   b
-              sub   0x0A
-              jr    nc,$-3
-              add   a,0x3A
-              inc   hl
-              ld    (hl),b
-              inc   hl
-              ld    (hl),a
-              inc   hl
-              ld    (hl),0x00
-              ex    de,hl
-              ld    hl,FBUFFR
-              ret   
-              inc   hl
-              push  bc
-              cp    0x04
-              ld    a,d
-              jp    nc,0x1109
-              rra   
-              jp    c,0x11A3
-              ld    bc,0x0603
-              call  0x1289
-              pop   de
-              ld    a,d
+              ld    (FMT_FLAG),a   ; Save format flag
+              ld    hl,FBUFFR      ; Address start of buffer
+              ld    (hl),0x20      ; Space at start of buffer
+              ret                  ; Return
+
+; Convert single or double precision unformatted into string
+              cp    0x05           ; Determine number of places
+              push  hl             ; Buffer pointer on stack
+              sbc   a,0x00         ; Type - Carry in A
+              rla                  ; * 2 = number of places
+              ld    d,a            ; Number of places in D
+              inc   d              ; + 1
+              call  GET_10_EXP     ; Determine power of 10 exponent
+              ld    bc,0x0300      ; Set parameters for '.' and ','
+              add   a,d            ; Exponent + 2 >= 0?
+              jp    m,0x1057       ; no, exponent in buffer
+              inc   d              ; Number of places + 2 in D
+              cp    d              ; Exponent < number of places?
+              jr    nc,$+6         ; no, exponent in buffer
+              inc   a              ; yes, exponent + 3 = decimal point
+              ld    b,a            ; B = exponent + 3
+              ld    a,0x02         ; no exponent is output
+              sub   0x02           ; Exponent - 2 in A
+              pop   hl             ; Reload buffer pointer
+              push  af             ; Exponent on stack
+              call  SET_DOT_COMMA  ; Set '.' and ','
+              ld    (hl),0x30      ; '0' in buffer
+              call  z,INXHRT       ; '.' set? yes, buffer pointer + 1
+              call  FAC_TO_STR     ; Convert mantissa to string
+              dec   hl             ; Buffer pointer - 1
+              ld    a,(hl)         ; Load character
+              cp    0x30           ; = '0'?
+              jr    z,$-4          ; yes, continue
+              cp    0x2E           ; '.' before the last zero?
+              call  nz,INXHRT      ; no! buffer pointer + 1
+              pop   af             ; Load exponent. = 0?
+              jr    z,$+33         ; yes, no exponent in buffer
+              push  af             ; Exponent back on stack
+              rst   0x20           ; Test type, Carry=1 for single precision
+              ld    a,0x22         ; Load 'D' / 2
+              adc   a,a            ; Exp. identifier = 'D' or 'E'
+              ld    (hl),a         ; Enter in buffer
+              inc   hl             ; Buffer pointer + 1
+              pop   af             ; Load exponent. < 0?
+              ld    (hl),0x2B      ; '+' in buffer
+              jp    p,FOUFRV_POS   ; Exponent > 0!
+              ld    (hl),0x2D      ; '-' in buffer
+              cpl                  ; Remove sign
+              inc   a              ; Increment A
+              ld    b,0x2F         ; Digit = '0' - 1
+              inc   b              ; Digit + 1 (yields 1st digit)
+              sub   0x0A           ; Exponent - 10 = underflow?
+              jr    nc,$-3         ; no, continue
+              add   a,0x3A         ; yes, undo last subtraction. + '0' yields 2nd digit
+              inc   hl             ; Buffer pointer + 1
+              ld    (hl),b         ; 1st digit in buffer
+              inc   hl             ; Buffer pointer + 1 in buffer
+              ld    (hl),a         ; 2nd digit in buffer
+              inc   hl             ; Buffer pointer + 1
+              ld    (hl),0x00      ; End marker in buffer
+              ex    de,hl          ; Buffer end address in DE
+              ld    hl,FBUFFR      ; Buffer start address in HL
+              ret                  ; done !!!
+
+; Generate formatted string
+              inc   hl             ; Buffer pointer + 1
+              push  bc             ; Length parameters on stack
+              cp    0x04           ; Single or double precision?
+              ld    a,d            ; Format flag in A
+              jp    nc,PUSTR_VAL   ; yes!
+
+; Convert integer to string
+              rra                  ; Exponent output? (Bit 0)
+              jp    c,0x11A3       ; yes!
+              ld    bc,0x0603      ; Parameters for '.' and ','
+              call  0x1289         ; no ',' output?
+              pop   de             ; Load length parameter into DE
+              ld    a,d            ; Pre-decimal places - 5 >= 0?
               sub   0x05
-              call  p,0x1269
-              call  0x132F
-              ld    a,e
-              or    a
-              call  z,DCXHRT
-              dec   a
-              call  p,0x1269
-              push  hl
-              call  PUSTR_BITS_2_5
-              pop   hl
-              jr    z,$+4
-              ld    (hl),b
-              inc   hl
-              ld    (hl),0x00
-              ld    hl,0x792F
-              inc   hl
-              ld    a,(0x78F3)
-              sub   l
-              sub   d
-              ret   z
-              ld    a,(hl)
-              cp    0x20
-              jr    z,$-10
-              cp    0x2A
-              jr    z,$-14
+              call  p,PUT_ZEROS    ; output corresponding number of zeros
+              call  PUSTR_INT_SUB  ; Convert number to string
+              ld    a,e            ; no post-decimal places?
+              or    a              ; OR A
+              call  z,DCXHRT       ; yes, delete '.' in buffer
+              dec   a              ; Post-decimal places - 1 > 0?
+              call  p,PUT_ZEROS    ; output corresponding number of zeros
+              push  hl             ; Buffer pointer on stack
+
+; Remaining formatting. Establish correct field length
+              call  PUSTR_BITS_2_5 ; Process remaining format specifications
+              pop   hl             ; Reload buffer pointer
+              jr    z,$+4          ; Sign behind number?
+              ld    (hl),b         ; Set sign behind number
+              inc   hl             ; Buffer pointer + 1
+              ld    (hl),0x00      ; Mark end of line with X'00'
+              ld    hl,0x792F      ; Load address before buffer
+              inc   hl             ; Buffer address + 1
+              ld    a,(0x78F3)     ; LSB '.'-position
+              sub   l              ; SUB L
+              sub   d              ; - pre-decimal places = 0?
+              ret   z              ; yes, done
+              ld    a,(hl)         ; Load character
+              cp    0x20           ; = ' '?
+              jr    z,$-10         ; yes, continue
+              cp    0x2A           ; = '*'?
+              jr    z,$-14         ; yes, continue
+              dec   hl             ; Buffer pointer - 1
+              push  hl             ; and onto stack
+              push  af             ; Character + flag on stack
+              ld    bc,PUSTR_STACK_CHAR ; Set return address
+              push  bc             ; PUSH BC
+              rst   0x10           ; next character
+              cp    0x2D           ; = '-'?
+              ret   z              ; yes, continue
+              cp    0x2B           ; = '+'?
+              ret   z              ; yes, continue
+              cp    0x24           ; = '$'?
+              ret   z              ; yes, continue
+              pop   bc             ; Remove return address again
+              cp    0x30           ; = '0'?
+              jr    nz,$+17        ; no, field overflow
+              inc   hl             ; Buffer pointer + 1 (behind '.')
+              rst   0x10           ; next character. = digit?
+              jr    nc,$+13        ; no, field overflow
+              dec   hl             ; Buffer pointer to '.'
+              DEFB  0x01           ; LD BC,772B Dummy instruction
               dec   hl
-              push  hl
-              push  af
-              ld    bc,0x10DF
-              push  bc
-              rst   0x10
-              cp    0x2D
-              ret   z
-              cp    0x2B
-              ret   z
-              cp    0x24
-              ret   z
-              pop   bc
-              cp    0x30
-              jr    nz,$+17
-              inc   hl
-              rst   0x10
-              jr    nc,$+13
-              dec   hl
-              ld    bc,0x772B
-              pop   af
-              jr    z,$-3
-              pop   bc
-              jp    0x10CE
-              pop   af
-              jr    z,$-1
-              pop   hl
-              ld    (hl),0x25
-              ret   
-              push  hl
-              rra   
-              jp    c,0x11AA
-              jr    z,$+22
-              ld    de,0x1384
-              call  0x0A49
-              ld    d,0x10
-              jp    m,0x1132
-              pop   hl
-              pop   bc
-              call  0x0FBD
-              dec   hl
-              ld    (hl),0x25
-              ret   
+              ld    (hl),a
+              pop   af             ; Get character from stack
+              jr    z,$-3          ; last character? no-to 10F9H
+              pop   bc             ; Get buffer pointer from stack
+              jp    PUSTR_LOOP     ; continue at 10CEH
+
+; Field overflow
+              pop   af             ; Get character from stack
+              jr    z,$-1          ; last character?
+              pop   hl             ; Reload buffer pointer
+              ld    (hl),0x25      ; '%' for field overflow before number
+              ret                  ; Return
+
+; Generate formatted string of single or double precision numbers
+              push  hl             ; Buffer pointer on stack
+              rra                  ; Exponent output?
+              jp    c,PUSTR_EXP    ; yes!
+              jr    z,$+22         ; for single precision => jump
+              ld    de,0x1384      ; Address constant 1D16
+              call  0x0A49         ; Value >= 1D16?
+              ld    d,0x10         ; Precision (16 places) in D
+              jp    m,0x1132       ; Value < 1D16!
+
+; Field overflow
+              pop   hl             ; Reload buffer pointer
+              pop   bc             ; Load length parameter
+              call  PUSTR_UNFORM_INIT ; Generate unformatted string
+              dec   hl             ; Buffer pointer - 1
+              ld    (hl),0x25      ; '%' for field overflow before string
+              ret                  ; Return
               ld    bc,0xB60E
               ld    de,0x1BCA
               call  FCOMP
-              jp    p,0x111B
+              jp    p,PUSTR_OVERFLOW_STR
               ld    d,0x06
               call  SIGN
-              call  nz,0x1201
+              call  nz,GET_10_EXP
               pop   hl
               pop   bc
               jp    m,0x1157
@@ -3028,13 +3044,13 @@ DNORM_BIT_LOOP:
               ld    a,b
               sub   d
               sub   e
-              call  p,0x1269
+              call  p,PUT_ZEROS
               call  0x127D
-              call  0x12A4
+              call  FAC_TO_STR
               or    e
               call  nz,0x1277
               or    e
-              call  nz,0x1291
+              call  nz,SET_DOT_COMMA
               pop   de
               jp    0x10B6
               ld    e,a
@@ -3058,29 +3074,29 @@ DNORM_BIT_LOOP:
               jp    m,0x117F
               sub   d
               sub   e
-              call  p,0x1269
+              call  p,PUT_ZEROS
               push  bc
               call  0x127D
               jr    $+19
-              call  0x1269
+              call  PUT_ZEROS
               ld    a,c
               call  0x1294
               ld    c,a
               xor   a
               sub   d
               sub   e
-              call  0x1269
+              call  PUT_ZEROS
               push  bc
               ld    b,a
               ld    c,a
-              call  0x12A4
+              call  FAC_TO_STR
               pop   bc
               or    c
               jr    nz,$+5
               ld    hl,(0x78F3)
               add   a,e
               dec   a
-              call  p,0x1269
+              call  p,PUT_ZEROS
               ld    d,b
               jp    0x10BF
               push  hl
@@ -3093,7 +3109,7 @@ DNORM_BIT_LOOP:
               ld    bc,0x061E
               call  SIGN
               scf   
-              call  nz,0x1201
+              call  nz,GET_10_EXP
               pop   hl
               pop   bc
               push  af
@@ -3128,7 +3144,7 @@ DNORM_BIT_LOOP:
               add   a,d
               ld    b,a
               ld    c,0x00
-              call  0x12A4
+              call  FAC_TO_STR
               pop   af
               call  p,0x1271
               pop   bc
@@ -3200,7 +3216,7 @@ DNORM_BIT_LOOP:
               jr    $-5
               jr    nz,$+6
               ret   z
-              call  0x1291
+              call  SET_DOT_COMMA
               ld    (hl),0x30
               inc   hl
               dec   a
@@ -3247,7 +3263,7 @@ DNORM_BIT_LOOP:
               pop   bc
               ld    de,0x138C
               ld    a,0x0A
-              call  0x1291
+              call  SET_DOT_COMMA
               push  bc
               push  af
               push  hl
@@ -3284,7 +3300,7 @@ DNORM_BIT_LOOP:
               xor   a
               ld    de,0x13D2
               ccf   
-              call  0x1291
+              call  SET_DOT_COMMA
               push  bc
               push  af
               push  hl
@@ -3324,7 +3340,7 @@ DNORM_BIT_LOOP:
               push  de
               ld    de,0x13D8
               ld    a,0x05
-              call  0x1291
+              call  SET_DOT_COMMA
               push  bc
               push  af
               push  hl
@@ -3356,7 +3372,7 @@ DNORM_BIT_LOOP:
               pop   bc
               dec   a
               jr    nz,$-39
-              call  0x1291
+              call  SET_DOT_COMMA
               ld    (hl),a
               pop   de
               ret   
@@ -5562,7 +5578,7 @@ DNORM_BIT_LOOP:
               push  hl
               rst   0x20
               jr    z,$+52
-              call  0x0FBD
+              call  PUSTR_UNFORM_INIT
               call  0x2865
               call  0x79CD
               ld    hl,(FACLO)
@@ -6700,7 +6716,7 @@ DNORM_BIT_LOOP:
               ret   nz
               ld    e,0x16
               jp    0x19A2
-              call  0x0FBD
+              call  PUSTR_UNFORM_INIT
               call  0x2865
               call  0x29DA
               ld    bc,0x2A2B

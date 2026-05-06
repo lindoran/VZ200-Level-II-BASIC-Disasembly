@@ -2690,13 +2690,13 @@
 0FDF  57       W                   ld    d,a
 0FE0  17       .                   rla                  ; execute formatting?
 0FE1  3AAF78   :.x                 ld    a,(VALTYP)     ; load type
-0FE4  DA9A10   ...                 jp    c,0x109A       ; yes!
+0FE4  DA9A10   ...                 jp    c,PUSTR_FORM   ; yes!
 0FE7  CA9210   ...                 jp    z,0x1092       ; Value = 0, done
 0FEA  FE04     ..                  cp    0x04           ; single or double precision?
 0FEC  D23D10   .=.                 jp    nc,FOUFRV      ; yes!
                      ; Convert integer to string
 0FEF  010000   ...                 ld    bc,START       ; delete parameter for '.' and ','
-0FF2  CD2F13   ./.                 call  0x132F         ; generate string
+0FF2  CD2F13   ./.                 call  PUSTR_INT_SUB  ; generate string
                      ; Process format-flag bits 2-5
 0FF5  213079   !0y                 ld    hl,FBUFFR      ; buffer pointer on start
 0FF8  46       F                   ld    b,(hl)         ; load character
@@ -2736,154 +2736,163 @@
 1031  2B       +                   dec   hl             ; buffer pointer before number
 1032  70       p                   ld    (hl),b         ; sign before number
 1033  C9       .                   ret   
-1034  32D878   2.x                 ld    (FMT_FLAG),a
-1037  213079   !0y                 ld    hl,FBUFFR
-103A  3620     6                   ld    (hl),0x20
-103C  C9       .                   ret   
-103D  FE05     ..                  cp    0x05
-103F  E5       .                   push  hl
-1040  DE00     ..                  sbc   a,0x00
-1042  17       .                   rla   
-1043  57       W                   ld    d,a
-1044  14       .                   inc   d
-1045  CD0112   ...                 call  0x1201
-1048  010003   ...                 ld    bc,0x0300
-104B  82       .                   add   a,d
-104C  FA5710   .W.                 jp    m,0x1057
-104F  14       .                   inc   d
-1050  BA       .                   cp    d
-1051  3004     0.                  jr    nc,$+6
-1053  3C       <                   inc   a
-1054  47       G                   ld    b,a
-1055  3E02     >.                  ld    a,0x02
-1057  D602     ..                  sub   0x02
-1059  E1       .                   pop   hl
-105A  F5       .                   push  af
-105B  CD9112   ...                 call  0x1291
-105E  3630     60                  ld    (hl),0x30
-1060  CCC909   ...                 call  z,INXHRT
-1063  CDA412   ...                 call  0x12A4
-1066  2B       +                   dec   hl
-1067  7E       ~                   ld    a,(hl)
-1068  FE30     .0                  cp    0x30
-106A  28FA     (.                  jr    z,$-4
-106C  FE2E     ..                  cp    0x2E
-106E  C4C909   ...                 call  nz,INXHRT
-1071  F1       .                   pop   af
-1072  281F     (.                  jr    z,$+33
-1074  F5       .                   push  af
-1075  E7       .                   rst   0x20
-1076  3E22     >"                  ld    a,0x22
-1078  8F       .                   adc   a,a
-1079  77       w                   ld    (hl),a
-107A  23       #                   inc   hl
-107B  F1       .                   pop   af
-107C  362B     6+                  ld    (hl),0x2B
-107E  F28510   ...                 jp    p,0x1085
-1081  362D     6-                  ld    (hl),0x2D
-1083  2F       /                   cpl   
-1084  3C       <                   inc   a
-1085  062F     ./                  ld    b,0x2F
-1087  04       .                   inc   b
-1088  D60A     ..                  sub   0x0A
-108A  30FB     0.                  jr    nc,$-3
-108C  C63A     .:                  add   a,0x3A
-108E  23       #                   inc   hl
-108F  70       p                   ld    (hl),b
-1090  23       #                   inc   hl
-1091  77       w                   ld    (hl),a
-1092  23       #                   inc   hl
-1093  3600     6.                  ld    (hl),0x00
-1095  EB       .                   ex    de,hl
-1096  213079   !0y                 ld    hl,FBUFFR
-1099  C9       .                   ret   
-109A  23       #                   inc   hl
-109B  C5       .                   push  bc
-109C  FE04     ..                  cp    0x04
-109E  7A       z                   ld    a,d
-109F  D20911   ...                 jp    nc,0x1109
-10A2  1F       .                   rra   
-10A3  DAA311   ...                 jp    c,0x11A3
-10A6  010306   ...                 ld    bc,0x0603
-10A9  CD8912   ...                 call  0x1289
-10AC  D1       .                   pop   de
-10AD  7A       z                   ld    a,d
+1034  32D878   2.x                 ld    (FMT_FLAG),a   ; Save format flag
+1037  213079   !0y                 ld    hl,FBUFFR      ; Address start of buffer
+103A  3620     6                   ld    (hl),0x20      ; Space at start of buffer
+103C  C9       .                   ret                  ; Return
+                     ; Convert single or double precision unformatted into string
+103D  FE05     ..                  cp    0x05           ; Determine number of places
+103F  E5       .                   push  hl             ; Buffer pointer on stack
+1040  DE00     ..                  sbc   a,0x00         ; Type - Carry in A
+1042  17       .                   rla                  ; * 2 = number of places
+1043  57       W                   ld    d,a            ; Number of places in D
+1044  14       .                   inc   d              ; + 1
+1045  CD0112   ...                 call  GET_10_EXP     ; Determine power of 10 exponent
+1048  010003   ...                 ld    bc,0x0300      ; Set parameters for '.' and ','
+104B  82       .                   add   a,d            ; Exponent + 2 >= 0?
+104C  FA5710   .W.                 jp    m,0x1057       ; no, exponent in buffer
+104F  14       .                   inc   d              ; Number of places + 2 in D
+1050  BA       .                   cp    d              ; Exponent < number of places?
+1051  3004     0.                  jr    nc,$+6         ; no, exponent in buffer
+1053  3C       <                   inc   a              ; yes, exponent + 3 = decimal point
+1054  47       G                   ld    b,a            ; B = exponent + 3
+1055  3E02     >.                  ld    a,0x02         ; no exponent is output
+1057  D602     ..                  sub   0x02           ; Exponent - 2 in A
+1059  E1       .                   pop   hl             ; Reload buffer pointer
+105A  F5       .                   push  af             ; Exponent on stack
+105B  CD9112   ...                 call  SET_DOT_COMMA  ; Set '.' and ','
+105E  3630     60                  ld    (hl),0x30      ; '0' in buffer
+1060  CCC909   ...                 call  z,INXHRT       ; '.' set? yes, buffer pointer + 1
+1063  CDA412   ...                 call  FAC_TO_STR     ; Convert mantissa to string
+1066  2B       +                   dec   hl             ; Buffer pointer - 1
+1067  7E       ~                   ld    a,(hl)         ; Load character
+1068  FE30     .0                  cp    0x30           ; = '0'?
+106A  28FA     (.                  jr    z,$-4          ; yes, continue
+106C  FE2E     ..                  cp    0x2E           ; '.' before the last zero?
+106E  C4C909   ...                 call  nz,INXHRT      ; no! buffer pointer + 1
+1071  F1       .                   pop   af             ; Load exponent. = 0?
+1072  281F     (.                  jr    z,$+33         ; yes, no exponent in buffer
+1074  F5       .                   push  af             ; Exponent back on stack
+1075  E7       .                   rst   0x20           ; Test type, Carry=1 for single precision
+1076  3E22     >"                  ld    a,0x22         ; Load 'D' / 2
+1078  8F       .                   adc   a,a            ; Exp. identifier = 'D' or 'E'
+1079  77       w                   ld    (hl),a         ; Enter in buffer
+107A  23       #                   inc   hl             ; Buffer pointer + 1
+107B  F1       .                   pop   af             ; Load exponent. < 0?
+107C  362B     6+                  ld    (hl),0x2B      ; '+' in buffer
+107E  F28510   ...                 jp    p,FOUFRV_POS   ; Exponent > 0!
+1081  362D     6-                  ld    (hl),0x2D      ; '-' in buffer
+1083  2F       /                   cpl                  ; Remove sign
+1084  3C       <                   inc   a              ; Increment A
+1085  062F     ./                  ld    b,0x2F         ; Digit = '0' - 1
+1087  04       .                   inc   b              ; Digit + 1 (yields 1st digit)
+1088  D60A     ..                  sub   0x0A           ; Exponent - 10 = underflow?
+108A  30FB     0.                  jr    nc,$-3         ; no, continue
+108C  C63A     .:                  add   a,0x3A         ; yes, undo last subtraction. + '0' yields 2
+108E  23       #                   inc   hl             ; Buffer pointer + 1
+108F  70       p                   ld    (hl),b         ; 1st digit in buffer
+1090  23       #                   inc   hl             ; Buffer pointer + 1 in buffer
+1091  77       w                   ld    (hl),a         ; 2nd digit in buffer
+1092  23       #                   inc   hl             ; Buffer pointer + 1
+1093  3600     6.                  ld    (hl),0x00      ; End marker in buffer
+1095  EB       .                   ex    de,hl          ; Buffer end address in DE
+1096  213079   !0y                 ld    hl,FBUFFR      ; Buffer start address in HL
+1099  C9       .                   ret                  ; done !!!
+                     ; Generate formatted string
+109A  23       #                   inc   hl             ; Buffer pointer + 1
+109B  C5       .                   push  bc             ; Length parameters on stack
+109C  FE04     ..                  cp    0x04           ; Single or double precision?
+109E  7A       z                   ld    a,d            ; Format flag in A
+109F  D20911   ...                 jp    nc,PUSTR_VAL   ; yes!
+                     ; Convert integer to string
+10A2  1F       .                   rra                  ; Exponent output? (Bit 0)
+10A3  DAA311   ...                 jp    c,0x11A3       ; yes!
+10A6  010306   ...                 ld    bc,0x0603      ; Parameters for '.' and ','
+10A9  CD8912   ...                 call  0x1289         ; no ',' output?
+10AC  D1       .                   pop   de             ; Load length parameter into DE
+10AD  7A       z                   ld    a,d            ; Pre-decimal places - 5 >= 0?
 10AE  D605     ..                  sub   0x05
-10B0  F46912   .i.                 call  p,0x1269
-10B3  CD2F13   ./.                 call  0x132F
-10B6  7B       {                   ld    a,e
-10B7  B7       .                   or    a
-10B8  CC2F09   ./.                 call  z,DCXHRT
-10BB  3D       =                   dec   a
-10BC  F46912   .i.                 call  p,0x1269
-10BF  E5       .                   push  hl
-10C0  CDF50F   ...                 call  PUSTR_BITS_2_5
-10C3  E1       .                   pop   hl
-10C4  2802     (.                  jr    z,$+4
-10C6  70       p                   ld    (hl),b
-10C7  23       #                   inc   hl
-10C8  3600     6.                  ld    (hl),0x00
-10CA  212F79   !/y                 ld    hl,0x792F
-10CD  23       #                   inc   hl
-10CE  3AF378   :.x                 ld    a,(0x78F3)
-10D1  95       .                   sub   l
-10D2  92       .                   sub   d
-10D3  C8       .                   ret   z
-10D4  7E       ~                   ld    a,(hl)
-10D5  FE20     .                   cp    0x20
-10D7  28F4     (.                  jr    z,$-10
-10D9  FE2A     .*                  cp    0x2A
-10DB  28F0     (.                  jr    z,$-14
-10DD  2B       +                   dec   hl
-10DE  E5       .                   push  hl
-10DF  F5       .                   push  af
-10E0  01DF10   ...                 ld    bc,0x10DF
-10E3  C5       .                   push  bc
-10E4  D7       .                   rst   0x10
-10E5  FE2D     .-                  cp    0x2D
-10E7  C8       .                   ret   z
-10E8  FE2B     .+                  cp    0x2B
-10EA  C8       .                   ret   z
-10EB  FE24     .$                  cp    0x24
-10ED  C8       .                   ret   z
-10EE  C1       .                   pop   bc
-10EF  FE30     .0                  cp    0x30
-10F1  200F      .                  jr    nz,$+17
-10F3  23       #                   inc   hl
-10F4  D7       .                   rst   0x10
-10F5  300B     0.                  jr    nc,$+13
-10F7  2B       +                   dec   hl
-10F8  012B77   .+w                 ld    bc,0x772B
-10FB  F1       .                   pop   af
-10FC  28FB     (.                  jr    z,$-3
-10FE  C1       .                   pop   bc
-10FF  C3CE10   ...                 jp    0x10CE
-1102  F1       .                   pop   af
-1103  28FD     (.                  jr    z,$-1
-1105  E1       .                   pop   hl
-1106  3625     6%                  ld    (hl),0x25
-1108  C9       .                   ret   
-1109  E5       .                   push  hl
-110A  1F       .                   rra   
-110B  DAAA11   ...                 jp    c,0x11AA
-110E  2814     (.                  jr    z,$+22
-1110  118413   ...                 ld    de,0x1384
-1113  CD490A   .I.                 call  0x0A49
-1116  1610     ..                  ld    d,0x10
-1118  FA3211   .2.                 jp    m,0x1132
-111B  E1       .                   pop   hl
-111C  C1       .                   pop   bc
-111D  CDBD0F   ...                 call  0x0FBD
-1120  2B       +                   dec   hl
-1121  3625     6%                  ld    (hl),0x25
-1123  C9       .                   ret   
+10B0  F46912   .i.                 call  p,PUT_ZEROS    ; output corresponding number of zeros
+10B3  CD2F13   ./.                 call  PUSTR_INT_SUB  ; Convert number to string
+10B6  7B       {                   ld    a,e            ; no post-decimal places?
+10B7  B7       .                   or    a              ; OR A
+10B8  CC2F09   ./.                 call  z,DCXHRT       ; yes, delete '.' in buffer
+10BB  3D       =                   dec   a              ; Post-decimal places - 1 > 0?
+10BC  F46912   .i.                 call  p,PUT_ZEROS    ; output corresponding number of zeros
+10BF  E5       .                   push  hl             ; Buffer pointer on stack
+                     ; Remaining formatting. Establish correct field length
+10C0  CDF50F   ...                 call  PUSTR_BITS_2_5 ; Process remaining format specifications
+10C3  E1       .                   pop   hl             ; Reload buffer pointer
+10C4  2802     (.                  jr    z,$+4          ; Sign behind number?
+10C6  70       p                   ld    (hl),b         ; Set sign behind number
+10C7  23       #                   inc   hl             ; Buffer pointer + 1
+10C8  3600     6.                  ld    (hl),0x00      ; Mark end of line with X'00'
+10CA  212F79   !/y                 ld    hl,0x792F      ; Load address before buffer
+10CD  23       #                   inc   hl             ; Buffer address + 1
+10CE  3AF378   :.x                 ld    a,(0x78F3)     ; LSB '.'-position
+10D1  95       .                   sub   l              ; SUB L
+10D2  92       .                   sub   d              ; - pre-decimal places = 0?
+10D3  C8       .                   ret   z              ; yes, done
+10D4  7E       ~                   ld    a,(hl)         ; Load character
+10D5  FE20     .                   cp    0x20           ; = ' '?
+10D7  28F4     (.                  jr    z,$-10         ; yes, continue
+10D9  FE2A     .*                  cp    0x2A           ; = '*'?
+10DB  28F0     (.                  jr    z,$-14         ; yes, continue
+10DD  2B       +                   dec   hl             ; Buffer pointer - 1
+10DE  E5       .                   push  hl             ; and onto stack
+10DF  F5       .                   push  af             ; Character + flag on stack
+10E0  01DF10   ...                 ld    bc,PUSTR_STACK_CHAR ; Set return address
+10E3  C5       .                   push  bc             ; PUSH BC
+10E4  D7       .                   rst   0x10           ; next character
+10E5  FE2D     .-                  cp    0x2D           ; = '-'?
+10E7  C8       .                   ret   z              ; yes, continue
+10E8  FE2B     .+                  cp    0x2B           ; = '+'?
+10EA  C8       .                   ret   z              ; yes, continue
+10EB  FE24     .$                  cp    0x24           ; = '$'?
+10ED  C8       .                   ret   z              ; yes, continue
+10EE  C1       .                   pop   bc             ; Remove return address again
+10EF  FE30     .0                  cp    0x30           ; = '0'?
+10F1  200F      .                  jr    nz,$+17        ; no, field overflow
+10F3  23       #                   inc   hl             ; Buffer pointer + 1 (behind '.')
+10F4  D7       .                   rst   0x10           ; next character. = digit?
+10F5  300B     0.                  jr    nc,$+13        ; no, field overflow
+10F7  2B       +                   dec   hl             ; Buffer pointer to '.'
+10F8  01       .                   DEFB  0x01           ; LD BC,772B Dummy instruction
+10F9  2B       +                   dec   hl
+10FA  77       w                   ld    (hl),a
+10FB  F1       .                   pop   af             ; Get character from stack
+10FC  28FB     (.                  jr    z,$-3          ; last character? no-to 10F9H
+10FE  C1       .                   pop   bc             ; Get buffer pointer from stack
+10FF  C3CE10   ...                 jp    PUSTR_LOOP     ; continue at 10CEH
+                     ; Field overflow
+1102  F1       .                   pop   af             ; Get character from stack
+1103  28FD     (.                  jr    z,$-1          ; last character?
+1105  E1       .                   pop   hl             ; Reload buffer pointer
+1106  3625     6%                  ld    (hl),0x25      ; '%' for field overflow before number
+1108  C9       .                   ret                  ; Return
+                     ; Generate formatted string of single or double precision numbers
+1109  E5       .                   push  hl             ; Buffer pointer on stack
+110A  1F       .                   rra                  ; Exponent output?
+110B  DAAA11   ...                 jp    c,PUSTR_EXP    ; yes!
+110E  2814     (.                  jr    z,$+22         ; for single precision => jump
+1110  118413   ...                 ld    de,0x1384      ; Address constant 1D16
+1113  CD490A   .I.                 call  0x0A49         ; Value >= 1D16?
+1116  1610     ..                  ld    d,0x10         ; Precision (16 places) in D
+1118  FA3211   .2.                 jp    m,0x1132       ; Value < 1D16!
+                     ; Field overflow
+111B  E1       .                   pop   hl             ; Reload buffer pointer
+111C  C1       .                   pop   bc             ; Load length parameter
+111D  CDBD0F   ...                 call  PUSTR_UNFORM_INIT ; Generate unformatted string
+1120  2B       +                   dec   hl             ; Buffer pointer - 1
+1121  3625     6%                  ld    (hl),0x25      ; '%' for field overflow before string
+1123  C9       .                   ret                  ; Return
 1124  010EB6   ...                 ld    bc,0xB60E
 1127  11CA1B   ...                 ld    de,0x1BCA
 112A  CD0C0A   ...                 call  FCOMP
-112D  F21B11   ...                 jp    p,0x111B
+112D  F21B11   ...                 jp    p,PUSTR_OVERFLOW_STR
 1130  1606     ..                  ld    d,0x06
 1132  CD5509   .U.                 call  SIGN
-1135  C40112   ...                 call  nz,0x1201
+1135  C40112   ...                 call  nz,GET_10_EXP
 1138  E1       .                   pop   hl
 1139  C1       .                   pop   bc
 113A  FA5711   .W.                 jp    m,0x1157
@@ -2892,13 +2901,13 @@
 113F  78       x                   ld    a,b
 1140  92       .                   sub   d
 1141  93       .                   sub   e
-1142  F46912   .i.                 call  p,0x1269
+1142  F46912   .i.                 call  p,PUT_ZEROS
 1145  CD7D12   .}.                 call  0x127D
-1148  CDA412   ...                 call  0x12A4
+1148  CDA412   ...                 call  FAC_TO_STR
 114B  B3       .                   or    e
 114C  C47712   .w.                 call  nz,0x1277
 114F  B3       .                   or    e
-1150  C49112   ...                 call  nz,0x1291
+1150  C49112   ...                 call  nz,SET_DOT_COMMA
 1153  D1       .                   pop   de
 1154  C3B610   ...                 jp    0x10B6
 1157  5F       _                   ld    e,a
@@ -2922,29 +2931,29 @@
 1171  FA7F11   ...                 jp    m,0x117F
 1174  92       .                   sub   d
 1175  93       .                   sub   e
-1176  F46912   .i.                 call  p,0x1269
+1176  F46912   .i.                 call  p,PUT_ZEROS
 1179  C5       .                   push  bc
 117A  CD7D12   .}.                 call  0x127D
 117D  1811     ..                  jr    $+19
-117F  CD6912   .i.                 call  0x1269
+117F  CD6912   .i.                 call  PUT_ZEROS
 1182  79       y                   ld    a,c
 1183  CD9412   ...                 call  0x1294
 1186  4F       O                   ld    c,a
 1187  AF       .                   xor   a
 1188  92       .                   sub   d
 1189  93       .                   sub   e
-118A  CD6912   .i.                 call  0x1269
+118A  CD6912   .i.                 call  PUT_ZEROS
 118D  C5       .                   push  bc
 118E  47       G                   ld    b,a
 118F  4F       O                   ld    c,a
-1190  CDA412   ...                 call  0x12A4
+1190  CDA412   ...                 call  FAC_TO_STR
 1193  C1       .                   pop   bc
 1194  B1       .                   or    c
 1195  2003      .                  jr    nz,$+5
 1197  2AF378   *.x                 ld    hl,(0x78F3)
 119A  83       .                   add   a,e
 119B  3D       =                   dec   a
-119C  F46912   .i.                 call  p,0x1269
+119C  F46912   .i.                 call  p,PUT_ZEROS
 119F  50       P                   ld    d,b
 11A0  C3BF10   ...                 jp    0x10BF
 11A3  E5       .                   push  hl
@@ -2957,7 +2966,7 @@
 11AF  011E06   ...                 ld    bc,0x061E
 11B2  CD5509   .U.                 call  SIGN
 11B5  37       7                   scf   
-11B6  C40112   ...                 call  nz,0x1201
+11B6  C40112   ...                 call  nz,GET_10_EXP
 11B9  E1       .                   pop   hl
 11BA  C1       .                   pop   bc
 11BB  F5       .                   push  af
@@ -2992,7 +3001,7 @@
 11E2  82       .                   add   a,d
 11E3  47       G                   ld    b,a
 11E4  0E00     ..                  ld    c,0x00
-11E6  CDA412   ...                 call  0x12A4
+11E6  CDA412   ...                 call  FAC_TO_STR
 11E9  F1       .                   pop   af
 11EA  F47112   .q.                 call  p,0x1271
 11ED  C1       .                   pop   bc
@@ -3064,7 +3073,7 @@
 126F  18F9     ..                  jr    $-5
 1271  2004      .                  jr    nz,$+6
 1273  C8       .                   ret   z
-1274  CD9112   ...                 call  0x1291
+1274  CD9112   ...                 call  SET_DOT_COMMA
 1277  3630     60                  ld    (hl),0x30
 1279  23       #                   inc   hl
 127A  3D       =                   dec   a
@@ -3111,7 +3120,7 @@
 12BC  C1       .                   pop   bc
 12BD  118C13   ...                 ld    de,0x138C
 12C0  3E0A     >.                  ld    a,0x0A
-12C2  CD9112   ...                 call  0x1291
+12C2  CD9112   ...                 call  SET_DOT_COMMA
 12C5  C5       .                   push  bc
 12C6  F5       .                   push  af
 12C7  E5       .                   push  hl
@@ -3148,7 +3157,7 @@
 12F8  AF       .                   xor   a
 12F9  11D213   ...                 ld    de,0x13D2
 12FC  3F       ?                   ccf   
-12FD  CD9112   ...                 call  0x1291
+12FD  CD9112   ...                 call  SET_DOT_COMMA
 1300  C5       .                   push  bc
 1301  F5       .                   push  af
 1302  E5       .                   push  hl
@@ -3188,7 +3197,7 @@
 132F  D5       .                   push  de
 1330  11D813   ...                 ld    de,0x13D8
 1333  3E05     >.                  ld    a,0x05
-1335  CD9112   ...                 call  0x1291
+1335  CD9112   ...                 call  SET_DOT_COMMA
 1338  C5       .                   push  bc
 1339  F5       .                   push  af
 133A  E5       .                   push  hl
@@ -3220,7 +3229,7 @@
 135A  C1       .                   pop   bc
 135B  3D       =                   dec   a
 135C  20D7      .                  jr    nz,$-39
-135E  CD9112   ...                 call  0x1291
+135E  CD9112   ...                 call  SET_DOT_COMMA
 1361  77       w                   ld    (hl),a
 1362  D1       .                   pop   de
 1363  C9       .                   ret   
@@ -5426,7 +5435,7 @@
 20BC  E5       .                   push  hl
 20BD  E7       .                   rst   0x20
 20BE  2832     (2                  jr    z,$+52
-20C0  CDBD0F   ...                 call  0x0FBD
+20C0  CDBD0F   ...                 call  PUSTR_UNFORM_INIT
 20C3  CD6528   .e(                 call  0x2865
 20C6  CDCD79   ..y                 call  0x79CD
 20C9  2A2179   *!y                 ld    hl,(FACLO)
@@ -6564,7 +6573,7 @@
 2830  C0       .                   ret   nz
 2831  1E16     ..                  ld    e,0x16
 2833  C3A219   ...                 jp    0x19A2
-2836  CDBD0F   ...                 call  0x0FBD
+2836  CDBD0F   ...                 call  PUSTR_UNFORM_INIT
 2839  CD6528   .e(                 call  0x2865
 283C  CDDA29   ..)                 call  0x29DA
 283F  012B2A   .+*                 ld    bc,0x2A2B
