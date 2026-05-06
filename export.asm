@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Tue May  5 23:42:11 2026
+; Generated: Wed May  6 00:43:03 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -3049,7 +3049,7 @@ DNORM_BIT_LOOP:
               sub   d              ; - Exponent
               sub   e              ; - 1 >= 0?
               call  p,PUT_ZEROS    ; Yes, corresponding number of zeros in buffer
-              call  0x127D         ; Determine parameters for '.' and ','
+              call  GET_FMT_PARAMS ; Determine parameters for '.' and ','
               call  FAC_TO_STR     ; Generate string
               or    e              ; Exponent - Precision + 1 > 0?
               call  nz,0x1277      ; Yes, corresponding number of zeros in buffer with '.' and ','
@@ -3082,7 +3082,7 @@ DNORM_BIT_LOOP:
               sub   e              ; + Fractional places to be output > 0?
               call  p,PUT_ZEROS    ; Corresponding number of zeros in buffer
               push  bc             ; Length parameter on stack
-              call  0x127D         ; Determine parameters for '.' and ','
+              call  GET_FMT_PARAMS ; Determine parameters for '.' and ','
               jr    $+19           ; Continue at 1190H
 
 ; Only fractional places
@@ -3159,7 +3159,7 @@ DNORM_BIT_LOOP:
               ld    c,0x00         ; Parameter for '.' and ',' = 0 (no ',')
               call  FAC_TO_STR     ; Transfer string to buffer
               pop   af             ; Total length - Precision > 0?
-              call  p,0x1271       ; Yes, corresponding number of zeros in buffer
+              call  p,WRITE_ZEROS_FMT ; Yes, corresponding number of zeros in buffer
               pop   bc             ; Reload length parameter
               pop   af             ; Fractional length = 0?
               call  z,DCXHRT       ; Yes, delete '.' in buffer
@@ -3223,177 +3223,208 @@ DNORM_BIT_LOOP:
               jr    $+8            ; Continue
               ld    de,0x1374      ; Constant 1D16 in Y
               call  0x0A49         ; Value >= 1D16?
-              pop   hl
-              jp    p,GET_10_EXP_LOOP_2
-              jp    (hl)
-              or    a
-              ret   z
-              dec   a
-              ld    (hl),0x30
-              inc   hl
-              jr    $-5
-              jr    nz,$+6
-              ret   z
-              call  SET_DOT_COMMA
-              ld    (hl),0x30
-              inc   hl
-              dec   a
-              jr    $-8
-              ld    a,e
-              add   a,d
-              inc   a
-              ld    b,a
-              inc   a
-              sub   0x03
-              jr    nc,$-2
-              add   a,0x05
-              ld    c,a
-              ld    a,(FMT_FLAG)
-              and   0x40
-              ret   nz
-              ld    c,a
-              ret   
-              dec   b
-              jr    nz,$+10
-              ld    (hl),0x2E
-              ld    (0x78F3),hl
-              inc   hl
-              ld    c,b
-              ret   
-              dec   c
-              ret   nz
-              ld    (hl),0x2C
-              inc   hl
-              ld    c,0x03
-              ret   
-              push  de
-              rst   0x20
-              jp    po,0x12EA
-              push  bc
-              push  hl
-              call  VMOVAF
-              ld    hl,0x137C
-              call  VMOVFM
-              call  DADD
-              xor   a
-              call  0x0B7B
-              pop   hl
-              pop   bc
-              ld    de,0x138C
-              ld    a,0x0A
-              call  SET_DOT_COMMA
-              push  bc
-              push  af
-              push  hl
-              push  de
-              ld    b,0x2F
-              inc   b
-              pop   hl
-              push  hl
-              call  0x0D48
-              jr    nc,$-6
-              pop   hl
-              call  0x0D36
-              ex    de,hl
-              pop   hl
-              ld    (hl),b
-              inc   hl
-              pop   af
-              pop   bc
-              dec   a
-              jr    nz,$-28
-              push  bc
-              push  hl
+              pop   hl             ; Load return address
+              jp    p,GET_10_EXP_LOOP_2 ; Yes, to 1244H
+              jp    (hl)           ; No, normal return
+
+; *******************************
+; * Write zeros to buffer
+; *******************************
+WRITE_ZEROS:
+              or    a              ; Count = 0?
+              ret   z              ; Yes, done
+              dec   a              ; Count - 1
+              ld    (hl),0x30      ; '0' in buffer
+              inc   hl             ; Buffer address + 1
+              jr    $-5            ; Continue at 126AH
+
+; *******************************
+; * Write zeros with '.' and ','
+; *******************************
+WRITE_ZEROS_FMT:
+              jr    nz,$+6         ; Count > 0? Yes, jump
+              ret   z              ; = 0?, done
+              call  SET_DOT_COMMA  ; Set '.' and ','
+              ld    (hl),0x30      ; '0' in buffer
+              inc   hl             ; Buffer address + 1
+              dec   a              ; Count - 1
+              jr    $-8            ; Back
+
+; *******************************
+; * Determine '.' and ',' params
+; *******************************
+GET_FMT_PARAMS:
+              ld    a,e            ; Number of shifts in A
+              add   a,d            ; + Precision
+              inc   a              ; + 1
+              ld    b,a            ; = Decimal point position
+              inc   a              ; + 1
+              sub   0x03           ; Determine position of ','
+              jr    nc,$-2         ; -3 until A is negative
+              add   a,0x05         ; + 5
+              ld    c,a            ; As ',' parameter in C
+              ld    a,(FMT_FLAG)   ; Load format flag
+              and   0x40           ; ',' requested? (Bit 6)
+              ret   nz             ; Yes, OK
+              ld    c,a            ; No, clear ',' parameter
+              ret                  ; Return
+
+; *******************************
+; * Set '.' and ','
+; *******************************
+; SET_DOT_COMMA: (defined in symbols.sym)
+              dec   b              ; Decimal point position - 1
+              jr    nz,$+10        ; Decimal point reached? No!
+              ld    (hl),0x2E      ; '.' in buffer
+              ld    (0x78F3),hl    ; Remember address of '.'
+              inc   hl             ; Buffer pointer + 1
+              ld    c,b            ; ',' = 0 (no more ',' to set)
+              ret                  ; Done
+              dec   c              ; ',' parameter - 1. Next position?
+              ret   nz             ; No, back
+              ld    (hl),0x2C      ; ',' in buffer
+              inc   hl             ; Buffer pointer + 1
+              ld    c,0x03         ; ',' parameter = 3 for next ','
+              ret                  ; Done
+
+; *******************************
+; * Convert single/double prec to ASCII
+; *******************************
+FF_TO_ASCII:
+              push  de             ; Save DE
+              rst   0x20           ; Test type
+              jp    po,0x12EA      ; Single precision? Continue at 12EAH
+              push  bc             ; Parameters for '.' and ',' on stack
+              push  hl             ; Buffer pointer on stack
+              call  VMOVAF         ; Number in Y
+              ld    hl,0x137C      ; Address constant 0.5
+              call  VMOVFM         ; 0.5 in X
+              call  DADD           ; Number + 0.5 to X
+              xor   a              ; Clear normalization flag (Cy)
+              call  0x0B7B         ; Separate fractional part
+              pop   hl             ; Load buffer pointer
+              pop   bc             ; Load '.' and ',' parameters
+              ld    de,0x138C      ; Address fixed-point constants 1D15-1D16
+              ld    a,0x0A         ; Digit counter = 10
+              call  SET_DOT_COMMA  ; Set '.' and ','
+              push  bc             ; Save '.' and ',' parameters
+              push  af             ; Save digit counter
+              push  hl             ; Save buffer pointer
+              push  de             ; Save constant address
+              ld    b,0x2F         ; Digit value = '0' - 1
+              inc   b              ; Digit value + 1
+              pop   hl             ; Constant address in HL
+              push  hl             ; And back on stack
+              call  0x0D48         ; Number - constant. Underflow?
+              jr    nc,$-6         ; No, continue
+              pop   hl             ; Constant address in HL
+              call  0x0D36         ; Number + constant
+              ex    de,hl          ; Constant address in DE (next constant)
+              pop   hl             ; Load buffer pointer
+              ld    (hl),b         ; Enter digit in buffer
+              inc   hl             ; Buffer pointer + 1
+              pop   af             ; Load digit counter
+              pop   bc             ; Load '.' and ',' parameters
+              dec   a              ; Digit counter - 1. 10 digits produced?
+              jr    nz,$-28        ; No, continue
+              push  bc             ; Save '.' and ',' parameters
+              push  hl             ; Save buffer pointer
               ld    hl,0x791D
-              call  MOVFM
-              jr    $+14
-              push  bc
-              push  hl
-              call  FP_ADD_HALF
-              inc   a
-              call  DROUND
-              call  MOVFR
-              pop   hl
-              pop   bc
-              xor   a
-              ld    de,0x13D2
-              ccf   
-              call  SET_DOT_COMMA
-              push  bc
-              push  af
-              push  hl
-              push  de
-              call  MOVRF
-              pop   hl
-              ld    b,0x2F
-              inc   b
-              ld    a,e
-              sub   (hl)
+              call  MOVFM          ; Rest (< 1D6) with single precision in X
+              jr    $+14           ; Continue with single precision
+              push  bc             ; Parameters for '.' and ',' on stack
+              push  hl             ; Buffer pointer on stack
+              call  FP_ADD_HALF    ; Number + 0.5 for rounding
+              inc   a              ; Clear normalization flag
+              call  DROUND         ; Integer of number in Y
+              call  MOVFR          ; Enter number in X
+FF_TO_ASCII_CONT:
+              pop   hl             ; Load buffer pointer
+              pop   bc             ; Load '.' and ',' parameters
+              xor   a              ; Clear repetition flag
+              ld    de,0x13D2      ; Address constants 1E5 and 1E4
+              ccf                  ; Invert repetition flag
+              call  SET_DOT_COMMA  ; Set '.' and ','
+              push  bc             ; Parameters for '.' and ',' on stack
+              push  af             ; Repetition flag on stack
+              push  hl             ; Buffer pointer on stack
+              push  de             ; Constant pointer in HL
+              call  MOVRF          ; Transfer number to Y
+              pop   hl             ; Constant pointer in HL
+              ld    b,0x2F         ; Digit code = '0' - 1
+              inc   b              ; Digit code + 1
+              ld    a,e            ; Number - constant. Underflow?
+              sub   (hl)           ; LSB
               ld    e,a
-              inc   hl
+              inc   hl             ; Next digit
               ld    a,d
               sbc   a,(hl)
               ld    d,a
-              inc   hl
+              inc   hl             ; MSB
               ld    a,c
               sbc   a,(hl)
               ld    c,a
-              dec   hl
-              dec   hl
-              jr    nc,$-14
-              call  0x07B7
-              inc   hl
-              call  MOVFR
-              ex    de,hl
-              pop   hl
-              ld    (hl),b
-              inc   hl
-              pop   af
-              pop   bc
-              jr    c,$-43
+              dec   hl             ; Constant pointer - 2
+              dec   hl             ; To 1st byte of constant
+              jr    nc,$-14        ; No underflow, back
+              call  0x07B7         ; Number + constant
+              inc   hl             ; Address next constant
+              call  MOVFR          ; Transfer number to X
+              ex    de,hl          ; Constant address in DE
+              pop   hl             ; Load buffer pointer
+              ld    (hl),b         ; Enter digit in buffer
+              inc   hl             ; Buffer pointer + 1
+              pop   af             ; Load repetition flag
+              pop   bc             ; Load '.' and ',' parameters
+              jr    c,$-43         ; 2 passes? No, back
+              inc   de             ; Skip next constant
               inc   de
-              inc   de
-              ld    a,0x04
-              jr    $+8
-              push  de
-              ld    de,0x13D8
-              ld    a,0x05
-              call  SET_DOT_COMMA
-              push  bc
-              push  af
-              push  hl
-              ex    de,hl
-              ld    c,(hl)
-              inc   hl
+              ld    a,0x04         ; 4 more digits in integer mode
+              jr    $+8            ; Process
+
+; *******************************
+; * Convert integer to ASCII
+; *******************************
+INT_TO_ASCII:
+              push  de             ; Format flag on stack
+              ld    de,0x13D8      ; Address constants 10000 to 1
+              ld    a,0x05         ; Digit counter = 5
+              call  SET_DOT_COMMA  ; Output '.' and ','
+              push  bc             ; Parameters for '.' and ',' on stack
+              push  af             ; Digit counter on stack
+              push  hl             ; Buffer pointer on stack
+              ex    de,hl          ; Constant address in HL
+              ld    c,(hl)         ; Load constant
+              inc   hl             ; Address next constant
               ld    b,(hl)
-              push  bc
-              inc   hl
-              ex    (sp),hl
-              ex    de,hl
-              ld    hl,(FACLO)
-              ld    b,0x2F
-              inc   b
-              ld    a,l
+              push  bc             ; And save on stack
+              inc   hl             ; Address next constant
+              ex    (sp),hl        ; Exchange constant address with constant on stack
+              ex    de,hl          ; Constant address in DE
+              ld    hl,(FACLO)     ; Load number in HL
+              ld    b,0x2F         ; Digit code = '0' - 1
+              inc   b              ; Digit code + 1
+              ld    a,l            ; Number - constant (LSB)
               sub   e
               ld    l,a
-              ld    a,h
+              ld    a,h            ; Number - constant (MSB)
               sbc   a,d
               ld    h,a
-              jr    nc,$-7
-              add   hl,de
-              ld    (FACLO),hl
-              pop   de
-              pop   hl
-              ld    (hl),b
-              inc   hl
-              pop   af
-              pop   bc
-              dec   a
-              jr    nz,$-39
-              call  SET_DOT_COMMA
-              ld    (hl),a
-              pop   de
-              ret   
+              jr    nc,$-7         ; Underflow? No, back
+              add   hl,de          ; Number + constant
+              ld    (FACLO),hl     ; Save number in X
+              pop   de             ; Load constant address
+              pop   hl             ; Load buffer pointer
+              ld    (hl),b         ; Enter digit in buffer
+              inc   hl             ; Buffer pointer + 1
+              pop   af             ; Load digit counter
+              pop   bc             ; Load '.' and ',' parameters
+              dec   a              ; Digit counter - 1
+              jr    nz,$-39        ; All digits? No, back
+              call  SET_DOT_COMMA  ; Output '.' and ','
+              ld    (hl),a         ; Mark end of line with X'00'
+              pop   de             ; Restore DE
+              ret                  ; Done
               nop   
               nop   
               nop   

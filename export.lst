@@ -2904,7 +2904,7 @@
 1140  92       .                   sub   d              ; - Exponent
 1141  93       .                   sub   e              ; - 1 >= 0?
 1142  F46912   .i.                 call  p,PUT_ZEROS    ; Yes, corresponding number of zeros in buff
-1145  CD7D12   .}.                 call  0x127D         ; Determine parameters for '.' and ','
+1145  CD7D12   .}.                 call  GET_FMT_PARAMS ; Determine parameters for '.' and ','
 1148  CDA412   ...                 call  FAC_TO_STR     ; Generate string
 114B  B3       .                   or    e              ; Exponent - Precision + 1 > 0?
 114C  C47712   .w.                 call  nz,0x1277      ; Yes, corresponding number of zeros in buff
@@ -2936,7 +2936,7 @@
 1175  93       .                   sub   e              ; + Fractional places to be output > 0?
 1176  F46912   .i.                 call  p,PUT_ZEROS    ; Corresponding number of zeros in buffer
 1179  C5       .                   push  bc             ; Length parameter on stack
-117A  CD7D12   .}.                 call  0x127D         ; Determine parameters for '.' and ','
+117A  CD7D12   .}.                 call  GET_FMT_PARAMS ; Determine parameters for '.' and ','
 117D  1811     ..                  jr    $+19           ; Continue at 1190H
                      ; Only fractional places
 117F  CD6912   .i.                 call  PUT_ZEROS      ; Zeros for integer places in buffer
@@ -3010,7 +3010,7 @@
 11E4  0E00     ..                  ld    c,0x00         ; Parameter for '.' and ',' = 0 (no ',')
 11E6  CDA412   ...                 call  FAC_TO_STR     ; Transfer string to buffer
 11E9  F1       .                   pop   af             ; Total length - Precision > 0?
-11EA  F47112   .q.                 call  p,0x1271       ; Yes, corresponding number of zeros in buff
+11EA  F47112   .q.                 call  p,WRITE_ZEROS_FMT ; Yes, corresponding number of zeros in buff
 11ED  C1       .                   pop   bc             ; Reload length parameter
 11EE  F1       .                   pop   af             ; Fractional length = 0?
 11EF  CC2F09   ./.                 call  z,DCXHRT       ; Yes, delete '.' in buffer
@@ -3072,177 +3072,202 @@
 125C  1806     ..                  jr    $+8            ; Continue
 125E  117413   .t.                 ld    de,0x1374      ; Constant 1D16 in Y
 1261  CD490A   .I.                 call  0x0A49         ; Value >= 1D16?
-1264  E1       .                   pop   hl
-1265  F24412   .D.                 jp    p,GET_10_EXP_LOOP_2
-1268  E9       .                   jp    (hl)
-1269  B7       .                   or    a
-126A  C8       .                   ret   z
-126B  3D       =                   dec   a
-126C  3630     60                  ld    (hl),0x30
-126E  23       #                   inc   hl
-126F  18F9     ..                  jr    $-5
-1271  2004      .                  jr    nz,$+6
-1273  C8       .                   ret   z
-1274  CD9112   ...                 call  SET_DOT_COMMA
-1277  3630     60                  ld    (hl),0x30
-1279  23       #                   inc   hl
-127A  3D       =                   dec   a
-127B  18F6     ..                  jr    $-8
-127D  7B       {                   ld    a,e
-127E  82       .                   add   a,d
-127F  3C       <                   inc   a
-1280  47       G                   ld    b,a
-1281  3C       <                   inc   a
-1282  D603     ..                  sub   0x03
-1284  30FC     0.                  jr    nc,$-2
-1286  C605     ..                  add   a,0x05
-1288  4F       O                   ld    c,a
-1289  3AD878   :.x                 ld    a,(FMT_FLAG)
-128C  E640     .@                  and   0x40
-128E  C0       .                   ret   nz
-128F  4F       O                   ld    c,a
-1290  C9       .                   ret   
-1291  05       .                   dec   b
-1292  2008      .                  jr    nz,$+10
-1294  362E     6.                  ld    (hl),0x2E
-1296  22F378   ".x                 ld    (0x78F3),hl
-1299  23       #                   inc   hl
-129A  48       H                   ld    c,b
-129B  C9       .                   ret   
-129C  0D       .                   dec   c
-129D  C0       .                   ret   nz
-129E  362C     6,                  ld    (hl),0x2C
-12A0  23       #                   inc   hl
-12A1  0E03     ..                  ld    c,0x03
-12A3  C9       .                   ret   
-12A4  D5       .                   push  de
-12A5  E7       .                   rst   0x20
-12A6  E2EA12   ...                 jp    po,0x12EA
-12A9  C5       .                   push  bc
-12AA  E5       .                   push  hl
-12AB  CDFC09   ...                 call  VMOVAF
-12AE  217C13   !|.                 ld    hl,0x137C
-12B1  CDF709   ...                 call  VMOVFM
-12B4  CD770C   .w.                 call  DADD
-12B7  AF       .                   xor   a
-12B8  CD7B0B   .{.                 call  0x0B7B
-12BB  E1       .                   pop   hl
-12BC  C1       .                   pop   bc
-12BD  118C13   ...                 ld    de,0x138C
-12C0  3E0A     >.                  ld    a,0x0A
-12C2  CD9112   ...                 call  SET_DOT_COMMA
-12C5  C5       .                   push  bc
-12C6  F5       .                   push  af
-12C7  E5       .                   push  hl
-12C8  D5       .                   push  de
-12C9  062F     ./                  ld    b,0x2F
-12CB  04       .                   inc   b
-12CC  E1       .                   pop   hl
-12CD  E5       .                   push  hl
-12CE  CD480D   .H.                 call  0x0D48
-12D1  30F8     0.                  jr    nc,$-6
-12D3  E1       .                   pop   hl
-12D4  CD360D   .6.                 call  0x0D36
-12D7  EB       .                   ex    de,hl
-12D8  E1       .                   pop   hl
-12D9  70       p                   ld    (hl),b
-12DA  23       #                   inc   hl
-12DB  F1       .                   pop   af
-12DC  C1       .                   pop   bc
-12DD  3D       =                   dec   a
-12DE  20E2      .                  jr    nz,$-28
-12E0  C5       .                   push  bc
-12E1  E5       .                   push  hl
+1264  E1       .                   pop   hl             ; Load return address
+1265  F24412   .D.                 jp    p,GET_10_EXP_LOOP_2 ; Yes, to 1244H
+1268  E9       .                   jp    (hl)           ; No, normal return
+                     ; *******************************
+                     ; * Write zeros to buffer
+                     ; *******************************
+                     WRITE_ZEROS:
+1269  B7       .                   or    a              ; Count = 0?
+126A  C8       .                   ret   z              ; Yes, done
+126B  3D       =                   dec   a              ; Count - 1
+126C  3630     60                  ld    (hl),0x30      ; '0' in buffer
+126E  23       #                   inc   hl             ; Buffer address + 1
+126F  18F9     ..                  jr    $-5            ; Continue at 126AH
+                     ; *******************************
+                     ; * Write zeros with '.' and ','
+                     ; *******************************
+                     WRITE_ZEROS_FMT:
+1271  2004      .                  jr    nz,$+6         ; Count > 0? Yes, jump
+1273  C8       .                   ret   z              ; = 0?, done
+1274  CD9112   ...                 call  SET_DOT_COMMA  ; Set '.' and ','
+1277  3630     60                  ld    (hl),0x30      ; '0' in buffer
+1279  23       #                   inc   hl             ; Buffer address + 1
+127A  3D       =                   dec   a              ; Count - 1
+127B  18F6     ..                  jr    $-8            ; Back
+                     ; *******************************
+                     ; * Determine '.' and ',' params
+                     ; *******************************
+                     GET_FMT_PARAMS:
+127D  7B       {                   ld    a,e            ; Number of shifts in A
+127E  82       .                   add   a,d            ; + Precision
+127F  3C       <                   inc   a              ; + 1
+1280  47       G                   ld    b,a            ; = Decimal point position
+1281  3C       <                   inc   a              ; + 1
+1282  D603     ..                  sub   0x03           ; Determine position of ','
+1284  30FC     0.                  jr    nc,$-2         ; -3 until A is negative
+1286  C605     ..                  add   a,0x05         ; + 5
+1288  4F       O                   ld    c,a            ; As ',' parameter in C
+1289  3AD878   :.x                 ld    a,(FMT_FLAG)   ; Load format flag
+128C  E640     .@                  and   0x40           ; ',' requested? (Bit 6)
+128E  C0       .                   ret   nz             ; Yes, OK
+128F  4F       O                   ld    c,a            ; No, clear ',' parameter
+1290  C9       .                   ret                  ; Return
+                     ; *******************************
+                     ; * Set '.' and ','
+                     ; *******************************
+                     SET_DOT_COMMA:
+1291  05       .                   dec   b              ; Decimal point position - 1
+1292  2008      .                  jr    nz,$+10        ; Decimal point reached? No!
+1294  362E     6.                  ld    (hl),0x2E      ; '.' in buffer
+1296  22F378   ".x                 ld    (0x78F3),hl    ; Remember address of '.'
+1299  23       #                   inc   hl             ; Buffer pointer + 1
+129A  48       H                   ld    c,b            ; ',' = 0 (no more ',' to set)
+129B  C9       .                   ret                  ; Done
+129C  0D       .                   dec   c              ; ',' parameter - 1. Next position?
+129D  C0       .                   ret   nz             ; No, back
+129E  362C     6,                  ld    (hl),0x2C      ; ',' in buffer
+12A0  23       #                   inc   hl             ; Buffer pointer + 1
+12A1  0E03     ..                  ld    c,0x03         ; ',' parameter = 3 for next ','
+12A3  C9       .                   ret                  ; Done
+                     ; *******************************
+                     ; * Convert single/double prec to ASCII
+                     ; *******************************
+                     FF_TO_ASCII:
+12A4  D5       .                   push  de             ; Save DE
+12A5  E7       .                   rst   0x20           ; Test type
+12A6  E2EA12   ...                 jp    po,0x12EA      ; Single precision? Continue at 12EAH
+12A9  C5       .                   push  bc             ; Parameters for '.' and ',' on stack
+12AA  E5       .                   push  hl             ; Buffer pointer on stack
+12AB  CDFC09   ...                 call  VMOVAF         ; Number in Y
+12AE  217C13   !|.                 ld    hl,0x137C      ; Address constant 0.5
+12B1  CDF709   ...                 call  VMOVFM         ; 0.5 in X
+12B4  CD770C   .w.                 call  DADD           ; Number + 0.5 to X
+12B7  AF       .                   xor   a              ; Clear normalization flag (Cy)
+12B8  CD7B0B   .{.                 call  0x0B7B         ; Separate fractional part
+12BB  E1       .                   pop   hl             ; Load buffer pointer
+12BC  C1       .                   pop   bc             ; Load '.' and ',' parameters
+12BD  118C13   ...                 ld    de,0x138C      ; Address fixed-point constants 1D15-1D16
+12C0  3E0A     >.                  ld    a,0x0A         ; Digit counter = 10
+12C2  CD9112   ...                 call  SET_DOT_COMMA  ; Set '.' and ','
+12C5  C5       .                   push  bc             ; Save '.' and ',' parameters
+12C6  F5       .                   push  af             ; Save digit counter
+12C7  E5       .                   push  hl             ; Save buffer pointer
+12C8  D5       .                   push  de             ; Save constant address
+12C9  062F     ./                  ld    b,0x2F         ; Digit value = '0' - 1
+12CB  04       .                   inc   b              ; Digit value + 1
+12CC  E1       .                   pop   hl             ; Constant address in HL
+12CD  E5       .                   push  hl             ; And back on stack
+12CE  CD480D   .H.                 call  0x0D48         ; Number - constant. Underflow?
+12D1  30F8     0.                  jr    nc,$-6         ; No, continue
+12D3  E1       .                   pop   hl             ; Constant address in HL
+12D4  CD360D   .6.                 call  0x0D36         ; Number + constant
+12D7  EB       .                   ex    de,hl          ; Constant address in DE (next constant)
+12D8  E1       .                   pop   hl             ; Load buffer pointer
+12D9  70       p                   ld    (hl),b         ; Enter digit in buffer
+12DA  23       #                   inc   hl             ; Buffer pointer + 1
+12DB  F1       .                   pop   af             ; Load digit counter
+12DC  C1       .                   pop   bc             ; Load '.' and ',' parameters
+12DD  3D       =                   dec   a              ; Digit counter - 1. 10 digits produced?
+12DE  20E2      .                  jr    nz,$-28        ; No, continue
+12E0  C5       .                   push  bc             ; Save '.' and ',' parameters
+12E1  E5       .                   push  hl             ; Save buffer pointer
 12E2  211D79   !.y                 ld    hl,0x791D
-12E5  CDB109   ...                 call  MOVFM
-12E8  180C     ..                  jr    $+14
-12EA  C5       .                   push  bc
-12EB  E5       .                   push  hl
-12EC  CD0807   ...                 call  FP_ADD_HALF
-12EF  3C       <                   inc   a
-12F0  CDFB0A   ...                 call  DROUND
-12F3  CDB409   ...                 call  MOVFR
-12F6  E1       .                   pop   hl
-12F7  C1       .                   pop   bc
-12F8  AF       .                   xor   a
-12F9  11D213   ...                 ld    de,0x13D2
-12FC  3F       ?                   ccf   
-12FD  CD9112   ...                 call  SET_DOT_COMMA
-1300  C5       .                   push  bc
-1301  F5       .                   push  af
-1302  E5       .                   push  hl
-1303  D5       .                   push  de
-1304  CDBF09   ...                 call  MOVRF
-1307  E1       .                   pop   hl
-1308  062F     ./                  ld    b,0x2F
-130A  04       .                   inc   b
-130B  7B       {                   ld    a,e
-130C  96       .                   sub   (hl)
+12E5  CDB109   ...                 call  MOVFM          ; Rest (< 1D6) with single precision in X
+12E8  180C     ..                  jr    $+14           ; Continue with single precision
+12EA  C5       .                   push  bc             ; Parameters for '.' and ',' on stack
+12EB  E5       .                   push  hl             ; Buffer pointer on stack
+12EC  CD0807   ...                 call  FP_ADD_HALF    ; Number + 0.5 for rounding
+12EF  3C       <                   inc   a              ; Clear normalization flag
+12F0  CDFB0A   ...                 call  DROUND         ; Integer of number in Y
+12F3  CDB409   ...                 call  MOVFR          ; Enter number in X
+                     FF_TO_ASCII_CONT:
+12F6  E1       .                   pop   hl             ; Load buffer pointer
+12F7  C1       .                   pop   bc             ; Load '.' and ',' parameters
+12F8  AF       .                   xor   a              ; Clear repetition flag
+12F9  11D213   ...                 ld    de,0x13D2      ; Address constants 1E5 and 1E4
+12FC  3F       ?                   ccf                  ; Invert repetition flag
+12FD  CD9112   ...                 call  SET_DOT_COMMA  ; Set '.' and ','
+1300  C5       .                   push  bc             ; Parameters for '.' and ',' on stack
+1301  F5       .                   push  af             ; Repetition flag on stack
+1302  E5       .                   push  hl             ; Buffer pointer on stack
+1303  D5       .                   push  de             ; Constant pointer in HL
+1304  CDBF09   ...                 call  MOVRF          ; Transfer number to Y
+1307  E1       .                   pop   hl             ; Constant pointer in HL
+1308  062F     ./                  ld    b,0x2F         ; Digit code = '0' - 1
+130A  04       .                   inc   b              ; Digit code + 1
+130B  7B       {                   ld    a,e            ; Number - constant. Underflow?
+130C  96       .                   sub   (hl)           ; LSB
 130D  5F       _                   ld    e,a
-130E  23       #                   inc   hl
+130E  23       #                   inc   hl             ; Next digit
 130F  7A       z                   ld    a,d
 1310  9E       .                   sbc   a,(hl)
 1311  57       W                   ld    d,a
-1312  23       #                   inc   hl
+1312  23       #                   inc   hl             ; MSB
 1313  79       y                   ld    a,c
 1314  9E       .                   sbc   a,(hl)
 1315  4F       O                   ld    c,a
-1316  2B       +                   dec   hl
-1317  2B       +                   dec   hl
-1318  30F0     0.                  jr    nc,$-14
-131A  CDB707   ...                 call  0x07B7
-131D  23       #                   inc   hl
-131E  CDB409   ...                 call  MOVFR
-1321  EB       .                   ex    de,hl
-1322  E1       .                   pop   hl
-1323  70       p                   ld    (hl),b
-1324  23       #                   inc   hl
-1325  F1       .                   pop   af
-1326  C1       .                   pop   bc
-1327  38D3     8.                  jr    c,$-43
-1329  13       .                   inc   de
+1316  2B       +                   dec   hl             ; Constant pointer - 2
+1317  2B       +                   dec   hl             ; To 1st byte of constant
+1318  30F0     0.                  jr    nc,$-14        ; No underflow, back
+131A  CDB707   ...                 call  0x07B7         ; Number + constant
+131D  23       #                   inc   hl             ; Address next constant
+131E  CDB409   ...                 call  MOVFR          ; Transfer number to X
+1321  EB       .                   ex    de,hl          ; Constant address in DE
+1322  E1       .                   pop   hl             ; Load buffer pointer
+1323  70       p                   ld    (hl),b         ; Enter digit in buffer
+1324  23       #                   inc   hl             ; Buffer pointer + 1
+1325  F1       .                   pop   af             ; Load repetition flag
+1326  C1       .                   pop   bc             ; Load '.' and ',' parameters
+1327  38D3     8.                  jr    c,$-43         ; 2 passes? No, back
+1329  13       .                   inc   de             ; Skip next constant
 132A  13       .                   inc   de
-132B  3E04     >.                  ld    a,0x04
-132D  1806     ..                  jr    $+8
-132F  D5       .                   push  de
-1330  11D813   ...                 ld    de,0x13D8
-1333  3E05     >.                  ld    a,0x05
-1335  CD9112   ...                 call  SET_DOT_COMMA
-1338  C5       .                   push  bc
-1339  F5       .                   push  af
-133A  E5       .                   push  hl
-133B  EB       .                   ex    de,hl
-133C  4E       N                   ld    c,(hl)
-133D  23       #                   inc   hl
+132B  3E04     >.                  ld    a,0x04         ; 4 more digits in integer mode
+132D  1806     ..                  jr    $+8            ; Process
+                     ; *******************************
+                     ; * Convert integer to ASCII
+                     ; *******************************
+                     INT_TO_ASCII:
+132F  D5       .                   push  de             ; Format flag on stack
+1330  11D813   ...                 ld    de,0x13D8      ; Address constants 10000 to 1
+1333  3E05     >.                  ld    a,0x05         ; Digit counter = 5
+1335  CD9112   ...                 call  SET_DOT_COMMA  ; Output '.' and ','
+1338  C5       .                   push  bc             ; Parameters for '.' and ',' on stack
+1339  F5       .                   push  af             ; Digit counter on stack
+133A  E5       .                   push  hl             ; Buffer pointer on stack
+133B  EB       .                   ex    de,hl          ; Constant address in HL
+133C  4E       N                   ld    c,(hl)         ; Load constant
+133D  23       #                   inc   hl             ; Address next constant
 133E  46       F                   ld    b,(hl)
-133F  C5       .                   push  bc
-1340  23       #                   inc   hl
-1341  E3       .                   ex    (sp),hl
-1342  EB       .                   ex    de,hl
-1343  2A2179   *!y                 ld    hl,(FACLO)
-1346  062F     ./                  ld    b,0x2F
-1348  04       .                   inc   b
-1349  7D       }                   ld    a,l
+133F  C5       .                   push  bc             ; And save on stack
+1340  23       #                   inc   hl             ; Address next constant
+1341  E3       .                   ex    (sp),hl        ; Exchange constant address with constant on
+1342  EB       .                   ex    de,hl          ; Constant address in DE
+1343  2A2179   *!y                 ld    hl,(FACLO)     ; Load number in HL
+1346  062F     ./                  ld    b,0x2F         ; Digit code = '0' - 1
+1348  04       .                   inc   b              ; Digit code + 1
+1349  7D       }                   ld    a,l            ; Number - constant (LSB)
 134A  93       .                   sub   e
 134B  6F       o                   ld    l,a
-134C  7C       |                   ld    a,h
+134C  7C       |                   ld    a,h            ; Number - constant (MSB)
 134D  9A       .                   sbc   a,d
 134E  67       g                   ld    h,a
-134F  30F7     0.                  jr    nc,$-7
-1351  19       .                   add   hl,de
-1352  222179   "!y                 ld    (FACLO),hl
-1355  D1       .                   pop   de
-1356  E1       .                   pop   hl
-1357  70       p                   ld    (hl),b
-1358  23       #                   inc   hl
-1359  F1       .                   pop   af
-135A  C1       .                   pop   bc
-135B  3D       =                   dec   a
-135C  20D7      .                  jr    nz,$-39
-135E  CD9112   ...                 call  SET_DOT_COMMA
-1361  77       w                   ld    (hl),a
-1362  D1       .                   pop   de
-1363  C9       .                   ret   
+134F  30F7     0.                  jr    nc,$-7         ; Underflow? No, back
+1351  19       .                   add   hl,de          ; Number + constant
+1352  222179   "!y                 ld    (FACLO),hl     ; Save number in X
+1355  D1       .                   pop   de             ; Load constant address
+1356  E1       .                   pop   hl             ; Load buffer pointer
+1357  70       p                   ld    (hl),b         ; Enter digit in buffer
+1358  23       #                   inc   hl             ; Buffer pointer + 1
+1359  F1       .                   pop   af             ; Load digit counter
+135A  C1       .                   pop   bc             ; Load '.' and ',' parameters
+135B  3D       =                   dec   a              ; Digit counter - 1
+135C  20D7      .                  jr    nz,$-39        ; All digits? No, back
+135E  CD9112   ...                 call  SET_DOT_COMMA  ; Output '.' and ','
+1361  77       w                   ld    (hl),a         ; Mark end of line with X'00'
+1362  D1       .                   pop   de             ; Restore DE
+1363  C9       .                   ret                  ; Done
 1364  00       .                   nop   
 1365  00       .                   nop   
 1366  00       .                   nop   

@@ -1002,6 +1002,34 @@ name = DNORM_SHIFT_LOOP
 offset = 3318
 name = DNORM_BIT_LOOP
 
+[label]
+offset = 4713
+name = WRITE_ZEROS
+
+[label]
+offset = 4721
+name = WRITE_ZEROS_FMT
+
+[label]
+offset = 4733
+name = GET_FMT_PARAMS
+
+[label]
+offset = 4753
+name = SET_DOT_COMMA
+
+[label]
+offset = 4772
+name = FF_TO_ASCII
+
+[label]
+offset = 4854
+name = FF_TO_ASCII_CONT
+
+[label]
+offset = 4911
+name = INT_TO_ASCII
+
 [comment]
 offset = 0
 text = Test Start
@@ -10410,6 +10438,634 @@ text = Constant 1D16 in Y
 offset = 4705
 text = Value >= 1D16?
 
+[comment]
+offset = 4708
+text = Load return address
+
+[comment]
+offset = 4709
+text = Yes, to 1244H
+
+[comment]
+offset = 4712
+text = No, normal return
+
+[comment]
+offset = 4713
+text = Count = 0?
+
+[comment]
+offset = 4714
+text = Yes, done
+
+[comment]
+offset = 4715
+text = Count - 1
+
+[comment]
+offset = 4716
+text = '0' in buffer
+
+[comment]
+offset = 4718
+text = Buffer address + 1
+
+[comment]
+offset = 4719
+text = Continue at 126AH
+
+[comment]
+offset = 4721
+text = Count > 0? Yes, jump
+
+[comment]
+offset = 4723
+text = = 0?, done
+
+[comment]
+offset = 4724
+text = Set '.' and ','
+
+[comment]
+offset = 4727
+text = '0' in buffer
+
+[comment]
+offset = 4729
+text = Buffer address + 1
+
+[comment]
+offset = 4730
+text = Count - 1
+
+[comment]
+offset = 4731
+text = Back
+
+[comment]
+offset = 4733
+text = Number of shifts in A
+
+[comment]
+offset = 4734
+text = + Precision
+
+[comment]
+offset = 4735
+text = + 1
+
+[comment]
+offset = 4736
+text = = Decimal point position
+
+[comment]
+offset = 4737
+text = + 1
+
+[comment]
+offset = 4738
+text = Determine position of ','
+
+[comment]
+offset = 4740
+text = -3 until A is negative
+
+[comment]
+offset = 4742
+text = + 5
+
+[comment]
+offset = 4744
+text = As ',' parameter in C
+
+[comment]
+offset = 4745
+text = Load format flag
+
+[comment]
+offset = 4748
+text = ',' requested? (Bit 6)
+
+[comment]
+offset = 4750
+text = Yes, OK
+
+[comment]
+offset = 4751
+text = No, clear ',' parameter
+
+[comment]
+offset = 4752
+text = Return
+
+[comment]
+offset = 4753
+text = Decimal point position - 1
+
+[comment]
+offset = 4754
+text = Decimal point reached? No!
+
+[comment]
+offset = 4756
+text = '.' in buffer
+
+[comment]
+offset = 4758
+text = Remember address of '.'
+
+[comment]
+offset = 4761
+text = Buffer pointer + 1
+
+[comment]
+offset = 4762
+text = ',' = 0 (no more ',' to set)
+
+[comment]
+offset = 4763
+text = Done
+
+[comment]
+offset = 4764
+text = ',' parameter - 1. Next position?
+
+[comment]
+offset = 4765
+text = No, back
+
+[comment]
+offset = 4766
+text = ',' in buffer
+
+[comment]
+offset = 4768
+text = Buffer pointer + 1
+
+[comment]
+offset = 4769
+text = ',' parameter = 3 for next ','
+
+[comment]
+offset = 4771
+text = Done
+
+[comment]
+offset = 4772
+text = Save DE
+
+[comment]
+offset = 4773
+text = Test type
+
+[comment]
+offset = 4774
+text = Single precision? Continue at 12EAH
+
+[comment]
+offset = 4777
+text = Parameters for '.' and ',' on stack
+
+[comment]
+offset = 4778
+text = Buffer pointer on stack
+
+[comment]
+offset = 4779
+text = Number in Y
+
+[comment]
+offset = 4782
+text = Address constant 0.5
+
+[comment]
+offset = 4785
+text = 0.5 in X
+
+[comment]
+offset = 4788
+text = Number + 0.5 to X
+
+[comment]
+offset = 4791
+text = Clear normalization flag (Cy)
+
+[comment]
+offset = 4792
+text = Separate fractional part
+
+[comment]
+offset = 4795
+text = Load buffer pointer
+
+[comment]
+offset = 4796
+text = Load '.' and ',' parameters
+
+[comment]
+offset = 4797
+text = Address fixed-point constants 1D15-1D16
+
+[comment]
+offset = 4800
+text = Digit counter = 10
+
+[comment]
+offset = 4802
+text = Set '.' and ','
+
+[comment]
+offset = 4805
+text = Save '.' and ',' parameters
+
+[comment]
+offset = 4806
+text = Save digit counter
+
+[comment]
+offset = 4807
+text = Save buffer pointer
+
+[comment]
+offset = 4808
+text = Save constant address
+
+[comment]
+offset = 4809
+text = Digit value = '0' - 1
+
+[comment]
+offset = 4811
+text = Digit value + 1
+
+[comment]
+offset = 4812
+text = Constant address in HL
+
+[comment]
+offset = 4813
+text = And back on stack
+
+[comment]
+offset = 4814
+text = Number - constant. Underflow?
+
+[comment]
+offset = 4817
+text = No, continue
+
+[comment]
+offset = 4819
+text = Constant address in HL
+
+[comment]
+offset = 4820
+text = Number + constant
+
+[comment]
+offset = 4823
+text = Constant address in DE (next constant)
+
+[comment]
+offset = 4824
+text = Load buffer pointer
+
+[comment]
+offset = 4825
+text = Enter digit in buffer
+
+[comment]
+offset = 4826
+text = Buffer pointer + 1
+
+[comment]
+offset = 4827
+text = Load digit counter
+
+[comment]
+offset = 4828
+text = Load '.' and ',' parameters
+
+[comment]
+offset = 4829
+text = Digit counter - 1. 10 digits produced?
+
+[comment]
+offset = 4830
+text = No, continue
+
+[comment]
+offset = 4832
+text = Save '.' and ',' parameters
+
+[comment]
+offset = 4833
+text = Save buffer pointer
+
+[comment]
+offset = 4837
+text = Rest (< 1D6) with single precision in X
+
+[comment]
+offset = 4840
+text = Continue with single precision
+
+[comment]
+offset = 4842
+text = Parameters for '.' and ',' on stack
+
+[comment]
+offset = 4843
+text = Buffer pointer on stack
+
+[comment]
+offset = 4844
+text = Number + 0.5 for rounding
+
+[comment]
+offset = 4847
+text = Clear normalization flag
+
+[comment]
+offset = 4848
+text = Integer of number in Y
+
+[comment]
+offset = 4851
+text = Enter number in X
+
+[comment]
+offset = 4854
+text = Load buffer pointer
+
+[comment]
+offset = 4855
+text = Load '.' and ',' parameters
+
+[comment]
+offset = 4856
+text = Clear repetition flag
+
+[comment]
+offset = 4857
+text = Address constants 1E5 and 1E4
+
+[comment]
+offset = 4860
+text = Invert repetition flag
+
+[comment]
+offset = 4861
+text = Set '.' and ','
+
+[comment]
+offset = 4864
+text = Parameters for '.' and ',' on stack
+
+[comment]
+offset = 4865
+text = Repetition flag on stack
+
+[comment]
+offset = 4866
+text = Buffer pointer on stack
+
+[comment]
+offset = 4867
+text = Constant pointer in HL
+
+[comment]
+offset = 4868
+text = Transfer number to Y
+
+[comment]
+offset = 4871
+text = Constant pointer in HL
+
+[comment]
+offset = 4872
+text = Digit code = '0' - 1
+
+[comment]
+offset = 4874
+text = Digit code + 1
+
+[comment]
+offset = 4875
+text = Number - constant. Underflow?
+
+[comment]
+offset = 4876
+text = LSB
+
+[comment]
+offset = 4878
+text = Next digit
+
+[comment]
+offset = 4882
+text = MSB
+
+[comment]
+offset = 4886
+text = Constant pointer - 2
+
+[comment]
+offset = 4887
+text = To 1st byte of constant
+
+[comment]
+offset = 4888
+text = No underflow, back
+
+[comment]
+offset = 4890
+text = Number + constant
+
+[comment]
+offset = 4893
+text = Address next constant
+
+[comment]
+offset = 4894
+text = Transfer number to X
+
+[comment]
+offset = 4897
+text = Constant address in DE
+
+[comment]
+offset = 4898
+text = Load buffer pointer
+
+[comment]
+offset = 4899
+text = Enter digit in buffer
+
+[comment]
+offset = 4900
+text = Buffer pointer + 1
+
+[comment]
+offset = 4901
+text = Load repetition flag
+
+[comment]
+offset = 4902
+text = Load '.' and ',' parameters
+
+[comment]
+offset = 4903
+text = 2 passes? No, back
+
+[comment]
+offset = 4905
+text = Skip next constant
+
+[comment]
+offset = 4907
+text = 4 more digits in integer mode
+
+[comment]
+offset = 4909
+text = Process
+
+[comment]
+offset = 4911
+text = Format flag on stack
+
+[comment]
+offset = 4912
+text = Address constants 10000 to 1
+
+[comment]
+offset = 4915
+text = Digit counter = 5
+
+[comment]
+offset = 4917
+text = Output '.' and ','
+
+[comment]
+offset = 4920
+text = Parameters for '.' and ',' on stack
+
+[comment]
+offset = 4921
+text = Digit counter on stack
+
+[comment]
+offset = 4922
+text = Buffer pointer on stack
+
+[comment]
+offset = 4923
+text = Constant address in HL
+
+[comment]
+offset = 4924
+text = Load constant
+
+[comment]
+offset = 4925
+text = Address next constant
+
+[comment]
+offset = 4927
+text = And save on stack
+
+[comment]
+offset = 4928
+text = Address next constant
+
+[comment]
+offset = 4929
+text = Exchange constant address with constant on stack
+
+[comment]
+offset = 4930
+text = Constant address in DE
+
+[comment]
+offset = 4931
+text = Load number in HL
+
+[comment]
+offset = 4934
+text = Digit code = '0' - 1
+
+[comment]
+offset = 4936
+text = Digit code + 1
+
+[comment]
+offset = 4937
+text = Number - constant (LSB)
+
+[comment]
+offset = 4940
+text = Number - constant (MSB)
+
+[comment]
+offset = 4943
+text = Underflow? No, back
+
+[comment]
+offset = 4945
+text = Number + constant
+
+[comment]
+offset = 4946
+text = Save number in X
+
+[comment]
+offset = 4949
+text = Load constant address
+
+[comment]
+offset = 4950
+text = Load buffer pointer
+
+[comment]
+offset = 4951
+text = Enter digit in buffer
+
+[comment]
+offset = 4952
+text = Buffer pointer + 1
+
+[comment]
+offset = 4953
+text = Load digit counter
+
+[comment]
+offset = 4954
+text = Load '.' and ',' parameters
+
+[comment]
+offset = 4955
+text = Digit counter - 1
+
+[comment]
+offset = 4956
+text = All digits? No, back
+
+[comment]
+offset = 4958
+text = Output '.' and ','
+
+[comment]
+offset = 4961
+text = Mark end of line with X'00'
+
+[comment]
+offset = 4962
+text = Restore DE
+
+[comment]
+offset = 4963
+text = Done
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -11307,4 +11963,40 @@ text = Multiply or divide number by 10 as many times as needed until exactly 6 o
 [block]
 offset = 4687
 text = Test if number is large (>= 1E6 or 1D16)
+
+[block]
+offset = 4713
+text = *******************************
+              * Write zeros to buffer
+              *******************************
+
+[block]
+offset = 4721
+text = *******************************
+              * Write zeros with '.' and ','
+              *******************************
+
+[block]
+offset = 4733
+text = *******************************
+              * Determine '.' and ',' params
+              *******************************
+
+[block]
+offset = 4753
+text = *******************************
+              * Set '.' and ','
+              *******************************
+
+[block]
+offset = 4772
+text = *******************************
+              * Convert single/double prec to ASCII
+              *******************************
+
+[block]
+offset = 4911
+text = *******************************
+              * Convert integer to ASCII
+              *******************************
 

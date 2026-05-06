@@ -1,5 +1,30 @@
 # VZ200 BASIC ROM Disassembly Progress
 
+## Session: May 6, 2026
+
+### Task
+Annotate the byte range 0x1264 to 0x1363 based on Gerhard Wolf's Laser 310 German ROM listing (pages 85-90) and cross-referenced with TRS-80 Level II BASIC sources.
+
+### Work Summary
+- Translated and applied annotations for the range 0x1264 - 0x1363.
+- Identified and labeled key routines:
+  - `WRITE_ZEROS` (0x1269): Write zeros to buffer.
+  - `WRITE_ZEROS_FMT` (0x1271): Write zeros with decimal/thousands separators.
+  - `GET_FMT_PARAMS` (0x127D): Determine parameters for '.' and ','.
+  - `SET_DOT_COMMA` (0x1291): Set '.' and ',' in buffer.
+  - `FF_TO_ASCII` (0x12A4): Convert single/double precision numbers to ASCII string.
+  - `INT_TO_ASCII` (0x132F): Convert integer to ASCII string.
+- All German comments translated to English.
+- Binary identity maintained: `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+
+### Statistics
+- **Total Symbols:** 186 (Limit: 6000)
+- **Total Annotations:** 2514 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of inline comments in the target range.
+
 ## Session: May 5, 2026 (Part 2)
 
 ### Task
