@@ -2481,7 +2481,8 @@
 4521	1	xor	a
 4522	3	jp	z,0x11B0
 4525	2	ld	e,0x10
-4527	3	ld	bc,0x061E
+4527	1	DEFB	0x01
+4528	2	ld	e,0x06
 4530	3	call	0x0955
 4533	1	scf	
 4534	3	call	nz,0x1201

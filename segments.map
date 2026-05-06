@@ -62,3 +62,4 @@
 0x0E6B	0x0E6B	DIRECT_BYTE	FIN_OR_TRICK	Used to skip XOR A if entered at 0E6B
 0x0FA1	0x0FA1	DIRECT_BYTE	FINEDG_TRICK	Used to skip LD E,32 if entered at 0FA1
 0x10F8	0x10F8	DIRECT_BYTE	PUSTR_LD_BC_TRICK	Used to skip next two bytes
+0x11AF	0x11AF	DIRECT_BYTE	PUSTR_LD_BC_TRICK_2	Used to skip next two bytes

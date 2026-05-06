@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Tue May  5 23:12:35 2026
+; Generated: Tue May  5 23:42:11 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -2945,7 +2945,7 @@ DNORM_BIT_LOOP:
 
 ; Convert integer to string
               rra                  ; Exponent output? (Bit 0)
-              jp    c,0x11A3       ; yes!
+              jp    c,PUSTR_EXP_INT ; yes!
               ld    bc,0x0603      ; Parameters for '.' and ','
               call  0x1289         ; no ',' output?
               pop   de             ; Load length parameter into DE
@@ -3029,184 +3029,202 @@ DNORM_BIT_LOOP:
               dec   hl             ; Buffer pointer - 1
               ld    (hl),0x25      ; '%' for field overflow before string
               ret                  ; Return
-              ld    bc,0xB60E
+
+; Single precision number
+              ld    bc,0xB60E      ; Set Y = 1E6
               ld    de,0x1BCA
-              call  FCOMP
-              jp    p,PUSTR_OVERFLOW_STR
-              ld    d,0x06
-              call  SIGN
-              call  nz,GET_10_EXP
-              pop   hl
-              pop   bc
-              jp    m,0x1157
-              push  bc
-              ld    e,a
-              ld    a,b
-              sub   d
-              sub   e
-              call  p,PUT_ZEROS
-              call  0x127D
-              call  FAC_TO_STR
-              or    e
-              call  nz,0x1277
-              or    e
-              call  nz,SET_DOT_COMMA
-              pop   de
-              jp    0x10B6
-              ld    e,a
-              ld    a,c
+              call  FCOMP          ; Value >= 1E6?
+              jp    p,PUSTR_OVERFLOW_STR ; Yes, field overflow
+              ld    d,0x06         ; Precision (6 digits) in D
+              call  SIGN           ; Value = 0?
+              call  nz,GET_10_EXP  ; No, Exp - Precision + 1 in A
+              pop   hl             ; Load buffer pointer
+              pop   bc             ; Load length parameter
+              jp    m,PUSTR_HAS_DECIMAL ; Decimal places? Yes - jump
+
+; No decimal places
+              push  bc             ; Length parameter on stack
+              ld    e,a            ; Exp - Precision + 1 in E
+              ld    a,b            ; Integer field length in A
+              sub   d              ; - Exponent
+              sub   e              ; - 1 >= 0?
+              call  p,PUT_ZEROS    ; Yes, corresponding number of zeros in buffer
+              call  0x127D         ; Determine parameters for '.' and ','
+              call  FAC_TO_STR     ; Generate string
+              or    e              ; Exponent - Precision + 1 > 0?
+              call  nz,0x1277      ; Yes, corresponding number of zeros in buffer with '.' and ','
+              or    e              ; Exponent - Precision + 1 > 0?
+              call  nz,SET_DOT_COMMA ; Yes, '.' and ',' in buffer
+              pop   de             ; Load length parameter
+              jp    0x10B6         ; Execute remaining formatting
+
+; Decimal places present
+              ld    e,a            ; Exponent - Precision + 1 to E
+              ld    a,c            ; Fractional field length in A
+              or    a              ; > 0?
+              call  nz,0x0F16      ; Yes, - 1 for '.'
+              add   a,e            ; More than present?
+              jp    m,0x1162       ; Yes!
+              xor   a              ; No, number of superfluous places = 0
+              push  bc             ; Length parameter on stack
+              push  af             ; -Number of superfluous places on stack
+              call  m,FINDIV       ; Remove superfluous places
+              jp    m,0x1164       ; Done? No - back
+              pop   bc             ; -Number of superfluous places from stack
+              ld    a,e            ; -Number of fractional places to be actually output in A
+              sub   b              ; Fractional places in A
+              pop   bc             ; Reload length parameter
+              ld    e,a            ; Fractional places in E
+              add   a,d            ; + Precision > 0?
+              ld    a,b            ; Integer field length in A
+              jp    m,PUSTR_ONLY_DECIMAL ; Yes!
+              sub   d              ; Integer field length - Precision
+              sub   e              ; + Fractional places to be output > 0?
+              call  p,PUT_ZEROS    ; Corresponding number of zeros in buffer
+              push  bc             ; Length parameter on stack
+              call  0x127D         ; Determine parameters for '.' and ','
+              jr    $+19           ; Continue at 1190H
+
+; Only fractional places
+              call  PUT_ZEROS      ; Zeros for integer places in buffer
+              ld    a,c            ; Fractional field length in A
+              call  0x1294         ; '.' in buffer
+              ld    c,a            ; Fractional field length in C
+              xor   a              ; Actually output fractional places
+              sub   d              ; - Precision
+              sub   e              ; = Number of zeros to be inserted
+              call  PUT_ZEROS      ; Enter zeros into buffer
+              push  bc             ; Save length parameter on stack
+              ld    b,a            ; Clear parameters for '.' and ','
+              ld    c,a
+              call  FAC_TO_STR     ; String into buffer
+              pop   bc             ; Load length parameter from stack
+              or    c              ; Fractional field length > 0?
+              jr    nz,$+5         ; Yes!
+              ld    hl,(0x78F3)    ; Load '.' address
+              add   a,e            ; Fractional field length - number of actually output fractional 
+              dec   a              ; - 1 for '.'
+              call  p,PUT_ZEROS    ; > 0? Output corresponding number of zeros
+              ld    d,b            ; Integer field length in D
+              jp    0x10BF         ; Continue at 10BFH
+
+; Formatted exponent output
+              push  hl             ; Buffer pointer on stack
+              push  de             ; Format flag on stack
+              call  INEG           ; Convert integer to single precision
+              pop   de             ; Reload format flag
+              xor   a              ; Set flag for single precision
+
+; Entry for single and double precision
+              jp    z,0x11B0       ; Single precision? => jump
+              ld    e,0x10         ; Double precision = 16 places
+              DEFB  0x01           ; LD BC trick
+              ld    e,0x06         ; Single precision = 6 places
+              call  SIGN           ; Value = 0?
+              scf                  ; Yes, set Carry
+              call  nz,GET_10_EXP  ; No, Exponent - Precision + 1, C=0
+              pop   hl             ; Load buffer pointer
+              pop   bc             ; Load length parameter
+              push  af             ; Save Exp-Precision+1 and flag
+              ld    a,c            ; Fractional field length = 0?
               or    a
-              call  nz,0x0F16
-              add   a,e
-              jp    m,0x1162
-              xor   a
-              push  bc
-              push  af
-              call  m,FINDIV
-              jp    m,0x1164
-              pop   bc
-              ld    a,e
-              sub   b
-              pop   bc
-              ld    e,a
-              add   a,d
-              ld    a,b
-              jp    m,0x117F
-              sub   d
-              sub   e
-              call  p,PUT_ZEROS
-              push  bc
-              call  0x127D
-              jr    $+19
-              call  PUT_ZEROS
-              ld    a,c
-              call  0x1294
-              ld    c,a
-              xor   a
-              sub   d
-              sub   e
-              call  PUT_ZEROS
-              push  bc
-              ld    b,a
-              ld    c,a
-              call  FAC_TO_STR
-              pop   bc
-              or    c
-              jr    nz,$+5
-              ld    hl,(0x78F3)
-              add   a,e
-              dec   a
-              call  p,PUT_ZEROS
-              ld    d,b
-              jp    0x10BF
-              push  hl
-              push  de
-              call  INEG
-              pop   de
-              xor   a
-              jp    z,0x11B0
-              ld    e,0x10
-              ld    bc,0x061E
-              call  SIGN
-              scf   
-              call  nz,GET_10_EXP
-              pop   hl
-              pop   bc
-              push  af
-              ld    a,c
-              or    a
-              push  af
-              call  nz,0x0F16
-              add   a,b
-              ld    c,a
-              ld    a,d
-              and   0x04
-              cp    0x01
-              sbc   a,a
+              push  af             ; Fractional field length on stack
+              call  nz,0x0F16      ; No, fractional field length - 1
+              add   a,b            ; Add integer field length
+              ld    c,a            ; Total field length in C
+              ld    a,d            ; Test format flag
+              and   0x04           ; Sign behind number? (Bit 2)
+              cp    0x01           ; Yes, 0 in format flag
+              sbc   a,a            ; Otherwise -1
               ld    d,a
-              add   a,c
-              ld    c,a
-              sub   e
-              push  af
-              push  bc
-              call  m,FINDIV
-              jp    m,0x11D0
-              pop   bc
-              pop   af
-              push  bc
-              push  af
-              jp    m,0x11DE
-              xor   a
-              cpl   
-              inc   a
-              add   a,b
-              inc   a
-              add   a,d
-              ld    b,a
-              ld    c,0x00
-              call  FAC_TO_STR
-              pop   af
-              call  p,0x1271
-              pop   bc
-              pop   af
-              call  z,DCXHRT
-              pop   af
-              jr    c,$+5
-              add   a,e
-              sub   b
-              sub   d
-              push  bc
-              call  0x1074
-              ex    de,hl
-              pop   de
-              jp    0x10BF
-              push  de
-              xor   a
-              push  af
-              rst   0x20
-              jp    po,0x1222
-              ld    a,(FAC)
-              cp    0x91
-              jp    nc,0x1222
-              ld    de,0x1364
-              ld    hl,FAC2
-              call  VMOVE
-              call  DMULT
-              pop   af
-              sub   0x0A
-              push  af
-              jr    $-24
-              call  0x124F
-              rst   0x20
-              jp    pe,0x1234
-              ld    bc,0x9143
-              ld    de,0x4FF9
-              call  FCOMP
-              jr    $+8
-              ld    de,0x136C
-              call  0x0A49
-              jp    p,0x124C
-              pop   af
-              call  0x0F0B
-              push  af
-              jr    $-29
-              pop   af
-              call  FINDIV
-              push  af
-              call  0x124F
-              pop   af
-              pop   de
-              ret   
-              rst   0x20
-              jp    pe,0x125E
-              ld    bc,0x9474
-              ld    de,0x23F8
-              call  FCOMP
-              jr    $+8
-              ld    de,0x1374
-              call  0x0A49
+              add   a,c            ; Total length - 1, if sign not behind number
+              ld    c,a            ; in C
+              sub   e              ; - Exp - Precision + 1 results in
+              push  af             ; -Number of places to be rounded away
+              push  bc             ; Length parameter on stack
+              call  m,FINDIV       ; Round away places
+              jp    m,PUSTR_ROUND_LOOP ; Loop until count = 0
+              pop   bc             ; Load length parameter
+              pop   af             ; Number of rounded away places
+              push  bc             ; Length parameter back on stack
+              push  af             ; Number of rounded away places on stack
+              jp    m,PUSTR_ROUND_DONE ; Places rounded away? Yes to 11DEH
+              xor   a              ; No places rounded away
+              cpl                  ; Determine positive number
+              inc   a              ; + 1
+              add   a,b            ; + Integer length
+              inc   a              ; + 1
+              add   a,d            ; - 1, if sign before number
+              ld    b,a            ; = Position of '.'
+              ld    c,0x00         ; Parameter for '.' and ',' = 0 (no ',')
+              call  FAC_TO_STR     ; Transfer string to buffer
+              pop   af             ; Total length - Precision > 0?
+              call  p,0x1271       ; Yes, corresponding number of zeros in buffer
+              pop   bc             ; Reload length parameter
+              pop   af             ; Fractional length = 0?
+              call  z,DCXHRT       ; Yes, delete '.' in buffer
+              pop   af             ; Value = 0?
+              jr    c,$+5          ; Yes!
+              add   a,e            ; Determine exponent to be output
+              sub   b              ; SUB B
+              sub   d              ; SUB D
+              push  bc             ; Length parameter on stack
+              call  0x1074         ; Exponent in buffer
+              ex    de,hl          ; Buffer end address in HL
+              pop   de             ; Length parameter in DE
+              jp    0x10BF         ; Continue at 10BFH
+
+; Multiply or divide number by 10 as many times as needed until exactly 6 or 16
+; digits are present.
+              push  de             ; Save DE
+              xor   a              ; Number of shifts = 0
+              push  af             ; Number of shifts on stack
+              rst   0x20           ; Test type
+              jp    po,GET_10_EXP_START ; Single precision!
+              ld    a,(FAC)        ; Value >= 65536?
+              cp    0x91           ; Value >= 65536?
+              jp    nc,GET_10_EXP_START ; Yes!
+              ld    de,0x1364      ; Address constant 1D10
+              ld    hl,FAC2        ; Address Y
+              call  VMOVE          ; Transfer 1D10 to Y
+              call  DMULT          ; Value * 1D10
+              pop   af             ; Load number of shifts
+              sub   0x0A           ; Subtract 10
+              push  af             ; And back on stack
+              jr    $-24           ; Continue
+              call  GET_10_EXP_TEST ; Yes, continue at 1244H
+              rst   0x20           ; Test type
+              jp    pe,GET_10_EXP_DBL ; Double precision? Yes, to 1234H
+              ld    bc,0x9143      ; Constant 100000 in Y
+              ld    de,0x4FF9      ; Load DE with 4FF9H
+              call  FCOMP          ; Value > 100000?
+              jr    $+8            ; Continue at 123AH
+              ld    de,0x136C      ; Address constant 1D15
+              call  0x0A49         ; Value >= 1D15?
+              jp    p,0x124C       ; Yes!
+              pop   af             ; Load shifts
+              call  0x0F0B         ; Value / 10, shifts + 1
+              push  af             ; Shifts on stack
+              jr    $-29           ; Continue
+              pop   af             ; Load shifts
+              call  FINDIV         ; Value * 10, shifts - 1
+              push  af             ; Shifts on stack
+              call  GET_10_EXP_TEST ; Yes, continue at 124FH
+              pop   af             ; Load shifts
+              pop   de             ; Restore DE
+              ret                  ; Return
+
+; Test if number is large (>= 1E6 or 1D16)
+              rst   0x20           ; Test type
+              jp    pe,0x125E      ; Double precision? Yes, to 125EH
+              ld    bc,0x9474      ; Constant 1E6 in Y
+              ld    de,0x23F8      ; Load DE with 23F8H
+              call  FCOMP          ; Value >= 1D6?
+              jr    $+8            ; Continue
+              ld    de,0x1374      ; Constant 1D16 in Y
+              call  0x0A49         ; Value >= 1D16?
               pop   hl
-              jp    p,0x1244
+              jp    p,GET_10_EXP_LOOP_2
               jp    (hl)
               or    a
               ret   z

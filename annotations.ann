@@ -309,6 +309,11 @@ offset = 4344
 end = 4344
 type = DATA_BYTE
 
+[region]
+offset = 4527
+end = 4527
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -9713,6 +9718,698 @@ text = '%' for field overflow before string
 offset = 4387
 text = Return
 
+[comment]
+offset = 4388
+text = Set Y = 1E6
+
+[comment]
+offset = 4394
+text = Value >= 1E6?
+
+[comment]
+offset = 4397
+text = Yes, field overflow
+
+[comment]
+offset = 4400
+text = Precision (6 digits) in D
+
+[comment]
+offset = 4402
+text = Value = 0?
+
+[comment]
+offset = 4405
+text = No, Exp - Precision + 1 in A
+
+[comment]
+offset = 4408
+text = Load buffer pointer
+
+[comment]
+offset = 4409
+text = Load length parameter
+
+[comment]
+offset = 4410
+text = Decimal places? Yes - jump
+
+[comment]
+offset = 4413
+text = Length parameter on stack
+
+[comment]
+offset = 4414
+text = Exp - Precision + 1 in E
+
+[comment]
+offset = 4415
+text = Integer field length in A
+
+[comment]
+offset = 4416
+text = - Exponent
+
+[comment]
+offset = 4417
+text = - 1 >= 0?
+
+[comment]
+offset = 4418
+text = Yes, corresponding number of zeros in buffer
+
+[comment]
+offset = 4421
+text = Determine parameters for '.' and ','
+
+[comment]
+offset = 4424
+text = Generate string
+
+[comment]
+offset = 4427
+text = Exponent - Precision + 1 > 0?
+
+[comment]
+offset = 4428
+text = Yes, corresponding number of zeros in buffer with '.' and ','
+
+[comment]
+offset = 4431
+text = Exponent - Precision + 1 > 0?
+
+[comment]
+offset = 4432
+text = Yes, '.' and ',' in buffer
+
+[comment]
+offset = 4435
+text = Load length parameter
+
+[comment]
+offset = 4436
+text = Execute remaining formatting
+
+[comment]
+offset = 4439
+text = Exponent - Precision + 1 to E
+
+[comment]
+offset = 4440
+text = Fractional field length in A
+
+[comment]
+offset = 4441
+text = > 0?
+
+[comment]
+offset = 4442
+text = Yes, - 1 for '.'
+
+[comment]
+offset = 4445
+text = More than present?
+
+[comment]
+offset = 4446
+text = Yes!
+
+[comment]
+offset = 4449
+text = No, number of superfluous places = 0
+
+[comment]
+offset = 4450
+text = Length parameter on stack
+
+[comment]
+offset = 4451
+text = -Number of superfluous places on stack
+
+[comment]
+offset = 4452
+text = Remove superfluous places
+
+[comment]
+offset = 4455
+text = Done? No - back
+
+[comment]
+offset = 4458
+text = -Number of superfluous places from stack
+
+[comment]
+offset = 4459
+text = -Number of fractional places to be actually output in A
+
+[comment]
+offset = 4460
+text = Fractional places in A
+
+[comment]
+offset = 4461
+text = Reload length parameter
+
+[comment]
+offset = 4462
+text = Fractional places in E
+
+[comment]
+offset = 4463
+text = + Precision > 0?
+
+[comment]
+offset = 4464
+text = Integer field length in A
+
+[comment]
+offset = 4465
+text = Yes!
+
+[comment]
+offset = 4468
+text = Integer field length - Precision
+
+[comment]
+offset = 4469
+text = + Fractional places to be output > 0?
+
+[comment]
+offset = 4470
+text = Corresponding number of zeros in buffer
+
+[comment]
+offset = 4473
+text = Length parameter on stack
+
+[comment]
+offset = 4474
+text = Determine parameters for '.' and ','
+
+[comment]
+offset = 4477
+text = Continue at 1190H
+
+[comment]
+offset = 4479
+text = Zeros for integer places in buffer
+
+[comment]
+offset = 4482
+text = Fractional field length in A
+
+[comment]
+offset = 4483
+text = '.' in buffer
+
+[comment]
+offset = 4486
+text = Fractional field length in C
+
+[comment]
+offset = 4487
+text = Actually output fractional places
+
+[comment]
+offset = 4488
+text = - Precision
+
+[comment]
+offset = 4489
+text = = Number of zeros to be inserted
+
+[comment]
+offset = 4490
+text = Enter zeros into buffer
+
+[comment]
+offset = 4493
+text = Save length parameter on stack
+
+[comment]
+offset = 4494
+text = Clear parameters for '.' and ','
+
+[comment]
+offset = 4496
+text = String into buffer
+
+[comment]
+offset = 4499
+text = Load length parameter from stack
+
+[comment]
+offset = 4500
+text = Fractional field length > 0?
+
+[comment]
+offset = 4501
+text = Yes!
+
+[comment]
+offset = 4503
+text = Load '.' address
+
+[comment]
+offset = 4506
+text = Fractional field length - number of actually output fractional places
+
+[comment]
+offset = 4507
+text = - 1 for '.'
+
+[comment]
+offset = 4508
+text = > 0? Output corresponding number of zeros
+
+[comment]
+offset = 4511
+text = Integer field length in D
+
+[comment]
+offset = 4512
+text = Continue at 10BFH
+
+[comment]
+offset = 4515
+text = Buffer pointer on stack
+
+[comment]
+offset = 4516
+text = Format flag on stack
+
+[comment]
+offset = 4517
+text = Convert integer to single precision
+
+[comment]
+offset = 4520
+text = Reload format flag
+
+[comment]
+offset = 4521
+text = Set flag for single precision
+
+[comment]
+offset = 4522
+text = Single precision? => jump
+
+[comment]
+offset = 4525
+text = Double precision = 16 places
+
+[comment]
+offset = 4527
+text = LD BC trick
+
+[comment]
+offset = 4528
+text = Single precision = 6 places
+
+[comment]
+offset = 4530
+text = Value = 0?
+
+[comment]
+offset = 4533
+text = Yes, set Carry
+
+[comment]
+offset = 4534
+text = No, Exponent - Precision + 1, C=0
+
+[comment]
+offset = 4537
+text = Load buffer pointer
+
+[comment]
+offset = 4538
+text = Load length parameter
+
+[comment]
+offset = 4539
+text = Save Exp-Precision+1 and flag
+
+[comment]
+offset = 4540
+text = Fractional field length = 0?
+
+[comment]
+offset = 4542
+text = Fractional field length on stack
+
+[comment]
+offset = 4543
+text = No, fractional field length - 1
+
+[comment]
+offset = 4546
+text = Add integer field length
+
+[comment]
+offset = 4547
+text = Total field length in C
+
+[comment]
+offset = 4548
+text = Test format flag
+
+[comment]
+offset = 4549
+text = Sign behind number? (Bit 2)
+
+[comment]
+offset = 4551
+text = Yes, 0 in format flag
+
+[comment]
+offset = 4553
+text = Otherwise -1
+
+[comment]
+offset = 4555
+text = Total length - 1, if sign not behind number
+
+[comment]
+offset = 4556
+text = in C
+
+[comment]
+offset = 4557
+text = - Exp - Precision + 1 results in
+
+[comment]
+offset = 4558
+text = -Number of places to be rounded away
+
+[comment]
+offset = 4559
+text = Length parameter on stack
+
+[comment]
+offset = 4560
+text = Round away places
+
+[comment]
+offset = 4563
+text = Loop until count = 0
+
+[comment]
+offset = 4566
+text = Load length parameter
+
+[comment]
+offset = 4567
+text = Number of rounded away places
+
+[comment]
+offset = 4568
+text = Length parameter back on stack
+
+[comment]
+offset = 4569
+text = Number of rounded away places on stack
+
+[comment]
+offset = 4570
+text = Places rounded away? Yes to 11DEH
+
+[comment]
+offset = 4573
+text = No places rounded away
+
+[comment]
+offset = 4574
+text = Determine positive number
+
+[comment]
+offset = 4575
+text = + 1
+
+[comment]
+offset = 4576
+text = + Integer length
+
+[comment]
+offset = 4577
+text = + 1
+
+[comment]
+offset = 4578
+text = - 1, if sign before number
+
+[comment]
+offset = 4579
+text = = Position of '.'
+
+[comment]
+offset = 4580
+text = Parameter for '.' and ',' = 0 (no ',')
+
+[comment]
+offset = 4582
+text = Transfer string to buffer
+
+[comment]
+offset = 4585
+text = Total length - Precision > 0?
+
+[comment]
+offset = 4586
+text = Yes, corresponding number of zeros in buffer
+
+[comment]
+offset = 4589
+text = Reload length parameter
+
+[comment]
+offset = 4590
+text = Fractional length = 0?
+
+[comment]
+offset = 4591
+text = Yes, delete '.' in buffer
+
+[comment]
+offset = 4594
+text = Value = 0?
+
+[comment]
+offset = 4595
+text = Yes!
+
+[comment]
+offset = 4597
+text = Determine exponent to be output
+
+[comment]
+offset = 4598
+text = SUB B
+
+[comment]
+offset = 4599
+text = SUB D
+
+[comment]
+offset = 4600
+text = Length parameter on stack
+
+[comment]
+offset = 4601
+text = Exponent in buffer
+
+[comment]
+offset = 4604
+text = Buffer end address in HL
+
+[comment]
+offset = 4605
+text = Length parameter in DE
+
+[comment]
+offset = 4606
+text = Continue at 10BFH
+
+[comment]
+offset = 4609
+text = Save DE
+
+[comment]
+offset = 4610
+text = Number of shifts = 0
+
+[comment]
+offset = 4611
+text = Number of shifts on stack
+
+[comment]
+offset = 4612
+text = Test type
+
+[comment]
+offset = 4613
+text = Single precision!
+
+[comment]
+offset = 4616
+text = Value >= 65536?
+
+[comment]
+offset = 4619
+text = Value >= 65536?
+
+[comment]
+offset = 4621
+text = Yes!
+
+[comment]
+offset = 4624
+text = Address constant 1D10
+
+[comment]
+offset = 4627
+text = Address Y
+
+[comment]
+offset = 4630
+text = Transfer 1D10 to Y
+
+[comment]
+offset = 4633
+text = Value * 1D10
+
+[comment]
+offset = 4636
+text = Load number of shifts
+
+[comment]
+offset = 4637
+text = Subtract 10
+
+[comment]
+offset = 4639
+text = And back on stack
+
+[comment]
+offset = 4640
+text = Continue
+
+[comment]
+offset = 4642
+text = Yes, continue at 1244H
+
+[comment]
+offset = 4645
+text = Test type
+
+[comment]
+offset = 4646
+text = Double precision? Yes, to 1234H
+
+[comment]
+offset = 4649
+text = Constant 100000 in Y
+
+[comment]
+offset = 4652
+text = Load DE with 4FF9H
+
+[comment]
+offset = 4655
+text = Value > 100000?
+
+[comment]
+offset = 4658
+text = Continue at 123AH
+
+[comment]
+offset = 4660
+text = Address constant 1D15
+
+[comment]
+offset = 4663
+text = Value >= 1D15?
+
+[comment]
+offset = 4666
+text = Yes!
+
+[comment]
+offset = 4669
+text = Load shifts
+
+[comment]
+offset = 4670
+text = Value / 10, shifts + 1
+
+[comment]
+offset = 4673
+text = Shifts on stack
+
+[comment]
+offset = 4674
+text = Continue
+
+[comment]
+offset = 4676
+text = Load shifts
+
+[comment]
+offset = 4677
+text = Value * 10, shifts - 1
+
+[comment]
+offset = 4680
+text = Shifts on stack
+
+[comment]
+offset = 4681
+text = Yes, continue at 124FH
+
+[comment]
+offset = 4684
+text = Load shifts
+
+[comment]
+offset = 4685
+text = Restore DE
+
+[comment]
+offset = 4686
+text = Return
+
+[comment]
+offset = 4687
+text = Test type
+
+[comment]
+offset = 4688
+text = Double precision? Yes, to 125EH
+
+[comment]
+offset = 4691
+text = Constant 1E6 in Y
+
+[comment]
+offset = 4694
+text = Load DE with 23F8H
+
+[comment]
+offset = 4697
+text = Value >= 1D6?
+
+[comment]
+offset = 4700
+text = Continue
+
+[comment]
+offset = 4702
+text = Constant 1D16 in Y
+
+[comment]
+offset = 4705
+text = Value >= 1D16?
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -10578,4 +11275,36 @@ text = Generate formatted string of single or double precision numbers
 [block]
 offset = 4379
 text = Field overflow
+
+[block]
+offset = 4388
+text = Single precision number
+
+[block]
+offset = 4413
+text = No decimal places
+
+[block]
+offset = 4439
+text = Decimal places present
+
+[block]
+offset = 4479
+text = Only fractional places
+
+[block]
+offset = 4515
+text = Formatted exponent output
+
+[block]
+offset = 4522
+text = Entry for single and double precision
+
+[block]
+offset = 4609
+text = Multiply or divide number by 10 as many times as needed until exactly 6 or 16 digits are present.
+
+[block]
+offset = 4687
+text = Test if number is large (>= 1E6 or 1D16)
 

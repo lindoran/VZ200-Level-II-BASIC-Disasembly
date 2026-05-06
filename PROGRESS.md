@@ -1,22 +1,24 @@
 # VZ200 BASIC ROM Disassembly Progress
 
-## Session: May 5, 2026
+## Session: May 5, 2026 (Part 2)
 
 ### Task
-Annotate the byte range 0x1033 to 0x1123 based on Gerhard Wolf's Laser 310 German ROM listing and cross-referenced with TRS-80 Level II BASIC sources.
+Annotate the byte range 0x1124 to 0x124E based on Gerhard Wolf's Laser 310 German ROM listing and cross-referenced with TRS-80 Level II BASIC sources.
 
 ### Statistics
-- Total Annotations: 2,184
-- Total Symbols: 167
+- Total Annotations: 2,357
+- Total Symbols: 186
 
 ### Work Completed
-- **Range:** 0x1033 - 0x1123 (Buffer initialization, unformatted string conversion for single/double precision, formatted string generation, integer to string conversion, field length handling, and overflow management).
-- **Annotations:** Added block comments, labels, and inline comments in English. Routines documented include `FOUINI`, `FOUFRV`, `PUSTR_FORM`, `PUSTR_INT`, `PUSTR_REST`, `PUSTR_LOOP`, `PUSTR_OVERFLOW`, `PUSTR_VAL`, and `PUSTR_OVERFLOW_STR`.
-- **Symbols added:** `GET_10_EXP`, `SET_DOT_COMMA`, `FAC_TO_STR`, `PUT_ZEROS`, `PUSTR_INT_SUB`, `PUSTR_UNFORM_INIT`, `PUSTR_FORM`, `PUSTR_INT`, `PUSTR_REST`, `PUSTR_LOOP`, `PUSTR_OVERFLOW`, `PUSTR_VAL`, `PUSTR_OVERFLOW_STR`, `PUSTR_SINGLE`, `FOUFRV_END`, `FOUFRV_POS`, `PUSTR_EXP`, `PUSTR_LOOP_CONT`, `PUSTR_LOOP_NEXT`, `PUSTR_STACK_CHAR`.
-- **Bug Fix / Trick:** Handled the "LD BC trick" at 0x10F8 (overlapping code) by defining it as a `DIRECT_BYTE` segment in `segments.map`. This enabled proper disassembly and annotation of the `DEC HL` and `LD (HL),A` instructions at 0x10F9 and 0x10FA.
+- **Range:** 0x1124 - 0x124E (Formatting single precision numbers, decimal place handling, integer/fractional logic, formatted exponent output, and the large number normalization loop).
+- **Annotations:** Added block comments, labels, and inline comments in English. Routines documented include `FFXSFX` (PUSTR_SINGLE), `FFXSDC` (PUSTR_NO_DECIMAL), `FFXSDP` (PUSTR_HAS_DECIMAL), `FFXIFL` (PUSTR_EXP_INT), `FFXDFL` (PUSTR_EXP_FLOAT), and `FONTINV` (GET_10_EXP).
+- **Symbols added:** `FFXSFX`, `FFXSDC`, `FFXSDP`, `FFXIFL`, `FFXDFL`, `FONTINV`, `PUSTR_ONLY_DECIMAL`, `PUSTR_ROUND_LOOP`, `PUSTR_ROUND_DONE`, `GET_10_EXP_SINGLE`, `GET_10_EXP_START`, `GET_10_EXP_DBL`, `GET_10_EXP_LOOP`, `GET_10_EXP_LOOP_2`, `GET_10_EXP_TEST`.
+- **Bug Fix / Trick:** Handled the "LD BC trick" at 0x11AF (overlapping code) by defining it as a `DIRECT_BYTE` segment in `segments.map`. This enabled proper disassembly and annotation of the `LD E,6` instruction at 0x11B0.
 - **Verification:**
   - `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
-  - `export.lst` verified to contain correct English inline comments for the range 0x1033-0x1123.
+  - `export.lst` verified to contain correct English inline comments for the range 0x1124-0x124E.
+
+## Session: May 5, 2026 (Part 1)
 
 ## Session: May 1, 2026 (Part 2)
 
