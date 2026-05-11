@@ -314,6 +314,171 @@ offset = 4527
 end = 4527
 type = DATA_BYTE
 
+[region]
+offset = 4964
+end = 4971
+type = DATA_BYTE
+
+[region]
+offset = 4972
+end = 4979
+type = DATA_BYTE
+
+[region]
+offset = 4980
+end = 4987
+type = DATA_BYTE
+
+[region]
+offset = 4988
+end = 4991
+type = DATA_BYTE
+
+[region]
+offset = 4992
+end = 4995
+type = DATA_BYTE
+
+[region]
+offset = 4996
+end = 5003
+type = DATA_BYTE
+
+[region]
+offset = 5004
+end = 5010
+type = DATA_BYTE
+
+[region]
+offset = 5011
+end = 5017
+type = DATA_BYTE
+
+[region]
+offset = 5018
+end = 5024
+type = DATA_BYTE
+
+[region]
+offset = 5025
+end = 5031
+type = DATA_BYTE
+
+[region]
+offset = 5032
+end = 5038
+type = DATA_BYTE
+
+[region]
+offset = 5039
+end = 5045
+type = DATA_BYTE
+
+[region]
+offset = 5046
+end = 5052
+type = DATA_BYTE
+
+[region]
+offset = 5053
+end = 5059
+type = DATA_BYTE
+
+[region]
+offset = 5060
+end = 5066
+type = DATA_BYTE
+
+[region]
+offset = 5067
+end = 5073
+type = DATA_BYTE
+
+[region]
+offset = 5074
+end = 5076
+type = DATA_BYTE
+
+[region]
+offset = 5077
+end = 5079
+type = DATA_BYTE
+
+[region]
+offset = 5080
+end = 5081
+type = DATA_BYTE
+
+[region]
+offset = 5082
+end = 5083
+type = DATA_BYTE
+
+[region]
+offset = 5084
+end = 5085
+type = DATA_BYTE
+
+[region]
+offset = 5086
+end = 5087
+type = DATA_BYTE
+
+[region]
+offset = 5088
+end = 5089
+type = DATA_BYTE
+
+[region]
+offset = 5241
+end = 5241
+type = DATA_BYTE
+
+[region]
+offset = 5242
+end = 5245
+type = DATA_BYTE
+
+[region]
+offset = 5246
+end = 5249
+type = DATA_BYTE
+
+[region]
+offset = 5250
+end = 5253
+type = DATA_BYTE
+
+[region]
+offset = 5254
+end = 5257
+type = DATA_BYTE
+
+[region]
+offset = 5258
+end = 5261
+type = DATA_BYTE
+
+[region]
+offset = 5262
+end = 5265
+type = DATA_BYTE
+
+[region]
+offset = 5266
+end = 5269
+type = DATA_BYTE
+
+[region]
+offset = 5270
+end = 5273
+type = DATA_BYTE
+
+[region]
+offset = 5297
+end = 5297
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -11066,6 +11231,538 @@ text = Restore DE
 offset = 4963
 text = Done
 
+[comment]
+offset = 4964
+text = 10 * 10^9 (double precision)
+
+[comment]
+offset = 4972
+text = 1 * 10^15 (double precision)
+
+[comment]
+offset = 4980
+text = 1 * 10^16 (double precision)
+
+[comment]
+offset = 4988
+text = 0.5 (double precision)
+
+[comment]
+offset = 4992
+text = 1380-1383 = 0.5 (single precision)
+
+[comment]
+offset = 4996
+text = 1 * 10^16 (double precision)
+
+[comment]
+offset = 5004
+text = 10^16 (double precision)
+
+[comment]
+offset = 5011
+text = 10^15 (double precision)
+
+[comment]
+offset = 5018
+text = 10^14 (double precision)
+
+[comment]
+offset = 5025
+text = 10^13 (double precision)
+
+[comment]
+offset = 5032
+text = 10^12 (double precision)
+
+[comment]
+offset = 5039
+text = 10^11 (double precision)
+
+[comment]
+offset = 5046
+text = 10^10 (double precision)
+
+[comment]
+offset = 5053
+text = 10^9 (double precision)
+
+[comment]
+offset = 5060
+text = 10^8 (double precision)
+
+[comment]
+offset = 5067
+text = 10^7 (double precision)
+
+[comment]
+offset = 5074
+text = 10^6 (single precision)
+
+[comment]
+offset = 5077
+text = 10^5 (single precision)
+
+[comment]
+offset = 5080
+text = 10000 (integer)
+
+[comment]
+offset = 5082
+text = 1000 (integer)
+
+[comment]
+offset = 5084
+text = 100 (integer)
+
+[comment]
+offset = 5086
+text = 10 (integer)
+
+[comment]
+offset = 5088
+text = 1 (integer)
+
+[comment]
+offset = 5090
+text = X = -X - address in HL
+
+[comment]
+offset = 5093
+text = swap with return address on stack
+
+[comment]
+offset = 5094
+text = return to calling routine
+
+[comment]
+offset = 5095
+text = Pack argument on the stack
+
+[comment]
+offset = 5098
+text = Address constant 0.5
+
+[comment]
+offset = 5101
+text = and transfer to X
+
+[comment]
+offset = 5104
+text = continue at 13F5H
+
+[comment]
+offset = 5106
+text = Convert exponent to single precision
+
+[comment]
+offset = 5109
+text = Transfer base to Y
+
+[comment]
+offset = 5110
+text = Transfer base to Y
+
+[comment]
+offset = 5111
+text = Test exponent
+
+[comment]
+offset = 5114
+text = Exponent of base in A
+
+[comment]
+offset = 5115
+text = Exponent = 0? yes, result = 1
+
+[comment]
+offset = 5117
+text = Exponent > 0? yes, jump
+
+[comment]
+offset = 5120
+text = Base = 0 and exponent < 0?
+
+[comment]
+offset = 5121
+text = yes, DIVISION BY ZERO error
+
+[comment]
+offset = 5124
+text = Base = 0 and exponent > 0?
+
+[comment]
+offset = 5125
+text = yes, 0 as result in X
+
+[comment]
+offset = 5128
+text = Base on stack
+
+[comment]
+offset = 5129
+text = Base on stack
+
+[comment]
+offset = 5130
+text = Base > 0?
+
+[comment]
+offset = 5131
+text = Mask sign bit
+
+[comment]
+offset = 5133
+text = Transfer exponent to Y
+
+[comment]
+offset = 5136
+text = Base > 0
+
+[comment]
+offset = 5139
+text = Exponent on stack
+
+[comment]
+offset = 5140
+text = Exponent on stack
+
+[comment]
+offset = 5141
+text = Integer portion of exponent in X
+
+[comment]
+offset = 5144
+text = Reload exponent
+
+[comment]
+offset = 5145
+text = Reload exponent
+
+[comment]
+offset = 5146
+text = LSB of INT(exponent) on stack
+
+[comment]
+offset = 5147
+text = INT(exponent) = exponent?
+
+[comment]
+offset = 5150
+text = LSB of INT(exponent) in HL
+
+[comment]
+offset = 5151
+text = INT(exponent) odd?
+
+[comment]
+offset = 5152
+text = Rotate right
+
+[comment]
+offset = 5153
+text = Transfer base to X
+
+[comment]
+offset = 5154
+text = MSB
+
+[comment]
+offset = 5157
+text = Transfer base to X
+
+[comment]
+offset = 5158
+text = LSB
+
+[comment]
+offset = 5161
+text = Result * (-1)
+
+[comment]
+offset = 5164
+text = Base = -base
+
+[comment]
+offset = 5167
+text = Exponent on stack
+
+[comment]
+offset = 5168
+text = Exponent on stack
+
+[comment]
+offset = 5169
+text = LOG(base) to X
+
+[comment]
+offset = 5172
+text = Load exponent into Y
+
+[comment]
+offset = 5173
+text = Load exponent into Y
+
+[comment]
+offset = 5174
+text = LOG(base) * exponent
+
+[comment]
+offset = 5177
+text = Argument on stack
+
+[comment]
+offset = 5180
+text = Constant 1.4427 in Y
+
+[comment]
+offset = 5183
+text = Constant 1.4427 in Y
+
+[comment]
+offset = 5186
+text = Argument / LOG(2) in X
+
+[comment]
+offset = 5189
+text = Binary exponent of result > 136?
+
+[comment]
+offset = 5192
+text = Compare with 136
+
+[comment]
+offset = 5194
+text = yes, continue at 0931H
+
+[comment]
+offset = 5197
+text = INT(exponent) in A and X
+
+[comment]
+offset = 5200
+text = Add offset
+
+[comment]
+offset = 5202
+text = Exponent > 126?
+
+[comment]
+offset = 5204
+text = yes, continue at 0931H
+
+[comment]
+offset = 5207
+text = Exponent (with offset) on stack
+
+[comment]
+offset = 5208
+text = INT(Arg / LOG(2)) - 1 into X
+
+[comment]
+offset = 5211
+text = INT(Arg / LOG(2)) - 1 into X
+
+[comment]
+offset = 5214
+text = * LOG(2)
+
+[comment]
+offset = 5217
+text = Exponent of result back
+
+[comment]
+offset = 5218
+text = Reload argument
+
+[comment]
+offset = 5219
+text = Reload argument
+
+[comment]
+offset = 5220
+text = Exponent back on stack
+
+[comment]
+offset = 5221
+text = X = (LOG(2) * INT(Arg / LN2) - 1) - Arg
+
+[comment]
+offset = 5224
+text = Complement (negate)
+
+[comment]
+offset = 5227
+text = Evaluate series
+
+[comment]
+offset = 5230
+text = Evaluate series
+
+[comment]
+offset = 5233
+text = 0.5 * 2^exponent in Y
+
+[comment]
+offset = 5236
+text = Reload exponent
+
+[comment]
+offset = 5237
+text = Reload exponent
+
+[comment]
+offset = 5238
+text = Multiply with series result
+
+[comment]
+offset = 5241
+text = 8 constants
+
+[comment]
+offset = 5242
+text = -1.41316 E-04
+
+[comment]
+offset = 5246
+text = 1.32988 E-03
+
+[comment]
+offset = 5250
+text = -8.30136 E-03
+
+[comment]
+offset = 5254
+text = 0.0416574
+
+[comment]
+offset = 5258
+text = -0.166665
+
+[comment]
+offset = 5262
+text = 0.5
+
+[comment]
+offset = 5266
+text = -1
+
+[comment]
+offset = 5270
+text = 1
+
+[comment]
+offset = 5274
+text = Transfer X to stack
+
+[comment]
+offset = 5277
+text = Return address on stack
+
+[comment]
+offset = 5280
+text = (effects multiplication with Z at the end)
+
+[comment]
+offset = 5281
+text = Constant address on stack
+
+[comment]
+offset = 5282
+text = Transfer Z to Y
+
+[comment]
+offset = 5285
+text = Z^2 to X
+
+[comment]
+offset = 5288
+text = Constant address in HL
+
+[comment]
+offset = 5289
+text = Z on stack
+
+[comment]
+offset = 5292
+text = Number of constants in A
+
+[comment]
+offset = 5293
+text = Address of 1st constant
+
+[comment]
+offset = 5294
+text = 1st constant in X
+
+[comment]
+offset = 5297
+text = Dummy command (LD B, 0xF1)
+
+[comment]
+offset = 5298
+text = Load constant counter
+
+[comment]
+offset = 5299
+text = Z or Z^2 (series 2 or 1) in Y
+
+[comment]
+offset = 5300
+text = Z or Z^2 (series 2 or 1) in Y
+
+[comment]
+offset = 5301
+text = Constant counter - 1
+
+[comment]
+offset = 5302
+text = finished!
+
+[comment]
+offset = 5303
+text = Y back on stack
+
+[comment]
+offset = 5304
+text = Y back on stack
+
+[comment]
+offset = 5305
+text = Constant counter on stack
+
+[comment]
+offset = 5306
+text = Constant address on stack
+
+[comment]
+offset = 5307
+text = X * Z (or Z^2)
+
+[comment]
+offset = 5310
+text = Load constant address
+
+[comment]
+offset = 5311
+text = Next constant in Y
+
+[comment]
+offset = 5314
+text = Constant address on stack
+
+[comment]
+offset = 5315
+text = Add constant to X
+
+[comment]
+offset = 5318
+text = Reload constant address
+
+[comment]
+offset = 5319
+text = continue
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -11999,4 +12696,114 @@ offset = 4911
 text = *******************************
               * Convert integer to ASCII
               *******************************
+
+[block]
+offset = 4964
+text = ******************************************************************
+              * Constants                                                      *
+              ******************************************************************
+
+[block]
+offset = 4972
+text = ******************************************************************
+              * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDL”          *
+              * A double precision constant equal to 999,999,999,999,999.95    *
+              ******************************************************************
+
+[block]
+offset = 4980
+text = ******************************************************************
+              * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDU”          *
+              * A double precision constant equal to 9,999,999,999,999,999.5   *
+              ******************************************************************
+
+[block]
+offset = 4988
+text = ******************************************************************
+              * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “DHALF”           *
+              * A double precision constant equal to 0.5D0                     *
+              ******************************************************************
+
+[block]
+offset = 4996
+text = ******************************************************************
+              * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FFXDXM”          *
+              * A double precision constant equal to 1D16                      *
+              ******************************************************************
+
+[block]
+offset = 5004
+text = ******************************************************************
+              * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION – “FODTBL”  *
+              * Powers of ten table (Double Precision)                         *
+              ******************************************************************
+
+[block]
+offset = 5074
+text = ******************************************************************
+              * SINGLE PRECISION POWER OF TEN TABLE LOCATION – “FOSTBL”        *
+              ******************************************************************
+
+[block]
+offset = 5080
+text = ******************************************************************
+              * SINGLE PRECISION POWER OF TEN TABLE LOCATION – “FOITBL”        *
+              ******************************************************************
+
+[block]
+offset = 5088
+text = ******************************************************************
+              * CALCULATE ADDRESS – “GETADR”                                   *
+              ******************************************************************
+
+[block]
+offset = 5090
+text = ******************************************************************
+              * Subroutine for SQR and ATN                                     *
+              * Performs multiplication with -1                                *
+              ******************************************************************
+
+[block]
+offset = 5095
+text = ******************************************************************
+              * SQR function                                                   *
+              * Computes the square root of a number                           *
+
+[block]
+offset = 5106
+text = ******************************************************************
+              * Determine the power of a number                                *
+              * Input:  Base on the stack                                      *
+
+[block]
+offset = 5111
+text = ******************************************************************
+              * EXPONENTIATION FUNCTION (^) – “FNPWR”                          *
+
+[block]
+offset = 5177
+text = ******************************************************************
+              * EXP function                                                   *
+              * Determine the exponential function of a number                 *
+
+[block]
+offset = 5241
+text = ******************************************************************
+              * Constants for exponent series                                  *
+              ******************************************************************
+
+[block]
+offset = 5274
+text = ******************************************************************
+              * Series calculation 1                                           *
+              * K1 * Z + K2 * Z^3 + K3 * Z^5                                   *
+
+[block]
+offset = 5289
+text = ******************************************************************
+              * Series calculation 2                                           *
+              * K1 + K2 * Z + K3 * Z^2 + K4 * Z^3                               *
+              * Input:  Same as series calculation 1                           *
+              * Output: Same as series calculation 1                           *
+              ******************************************************************
 

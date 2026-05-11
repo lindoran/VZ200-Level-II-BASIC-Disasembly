@@ -1,5 +1,31 @@
 # VZ200 BASIC ROM Disassembly Progress
 
+## Session: May 10, 2026
+
+### Task
+Annotate the byte range 0x1364 to 0x14B6 based on Gerhard Wolf's Laser 310 German ROM listing (pages 90-94) and cross-referenced with TRS-80 Level II BASIC sources.
+
+### Work Summary
+- Identified and labeled a large block of floating point and integer constants (0x1364 - 0x13E1).
+- Broken up constant tables (`FODTBL`, `FOSTBL`, `FOITBL`, `EXP_SERIES`) into individual lines in `segments.map` to allow for precise line-by-line annotation matching the German listing.
+- Handled multiple overlapping instruction tricks (Z80 byte-reuse) at `0x13E0` (`GETADR`) and `0x14B1` (`POLYN_LD_B_TRICK`) using `DIRECT_BYTE` segments.
+- Translated and applied comprehensive English inline comments for every instruction and data line in the target range, following the German PDF literally.
+- Identified and documented key routines with detailed multi-line block headers:
+  - `GETADR` (0x13E0): Return address manipulation for polynomial series.
+  - `FNSQR` (0x13E7): Square root function ($X^{0.5}$).
+  - `FNPWR` (0x13F2): Power function ($X^Y$).
+  - `EXP` (0x1439): Exponential function.
+  - `POLYN` (0x149A): Polynomial series evaluation.
+- Binary identity maintained: `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+
+### Statistics
+- **Total Symbols:** 201 (Limit: 6000)
+- **Total Annotations:** 2661 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of high-density inline comments and properly formatted constant tables in the target range.
+
 ## Session: May 6, 2026
 
 ### Task

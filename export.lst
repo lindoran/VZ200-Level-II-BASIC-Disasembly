@@ -1063,7 +1063,7 @@
                      ; Addition and subtraction with single precision
                      ; Various entry points according to the required function.
                      FP_ADD_HALF:
-0708  218013   !..                 ld    hl,0x1380      ; address of constant 0.5
+0708  218013   !..                 ld    hl,FHALF       ; address of constant 0.5
 070B  CDC209   ...                 call  MOVRM          ; load constant into Y then add to X
 070E  1806     ..                  jr    $+8            ; jump to addition
                      FP_SUB_HALF:
@@ -1295,7 +1295,7 @@
 0828  21F807   !..                 ld    hl,FONE        ; load address of constant 1
 082B  CD1007   ...                 call  FP_SUB_HALF    ; X = 1 - X
 082E  21FC07   !..                 ld    hl,LOGCN2      ; address of 1st series constant
-0831  CD9A14   ...                 call  0x149A         ; calculate series
+0831  CD9A14   ...                 call  POLYN          ; calculate series
 0834  018080   ...                 ld    bc,0x8080      ; Y = -0.5
 0837  110000   ...                 ld    de,START
 083A  CD1607   ...                 call  FP_ADD_X_PLUS_Y ; X = X - 0.5
@@ -2875,7 +2875,7 @@
 110A  1F       .                   rra                  ; Exponent output?
 110B  DAAA11   ...                 jp    c,PUSTR_EXP    ; yes!
 110E  2814     (.                  jr    z,$+22         ; for single precision => jump
-1110  118413   ...                 ld    de,0x1384      ; Address constant 1D16
+1110  118413   ...                 ld    de,FFXDXM      ; Address constant 1D16
 1113  CD490A   .I.                 call  0x0A49         ; Value >= 1D16?
 1116  1610     ..                  ld    d,0x10         ; Precision (16 places) in D
 1118  FA3211   .2.                 jp    m,0x1132       ; Value < 1D16!
@@ -3034,7 +3034,7 @@
 1208  3A2479   :$y                 ld    a,(FAC)        ; Value >= 65536?
 120B  FE91     ..                  cp    0x91           ; Value >= 65536?
 120D  D22212   .".                 jp    nc,GET_10_EXP_START ; Yes!
-1210  116413   .d.                 ld    de,0x1364      ; Address constant 1D10
+1210  116413   .d.                 ld    de,TENTEN      ; Address constant 1D10
 1213  212779   !'y                 ld    hl,FAC2        ; Address Y
 1216  CDD309   ...                 call  VMOVE          ; Transfer 1D10 to Y
 1219  CDA10D   ...                 call  DMULT          ; Value * 1D10
@@ -3049,7 +3049,7 @@
 122C  11F94F   ..O                 ld    de,0x4FF9      ; Load DE with 4FF9H
 122F  CD0C0A   ...                 call  FCOMP          ; Value > 100000?
 1232  1806     ..                  jr    $+8            ; Continue at 123AH
-1234  116C13   .l.                 ld    de,0x136C      ; Address constant 1D15
+1234  116C13   .l.                 ld    de,FOUTDL      ; Address constant 1D15
 1237  CD490A   .I.                 call  0x0A49         ; Value >= 1D15?
 123A  F24C12   .L.                 jp    p,0x124C       ; Yes!
 123D  F1       .                   pop   af             ; Load shifts
@@ -3070,7 +3070,7 @@
 1256  11F823   ..#                 ld    de,0x23F8      ; Load DE with 23F8H
 1259  CD0C0A   ...                 call  FCOMP          ; Value >= 1D6?
 125C  1806     ..                  jr    $+8            ; Continue
-125E  117413   .t.                 ld    de,0x1374      ; Constant 1D16 in Y
+125E  117413   .t.                 ld    de,FOUTDU      ; Constant 1D16 in Y
 1261  CD490A   .I.                 call  0x0A49         ; Value >= 1D16?
 1264  E1       .                   pop   hl             ; Load return address
 1265  F24412   .D.                 jp    p,GET_10_EXP_LOOP_2 ; Yes, to 1244H
@@ -3141,14 +3141,14 @@
 12A9  C5       .                   push  bc             ; Parameters for '.' and ',' on stack
 12AA  E5       .                   push  hl             ; Buffer pointer on stack
 12AB  CDFC09   ...                 call  VMOVAF         ; Number in Y
-12AE  217C13   !|.                 ld    hl,0x137C      ; Address constant 0.5
+12AE  217C13   !|.                 ld    hl,DHALF       ; Address constant 0.5
 12B1  CDF709   ...                 call  VMOVFM         ; 0.5 in X
 12B4  CD770C   .w.                 call  DADD           ; Number + 0.5 to X
 12B7  AF       .                   xor   a              ; Clear normalization flag (Cy)
 12B8  CD7B0B   .{.                 call  0x0B7B         ; Separate fractional part
 12BB  E1       .                   pop   hl             ; Load buffer pointer
 12BC  C1       .                   pop   bc             ; Load '.' and ',' parameters
-12BD  118C13   ...                 ld    de,0x138C      ; Address fixed-point constants 1D15-1D16
+12BD  118C13   ...                 ld    de,FODTBL      ; Address fixed-point constants 1D15-1D16
 12C0  3E0A     >.                  ld    a,0x0A         ; Digit counter = 10
 12C2  CD9112   ...                 call  SET_DOT_COMMA  ; Set '.' and ','
 12C5  C5       .                   push  bc             ; Save '.' and ',' parameters
@@ -3186,7 +3186,7 @@
 12F6  E1       .                   pop   hl             ; Load buffer pointer
 12F7  C1       .                   pop   bc             ; Load '.' and ',' parameters
 12F8  AF       .                   xor   a              ; Clear repetition flag
-12F9  11D213   ...                 ld    de,0x13D2      ; Address constants 1E5 and 1E4
+12F9  11D213   ...                 ld    de,FOSTBL      ; Address constants 1E5 and 1E4
 12FC  3F       ?                   ccf                  ; Invert repetition flag
 12FD  CD9112   ...                 call  SET_DOT_COMMA  ; Set '.' and ','
 1300  C5       .                   push  bc             ; Parameters for '.' and ',' on stack
@@ -3230,7 +3230,7 @@
                      ; *******************************
                      INT_TO_ASCII:
 132F  D5       .                   push  de             ; Format flag on stack
-1330  11D813   ...                 ld    de,0x13D8      ; Address constants 10000 to 1
+1330  11D813   ...                 ld    de,FOITBL      ; Address constants 10000 to 1
 1333  3E05     >.                  ld    a,0x05         ; Digit counter = 5
 1335  CD9112   ...                 call  SET_DOT_COMMA  ; Output '.' and ','
 1338  C5       .                   push  bc             ; Parameters for '.' and ',' on stack
@@ -3268,240 +3268,212 @@
 1361  77       w                   ld    (hl),a         ; Mark end of line with X'00'
 1362  D1       .                   pop   de             ; Restore DE
 1363  C9       .                   ret                  ; Done
-1364  00       .                   nop   
-1365  00       .                   nop   
-1366  00       .                   nop   
-1367  00       .                   nop   
-1368  F9       .                   ld    sp,hl
-1369  02       .                   ld    (bc),a
-136A  15       .                   dec   d
-136B  A2       .                   and   d
-136C  FDFF9F   ...                 defb  0x00FD,0x00FF,0x009F
-136F  31A95F   1._                 ld    sp,0x5FA9
-1372  63       c                   ld    h,e
-1373  B2       .                   or    d
-1374  FEFF     ..                  cp    0xFF
-1376  03       .                   inc   bc
-1377  BF       .                   cp    a
-1378  C9       .                   ret   
-1379  1B       .                   dec   de
-137A  0EB6     ..                  ld    c,0xB6
-137C  00       .                   nop   
-137D  00       .                   nop   
-137E  00       .                   nop   
-137F  00       .                   nop   
-1380  00       .                   nop   
-1381  00       .                   nop   
-1382  00       .                   nop   
-1383  80       .                   add   a,b
-1384  00       .                   nop   
-1385  00       .                   nop   
-1386  04       .                   inc   b
-1387  BF       .                   cp    a
-1388  C9       .                   ret   
-1389  1B       .                   dec   de
-138A  0EB6     ..                  ld    c,0xB6
-138C  00       .                   nop   
-138D  80       .                   add   a,b
-138E  C6A4     ..                  add   a,0xA4
-1390  7E       ~                   ld    a,(hl)
-1391  8D       .                   adc   a,l
-1392  03       .                   inc   bc
-1393  00       .                   nop   
-1394  40       @                   ld    b,b
-1395  7A       z                   ld    a,d
-1396  10F3     ..                  djnz  $-11
-1398  5A       Z                   ld    e,d
-1399  00       .                   nop   
-139A  00       .                   nop   
-139B  A0       .                   and   b
-139C  72       r                   ld    (hl),d
-139D  4E       N                   ld    c,(hl)
-139E  1809     ..                  jr    $+11
-13A0  00       .                   nop   
-13A1  00       .                   nop   
-13A2  10A5     ..                  djnz  $-89
-13A4  D4E800   ...                 call  nc,0x00E8
-13A7  00       .                   nop   
-13A8  00       .                   nop   
-13A9  E8       .                   ret   pe
-13AA  76       v                   halt  
-13AB  48       H                   ld    c,b
-13AC  17       .                   rla   
-13AD  00       .                   nop   
-13AE  00       .                   nop   
-13AF  00       .                   nop   
-13B0  E40B54   ..T                 call  po,0x540B
-13B3  02       .                   ld    (bc),a
-13B4  00       .                   nop   
-13B5  00       .                   nop   
-13B6  00       .                   nop   
-13B7  CA9A3B   ..;                 jp    z,0x3B9A
-13BA  00       .                   nop   
-13BB  00       .                   nop   
-13BC  00       .                   nop   
-13BD  00       .                   nop   
-13BE  E1       .                   pop   hl
-13BF  F5       .                   push  af
-13C0  05       .                   dec   b
-13C1  00       .                   nop   
-13C2  00       .                   nop   
-13C3  00       .                   nop   
-13C4  80       .                   add   a,b
-13C5  96       .                   sub   (hl)
-13C6  98       .                   sbc   a,b
-13C7  00       .                   nop   
-13C8  00       .                   nop   
-13C9  00       .                   nop   
-13CA  00       .                   nop   
-13CB  40       @                   ld    b,b
-13CC  42       B                   ld    b,d
-13CD  0F       .                   rrca  
-13CE  00       .                   nop   
-13CF  00       .                   nop   
-13D0  00       .                   nop   
-13D1  00       .                   nop   
-13D2  A0       .                   and   b
-13D3  86       .                   add   a,(hl)
-13D4  011027   ..'                 ld    bc,0x2710
-13D7  00       .                   nop   
-13D8  1027     .'                  djnz  $+41
-13DA  E8       .                   ret   pe
-13DB  03       .                   inc   bc
-13DC  64       d                   ld    h,h
-13DD  00       .                   nop   
-13DE  0A       .                   ld    a,(bc)
-13DF  00       .                   nop   
-13E0  010021   ..!                 ld    bc,0x2100
-13E3  82       .                   add   a,d
-13E4  09       .                   add   hl,bc
-13E5  E3       .                   ex    (sp),hl
-13E6  E9       .                   jp    (hl)
-13E7  CDA409   ...                 call  PUSHF
-13EA  218013   !..                 ld    hl,0x1380
-13ED  CDB109   ...                 call  MOVFM
-13F0  1803     ..                  jr    $+5
-13F2  CDB10A   ...                 call  FRCSNG
-13F5  C1       .                   pop   bc
-13F6  D1       .                   pop   de
-13F7  CD5509   .U.                 call  SIGN
-13FA  78       x                   ld    a,b
-13FB  283C     (<                  jr    z,$+62
-13FD  F20414   ...                 jp    p,0x1404
-1400  B7       .                   or    a
-1401  CA9A19   ...                 jp    z,0x199A
-1404  B7       .                   or    a
-1405  CA7907   .y.                 jp    z,0x0779
-1408  D5       .                   push  de
-1409  C5       .                   push  bc
-140A  79       y                   ld    a,c
-140B  F67F     ..                  or    0x7F
-140D  CDBF09   ...                 call  MOVRF
-1410  F22114   .!.                 jp    p,0x1421
-1413  D5       .                   push  de
-1414  C5       .                   push  bc
-1415  CD400B   .@.                 call  0x0B40
-1418  C1       .                   pop   bc
-1419  D1       .                   pop   de
-141A  F5       .                   push  af
-141B  CD0C0A   ...                 call  FCOMP
-141E  E1       .                   pop   hl
-141F  7C       |                   ld    a,h
-1420  1F       .                   rra   
-1421  E1       .                   pop   hl
-1422  222379   "#y                 ld    (FAC_SIGN),hl
-1425  E1       .                   pop   hl
-1426  222179   "!y                 ld    (FACLO),hl
-1429  DCE213   ...                 call  c,0x13E2
-142C  CC8209   ...                 call  z,NNEG
-142F  D5       .                   push  de
-1430  C5       .                   push  bc
-1431  CD0908   ...                 call  FNLOG
-1434  C1       .                   pop   bc
-1435  D1       .                   pop   de
-1436  CD4708   .G.                 call  0x0847
-1439  CDA409   ...                 call  PUSHF
-143C  013881   .8.                 ld    bc,0x8138
-143F  113BAA   .;.                 ld    de,0xAA3B
-1442  CD4708   .G.                 call  0x0847
-1445  3A2479   :$y                 ld    a,(FAC)
-1448  FE88     ..                  cp    0x88
-144A  D23109   .1.                 jp    nc,MLDVEX
-144D  CD400B   .@.                 call  0x0B40
-1450  C680     ..                  add   a,0x80
-1452  C602     ..                  add   a,0x02
-1454  DA3109   .1.                 jp    c,MLDVEX
-1457  F5       .                   push  af
-1458  21F807   !..                 ld    hl,FONE
-145B  CD0B07   ...                 call  0x070B
-145E  CD4108   .A.                 call  MULLN2
-1461  F1       .                   pop   af
-1462  C1       .                   pop   bc
-1463  D1       .                   pop   de
-1464  F5       .                   push  af
-1465  CD1307   ...                 call  FP_SUB_Y_MINUS_X
-1468  CD8209   ...                 call  NNEG
-146B  217914   !y.                 ld    hl,0x1479
-146E  CDA914   ...                 call  0x14A9
-1471  110000   ...                 ld    de,START
-1474  C1       .                   pop   bc
-1475  4A       J                   ld    c,d
-1476  C34708   .G.                 jp    0x0847
-1479  08       .                   ex    af,af'
-147A  40       @                   ld    b,b
-147B  2E94     ..                  ld    l,0x94
-147D  74       t                   ld    (hl),h
-147E  70       p                   ld    (hl),b
-147F  4F       O                   ld    c,a
-1480  2E77     .w                  ld    l,0x77
-1482  6E       n                   ld    l,(hl)
-1483  02       .                   ld    (bc),a
-1484  88       .                   adc   a,b
-1485  7A       z                   ld    a,d
-1486  E6A0     ..                  and   0xA0
-1488  2A7C50   *|P                 ld    hl,(0x507C)
-148B  AA       .                   xor   d
-148C  AA       .                   xor   d
-148D  7E       ~                   ld    a,(hl)
-148E  FF       .                   rst   0x38
-148F  FF       .                   rst   0x38
-1490  7F       .                   ld    a,a
-1491  7F       .                   ld    a,a
-1492  00       .                   nop   
-1493  00       .                   nop   
-1494  80       .                   add   a,b
-1495  81       .                   add   a,c
-1496  00       .                   nop   
-1497  00       .                   nop   
-1498  00       .                   nop   
-1499  81       .                   add   a,c
-149A  CDA409   ...                 call  PUSHF
-149D  11320C   .2.                 ld    de,0x0C32
-14A0  D5       .                   push  de
-14A1  E5       .                   push  hl
-14A2  CDBF09   ...                 call  MOVRF
-14A5  CD4708   .G.                 call  0x0847
-14A8  E1       .                   pop   hl
-14A9  CDA409   ...                 call  PUSHF
-14AC  7E       ~                   ld    a,(hl)
-14AD  23       #                   inc   hl
-14AE  CDB109   ...                 call  MOVFM
-14B1  06F1     ..                  ld    b,0xF1
-14B3  C1       .                   pop   bc
-14B4  D1       .                   pop   de
-14B5  3D       =                   dec   a
-14B6  C8       .                   ret   z
-14B7  D5       .                   push  de
-14B8  C5       .                   push  bc
-14B9  F5       .                   push  af
-14BA  E5       .                   push  hl
-14BB  CD4708   .G.                 call  0x0847
-14BE  E1       .                   pop   hl
-14BF  CDC209   ...                 call  MOVRM
-14C2  E5       .                   push  hl
-14C3  CD1607   ...                 call  FP_ADD_X_PLUS_Y
-14C6  E1       .                   pop   hl
-14C7  18E9     ..                  jr    $-21
+                     ; ******************************************************************
+                     ; * Constants                                                      *
+                     ; ******************************************************************
+1364  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0xF9,0x02,0x15,0xA2 ; 10 * 10^9 (double precision)
+      F90215A2 ....  
+                     ; ******************************************************************
+                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDL”          *
+                     ; * A double precision constant equal to 999,999,999,999,999.95    *
+                     ; ******************************************************************
+136C  FDFF9F31 ...1                DEFB  0xFD,0xFF,0x9F,0x31,0xA9,0x5F,0x63,0xB2 ; 1 * 10^15 (double precision)
+      A95F63B2 ._c.  
+                     ; ******************************************************************
+                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDU”          *
+                     ; * A double precision constant equal to 9,999,999,999,999,999.5   *
+                     ; ******************************************************************
+1374  FEFF03BF ....                DEFB  0xFE,0xFF,0x03,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
+      C91B0EB6 ....  
+                     ; ******************************************************************
+                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “DHALF”           *
+                     ; * A double precision constant equal to 0.5D0                     *
+                     ; ******************************************************************
+137C  00000000 ....                DEFB  0x00,0x00,0x00,0x00 ; 0.5 (double precision)
+1380  00000080 ....                DEFB  0x00,0x00,0x00,0x80 ; 1380-1383 = 0.5 (single precision)
+                     ; ******************************************************************
+                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FFXDXM”          *
+                     ; * A double precision constant equal to 1D16                      *
+                     ; ******************************************************************
+1384  000004BF ....                DEFB  0x00,0x00,0x04,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
+      C91B0EB6 ....  
+                     ; ******************************************************************
+                     ; * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION – “FODTBL”  *
+                     ; * Powers of ten table (Double Precision)                         *
+                     ; ******************************************************************
+138C  0080C6A4 ....                DEFB  0x00,0x80,0xC6,0xA4,0x7E,0x8D,0x03 ; 10^16 (double precision)
+      7E8D03   ~..   
+1393  00407A10 .@z.                DEFB  0x00,0x40,0x7A,0x10,0xF3,0x5A,0x00 ; 10^15 (double precision)
+      F35A00   .Z.   
+139A  00A0724E ..rN                DEFB  0x00,0xA0,0x72,0x4E,0x18,0x09,0x00 ; 10^14 (double precision)
+      180900   ...   
+13A1  0010A5D4 ....                DEFB  0x00,0x10,0xA5,0xD4,0xE8,0x00,0x00 ; 10^13 (double precision)
+      E80000   ...   
+13A8  00E87648 ..vH                DEFB  0x00,0xE8,0x76,0x48,0x17,0x00,0x00 ; 10^12 (double precision)
+      170000   ...   
+13AF  00E40B54 ...T                DEFB  0x00,0xE4,0x0B,0x54,0x02,0x00,0x00 ; 10^11 (double precision)
+      020000   ...   
+13B6  00CA9A3B ...;                DEFB  0x00,0xCA,0x9A,0x3B,0x00,0x00,0x00 ; 10^10 (double precision)
+      000000   ...   
+13BD  00E1F505 ....                DEFB  0x00,0xE1,0xF5,0x05,0x00,0x00,0x00 ; 10^9 (double precision)
+      000000   ...   
+13C4  80969800 ....                DEFB  0x80,0x96,0x98,0x00,0x00,0x00,0x00 ; 10^8 (double precision)
+      000000   ...   
+13CB  40420F00 @B..                DEFB  0x40,0x42,0x0F,0x00,0x00,0x00,0x00 ; 10^7 (double precision)
+      000000   ...   
+                     ; ******************************************************************
+                     ; * SINGLE PRECISION POWER OF TEN TABLE LOCATION – “FOSTBL”        *
+                     ; ******************************************************************
+13D2  A08601   ...                 DEFB  0xA0,0x86,0x01 ; 10^6 (single precision)
+13D5  102700   .'.                 DEFB  0x10,0x27,0x00 ; 10^5 (single precision)
+                     ; ******************************************************************
+                     ; * SINGLE PRECISION POWER OF TEN TABLE LOCATION – “FOITBL”        *
+                     ; ******************************************************************
+13D8  1027     .'                  DEFB  0x10,0x27      ; 10000 (integer)
+13DA  E803     ..                  DEFB  0xE8,0x03      ; 1000 (integer)
+13DC  6400     d.                  DEFB  0x64,0x00      ; 100 (integer)
+13DE  0A00     ..                  DEFB  0x0A,0x00      ; 10 (integer)
+                     ; ******************************************************************
+                     ; * CALCULATE ADDRESS – “GETADR”                                   *
+                     ; ******************************************************************
+13E0  0100     ..                  DEFB  0x01,0x00      ; 1 (integer)
+                     ; ******************************************************************
+                     ; * Subroutine for SQR and ATN                                     *
+                     ; * Performs multiplication with -1                                *
+                     ; ******************************************************************
+13E2  218209   !..                 ld    hl,NNEG        ; X = -X - address in HL
+13E5  E3       .                   ex    (sp),hl        ; swap with return address on stack
+13E6  E9       .                   jp    (hl)           ; return to calling routine
+                     ; ******************************************************************
+                     ; * SQR function                                                   *
+                     ; * Computes the square root of a number                           *
+13E7  CDA409   ...                 call  PUSHF          ; Pack argument on the stack
+13EA  218013   !..                 ld    hl,FHALF       ; Address constant 0.5
+13ED  CDB109   ...                 call  MOVFM          ; and transfer to X
+13F0  1803     ..                  jr    $+5            ; continue at 13F5H
+                     ; ******************************************************************
+                     ; * Determine the power of a number                                *
+                     ; * Input:  Base on the stack                                      *
+13F2  CDB10A   ...                 call  FRCSNG         ; Convert exponent to single precision
+13F5  C1       .                   pop   bc             ; Transfer base to Y
+13F6  D1       .                   pop   de             ; Transfer base to Y
+                     ; ******************************************************************
+                     ; * EXPONENTIATION FUNCTION (^) – “FNPWR”                          *
+13F7  CD5509   .U.                 call  SIGN           ; Test exponent
+13FA  78       x                   ld    a,b            ; Exponent of base in A
+13FB  283C     (<                  jr    z,$+62         ; Exponent = 0? yes, result = 1
+13FD  F20414   ...                 jp    p,0x1404       ; Exponent > 0? yes, jump
+1400  B7       .                   or    a              ; Base = 0 and exponent < 0?
+1401  CA9A19   ...                 jp    z,0x199A       ; yes, DIVISION BY ZERO error
+1404  B7       .                   or    a              ; Base = 0 and exponent > 0?
+1405  CA7907   .y.                 jp    z,0x0779       ; yes, 0 as result in X
+1408  D5       .                   push  de             ; Base on stack
+1409  C5       .                   push  bc             ; Base on stack
+140A  79       y                   ld    a,c            ; Base > 0?
+140B  F67F     ..                  or    0x7F           ; Mask sign bit
+140D  CDBF09   ...                 call  MOVRF          ; Transfer exponent to Y
+1410  F22114   .!.                 jp    p,0x1421       ; Base > 0
+1413  D5       .                   push  de             ; Exponent on stack
+1414  C5       .                   push  bc             ; Exponent on stack
+1415  CD400B   .@.                 call  0x0B40         ; Integer portion of exponent in X
+1418  C1       .                   pop   bc             ; Reload exponent
+1419  D1       .                   pop   de             ; Reload exponent
+141A  F5       .                   push  af             ; LSB of INT(exponent) on stack
+141B  CD0C0A   ...                 call  FCOMP          ; INT(exponent) = exponent?
+141E  E1       .                   pop   hl             ; LSB of INT(exponent) in HL
+141F  7C       |                   ld    a,h            ; INT(exponent) odd?
+1420  1F       .                   rra                  ; Rotate right
+1421  E1       .                   pop   hl             ; Transfer base to X
+1422  222379   "#y                 ld    (FAC_SIGN),hl  ; MSB
+1425  E1       .                   pop   hl             ; Transfer base to X
+1426  222179   "!y                 ld    (FACLO),hl     ; LSB
+1429  DCE213   ...                 call  c,GETADR_ENTRY_2 ; Result * (-1)
+142C  CC8209   ...                 call  z,NNEG         ; Base = -base
+142F  D5       .                   push  de             ; Exponent on stack
+1430  C5       .                   push  bc             ; Exponent on stack
+1431  CD0908   ...                 call  FNLOG          ; LOG(base) to X
+1434  C1       .                   pop   bc             ; Load exponent into Y
+1435  D1       .                   pop   de             ; Load exponent into Y
+1436  CD4708   .G.                 call  0x0847         ; LOG(base) * exponent
+                     ; ******************************************************************
+                     ; * EXP function                                                   *
+                     ; * Determine the exponential function of a number                 *
+1439  CDA409   ...                 call  PUSHF          ; Argument on stack
+143C  013881   .8.                 ld    bc,0x8138      ; Constant 1.4427 in Y
+143F  113BAA   .;.                 ld    de,0xAA3B      ; Constant 1.4427 in Y
+1442  CD4708   .G.                 call  0x0847         ; Argument / LOG(2) in X
+1445  3A2479   :$y                 ld    a,(FAC)        ; Binary exponent of result > 136?
+1448  FE88     ..                  cp    0x88           ; Compare with 136
+144A  D23109   .1.                 jp    nc,MLDVEX      ; yes, continue at 0931H
+144D  CD400B   .@.                 call  0x0B40         ; INT(exponent) in A and X
+1450  C680     ..                  add   a,0x80         ; Add offset
+1452  C602     ..                  add   a,0x02         ; Exponent > 126?
+1454  DA3109   .1.                 jp    c,MLDVEX       ; yes, continue at 0931H
+1457  F5       .                   push  af             ; Exponent (with offset) on stack
+1458  21F807   !..                 ld    hl,FONE        ; INT(Arg / LOG(2)) - 1 into X
+145B  CD0B07   ...                 call  0x070B         ; INT(Arg / LOG(2)) - 1 into X
+145E  CD4108   .A.                 call  MULLN2         ; * LOG(2)
+1461  F1       .                   pop   af             ; Exponent of result back
+1462  C1       .                   pop   bc             ; Reload argument
+1463  D1       .                   pop   de             ; Reload argument
+1464  F5       .                   push  af             ; Exponent back on stack
+1465  CD1307   ...                 call  FP_SUB_Y_MINUS_X ; X = (LOG(2) * INT(Arg / LN2) - 1) - Arg
+1468  CD8209   ...                 call  NNEG           ; Complement (negate)
+146B  217914   !y.                 ld    hl,EXP_CONSTANTS ; Evaluate series
+146E  CDA914   ...                 call  0x14A9         ; Evaluate series
+1471  110000   ...                 ld    de,START       ; 0.5 * 2^exponent in Y
+1474  C1       .                   pop   bc             ; Reload exponent
+1475  4A       J                   ld    c,d            ; Reload exponent
+1476  C34708   .G.                 jp    0x0847         ; Multiply with series result
+                     ; ******************************************************************
+                     ; * Constants for exponent series                                  *
+                     ; ******************************************************************
+1479  08       .                   DEFB  0x08           ; 8 constants
+147A  402E9474 @..t                DEFB  0x40,0x2E,0x94,0x74 ; -1.41316 E-04
+147E  704F2E77 pO.w                DEFB  0x70,0x4F,0x2E,0x77 ; 1.32988 E-03
+1482  6E02887A n..z                DEFB  0x6E,0x02,0x88,0x7A ; -8.30136 E-03
+1486  E6A02A7C ..*|                DEFB  0xE6,0xA0,0x2A,0x7C ; 0.0416574
+148A  50AAAA7E P..~                DEFB  0x50,0xAA,0xAA,0x7E ; -0.166665
+148E  FFFF7F7F ....                DEFB  0xFF,0xFF,0x7F,0x7F ; 0.5
+1492  00008081 ....                DEFB  0x00,0x00,0x80,0x81 ; -1
+1496  00000081 ....                DEFB  0x00,0x00,0x00,0x81 ; 1
+                     ; ******************************************************************
+                     ; * Series calculation 1                                           *
+                     ; * K1 * Z + K2 * Z^3 + K3 * Z^5                                   *
+149A  CDA409   ...                 call  PUSHF          ; Transfer X to stack
+149D  11320C   .2.                 ld    de,0x0C32      ; Return address on stack
+14A0  D5       .                   push  de             ; (effects multiplication with Z at the end)
+14A1  E5       .                   push  hl             ; Constant address on stack
+14A2  CDBF09   ...                 call  MOVRF          ; Transfer Z to Y
+14A5  CD4708   .G.                 call  0x0847         ; Z^2 to X
+14A8  E1       .                   pop   hl             ; Constant address in HL
+                     ; ******************************************************************
+                     ; * Series calculation 2                                           *
+                     ; * K1 + K2 * Z + K3 * Z^2 + K4 * Z^3                               *
+                     ; * Input:  Same as series calculation 1                           *
+                     ; * Output: Same as series calculation 1                           *
+                     ; ******************************************************************
+14A9  CDA409   ...                 call  PUSHF          ; Z on stack
+14AC  7E       ~                   ld    a,(hl)         ; Number of constants in A
+14AD  23       #                   inc   hl             ; Address of 1st constant
+14AE  CDB109   ...                 call  MOVFM          ; 1st constant in X
+14B1  06       .                   DEFB  0x06           ; Dummy command (LD B, 0xF1)
+14B2  F1       .                   pop   af             ; Load constant counter
+14B3  C1       .                   pop   bc             ; Z or Z^2 (series 2 or 1) in Y
+14B4  D1       .                   pop   de             ; Z or Z^2 (series 2 or 1) in Y
+14B5  3D       =                   dec   a              ; Constant counter - 1
+14B6  C8       .                   ret   z              ; finished!
+14B7  D5       .                   push  de             ; Y back on stack
+14B8  C5       .                   push  bc             ; Y back on stack
+14B9  F5       .                   push  af             ; Constant counter on stack
+14BA  E5       .                   push  hl             ; Constant address on stack
+14BB  CD4708   .G.                 call  0x0847         ; X * Z (or Z^2)
+14BE  E1       .                   pop   hl             ; Load constant address
+14BF  CDC209   ...                 call  MOVRM          ; Next constant in Y
+14C2  E5       .                   push  hl             ; Constant address on stack
+14C3  CD1607   ...                 call  FP_ADD_X_PLUS_Y ; Add constant to X
+14C6  E1       .                   pop   hl             ; Reload constant address
+14C7  18E9     ..                  jr    $-21           ; continue
 14C9  CD7F0A   ...                 call  FRCINT
 14CC  7C       |                   ld    a,h
 14CD  B7       .                   or    a
@@ -3600,7 +3572,7 @@
 1581  F1       .                   pop   af
 1582  D48209   ...                 call  nc,NNEG
 1585  219315   !..                 ld    hl,0x1593
-1588  C39A14   ...                 jp    0x149A
+1588  C39A14   ...                 jp    POLYN
 158B  DB0F     ..                  in    a,(0x0F)
 158D  49       I                   ld    c,c
 158E  81       .                   add   a,c
@@ -3635,7 +3607,7 @@
 15B7  CD4115   .A.                 call  0x1541
 15BA  C3A008   ...                 jp    0x08A0
 15BD  CD5509   .U.                 call  SIGN
-15C0  FCE213   ...                 call  m,0x13E2
+15C0  FCE213   ...                 call  m,GETADR_ENTRY_2
 15C3  FC8209   ...                 call  m,NNEG
 15C6  3A2479   :$y                 ld    a,(FAC)
 15C9  FE81     ..                  cp    0x81
@@ -3647,7 +3619,7 @@
 15D5  211007   !..                 ld    hl,FP_SUB_HALF
 15D8  E5       .                   push  hl
 15D9  21E315   !..                 ld    hl,0x15E3
-15DC  CD9A14   ...                 call  0x149A
+15DC  CD9A14   ...                 call  POLYN
 15DF  218B15   !..                 ld    hl,0x158B
 15E2  C9       .                   ret   
 15E3  09       .                   add   hl,bc

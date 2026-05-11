@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Wed May  6 00:43:03 2026
+; Generated: Sun May 10 22:01:52 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -1089,7 +1089,7 @@ RAM_VECTOR_BLOCK:
 ; Addition and subtraction with single precision
 ; Various entry points according to the required function.
 FP_ADD_HALF:
-              ld    hl,0x1380      ; address of constant 0.5
+              ld    hl,FHALF       ; address of constant 0.5
               call  MOVRM          ; load constant into Y then add to X
               jr    $+8            ; jump to addition
 FP_SUB_HALF:
@@ -1335,7 +1335,7 @@ FNLOG:
               ld    hl,FONE        ; load address of constant 1
               call  FP_SUB_HALF    ; X = 1 - X
               ld    hl,LOGCN2      ; address of 1st series constant
-              call  0x149A         ; calculate series
+              call  POLYN          ; calculate series
               ld    bc,0x8080      ; Y = -0.5
               ld    de,START
               call  FP_ADD_X_PLUS_Y ; X = X - 0.5
@@ -3017,7 +3017,7 @@ DNORM_BIT_LOOP:
               rra                  ; Exponent output?
               jp    c,PUSTR_EXP    ; yes!
               jr    z,$+22         ; for single precision => jump
-              ld    de,0x1384      ; Address constant 1D16
+              ld    de,FFXDXM      ; Address constant 1D16
               call  0x0A49         ; Value >= 1D16?
               ld    d,0x10         ; Precision (16 places) in D
               jp    m,0x1132       ; Value < 1D16!
@@ -3184,7 +3184,7 @@ DNORM_BIT_LOOP:
               ld    a,(FAC)        ; Value >= 65536?
               cp    0x91           ; Value >= 65536?
               jp    nc,GET_10_EXP_START ; Yes!
-              ld    de,0x1364      ; Address constant 1D10
+              ld    de,TENTEN      ; Address constant 1D10
               ld    hl,FAC2        ; Address Y
               call  VMOVE          ; Transfer 1D10 to Y
               call  DMULT          ; Value * 1D10
@@ -3199,7 +3199,7 @@ DNORM_BIT_LOOP:
               ld    de,0x4FF9      ; Load DE with 4FF9H
               call  FCOMP          ; Value > 100000?
               jr    $+8            ; Continue at 123AH
-              ld    de,0x136C      ; Address constant 1D15
+              ld    de,FOUTDL      ; Address constant 1D15
               call  0x0A49         ; Value >= 1D15?
               jp    p,0x124C       ; Yes!
               pop   af             ; Load shifts
@@ -3221,7 +3221,7 @@ DNORM_BIT_LOOP:
               ld    de,0x23F8      ; Load DE with 23F8H
               call  FCOMP          ; Value >= 1D6?
               jr    $+8            ; Continue
-              ld    de,0x1374      ; Constant 1D16 in Y
+              ld    de,FOUTDU      ; Constant 1D16 in Y
               call  0x0A49         ; Value >= 1D16?
               pop   hl             ; Load return address
               jp    p,GET_10_EXP_LOOP_2 ; Yes, to 1244H
@@ -3297,14 +3297,14 @@ FF_TO_ASCII:
               push  bc             ; Parameters for '.' and ',' on stack
               push  hl             ; Buffer pointer on stack
               call  VMOVAF         ; Number in Y
-              ld    hl,0x137C      ; Address constant 0.5
+              ld    hl,DHALF       ; Address constant 0.5
               call  VMOVFM         ; 0.5 in X
               call  DADD           ; Number + 0.5 to X
               xor   a              ; Clear normalization flag (Cy)
               call  0x0B7B         ; Separate fractional part
               pop   hl             ; Load buffer pointer
               pop   bc             ; Load '.' and ',' parameters
-              ld    de,0x138C      ; Address fixed-point constants 1D15-1D16
+              ld    de,FODTBL      ; Address fixed-point constants 1D15-1D16
               ld    a,0x0A         ; Digit counter = 10
               call  SET_DOT_COMMA  ; Set '.' and ','
               push  bc             ; Save '.' and ',' parameters
@@ -3342,7 +3342,7 @@ FF_TO_ASCII_CONT:
               pop   hl             ; Load buffer pointer
               pop   bc             ; Load '.' and ',' parameters
               xor   a              ; Clear repetition flag
-              ld    de,0x13D2      ; Address constants 1E5 and 1E4
+              ld    de,FOSTBL      ; Address constants 1E5 and 1E4
               ccf                  ; Invert repetition flag
               call  SET_DOT_COMMA  ; Set '.' and ','
               push  bc             ; Parameters for '.' and ',' on stack
@@ -3387,7 +3387,7 @@ FF_TO_ASCII_CONT:
 ; *******************************
 INT_TO_ASCII:
               push  de             ; Format flag on stack
-              ld    de,0x13D8      ; Address constants 10000 to 1
+              ld    de,FOITBL      ; Address constants 10000 to 1
               ld    a,0x05         ; Digit counter = 5
               call  SET_DOT_COMMA  ; Output '.' and ','
               push  bc             ; Parameters for '.' and ',' on stack
@@ -3425,240 +3425,215 @@ INT_TO_ASCII:
               ld    (hl),a         ; Mark end of line with X'00'
               pop   de             ; Restore DE
               ret                  ; Done
-              nop   
-              nop   
-              nop   
-              nop   
-              ld    sp,hl
-              ld    (bc),a
-              dec   d
-              and   d
-              defb  0x00FD,0x00FF,0x009F
-              ld    sp,0x5FA9
-              ld    h,e
-              or    d
-              cp    0xFF
-              inc   bc
-              cp    a
-              ret   
-              dec   de
-              ld    c,0xB6
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              add   a,b
-              nop   
-              nop   
-              inc   b
-              cp    a
-              ret   
-              dec   de
-              ld    c,0xB6
-              nop   
-              add   a,b
-              add   a,0xA4
-              ld    a,(hl)
-              adc   a,l
-              inc   bc
-              nop   
-              ld    b,b
-              ld    a,d
-              djnz  $-11
-              ld    e,d
-              nop   
-              nop   
-              and   b
-              ld    (hl),d
-              ld    c,(hl)
-              jr    $+11
-              nop   
-              nop   
-              djnz  $-89
-              call  nc,0x00E8
-              nop   
-              nop   
-              ret   pe
-              halt  
-              ld    c,b
-              rla   
-              nop   
-              nop   
-              nop   
-              call  po,0x540B
-              ld    (bc),a
-              nop   
-              nop   
-              nop   
-              jp    z,0x3B9A
-              nop   
-              nop   
-              nop   
-              nop   
-              pop   hl
-              push  af
-              dec   b
-              nop   
-              nop   
-              nop   
-              add   a,b
-              sub   (hl)
-              sbc   a,b
-              nop   
-              nop   
-              nop   
-              nop   
-              ld    b,b
-              ld    b,d
-              rrca  
-              nop   
-              nop   
-              nop   
-              nop   
-              and   b
-              add   a,(hl)
-              ld    bc,0x2710
-              nop   
-              djnz  $+41
-              ret   pe
-              inc   bc
-              ld    h,h
-              nop   
-              ld    a,(bc)
-              nop   
-              ld    bc,0x2100
-              add   a,d
-              add   hl,bc
-              ex    (sp),hl
-              jp    (hl)
-              call  PUSHF
-              ld    hl,0x1380
-              call  MOVFM
-              jr    $+5
-              call  FRCSNG
-              pop   bc
-              pop   de
-              call  SIGN
-              ld    a,b
-              jr    z,$+62
-              jp    p,0x1404
-              or    a
-              jp    z,0x199A
-              or    a
-              jp    z,0x0779
-              push  de
-              push  bc
-              ld    a,c
-              or    0x7F
-              call  MOVRF
-              jp    p,0x1421
-              push  de
-              push  bc
-              call  0x0B40
-              pop   bc
-              pop   de
-              push  af
-              call  FCOMP
-              pop   hl
-              ld    a,h
-              rra   
-              pop   hl
-              ld    (FAC_SIGN),hl
-              pop   hl
-              ld    (FACLO),hl
-              call  c,0x13E2
-              call  z,NNEG
-              push  de
-              push  bc
-              call  FNLOG
-              pop   bc
-              pop   de
-              call  0x0847
-              call  PUSHF
-              ld    bc,0x8138
-              ld    de,0xAA3B
-              call  0x0847
-              ld    a,(FAC)
-              cp    0x88
-              jp    nc,MLDVEX
-              call  0x0B40
-              add   a,0x80
-              add   a,0x02
-              jp    c,MLDVEX
-              push  af
-              ld    hl,FONE
-              call  0x070B
-              call  MULLN2
-              pop   af
-              pop   bc
-              pop   de
-              push  af
-              call  FP_SUB_Y_MINUS_X
-              call  NNEG
-              ld    hl,0x1479
-              call  0x14A9
-              ld    de,START
-              pop   bc
-              ld    c,d
-              jp    0x0847
-              ex    af,af'
-              ld    b,b
-              ld    l,0x94
-              ld    (hl),h
-              ld    (hl),b
-              ld    c,a
-              ld    l,0x77
-              ld    l,(hl)
-              ld    (bc),a
-              adc   a,b
-              ld    a,d
-              and   0xA0
-              ld    hl,(0x507C)
-              xor   d
-              xor   d
-              ld    a,(hl)
-              rst   0x38
-              rst   0x38
-              ld    a,a
-              ld    a,a
-              nop   
-              nop   
-              add   a,b
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              call  PUSHF
-              ld    de,0x0C32
-              push  de
-              push  hl
-              call  MOVRF
-              call  0x0847
-              pop   hl
-              call  PUSHF
-              ld    a,(hl)
-              inc   hl
-              call  MOVFM
-              ld    b,0xF1
-              pop   bc
-              pop   de
-              dec   a
-              ret   z
-              push  de
-              push  bc
-              push  af
-              push  hl
-              call  0x0847
-              pop   hl
-              call  MOVRM
-              push  hl
-              call  FP_ADD_X_PLUS_Y
-              pop   hl
-              jr    $-21
+
+; ******************************************************************
+; * Constants                                                      *
+; ******************************************************************
+              DEFB  0x00,0x00,0x00,0x00,0xF9,0x02,0x15,0xA2 ; 10 * 10^9 (double precision)
+
+; ******************************************************************
+; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDL”          *
+; * A double precision constant equal to 999,999,999,999,999.95    *
+; ******************************************************************
+              DEFB  0xFD,0xFF,0x9F,0x31,0xA9,0x5F,0x63,0xB2 ; 1 * 10^15 (double precision)
+
+; ******************************************************************
+; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDU”          *
+; * A double precision constant equal to 9,999,999,999,999,999.5   *
+; ******************************************************************
+              DEFB  0xFE,0xFF,0x03,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
+
+; ******************************************************************
+; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “DHALF”           *
+; * A double precision constant equal to 0.5D0                     *
+; ******************************************************************
+              DEFB  0x00,0x00,0x00,0x00 ; 0.5 (double precision)
+              DEFB  0x00,0x00,0x00,0x80 ; 1380-1383 = 0.5 (single precision)
+
+; ******************************************************************
+; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FFXDXM”          *
+; * A double precision constant equal to 1D16                      *
+; ******************************************************************
+              DEFB  0x00,0x00,0x04,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
+
+; ******************************************************************
+; * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION – “FODTBL”  *
+; * Powers of ten table (Double Precision)                         *
+; ******************************************************************
+              DEFB  0x00,0x80,0xC6,0xA4,0x7E,0x8D,0x03 ; 10^16 (double precision)
+              DEFB  0x00,0x40,0x7A,0x10,0xF3,0x5A,0x00 ; 10^15 (double precision)
+              DEFB  0x00,0xA0,0x72,0x4E,0x18,0x09,0x00 ; 10^14 (double precision)
+              DEFB  0x00,0x10,0xA5,0xD4,0xE8,0x00,0x00 ; 10^13 (double precision)
+              DEFB  0x00,0xE8,0x76,0x48,0x17,0x00,0x00 ; 10^12 (double precision)
+              DEFB  0x00,0xE4,0x0B,0x54,0x02,0x00,0x00 ; 10^11 (double precision)
+              DEFB  0x00,0xCA,0x9A,0x3B,0x00,0x00,0x00 ; 10^10 (double precision)
+              DEFB  0x00,0xE1,0xF5,0x05,0x00,0x00,0x00 ; 10^9 (double precision)
+              DEFB  0x80,0x96,0x98,0x00,0x00,0x00,0x00 ; 10^8 (double precision)
+              DEFB  0x40,0x42,0x0F,0x00,0x00,0x00,0x00 ; 10^7 (double precision)
+
+; ******************************************************************
+; * SINGLE PRECISION POWER OF TEN TABLE LOCATION – “FOSTBL”        *
+; ******************************************************************
+              DEFB  0xA0,0x86,0x01 ; 10^6 (single precision)
+              DEFB  0x10,0x27,0x00 ; 10^5 (single precision)
+
+; ******************************************************************
+; * SINGLE PRECISION POWER OF TEN TABLE LOCATION – “FOITBL”        *
+; ******************************************************************
+              DEFB  0x10,0x27      ; 10000 (integer)
+              DEFB  0xE8,0x03      ; 1000 (integer)
+              DEFB  0x64,0x00      ; 100 (integer)
+              DEFB  0x0A,0x00      ; 10 (integer)
+
+; ******************************************************************
+; * CALCULATE ADDRESS – “GETADR”                                   *
+; ******************************************************************
+              DEFB  0x01,0x00      ; 1 (integer)
+
+; ******************************************************************
+; * Subroutine for SQR and ATN                                     *
+; * Performs multiplication with -1                                *
+; ******************************************************************
+              ld    hl,NNEG        ; X = -X - address in HL
+              ex    (sp),hl        ; swap with return address on stack
+              jp    (hl)           ; return to calling routine
+
+; ******************************************************************
+; * SQR function                                                   *
+; * Computes the square root of a number                           *
+              call  PUSHF          ; Pack argument on the stack
+              ld    hl,FHALF       ; Address constant 0.5
+              call  MOVFM          ; and transfer to X
+              jr    $+5            ; continue at 13F5H
+
+; ******************************************************************
+; * Determine the power of a number                                *
+; * Input:  Base on the stack                                      *
+              call  FRCSNG         ; Convert exponent to single precision
+              pop   bc             ; Transfer base to Y
+              pop   de             ; Transfer base to Y
+
+; ******************************************************************
+; * EXPONENTIATION FUNCTION (^) – “FNPWR”                          *
+              call  SIGN           ; Test exponent
+              ld    a,b            ; Exponent of base in A
+              jr    z,$+62         ; Exponent = 0? yes, result = 1
+              jp    p,0x1404       ; Exponent > 0? yes, jump
+              or    a              ; Base = 0 and exponent < 0?
+              jp    z,0x199A       ; yes, DIVISION BY ZERO error
+              or    a              ; Base = 0 and exponent > 0?
+              jp    z,0x0779       ; yes, 0 as result in X
+              push  de             ; Base on stack
+              push  bc             ; Base on stack
+              ld    a,c            ; Base > 0?
+              or    0x7F           ; Mask sign bit
+              call  MOVRF          ; Transfer exponent to Y
+              jp    p,0x1421       ; Base > 0
+              push  de             ; Exponent on stack
+              push  bc             ; Exponent on stack
+              call  0x0B40         ; Integer portion of exponent in X
+              pop   bc             ; Reload exponent
+              pop   de             ; Reload exponent
+              push  af             ; LSB of INT(exponent) on stack
+              call  FCOMP          ; INT(exponent) = exponent?
+              pop   hl             ; LSB of INT(exponent) in HL
+              ld    a,h            ; INT(exponent) odd?
+              rra                  ; Rotate right
+              pop   hl             ; Transfer base to X
+              ld    (FAC_SIGN),hl  ; MSB
+              pop   hl             ; Transfer base to X
+              ld    (FACLO),hl     ; LSB
+              call  c,GETADR_ENTRY_2 ; Result * (-1)
+              call  z,NNEG         ; Base = -base
+              push  de             ; Exponent on stack
+              push  bc             ; Exponent on stack
+              call  FNLOG          ; LOG(base) to X
+              pop   bc             ; Load exponent into Y
+              pop   de             ; Load exponent into Y
+              call  0x0847         ; LOG(base) * exponent
+
+; ******************************************************************
+; * EXP function                                                   *
+; * Determine the exponential function of a number                 *
+              call  PUSHF          ; Argument on stack
+              ld    bc,0x8138      ; Constant 1.4427 in Y
+              ld    de,0xAA3B      ; Constant 1.4427 in Y
+              call  0x0847         ; Argument / LOG(2) in X
+              ld    a,(FAC)        ; Binary exponent of result > 136?
+              cp    0x88           ; Compare with 136
+              jp    nc,MLDVEX      ; yes, continue at 0931H
+              call  0x0B40         ; INT(exponent) in A and X
+              add   a,0x80         ; Add offset
+              add   a,0x02         ; Exponent > 126?
+              jp    c,MLDVEX       ; yes, continue at 0931H
+              push  af             ; Exponent (with offset) on stack
+              ld    hl,FONE        ; INT(Arg / LOG(2)) - 1 into X
+              call  0x070B         ; INT(Arg / LOG(2)) - 1 into X
+              call  MULLN2         ; * LOG(2)
+              pop   af             ; Exponent of result back
+              pop   bc             ; Reload argument
+              pop   de             ; Reload argument
+              push  af             ; Exponent back on stack
+              call  FP_SUB_Y_MINUS_X ; X = (LOG(2) * INT(Arg / LN2) - 1) - Arg
+              call  NNEG           ; Complement (negate)
+              ld    hl,EXP_CONSTANTS ; Evaluate series
+              call  0x14A9         ; Evaluate series
+              ld    de,START       ; 0.5 * 2^exponent in Y
+              pop   bc             ; Reload exponent
+              ld    c,d            ; Reload exponent
+              jp    0x0847         ; Multiply with series result
+
+; ******************************************************************
+; * Constants for exponent series                                  *
+; ******************************************************************
+              DEFB  0x08           ; 8 constants
+              DEFB  0x40,0x2E,0x94,0x74 ; -1.41316 E-04
+              DEFB  0x70,0x4F,0x2E,0x77 ; 1.32988 E-03
+              DEFB  0x6E,0x02,0x88,0x7A ; -8.30136 E-03
+              DEFB  0xE6,0xA0,0x2A,0x7C ; 0.0416574
+              DEFB  0x50,0xAA,0xAA,0x7E ; -0.166665
+              DEFB  0xFF,0xFF,0x7F,0x7F ; 0.5
+              DEFB  0x00,0x00,0x80,0x81 ; -1
+              DEFB  0x00,0x00,0x00,0x81 ; 1
+
+; ******************************************************************
+; * Series calculation 1                                           *
+; * K1 * Z + K2 * Z^3 + K3 * Z^5                                   *
+              call  PUSHF          ; Transfer X to stack
+              ld    de,0x0C32      ; Return address on stack
+              push  de             ; (effects multiplication with Z at the end)
+              push  hl             ; Constant address on stack
+              call  MOVRF          ; Transfer Z to Y
+              call  0x0847         ; Z^2 to X
+              pop   hl             ; Constant address in HL
+
+; ******************************************************************
+; * Series calculation 2                                           *
+; * K1 + K2 * Z + K3 * Z^2 + K4 * Z^3                               *
+; * Input:  Same as series calculation 1                           *
+; * Output: Same as series calculation 1                           *
+; ******************************************************************
+              call  PUSHF          ; Z on stack
+              ld    a,(hl)         ; Number of constants in A
+              inc   hl             ; Address of 1st constant
+              call  MOVFM          ; 1st constant in X
+              DEFB  0x06           ; Dummy command (LD B, 0xF1)
+              pop   af             ; Load constant counter
+              pop   bc             ; Z or Z^2 (series 2 or 1) in Y
+              pop   de             ; Z or Z^2 (series 2 or 1) in Y
+              dec   a              ; Constant counter - 1
+              ret   z              ; finished!
+              push  de             ; Y back on stack
+              push  bc             ; Y back on stack
+              push  af             ; Constant counter on stack
+              push  hl             ; Constant address on stack
+              call  0x0847         ; X * Z (or Z^2)
+              pop   hl             ; Load constant address
+              call  MOVRM          ; Next constant in Y
+              push  hl             ; Constant address on stack
+              call  FP_ADD_X_PLUS_Y ; Add constant to X
+              pop   hl             ; Reload constant address
+              jr    $-21           ; continue
               call  FRCINT
               ld    a,h
               or    a
@@ -3757,7 +3732,7 @@ INT_TO_ASCII:
               pop   af
               call  nc,NNEG
               ld    hl,0x1593
-              jp    0x149A
+              jp    POLYN
               in    a,(0x0F)
               ld    c,c
               add   a,c
@@ -3792,7 +3767,7 @@ INT_TO_ASCII:
               call  0x1541
               jp    0x08A0
               call  SIGN
-              call  m,0x13E2
+              call  m,GETADR_ENTRY_2
               call  m,NNEG
               ld    a,(FAC)
               cp    0x81
@@ -3804,7 +3779,7 @@ INT_TO_ASCII:
               ld    hl,FP_SUB_HALF
               push  hl
               ld    hl,0x15E3
-              call  0x149A
+              call  POLYN
               ld    hl,0x158B
               ret   
               add   hl,bc
