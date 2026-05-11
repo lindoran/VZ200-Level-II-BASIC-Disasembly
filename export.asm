@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Sun May 10 22:01:52 2026
+; Generated: Sun May 10 22:46:20 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -3634,186 +3634,160 @@ INT_TO_ASCII:
               call  FP_ADD_X_PLUS_Y ; Add constant to X
               pop   hl             ; Reload constant address
               jr    $-21           ; continue
-              call  FRCINT
-              ld    a,h
+
+; RND - Function
+; Generate random number
+              call  FRCINT         ; Convert argument to integer
+              ld    a,h            ; Is argument < 0?
               or    a
-              jp    m,0x1E4A
-              or    l
-              jp    z,0x14F0
-              push  hl
-              call  0x14F0
-              call  MOVRF
-              ex    de,hl
-              ex    (sp),hl
+              jp    m,0x1E4A       ; Yes, FUNCTION CODE error
+              or    l              ; Is argument = 0?
+              jp    z,RND0         ; Yes, generate random number between 0 and 1
+              push  hl             ; Argument on stack
+              call  RND0           ; Real random number in X
+              call  MOVRF          ; Transfer to Y
+              ex    de,hl          ; Reload argument and
+              ex    (sp),hl        ; Random number on stack
               push  bc
-              call  0x0ACF
-              pop   bc
+              call  0x0ACF         ; Argument with single precision in X
+              pop   bc             ; Random number back in Y
               pop   de
-              call  0x0847
-              ld    hl,FONE
+              call  0x0847         ; Random number * Argument
+              ld    hl,FONE        ; + 1
               call  0x070B
-              jp    0x0B40
-              ld    hl,0x7890
-              push  hl
-              ld    de,START
+              jp    0x0B40         ; Result = INT(random number * Arg + 1)
+
+; New random number = old random number * 4253261 + 372837
+              ld    hl,RND_MULT_TABLE ; Address of the multiplier
+              push  hl             ; on stack
+              ld    de,START       ; Clear result register (CDE)
               ld    c,e
-              ld    h,0x03
-              ld    l,0x08
+              ld    h,0x03         ; Byte counter = 3
+              ld    l,0x08         ; Bit counter = 8
+              ex    de,hl          ; Result register * 2
+              add   hl,hl          ; LSB
               ex    de,hl
-              add   hl,hl
-              ex    de,hl
-              ld    a,c
+              ld    a,c            ; MSB
               rla   
               ld    c,a
-              ex    (sp),hl
-              ld    a,(hl)
-              rlca  
-              ld    (hl),a
-              ex    (sp),hl
-              jp    nc,0x1516
+              ex    (sp),hl        ; Multiplier address in HL
+              ld    a,(hl)         ; Byte of the multiplier in A
+              rlca                 ; Most significant bit in carry
+              ld    (hl),a         ; and save it back
+              ex    (sp),hl        ; Multiplier address on stack
+              jp    nc,RND02       ; Bit not set, no addition
               push  hl
-              ld    hl,(0x78AA)
-              add   hl,de
+              ld    hl,(RND_SEED)  ; Add last random number
+              add   hl,de          ; LSB
               ex    de,hl
-              ld    a,(0x78AC)
+              ld    a,(0x78AC)     ; MSB
               adc   a,c
               ld    c,a
               pop   hl
-              dec   l
-              jp    nz,0x14FC
-              ex    (sp),hl
-              inc   hl
-              ex    (sp),hl
-              dec   h
-              jp    nz,0x14FA
-              pop   hl
-              ld    hl,0xB065
-              add   hl,de
-              ld    (0x78AA),hl
-              call  VALSNG
-              ld    a,0x05
+              dec   l              ; Bit counter - 1
+              jp    nz,RND01       ; Byte processed? no-back
+              ex    (sp),hl        ; Multiplier address in HL
+              inc   hl             ; + 1
+              ex    (sp),hl        ; and back on the stack
+              dec   h              ; Byte counter - 1
+              jp    nz,RND00       ; Finished? no-back
+              pop   hl             ; Correct stack
+              ld    hl,0xB065      ; Result + 372837 = new random number
+              add   hl,de          ; LSB
+              ld    (RND_SEED),hl
+              call  VALSNG         ; Type = single precision
+              ld    a,0x05         ; MSB
               adc   a,c
               ld    (0x78AC),a
-              ex    de,hl
-              ld    b,0x80
-              ld    hl,0x7925
+              ex    de,hl          ; Transfer to Y
+              ld    b,0x80         ; Exp. Y = 0, so that it's between 0 and 1
+              ld    hl,0x7925      ; Set sign flag
+              ld    (hl),b         ; Result = positive
+              dec   hl             ; Exponent X = Exponent Y
               ld    (hl),b
-              dec   hl
-              ld    (hl),b
-              ld    c,a
-              ld    b,0x00
-              jp    0x0765
-              ld    hl,0x158B
-              call  0x070B
-              call  PUSHF
-              ld    bc,0x8349
+              ld    c,a            ; MSB in C
+              ld    b,0x00         ; Clear LSB
+              jp    0x0765         ; to normalization
+
+; COS - Function
+; Determine the cosine of an angle
+              ld    hl,PI2         ; Address constant PI/2
+              call  0x070B         ; Add PI/2 to argument
+
+; SIN - Function
+; Determine the sine of an angle
+              call  PUSHF          ; Argument on stack
+              ld    bc,0x8349      ; Constant 2PI in Y
               ld    de,0x0FDB
-              call  MOVFR
-              pop   bc
+              call  MOVFR          ; Transfer 2PI to X
+              pop   bc             ; Argument in Y
               pop   de
-              call  0x08A2
-              call  PUSHF
-              call  0x0B40
-              pop   bc
+              call  0x08A2         ; X = Argument / 2PI
+              call  PUSHF          ; Argument / 2PI on stack
+              call  0x0B40         ; INT(Arg/2PI) in X
+              pop   bc             ; Arg/2PI from stack in Y
               pop   de
-              call  FP_SUB_Y_MINUS_X
-              ld    hl,0x158F
-              call  FP_SUB_HALF
-              call  SIGN
-              scf   
-              jp    p,0x1577
-              call  FP_ADD_HALF
-              call  SIGN
-              or    a
-              push  af
-              call  p,NNEG
-              ld    hl,0x158F
-              call  0x070B
-              pop   af
-              call  nc,NNEG
-              ld    hl,0x1593
-              jp    POLYN
-              in    a,(0x0F)
-              ld    c,c
-              add   a,c
-              nop   
-              nop   
-              nop   
-              ld    a,a
-              dec   b
-              cp    d
-              rst   0x10
-              ld    e,0x86
-              ld    h,h
-              ld    h,0x99
-              add   a,a
-              ld    e,b
-              inc   (hl)
-              inc   hl
-              add   a,a
-              ret   po
-              ld    e,l
-              and   l
-              add   a,(hl)
-              jp    c,0x490F
-              add   a,e
-              call  PUSHF
-              call  0x1547
-              pop   bc
+              call  FP_SUB_Y_MINUS_X ; X = Arg/2PI - INT(Arg/2PI)
+
+; Transform interval (0..1) to interval (-0.25 ... 0.25)
+              ld    hl,F025        ; Address constant 0.25
+              call  FP_SUB_HALF    ; 0.25 - X in X
+              call  SIGN           ; Is X >= 0?
+              scf                  ; Clear flag for multiplication with (-1)
+              jp    p,0x1577       ; Yes!
+              call  FP_ADD_HALF    ; 0.5 + X in X
+              call  SIGN           ; Is X >= 0?
+              or    a              ; Set flag for multiplication with (-1)
+              push  af             ; Flag on stack
+              call  p,NNEG         ; Yes! X = -X
+              ld    hl,F025        ; Address constant 0.25
+              call  0x070B         ; 0.25 + X in X
+              pop   af             ; Load flag
+              call  nc,NNEG        ; Carry = 0? yes - X = -X
+              ld    hl,SIN_CONST   ; Constants for series calculation
+              jp    POLYN          ; Calculate series
+              DEFB  0xDB,0x0F,0x49,0x81
+              DEFB  0x00,0x00,0x00,0x7F
+              DEFB  0x05
+              DEFB  0xBA,0xD7,0x1E,0x86,0x64,0x26,0x99,0x87
+              DEFB  0x58,0x34,0x23,0x87,0xE0,0x5D,0xA5,0x86
+              DEFB  0xDA,0x0F,0x49,0x83
+
+; TAN - Function
+; Calculates the tangent of an angle
+              call  PUSHF          ; Argument on stack
+              call  FNSIN          ; Determine Sin(Arg)
+              pop   bc             ; Argument in Y
               pop   hl
-              call  PUSHF
+              call  PUSHF          ; Sin(Arg) on stack
               ex    de,hl
-              call  MOVFR
-              call  0x1541
-              jp    0x08A0
-              call  SIGN
-              call  m,GETADR_ENTRY_2
-              call  m,NNEG
-              ld    a,(FAC)
+              call  MOVFR          ; Transfer argument to X
+              call  FNCOS          ; Determine Cos(Arg)
+              jp    0x08A0         ; Tan(Arg) = Sin(Arg) / Cos(Arg)
+
+; ATN - Function
+; Arc-tangent calculation
+              call  SIGN           ; Is argument < 0?
+              call  m,GETADR_ENTRY_2 ; Yes, result * (-1)
+              call  m,NNEG         ; Abs(Argument) in X
+              ld    a,(FAC)        ; Is argument < 1?
               cp    0x81
-              jr    c,$+14
-              ld    bc,0x8100
+              jr    c,$+14         ; Yes!
+              ld    bc,0x8100      ; No! Y = 1
               ld    d,c
               ld    e,c
-              call  0x08A2
-              ld    hl,FP_SUB_HALF
-              push  hl
-              ld    hl,0x15E3
-              call  POLYN
-              ld    hl,0x158B
-              ret   
-              add   hl,bc
-              ld    c,d
-              rst   0x10
-              dec   sp
-              ld    a,b
-              ld    (bc),a
-              ld    l,(hl)
-              add   a,h
-              ld    a,e
-              cp    0xC1
-              cpl   
-              ld    a,h
-              ld    (hl),h
-              ld    sp,0x7D9A
-              add   a,h
-              dec   a
-              ld    e,d
-              ld    a,l
-              ret   z
-              ld    a,a
-              sub   c
-              ld    a,(hl)
-              call  po,0x4CBB
-              ld    a,(hl)
-              ld    l,h
-              xor   d
-              xor   d
-              ld    a,a
-              nop   
-              nop   
-              nop   
-              add   a,c
+              call  0x08A2         ; X = 1 / Argument
+              ld    hl,FP_SUB_HALF ; Jump address to 0710 on stack
+              push  hl             ; on stack
+              ld    hl,ATN_CONST   ; Address constants for series
+              call  POLYN          ; Calculate series
+              ld    hl,PI2         ; Load address of PI/2
+              ret                  ; continue at 0710H
+              DEFB  0x09,0x4A,0xD7,0x3B,0x78,0x02,0x6E,0x84
+              DEFB  0x7B,0xFE,0xC1,0x2F,0x7C,0x74,0x31,0x9A
+              DEFB  0x7D,0x84,0x3D,0x5A,0x7D,0xC8,0x7F,0x91
+              DEFB  0x7E,0xE4,0xBB,0x4C,0x7E,0x6C,0xAA,0xAA
+              DEFB  0x7F,0x00,0x00,0x00,0x81
               adc   a,d
               add   hl,bc
               scf   

@@ -3474,186 +3474,160 @@
 14C3  CD1607   ...                 call  FP_ADD_X_PLUS_Y ; Add constant to X
 14C6  E1       .                   pop   hl             ; Reload constant address
 14C7  18E9     ..                  jr    $-21           ; continue
-14C9  CD7F0A   ...                 call  FRCINT
-14CC  7C       |                   ld    a,h
+                     ; RND - Function
+                     ; Generate random number
+14C9  CD7F0A   ...                 call  FRCINT         ; Convert argument to integer
+14CC  7C       |                   ld    a,h            ; Is argument < 0?
 14CD  B7       .                   or    a
-14CE  FA4A1E   .J.                 jp    m,0x1E4A
-14D1  B5       .                   or    l
-14D2  CAF014   ...                 jp    z,0x14F0
-14D5  E5       .                   push  hl
-14D6  CDF014   ...                 call  0x14F0
-14D9  CDBF09   ...                 call  MOVRF
-14DC  EB       .                   ex    de,hl
-14DD  E3       .                   ex    (sp),hl
+14CE  FA4A1E   .J.                 jp    m,0x1E4A       ; Yes, FUNCTION CODE error
+14D1  B5       .                   or    l              ; Is argument = 0?
+14D2  CAF014   ...                 jp    z,RND0         ; Yes, generate random number between 0 and 
+14D5  E5       .                   push  hl             ; Argument on stack
+14D6  CDF014   ...                 call  RND0           ; Real random number in X
+14D9  CDBF09   ...                 call  MOVRF          ; Transfer to Y
+14DC  EB       .                   ex    de,hl          ; Reload argument and
+14DD  E3       .                   ex    (sp),hl        ; Random number on stack
 14DE  C5       .                   push  bc
-14DF  CDCF0A   ...                 call  0x0ACF
-14E2  C1       .                   pop   bc
+14DF  CDCF0A   ...                 call  0x0ACF         ; Argument with single precision in X
+14E2  C1       .                   pop   bc             ; Random number back in Y
 14E3  D1       .                   pop   de
-14E4  CD4708   .G.                 call  0x0847
-14E7  21F807   !..                 ld    hl,FONE
+14E4  CD4708   .G.                 call  0x0847         ; Random number * Argument
+14E7  21F807   !..                 ld    hl,FONE        ; + 1
 14EA  CD0B07   ...                 call  0x070B
-14ED  C3400B   .@.                 jp    0x0B40
-14F0  219078   !.x                 ld    hl,0x7890
-14F3  E5       .                   push  hl
-14F4  110000   ...                 ld    de,START
+14ED  C3400B   .@.                 jp    0x0B40         ; Result = INT(random number * Arg + 1)
+                     ; New random number = old random number * 4253261 + 372837
+14F0  219078   !.x                 ld    hl,RND_MULT_TABLE ; Address of the multiplier
+14F3  E5       .                   push  hl             ; on stack
+14F4  110000   ...                 ld    de,START       ; Clear result register (CDE)
 14F7  4B       K                   ld    c,e
-14F8  2603     &.                  ld    h,0x03
-14FA  2E08     ..                  ld    l,0x08
-14FC  EB       .                   ex    de,hl
-14FD  29       )                   add   hl,hl
+14F8  2603     &.                  ld    h,0x03         ; Byte counter = 3
+14FA  2E08     ..                  ld    l,0x08         ; Bit counter = 8
+14FC  EB       .                   ex    de,hl          ; Result register * 2
+14FD  29       )                   add   hl,hl          ; LSB
 14FE  EB       .                   ex    de,hl
-14FF  79       y                   ld    a,c
+14FF  79       y                   ld    a,c            ; MSB
 1500  17       .                   rla   
 1501  4F       O                   ld    c,a
-1502  E3       .                   ex    (sp),hl
-1503  7E       ~                   ld    a,(hl)
-1504  07       .                   rlca  
-1505  77       w                   ld    (hl),a
-1506  E3       .                   ex    (sp),hl
-1507  D21615   ...                 jp    nc,0x1516
+1502  E3       .                   ex    (sp),hl        ; Multiplier address in HL
+1503  7E       ~                   ld    a,(hl)         ; Byte of the multiplier in A
+1504  07       .                   rlca                 ; Most significant bit in carry
+1505  77       w                   ld    (hl),a         ; and save it back
+1506  E3       .                   ex    (sp),hl        ; Multiplier address on stack
+1507  D21615   ...                 jp    nc,RND02       ; Bit not set, no addition
 150A  E5       .                   push  hl
-150B  2AAA78   *.x                 ld    hl,(0x78AA)
-150E  19       .                   add   hl,de
+150B  2AAA78   *.x                 ld    hl,(RND_SEED)  ; Add last random number
+150E  19       .                   add   hl,de          ; LSB
 150F  EB       .                   ex    de,hl
-1510  3AAC78   :.x                 ld    a,(0x78AC)
+1510  3AAC78   :.x                 ld    a,(0x78AC)     ; MSB
 1513  89       .                   adc   a,c
 1514  4F       O                   ld    c,a
 1515  E1       .                   pop   hl
-1516  2D       -                   dec   l
-1517  C2FC14   ...                 jp    nz,0x14FC
-151A  E3       .                   ex    (sp),hl
-151B  23       #                   inc   hl
-151C  E3       .                   ex    (sp),hl
-151D  25       %                   dec   h
-151E  C2FA14   ...                 jp    nz,0x14FA
-1521  E1       .                   pop   hl
-1522  2165B0   !e.                 ld    hl,0xB065
-1525  19       .                   add   hl,de
-1526  22AA78   ".x                 ld    (0x78AA),hl
-1529  CDEF0A   ...                 call  VALSNG
-152C  3E05     >.                  ld    a,0x05
+1516  2D       -                   dec   l              ; Bit counter - 1
+1517  C2FC14   ...                 jp    nz,RND01       ; Byte processed? no-back
+151A  E3       .                   ex    (sp),hl        ; Multiplier address in HL
+151B  23       #                   inc   hl             ; + 1
+151C  E3       .                   ex    (sp),hl        ; and back on the stack
+151D  25       %                   dec   h              ; Byte counter - 1
+151E  C2FA14   ...                 jp    nz,RND00       ; Finished? no-back
+1521  E1       .                   pop   hl             ; Correct stack
+1522  2165B0   !e.                 ld    hl,0xB065      ; Result + 372837 = new random number
+1525  19       .                   add   hl,de          ; LSB
+1526  22AA78   ".x                 ld    (RND_SEED),hl
+1529  CDEF0A   ...                 call  VALSNG         ; Type = single precision
+152C  3E05     >.                  ld    a,0x05         ; MSB
 152E  89       .                   adc   a,c
 152F  32AC78   2.x                 ld    (0x78AC),a
-1532  EB       .                   ex    de,hl
-1533  0680     ..                  ld    b,0x80
-1535  212579   !%y                 ld    hl,0x7925
-1538  70       p                   ld    (hl),b
-1539  2B       +                   dec   hl
+1532  EB       .                   ex    de,hl          ; Transfer to Y
+1533  0680     ..                  ld    b,0x80         ; Exp. Y = 0, so that it's between 0 and 1
+1535  212579   !%y                 ld    hl,0x7925      ; Set sign flag
+1538  70       p                   ld    (hl),b         ; Result = positive
+1539  2B       +                   dec   hl             ; Exponent X = Exponent Y
 153A  70       p                   ld    (hl),b
-153B  4F       O                   ld    c,a
-153C  0600     ..                  ld    b,0x00
-153E  C36507   .e.                 jp    0x0765
-1541  218B15   !..                 ld    hl,0x158B
-1544  CD0B07   ...                 call  0x070B
-1547  CDA409   ...                 call  PUSHF
-154A  014983   .I.                 ld    bc,0x8349
+153B  4F       O                   ld    c,a            ; MSB in C
+153C  0600     ..                  ld    b,0x00         ; Clear LSB
+153E  C36507   .e.                 jp    0x0765         ; to normalization
+                     ; COS - Function
+                     ; Determine the cosine of an angle
+1541  218B15   !..                 ld    hl,PI2         ; Address constant PI/2
+1544  CD0B07   ...                 call  0x070B         ; Add PI/2 to argument
+                     ; SIN - Function
+                     ; Determine the sine of an angle
+1547  CDA409   ...                 call  PUSHF          ; Argument on stack
+154A  014983   .I.                 ld    bc,0x8349      ; Constant 2PI in Y
 154D  11DB0F   ...                 ld    de,0x0FDB
-1550  CDB409   ...                 call  MOVFR
-1553  C1       .                   pop   bc
+1550  CDB409   ...                 call  MOVFR          ; Transfer 2PI to X
+1553  C1       .                   pop   bc             ; Argument in Y
 1554  D1       .                   pop   de
-1555  CDA208   ...                 call  0x08A2
-1558  CDA409   ...                 call  PUSHF
-155B  CD400B   .@.                 call  0x0B40
-155E  C1       .                   pop   bc
+1555  CDA208   ...                 call  0x08A2         ; X = Argument / 2PI
+1558  CDA409   ...                 call  PUSHF          ; Argument / 2PI on stack
+155B  CD400B   .@.                 call  0x0B40         ; INT(Arg/2PI) in X
+155E  C1       .                   pop   bc             ; Arg/2PI from stack in Y
 155F  D1       .                   pop   de
-1560  CD1307   ...                 call  FP_SUB_Y_MINUS_X
-1563  218F15   !..                 ld    hl,0x158F
-1566  CD1007   ...                 call  FP_SUB_HALF
-1569  CD5509   .U.                 call  SIGN
-156C  37       7                   scf   
-156D  F27715   .w.                 jp    p,0x1577
-1570  CD0807   ...                 call  FP_ADD_HALF
-1573  CD5509   .U.                 call  SIGN
-1576  B7       .                   or    a
-1577  F5       .                   push  af
-1578  F48209   ...                 call  p,NNEG
-157B  218F15   !..                 ld    hl,0x158F
-157E  CD0B07   ...                 call  0x070B
-1581  F1       .                   pop   af
-1582  D48209   ...                 call  nc,NNEG
-1585  219315   !..                 ld    hl,0x1593
-1588  C39A14   ...                 jp    POLYN
-158B  DB0F     ..                  in    a,(0x0F)
-158D  49       I                   ld    c,c
-158E  81       .                   add   a,c
-158F  00       .                   nop   
-1590  00       .                   nop   
-1591  00       .                   nop   
-1592  7F       .                   ld    a,a
-1593  05       .                   dec   b
-1594  BA       .                   cp    d
-1595  D7       .                   rst   0x10
-1596  1E86     ..                  ld    e,0x86
-1598  64       d                   ld    h,h
-1599  2699     &.                  ld    h,0x99
-159B  87       .                   add   a,a
-159C  58       X                   ld    e,b
-159D  34       4                   inc   (hl)
-159E  23       #                   inc   hl
-159F  87       .                   add   a,a
-15A0  E0       .                   ret   po
-15A1  5D       ]                   ld    e,l
-15A2  A5       .                   and   l
-15A3  86       .                   add   a,(hl)
-15A4  DA0F49   ..I                 jp    c,0x490F
-15A7  83       .                   add   a,e
-15A8  CDA409   ...                 call  PUSHF
-15AB  CD4715   .G.                 call  0x1547
-15AE  C1       .                   pop   bc
+1560  CD1307   ...                 call  FP_SUB_Y_MINUS_X ; X = Arg/2PI - INT(Arg/2PI)
+                     ; Transform interval (0..1) to interval (-0.25 ... 0.25)
+1563  218F15   !..                 ld    hl,F025        ; Address constant 0.25
+1566  CD1007   ...                 call  FP_SUB_HALF    ; 0.25 - X in X
+1569  CD5509   .U.                 call  SIGN           ; Is X >= 0?
+156C  37       7                   scf                  ; Clear flag for multiplication with (-1)
+156D  F27715   .w.                 jp    p,0x1577       ; Yes!
+1570  CD0807   ...                 call  FP_ADD_HALF    ; 0.5 + X in X
+1573  CD5509   .U.                 call  SIGN           ; Is X >= 0?
+1576  B7       .                   or    a              ; Set flag for multiplication with (-1)
+1577  F5       .                   push  af             ; Flag on stack
+1578  F48209   ...                 call  p,NNEG         ; Yes! X = -X
+157B  218F15   !..                 ld    hl,F025        ; Address constant 0.25
+157E  CD0B07   ...                 call  0x070B         ; 0.25 + X in X
+1581  F1       .                   pop   af             ; Load flag
+1582  D48209   ...                 call  nc,NNEG        ; Carry = 0? yes - X = -X
+1585  219315   !..                 ld    hl,SIN_CONST   ; Constants for series calculation
+1588  C39A14   ...                 jp    POLYN          ; Calculate series
+158B  DB0F4981 ..I.                DEFB  0xDB,0x0F,0x49,0x81
+158F  0000007F ....                DEFB  0x00,0x00,0x00,0x7F
+1593  05       .                   DEFB  0x05
+1594  BAD71E86 ....                DEFB  0xBA,0xD7,0x1E,0x86,0x64,0x26,0x99,0x87
+      64269987 d&..  
+159C  58342387 X4#.                DEFB  0x58,0x34,0x23,0x87,0xE0,0x5D,0xA5,0x86
+      E05DA586 .]..  
+15A4  DA0F4983 ..I.                DEFB  0xDA,0x0F,0x49,0x83
+                     ; TAN - Function
+                     ; Calculates the tangent of an angle
+15A8  CDA409   ...                 call  PUSHF          ; Argument on stack
+15AB  CD4715   .G.                 call  FNSIN          ; Determine Sin(Arg)
+15AE  C1       .                   pop   bc             ; Argument in Y
 15AF  E1       .                   pop   hl
-15B0  CDA409   ...                 call  PUSHF
+15B0  CDA409   ...                 call  PUSHF          ; Sin(Arg) on stack
 15B3  EB       .                   ex    de,hl
-15B4  CDB409   ...                 call  MOVFR
-15B7  CD4115   .A.                 call  0x1541
-15BA  C3A008   ...                 jp    0x08A0
-15BD  CD5509   .U.                 call  SIGN
-15C0  FCE213   ...                 call  m,GETADR_ENTRY_2
-15C3  FC8209   ...                 call  m,NNEG
-15C6  3A2479   :$y                 ld    a,(FAC)
+15B4  CDB409   ...                 call  MOVFR          ; Transfer argument to X
+15B7  CD4115   .A.                 call  FNCOS          ; Determine Cos(Arg)
+15BA  C3A008   ...                 jp    0x08A0         ; Tan(Arg) = Sin(Arg) / Cos(Arg)
+                     ; ATN - Function
+                     ; Arc-tangent calculation
+15BD  CD5509   .U.                 call  SIGN           ; Is argument < 0?
+15C0  FCE213   ...                 call  m,GETADR_ENTRY_2 ; Yes, result * (-1)
+15C3  FC8209   ...                 call  m,NNEG         ; Abs(Argument) in X
+15C6  3A2479   :$y                 ld    a,(FAC)        ; Is argument < 1?
 15C9  FE81     ..                  cp    0x81
-15CB  380C     8.                  jr    c,$+14
-15CD  010081   ...                 ld    bc,0x8100
+15CB  380C     8.                  jr    c,$+14         ; Yes!
+15CD  010081   ...                 ld    bc,0x8100      ; No! Y = 1
 15D0  51       Q                   ld    d,c
 15D1  59       Y                   ld    e,c
-15D2  CDA208   ...                 call  0x08A2
-15D5  211007   !..                 ld    hl,FP_SUB_HALF
-15D8  E5       .                   push  hl
-15D9  21E315   !..                 ld    hl,0x15E3
-15DC  CD9A14   ...                 call  POLYN
-15DF  218B15   !..                 ld    hl,0x158B
-15E2  C9       .                   ret   
-15E3  09       .                   add   hl,bc
-15E4  4A       J                   ld    c,d
-15E5  D7       .                   rst   0x10
-15E6  3B       ;                   dec   sp
-15E7  78       x                   ld    a,b
-15E8  02       .                   ld    (bc),a
-15E9  6E       n                   ld    l,(hl)
-15EA  84       .                   add   a,h
-15EB  7B       {                   ld    a,e
-15EC  FEC1     ..                  cp    0xC1
-15EE  2F       /                   cpl   
-15EF  7C       |                   ld    a,h
-15F0  74       t                   ld    (hl),h
-15F1  319A7D   1.}                 ld    sp,0x7D9A
-15F4  84       .                   add   a,h
-15F5  3D       =                   dec   a
-15F6  5A       Z                   ld    e,d
-15F7  7D       }                   ld    a,l
-15F8  C8       .                   ret   z
-15F9  7F       .                   ld    a,a
-15FA  91       .                   sub   c
-15FB  7E       ~                   ld    a,(hl)
-15FC  E4BB4C   ..L                 call  po,0x4CBB
-15FF  7E       ~                   ld    a,(hl)
-1600  6C       l                   ld    l,h
-1601  AA       .                   xor   d
-1602  AA       .                   xor   d
-1603  7F       .                   ld    a,a
-1604  00       .                   nop   
-1605  00       .                   nop   
-1606  00       .                   nop   
-1607  81       .                   add   a,c
+15D2  CDA208   ...                 call  0x08A2         ; X = 1 / Argument
+15D5  211007   !..                 ld    hl,FP_SUB_HALF ; Jump address to 0710 on stack
+15D8  E5       .                   push  hl             ; on stack
+15D9  21E315   !..                 ld    hl,ATN_CONST   ; Address constants for series
+15DC  CD9A14   ...                 call  POLYN          ; Calculate series
+15DF  218B15   !..                 ld    hl,PI2         ; Load address of PI/2
+15E2  C9       .                   ret                  ; continue at 0710H
+15E3  094AD73B .J.;                DEFB  0x09,0x4A,0xD7,0x3B,0x78,0x02,0x6E,0x84
+      78026E84 x.n.  
+15EB  7BFEC12F {../                DEFB  0x7B,0xFE,0xC1,0x2F,0x7C,0x74,0x31,0x9A
+      7C74319A |t1.  
+15F3  7D843D5A }.=Z                DEFB  0x7D,0x84,0x3D,0x5A,0x7D,0xC8,0x7F,0x91
+      7DC87F91 }...  
+15FB  7EE4BB4C ~..L                DEFB  0x7E,0xE4,0xBB,0x4C,0x7E,0x6C,0xAA,0xAA
+      7E6CAAAA ~l..  
+1603  7F000000 ....                DEFB  0x7F,0x00,0x00,0x00,0x81
+      81       .     
 1608  8A       .                   adc   a,d
 1609  09       .                   add   hl,bc
 160A  37       7                   scf   

@@ -1,5 +1,41 @@
 # VZ200 BASIC ROM Disassembly Progress
 
+## Session: May 10, 2026 (Part 2)
+
+### Task
+Annotate the byte range 0x14C9 to 0x15E2 based on Gerhard Wolf's Laser 310 German ROM listing (pages 94-99) and cross-referenced with TRS-80 Level II BASIC sources.
+
+### Work Summary
+- Translated and applied comprehensive English inline comments and block headers for the range 0x14C9 - 0x15E2, covering trigonometric and random number functions.
+- Identified and labeled key math routines:
+  - `FNRND` (0x14C9): Random number function ($RND(n)$).
+  - `RND0` (0x14F0): Core random number generator routine.
+  - `FNCOS` (0x1541): Cosine function ($COS(x)$).
+  - `FNSIN` (0x1547): Sine function ($SIN(x)$).
+  - `FNTAN` (0x15A8): Tangent function ($TAN(x)$).
+  - `FNATN` (0x15BD): Arc-tangent function ($ATN(x)$).
+- Documented internal jump labels for loops: `RND00`, `RND01`, `RND02`.
+- Labeled and correctly formatted constant data in `segments.map` and `symbols.sym`:
+  - `PI2` (0x158B): $\pi/2$ constant.
+  - `F025` (0x158F): 0.25 constant.
+  - `SIN_CONST` (0x1593): Constants for the Sine series.
+  - `ATN_CONST` (0x15E3): Constants for the Arc-tangent series.
+- Identified and labeled random number seed and multiplier table in RAM:
+  - `RND_SEED` (0x78AA): Current random number seed.
+  - `RND_MULT_TABLE` (0x7890): Multiplier table used for RND generation.
+- Corrected disassembler behavior by marking math constant ranges as `DIRECT_BYTE` in `segments.map`, ensuring data is not disassembled as code.
+- Binary identity maintained: `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+
+### Statistics
+- **Total Symbols:** 216 (Limit: 6000)
+- **Total Annotations:** 3155 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of high-density inline comments and properly formatted constant tables in the target range.
+
+# VZ200 BASIC ROM Disassembly Progress
+
 ## Session: May 10, 2026
 
 ### Task

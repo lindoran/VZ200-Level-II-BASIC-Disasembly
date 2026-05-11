@@ -479,6 +479,26 @@ offset = 5297
 end = 5297
 type = DATA_BYTE
 
+[region]
+offset = 5515
+end = 5518
+type = DATA_BYTE
+
+[region]
+offset = 5519
+end = 5522
+type = DATA_BYTE
+
+[region]
+offset = 5523
+end = 5523
+type = DATA_BYTE
+
+[region]
+offset = 5524
+end = 5543
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -11763,6 +11783,402 @@ text = Reload constant address
 offset = 5319
 text = continue
 
+[comment]
+offset = 5321
+text = Convert argument to integer
+
+[comment]
+offset = 5324
+text = Is argument < 0?
+
+[comment]
+offset = 5326
+text = Yes, FUNCTION CODE error
+
+[comment]
+offset = 5329
+text = Is argument = 0?
+
+[comment]
+offset = 5330
+text = Yes, generate random number between 0 and 1
+
+[comment]
+offset = 5333
+text = Argument on stack
+
+[comment]
+offset = 5334
+text = Real random number in X
+
+[comment]
+offset = 5337
+text = Transfer to Y
+
+[comment]
+offset = 5340
+text = Reload argument and
+
+[comment]
+offset = 5341
+text = Random number on stack
+
+[comment]
+offset = 5343
+text = Argument with single precision in X
+
+[comment]
+offset = 5346
+text = Random number back in Y
+
+[comment]
+offset = 5348
+text = Random number * Argument
+
+[comment]
+offset = 5351
+text = + 1
+
+[comment]
+offset = 5357
+text = Result = INT(random number * Arg + 1)
+
+[comment]
+offset = 5360
+text = Address of the multiplier
+
+[comment]
+offset = 5363
+text = on stack
+
+[comment]
+offset = 5364
+text = Clear result register (CDE)
+
+[comment]
+offset = 5368
+text = Byte counter = 3
+
+[comment]
+offset = 5370
+text = Bit counter = 8
+
+[comment]
+offset = 5372
+text = Result register * 2
+
+[comment]
+offset = 5373
+text = LSB
+
+[comment]
+offset = 5375
+text = MSB
+
+[comment]
+offset = 5378
+text = Multiplier address in HL
+
+[comment]
+offset = 5379
+text = Byte of the multiplier in A
+
+[comment]
+offset = 5380
+text = Most significant bit in carry
+
+[comment]
+offset = 5381
+text = and save it back
+
+[comment]
+offset = 5382
+text = Multiplier address on stack
+
+[comment]
+offset = 5383
+text = Bit not set, no addition
+
+[comment]
+offset = 5387
+text = Add last random number
+
+[comment]
+offset = 5390
+text = LSB
+
+[comment]
+offset = 5392
+text = MSB
+
+[comment]
+offset = 5398
+text = Bit counter - 1
+
+[comment]
+offset = 5399
+text = Byte processed? no-back
+
+[comment]
+offset = 5402
+text = Multiplier address in HL
+
+[comment]
+offset = 5403
+text = + 1
+
+[comment]
+offset = 5404
+text = and back on the stack
+
+[comment]
+offset = 5405
+text = Byte counter - 1
+
+[comment]
+offset = 5406
+text = Finished? no-back
+
+[comment]
+offset = 5409
+text = Correct stack
+
+[comment]
+offset = 5410
+text = Result + 372837 = new random number
+
+[comment]
+offset = 5413
+text = LSB
+
+[comment]
+offset = 5417
+text = Type = single precision
+
+[comment]
+offset = 5420
+text = MSB
+
+[comment]
+offset = 5426
+text = Transfer to Y
+
+[comment]
+offset = 5427
+text = Exp. Y = 0, so that it's between 0 and 1
+
+[comment]
+offset = 5429
+text = Set sign flag
+
+[comment]
+offset = 5432
+text = Result = positive
+
+[comment]
+offset = 5433
+text = Exponent X = Exponent Y
+
+[comment]
+offset = 5435
+text = MSB in C
+
+[comment]
+offset = 5436
+text = Clear LSB
+
+[comment]
+offset = 5438
+text = to normalization
+
+[comment]
+offset = 5441
+text = Address constant PI/2
+
+[comment]
+offset = 5444
+text = Add PI/2 to argument
+
+[comment]
+offset = 5447
+text = Argument on stack
+
+[comment]
+offset = 5450
+text = Constant 2PI in Y
+
+[comment]
+offset = 5456
+text = Transfer 2PI to X
+
+[comment]
+offset = 5459
+text = Argument in Y
+
+[comment]
+offset = 5461
+text = X = Argument / 2PI
+
+[comment]
+offset = 5464
+text = Argument / 2PI on stack
+
+[comment]
+offset = 5467
+text = INT(Arg/2PI) in X
+
+[comment]
+offset = 5470
+text = Arg/2PI from stack in Y
+
+[comment]
+offset = 5472
+text = X = Arg/2PI - INT(Arg/2PI)
+
+[comment]
+offset = 5475
+text = Address constant 0.25
+
+[comment]
+offset = 5478
+text = 0.25 - X in X
+
+[comment]
+offset = 5481
+text = Is X >= 0?
+
+[comment]
+offset = 5484
+text = Clear flag for multiplication with (-1)
+
+[comment]
+offset = 5485
+text = Yes!
+
+[comment]
+offset = 5488
+text = 0.5 + X in X
+
+[comment]
+offset = 5491
+text = Is X >= 0?
+
+[comment]
+offset = 5494
+text = Set flag for multiplication with (-1)
+
+[comment]
+offset = 5495
+text = Flag on stack
+
+[comment]
+offset = 5496
+text = Yes! X = -X
+
+[comment]
+offset = 5499
+text = Address constant 0.25
+
+[comment]
+offset = 5502
+text = 0.25 + X in X
+
+[comment]
+offset = 5505
+text = Load flag
+
+[comment]
+offset = 5506
+text = Carry = 0? yes - X = -X
+
+[comment]
+offset = 5509
+text = Constants for series calculation
+
+[comment]
+offset = 5512
+text = Calculate series
+
+[comment]
+offset = 5544
+text = Argument on stack
+
+[comment]
+offset = 5547
+text = Determine Sin(Arg)
+
+[comment]
+offset = 5550
+text = Argument in Y
+
+[comment]
+offset = 5552
+text = Sin(Arg) on stack
+
+[comment]
+offset = 5556
+text = Transfer argument to X
+
+[comment]
+offset = 5559
+text = Determine Cos(Arg)
+
+[comment]
+offset = 5562
+text = Tan(Arg) = Sin(Arg) / Cos(Arg)
+
+[comment]
+offset = 5565
+text = Is argument < 0?
+
+[comment]
+offset = 5568
+text = Yes, result * (-1)
+
+[comment]
+offset = 5571
+text = Abs(Argument) in X
+
+[comment]
+offset = 5574
+text = Is argument < 1?
+
+[comment]
+offset = 5579
+text = Yes!
+
+[comment]
+offset = 5581
+text = No! Y = 1
+
+[comment]
+offset = 5586
+text = X = 1 / Argument
+
+[comment]
+offset = 5589
+text = Jump address to 0710 on stack
+
+[comment]
+offset = 5592
+text = on stack
+
+[comment]
+offset = 5593
+text = Address constants for series
+
+[comment]
+offset = 5596
+text = Calculate series
+
+[comment]
+offset = 5599
+text = Load address of PI/2
+
+[comment]
+offset = 5602
+text = continue at 0710H
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -12806,4 +13222,37 @@ text = ******************************************************************
               * Input:  Same as series calculation 1                           *
               * Output: Same as series calculation 1                           *
               ******************************************************************
+
+[block]
+offset = 5321
+text = RND - Function
+              Generate random number
+
+[block]
+offset = 5360
+text = New random number = old random number * 4253261 + 372837
+
+[block]
+offset = 5441
+text = COS - Function
+              Determine the cosine of an angle
+
+[block]
+offset = 5447
+text = SIN - Function
+              Determine the sine of an angle
+
+[block]
+offset = 5475
+text = Transform interval (0..1) to interval (-0.25 ... 0.25)
+
+[block]
+offset = 5544
+text = TAN - Function
+              Calculates the tangent of an angle
+
+[block]
+offset = 5565
+text = ATN - Function
+              Arc-tangent calculation
 
