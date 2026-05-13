@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Sun May 10 22:46:20 2026
+; Generated: Wed May 13 00:09:27 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -22,74 +22,17 @@
 ; Not used in VZ200
               pop   hl             ; Pop return address to HL
               jp    (hl)           ; Jump to HL (return to caller)
-              DEFB  0x00,0x00,0x00
-; RST10_VEC: (defined in symbols.sym)
-              jp    0x7803         ; RST 10H: Jump to RAM hook at 7803H (CHRGOT)
-
-; Reading a character via Device Control Block (DCB)
-; GET_CHAR_DCB: (defined in symbols.sym)
-              push  bc             ; Read character via DCB
-              ld    b,0x01         ; Set B for DCB check
-              jr    $+48           ; Jump to DCB dispatcher
-; RST18_VEC: (defined in symbols.sym)
-              jp    0x7806         ; RST 18H: Jump to RAM hook at 7806H (CMPHDE)
-
-; Output of a character via Device Control Block (DCB)
-; PUT_CHAR_DCB: (defined in symbols.sym)
-              push  bc             ; Output character via DCB
-              ld    b,0x02         ; Set B for DCB check
-              jr    $+40           ; Jump to DCB dispatcher
-; RST20_VEC: (defined in symbols.sym)
-              jp    0x7809         ; RST 20H: Jump to RAM hook at 7809H (TSTTYP)
-              push  bc             ; Unused code path (GET_CHAR skip)
-              ld    b,0x04         ; Set B for DCB check
-              jr    $+32           ; Jump to DCB dispatcher
-; RST28_VEC: (defined in symbols.sym)
-              jp    0x780C         ; RST 28H: Jump to RAM hook at 780CH
-
-; Keyboard query
-; KBD_QUERY: (defined in symbols.sym)
-              ld    de,0x7815      ; Load keyboard DCB address
-              jr    $-27           ; Continue keyboard routine
-; RST30_VEC: (defined in symbols.sym)
-              jp    0x780F         ; RST 30H: Jump to RAM hook at 780FH
-
-; Screen output via DCB
-; SCR_OUT_DCB: (defined in symbols.sym)
-              ld    de,0x781D      ; Load screen DCB address
-              jr    $-27           ; Continue output routine
-; RST38_VEC: (defined in symbols.sym)
-              jp    0x2EB8         ; RST 38H: Jump to Interrupt Service Routine (2EB8H)
-
-; Printer output via Device Control Block (DCB)
-; PRN_OUT_DCB: (defined in symbols.sym)
-              ld    de,0x7825      ; Load printer DCB address
-              jr    $-35           ; Continue output routine
-              jp    0x2EFD         ; Jump to keyboard read routine (2EFDH)
-              ret                  ; Return from unused path
-              DEFB  0x00,0x00
-; DCB_CALL: (defined in symbols.sym)
-              jp    DCB_DISPATCH   ; Jump to DCB dispatcher (0674H)
-
-; Keyboard query waits until a key is pressed
-; KBD_WAIT: (defined in symbols.sym)
-              call  KBD_QUERY      ; Call keyboard scan (002BH)
-              or    a              ; Key pressed?
-              ret   nz             ; Yes, return
-              jr    $-5            ; No, wait
-
-;
-; *****************************************************************
-;
-; Save character from cursor position
-; GET_CURSOR_CHAR: (defined in symbols.sym)
-              ld    hl,(0x7820)    ; Load cursor address (7820H)
-              ld    a,(hl)         ; Load character from cursor position
-              ld    (0x783C),a     ; Save character to 783CH
-              ret                  ; Return
-
-; not used in vz200
-              DEFB  0x4C,0xFE,0x54,0x20,0xD6,0xFD,0x21,0xF1
+              DEFB  0x00,0x00,0x00,0xC3,0x03,0x78,0xC5,0x06
+              DEFB  0x01,0x18,0x2E,0xC3,0x06,0x78,0xC5,0x06
+              DEFB  0x02,0x18,0x26,0xC3,0x09,0x78,0xC5,0x06
+              DEFB  0x04,0x18,0x1E,0xC3,0x0C,0x78,0x11,0x15
+              DEFB  0x78,0x18,0xE3,0xC3,0x0F,0x78,0x11,0x1D
+              DEFB  0x78,0x18,0xE3,0xC3,0xB8,0x2E,0x11,0x25
+              DEFB  0x78,0x18,0xDB,0xC3,0xFD,0x2E,0xC9,0x00
+              DEFB  0x00,0xC3,0xC2,0x03,0xCD,0x2B,0x00,0xB7
+              DEFB  0xC0,0x18,0xF9,0x2A,0x20,0x78,0x7E,0x32 ; Yes, return
+              DEFB  0x3C,0x78,0xC9,0x4C,0xFE,0x54,0x20,0xD6
+              DEFB  0xFD,0x21,0xF1
 
 ;
 ; Delay loop (input: register BC determines duration)
@@ -230,12 +173,10 @@ INIT_VARS_2:
               call  OUTSTR         ; Print banner string (OUTSTR)
               im    1              ; Set Interrupt Mode 1
               jp    BASIC_INIT_3   ; Jump to memory expansion check (068EH)
-              DEFB  0x00,0x7E,0x23,0xFE,0x0D ; Artifact? No caller
-
-; Banner-Text: VIDEO TECHNOLOGY BASIC V2.0
-              DEFM  "VIDEO TECHNOLOGY"
-              DEFB  0x0D
-              DEFM  "BASIC V2.0"
+              DEFB  0x00,0x7E,0x23,0xFE,0x0D,0x56,0x49,0x44 ; Artifact? No caller
+              DEFB  0x45,0x4F,0x20,0x54,0x45,0x43,0x48,0x4E
+              DEFB  0x4F,0x4C,0x4F,0x47,0x59,0x0D,0x42,0x41
+              DEFB  0x53,0x49,0x43,0x20,0x56,0x32,0x2E,0x30
               DEFB  0x0D,0x0D,0x00 ; term with 00
 
 ; L3 Error Handler (?L3 ERROR)
@@ -405,22 +346,10 @@ TOKEN_APPEND_PAREN:
 ; (2 bytes per character)
 ; *******************************
 PRINTER_GRAPHICS_TABLE:
-              DEFB  0x80,0x80      ; Char 0x80
-              DEFB  0x80,0xB8      ; Char 0x81
-              DEFB  0xB8,0x80      ; Char 0x82
-              DEFB  0xB8,0xB8      ; Char 0x83
-              DEFB  0x80,0x87      ; Char 0x84
-              DEFB  0x80,0xBF      ; Char 0x85
-              DEFB  0xB8,0x87      ; Char 0x86
-              DEFB  0xB8,0xBF      ; Char 0x87
-              DEFB  0x87,0x80      ; Char 0x88
-              DEFB  0x87,0xB8      ; Char 0x89
-              DEFB  0xBF,0x80      ; Char 0x8A
-              DEFB  0xBF,0xB8      ; Char 0x8B
-              DEFB  0x87,0x87      ; Char 0x8C
-              DEFB  0x87,0xBF      ; Char 0x8D
-              DEFB  0xBF,0x87      ; Char 0x8E
-              DEFB  0xBF,0xBF      ; Char 0x8F
+              DEFB  0x80,0x80,0x80,0xB8,0xB8,0x80,0xB8,0xB8 ; Char 0x80
+              DEFB  0x80,0x87,0x80,0xBF,0xB8,0x87,0xB8,0xBF ; Char 0x84
+              DEFB  0x87,0x80,0x87,0xB8,0xBF,0x80,0xBF,0xB8 ; Char 0x88
+              DEFB  0x87,0x87,0x87,0xBF,0xBF,0x87,0xBF,0xBF ; Char 0x8C
 
 ; *******************************
 ; SOUND frequency table
@@ -823,10 +752,7 @@ INPUT_LINE_READ:
               ret                  ; Return
 
 ; RUN command for CRUN auto-start
-              DEFM  "RUN\00"       ; Data text 'RUN\00'
-
-; Printer driver
-              DEFB  0xC4           ; Data bytes 0xC4
+              DEFB  0x52,0x55,0x4E,0x00,0xC4 ; Data text 'RUN\00'
 
 ; Printer driver
 PRINTER_DRIVER:
@@ -1056,26 +982,14 @@ RAM_VECTOR_BLOCK:
               nop                  ; No operation
 
 ; Keyboard - Device Control Block
-              DEFB  0x01           ; DCB type
-              DEFW  0x2EF4
-              DEFB  0x00,0x00,0x00
-
-; Keyboard Name
-              DEFM  "KI"           ; Keyboard Name
+              DEFB  0x01,0xF4,0x2E,0x00,0x00,0x00,0x4B,0x49 ; DCB type
 
 ; Screen - Device Control Block
 ; not used except for the cursor address.
-              DEFB  0x00           ; DCB type (unknown)
-              DEFW  0x0000         ; used by SET, RESET and POINT.
-              DEFW  0x7000         ; cursor address pointer
-              DEFB  0x00,0x00,0x00
+              DEFB  0x00,0x00,0x00,0x00,0x70,0x00,0x00,0x00 ; DCB type (unknown)
 
 ; Printer - Device Control Block
-              DEFB  0x06           ; DCB type
-              DEFW  0x058D         ; driver address
-              DEFB  0x43           ; lines/page + 1
-              DEFB  0x00           ; line counter
-              DEFB  0x00
+              DEFB  0x06,0x8D,0x05,0x43,0x00,0x00 ; DCB type
               DEFM  "PR"           ; Printer Name
               jp    0x5000         ; not used
               rst   0              ; not used
@@ -1304,12 +1218,23 @@ SHFTR4:
 
 ; SINGLE PRECISION CONSTANT STORAGE LOCATION – “FONE”
 FONE:
-              DEFB  0x00,0x00,0x00,0x81 ; = 1
+              nop                  ; = 1
+              nop   
+              nop   
+              add   a,c
 
 ; SINGLE PRECISION CONSTANTS STORAGE LOCATION 2 – “LOGCN2”
 LOGCN2:
-              DEFB  0x03,0xAA,0x56,0x19,0x80,0xF1,0x22,0x76 ; number of constants = 3
-              DEFB  0x80,0x45,0xAA,0x38,0x82
+              inc   bc             ; number of constants = 3
+              xor   d
+              ld    d,(hl)
+              add   hl,de
+              add   a,b
+              pop   af
+              ld    (0x8076),hl
+              ld    b,l
+              xor   d
+              jr    c,$-124
 
 ; LEVEL II BASIC LOG ROUTINE – “FNLOG”
 ; Computes the natural log (base E) of the single precision value in
@@ -1454,8 +1379,8 @@ FDIV1:
 
 ; to skip following 2 POPs
               DEFB  0xD2           ; JP NC,0E1C1H is never executed.
-              pop   bc             ; Get dividend from stack
-              pop   hl             ; = undo subtraction
+              pop   bc
+              pop   hl
 FDIV2:
               ld    a,c            ; MSB of quotient in A
               inc   a              ; Test bit 7
@@ -2137,7 +2062,7 @@ IMULT_OVERFLOW_CHECK:
 IMULT_NEXT:
               jr    nc,$+6         ; no, no addition
               add   hl,bc          ; yes, result + 2nd factor
-              jp    c,IMULT_OVERFLOW ; on overflow, special routine
+              jp    c,0x0C26       ; on overflow, special routine
 IMULT_LOOP_END:
               dec   a              ; Counter - 1
               jr    nz,$-13        ; not 0, next pass
@@ -2158,9 +2083,8 @@ IMULT_LOOP_END:
               ex    de,hl          ; 1st factor in HL
 IMULT_LD_BC_TRICK:
               DEFB  0x01           ; Dummy instruction
-IMULT_OVERFLOW:
-              pop   bc             ; load sign flag
-              pop   hl             ; load 1st factor in HL
+              pop   bc
+              pop   hl
               call  0x0ACF         ; 1st factor to single precision in X
               pop   hl             ; get 2nd factor from stack
               call  PUSHF          ; 1st factor from X to stack
@@ -2512,8 +2436,8 @@ DNORM_BIT_LOOP:
               call  0x0D39         ; Dividend + divisor in dividend
               xor   a              ; Clear carry
               DEFB  0xDA           ; Dummy instruction (JP C, 0x0412)
-              ld    (de),a         ; Store MSB of dividend
-              inc   b              ; Set flag
+              ld    (de),a
+              inc   b
               ld    a,(FAC_SIGN)   ; Load MSB of result
               inc   a              ; Bit 7 set?
               dec   a
@@ -2783,7 +2707,7 @@ DNORM_BIT_LOOP:
               sub   0x30           ; Eliminate zone part
               ld    e,a            ; new exponent
               DEFB  0xFA           ; Dummy, will never be executed
-              ld    e,0x32         ; Exponent = 32, causes overflow later
+              ld    e,0x32
               jp    FINEC          ; process next digit
 
 ; To complete an error message
@@ -3447,8 +3371,7 @@ INT_TO_ASCII:
 ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “DHALF”           *
 ; * A double precision constant equal to 0.5D0                     *
 ; ******************************************************************
-              DEFB  0x00,0x00,0x00,0x00 ; 0.5 (double precision)
-              DEFB  0x00,0x00,0x00,0x80 ; 1380-1383 = 0.5 (single precision)
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80 ; 0.5 (double precision)
 
 ; ******************************************************************
 ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FFXDXM”          *
@@ -3460,35 +3383,17 @@ INT_TO_ASCII:
 ; * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION – “FODTBL”  *
 ; * Powers of ten table (Double Precision)                         *
 ; ******************************************************************
-              DEFB  0x00,0x80,0xC6,0xA4,0x7E,0x8D,0x03 ; 10^16 (double precision)
-              DEFB  0x00,0x40,0x7A,0x10,0xF3,0x5A,0x00 ; 10^15 (double precision)
-              DEFB  0x00,0xA0,0x72,0x4E,0x18,0x09,0x00 ; 10^14 (double precision)
-              DEFB  0x00,0x10,0xA5,0xD4,0xE8,0x00,0x00 ; 10^13 (double precision)
-              DEFB  0x00,0xE8,0x76,0x48,0x17,0x00,0x00 ; 10^12 (double precision)
-              DEFB  0x00,0xE4,0x0B,0x54,0x02,0x00,0x00 ; 10^11 (double precision)
-              DEFB  0x00,0xCA,0x9A,0x3B,0x00,0x00,0x00 ; 10^10 (double precision)
-              DEFB  0x00,0xE1,0xF5,0x05,0x00,0x00,0x00 ; 10^9 (double precision)
-              DEFB  0x80,0x96,0x98,0x00,0x00,0x00,0x00 ; 10^8 (double precision)
-              DEFB  0x40,0x42,0x0F,0x00,0x00,0x00,0x00 ; 10^7 (double precision)
-
-; ******************************************************************
-; * SINGLE PRECISION POWER OF TEN TABLE LOCATION – “FOSTBL”        *
-; ******************************************************************
-              DEFB  0xA0,0x86,0x01 ; 10^6 (single precision)
-              DEFB  0x10,0x27,0x00 ; 10^5 (single precision)
-
-; ******************************************************************
-; * SINGLE PRECISION POWER OF TEN TABLE LOCATION – “FOITBL”        *
-; ******************************************************************
-              DEFB  0x10,0x27      ; 10000 (integer)
-              DEFB  0xE8,0x03      ; 1000 (integer)
-              DEFB  0x64,0x00      ; 100 (integer)
-              DEFB  0x0A,0x00      ; 10 (integer)
-
-; ******************************************************************
-; * CALCULATE ADDRESS – “GETADR”                                   *
-; ******************************************************************
-              DEFB  0x01,0x00      ; 1 (integer)
+              DEFB  0x00,0x80,0xC6,0xA4,0x7E,0x8D,0x03,0x00 ; 10^16 (double precision)
+              DEFB  0x40,0x7A,0x10,0xF3,0x5A,0x00,0x00,0xA0
+              DEFB  0x72,0x4E,0x18,0x09,0x00,0x00,0x10,0xA5
+              DEFB  0xD4,0xE8,0x00,0x00,0x00,0xE8,0x76,0x48
+              DEFB  0x17,0x00,0x00,0x00,0xE4,0x0B,0x54,0x02
+              DEFB  0x00,0x00,0x00,0xCA,0x9A,0x3B,0x00,0x00
+              DEFB  0x00,0x00,0xE1,0xF5,0x05,0x00,0x00,0x00
+              DEFB  0x80,0x96,0x98,0x00,0x00,0x00,0x00,0x40 ; 10^8 (double precision)
+              DEFB  0x42,0x0F,0x00,0x00,0x00,0x00,0xA0,0x86
+              DEFB  0x01,0x10,0x27,0x00,0x10,0x27,0xE8,0x03
+              DEFB  0x64,0x00,0x0A,0x00,0x01,0x00
 
 ; ******************************************************************
 ; * Subroutine for SQR and ATN                                     *
@@ -3586,15 +3491,11 @@ INT_TO_ASCII:
 ; ******************************************************************
 ; * Constants for exponent series                                  *
 ; ******************************************************************
-              DEFB  0x08           ; 8 constants
-              DEFB  0x40,0x2E,0x94,0x74 ; -1.41316 E-04
-              DEFB  0x70,0x4F,0x2E,0x77 ; 1.32988 E-03
-              DEFB  0x6E,0x02,0x88,0x7A ; -8.30136 E-03
-              DEFB  0xE6,0xA0,0x2A,0x7C ; 0.0416574
-              DEFB  0x50,0xAA,0xAA,0x7E ; -0.166665
-              DEFB  0xFF,0xFF,0x7F,0x7F ; 0.5
-              DEFB  0x00,0x00,0x80,0x81 ; -1
-              DEFB  0x00,0x00,0x00,0x81 ; 1
+              DEFB  0x08,0x40,0x2E,0x94,0x74,0x70,0x4F,0x2E ; 8 constants
+              DEFB  0x77,0x6E,0x02,0x88,0x7A,0xE6,0xA0,0x2A
+              DEFB  0x7C,0x50,0xAA,0xAA,0x7E,0xFF,0xFF,0x7F
+              DEFB  0x7F,0x00,0x00,0x80,0x81,0x00,0x00,0x00
+              DEFB  0x81
 
 ; ******************************************************************
 ; * Series calculation 1                                           *
@@ -3746,12 +3647,10 @@ INT_TO_ASCII:
               call  nc,NNEG        ; Carry = 0? yes - X = -X
               ld    hl,SIN_CONST   ; Constants for series calculation
               jp    POLYN          ; Calculate series
-              DEFB  0xDB,0x0F,0x49,0x81
-              DEFB  0x00,0x00,0x00,0x7F
-              DEFB  0x05
-              DEFB  0xBA,0xD7,0x1E,0x86,0x64,0x26,0x99,0x87
-              DEFB  0x58,0x34,0x23,0x87,0xE0,0x5D,0xA5,0x86
-              DEFB  0xDA,0x0F,0x49,0x83
+              DEFB  0xDB,0x0F,0x49,0x81,0x00,0x00,0x00,0x7F
+              DEFB  0x05,0xBA,0xD7,0x1E,0x86,0x64,0x26,0x99
+              DEFB  0x87,0x58,0x34,0x23,0x87,0xE0,0x5D,0xA5
+              DEFB  0x86,0xDA,0x0F,0x49,0x83
 
 ; TAN - Function
 ; Calculates the tangent of an angle
@@ -3783,629 +3682,266 @@ INT_TO_ASCII:
               call  POLYN          ; Calculate series
               ld    hl,PI2         ; Load address of PI/2
               ret                  ; continue at 0710H
-              DEFB  0x09,0x4A,0xD7,0x3B,0x78,0x02,0x6E,0x84
-              DEFB  0x7B,0xFE,0xC1,0x2F,0x7C,0x74,0x31,0x9A
-              DEFB  0x7D,0x84,0x3D,0x5A,0x7D,0xC8,0x7F,0x91
-              DEFB  0x7E,0xE4,0xBB,0x4C,0x7E,0x6C,0xAA,0xAA
-              DEFB  0x7F,0x00,0x00,0x00,0x81
-              adc   a,d
-              add   hl,bc
-              scf   
-              dec   bc
-              ld    (hl),a
-              add   hl,bc
-              call  nc,0xEF27
-              ld    hl,(0x27F5)
-              rst   0x20
-              inc   de
-              ret   
-              inc   d
-              add   hl,bc
-              ex    af,af'
-              add   hl,sp
-              inc   d
-              ld    b,c
-              dec   d
-              ld    b,a
-              dec   d
-              xor   b
-              dec   d
-              cp    l
-              dec   d
-              xor   d
-              inc   l
-              ld    d,d
-              ld    a,c
-              ld    e,b
-              ld    a,c
-              ld    e,(hl)
-              ld    a,c
-              ld    h,c
-              ld    a,c
-              ld    h,h
-              ld    a,c
-              ld    h,a
-              ld    a,c
-              ld    l,d
-              ld    a,c
-              ld    l,l
-              ld    a,c
-              ld    (hl),b
-              ld    a,c
-              ld    a,a
-              ld    a,(bc)
-              or    c
-              ld    a,(bc)
-              in    a,(0x0A)
-              ld    h,0x0B
-              inc   bc
-              ld    hl,(0x2836)
-              push  bc
-              ld    hl,(0x2A0F)
-              rra   
-              ld    hl,(0x2A61)
-              sub   c
-              ld    hl,(0x2A9A)
-              push  bc
-              ld    c,(hl)
-              ld    b,h
-              add   a,0x4F
-              ld    d,d
-              jp    nc,0x5345
-              ld    b,l
-              ld    d,h
-              out   (0x45),a
-              ld    d,h
-              jp    0x534C
-              add   a,c
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              adc   a,0x45
-              ld    e,b
-              ld    d,h
-              call  nz,0x5441
-              ld    b,c
-              ret   
-              ld    c,(hl)
-              ld    d,b
-              ld    d,l
-              ld    d,h
-              call  nz,0x4D49
-              jp    nc,0x4145
-              ld    b,h
-              call  z,0x5445
-              rst   0
-              ld    c,a
-              ld    d,h
-              ld    c,a
-              jp    nc,0x4E55
-              ret   
-              ld    b,(hl)
-              jp    nc,0x5345
-              ld    d,h
-              ld    c,a
-              ld    d,d
-              ld    b,l
-              rst   0
-              ld    c,a
-              ld    d,e
-              ld    d,l
-              ld    b,d
-              jp    nc,0x5445
-              ld    d,l
-              ld    d,d
-              ld    c,(hl)
-              jp    nc,0x4D45
-              out   (0x54),a
-              ld    c,a
-              ld    d,b
-              push  bc
-              ld    c,h
-              ld    d,e
-              ld    b,l
-              jp    0x504F
-              ld    e,c
-              jp    0x4C4F
-              ld    c,a
-              ld    d,d
-              sub   0x45
-              ld    d,d
-              ld    c,c
-              ld    b,(hl)
-              ld    e,c
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              jp    0x5552
-              ld    c,(hl)
-              call  0x444F
-              ld    b,l
-              out   (0x4F),a
-              ld    d,l
-              ld    c,(hl)
-              ld    b,h
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              rst   8
-              ld    d,l
-              ld    d,h
-              add   a,c
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              call  z,0x5250
-              ld    c,c
-              ld    c,(hl)
-              ld    d,h
-              add   a,c
-              nop   
-              nop   
-              ret   nc
-              ld    c,a
-              ld    c,e
-              ld    b,l
-              ret   nc
-              ld    d,d
-              ld    c,c
-              ld    c,(hl)
-              ld    d,h
-              jp    0x4E4F
-              ld    d,h
-              call  z,0x5349
-              ld    d,h
-              call  z,0x494C
-              ld    d,e
-              ld    d,h
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              jp    0x454C
-              ld    b,c
-              ld    d,d
-              jp    0x4F4C
-              ld    b,c
-              ld    b,h
-              jp    0x4153
-              ld    d,(hl)
-              ld    b,l
-              adc   a,0x45
-              ld    d,a
-              call  nc,0x4241
-              jr    z,$-42
-              ld    c,a
-              add   a,c
-              nop   
-              push  de
-              ld    d,e
-              ld    c,c
-              ld    c,(hl)
-              ld    b,a
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              push  de
-              ld    d,e
-              ld    d,d
-              add   a,c
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              ret   nc
-              ld    c,a
-              ld    c,c
-              ld    c,(hl)
-              ld    d,h
-              add   a,c
-              nop   
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              ret   
-              ld    c,(hl)
-              ld    c,e
-              ld    b,l
-              ld    e,c
-              inc   h
-              call  nc,0x4548
-              ld    c,(hl)
-              adc   a,0x4F
-              ld    d,h
-              out   (0x54),a
-              ld    b,l
-              ld    d,b
-              xor   e
-              xor   l
-              xor   d
-              xor   a
-              sbc   a,0xC1
-              ld    c,(hl)
-              ld    b,h
-              rst   8
-              ld    d,d
-              cp    (hl)
-              cp    l
-              cp    h
-              out   (0x47),a
-              ld    c,(hl)
-              ret   
-              ld    c,(hl)
-              ld    d,h
-              pop   bc
-              ld    b,d
-              ld    d,e
-              add   a,c
-              nop   
-              nop   
-              ret   
-              ld    c,(hl)
-              ld    d,b
-              add   a,c
-              nop   
-              nop   
-              out   (0x51),a
-              ld    d,d
-              jp    nc,0x444E
-              call  z,0x474F
-              push  bc
-              ld    e,b
-              ld    d,b
-              jp    0x534F
-              out   (0x49),a
-              ld    c,(hl)
-              call  nc,0x4E41
-              pop   bc
-              ld    d,h
-              ld    c,(hl)
-              ret   nc
-              ld    b,l
-              ld    b,l
-              ld    c,e
-              add   a,c
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              nop   
-              add   a,c
-              nop   
-              nop   
-              call  z,0x4E45
-              out   (0x54),a
-              ld    d,d
-              inc   h
-              sub   0x41
-              ld    c,h
-              pop   bc
-              ld    d,e
-              ld    b,e
-              jp    0x5248
-              inc   h
-              call  z,0x4645
-              ld    d,h
-              inc   h
-              jp    nc,0x4749
-              ld    c,b
-              ld    d,h
-              inc   h
-              call  0x4449
-              inc   h
-              and   a
-              add   a,b
-              xor   (hl)
-              dec   e
-              and   c
-              inc   e
-              jr    c,$+3
-              dec   (hl)
-              ld    bc,CLRSCR
-              ld    (hl),e
-              ld    a,c
-              out   (0x01),a
-              or    (hl)
-              ld    (0x1F05),hl
-              sbc   a,d
-              ld    hl,0x2608
-              rst   0x28
-              ld    hl,0x1F21
-              jp    nz,0xA31E
-              ld    e,0x39
-              jr    nz,$-109
-              dec   e
-              or    c
-              ld    e,0xDE
-              ld    e,0x07
-              rra   
-              xor   c
-              dec   e
-              rlca  
-              rra   
-              ld    (de),a
-              add   hl,sp
-              sbc   a,l
-              jr    c,$+58
-              scf   
-              inc   bc
-              ld    e,0x06
-              ld    e,0x09
-              ld    e,0x2E
-              scf   
-              ld    h,e
-              ld    l,0xF5
-              dec   hl
-              xor   a
-              rra   
-              ei    
-              ld    hl,(0x1F6C)
-              ld    a,c
-              ld    a,c
-              ld    a,h
-              ld    a,c
-              ld    a,a
-              ld    a,c
-              add   a,d
-              ld    a,c
-              add   a,l
-              ld    a,c
-              adc   a,b
-              ld    a,c
-              adc   a,e
-              ld    a,c
-              adc   a,(hl)
-              ld    a,c
-              sub   c
-              ld    a,c
-              sub   a
-              ld    a,c
-              sbc   a,d
-              ld    a,c
-              and   b
-              ld    a,c
-              nop   
-              nop   
-              ld    h,a
-              jr    nz,$+93
-              ld    a,c
-              or    c
-              inc   l
-              ld    l,a
-              jr    nz,$-26
-              dec   e
-              ld    l,0x2B
-              add   hl,hl
-              dec   hl
-              add   a,0x2B
-              ex    af,af'
-              jr    nz,$+124
-              ld    e,0x56
-              ld    (hl),0xA9
-              inc   (hl)
-              ld    c,c
-              dec   de
-              ld    a,c
-              ld    a,c
-              ld    a,h
-              ld    a,h
-              ld    a,a
-              ld    d,b
-              ld    b,(hl)
-              in    a,(0x0A)
-              nop   
-              nop   
-              ld    a,a
-              ld    a,(bc)
-              call  p,0xB10A
-              ld    a,(bc)
-              ld    (hl),a
-              inc   c
-              ld    (hl),b
-              inc   c
-              and   c
-              dec   c
-              push  hl
-              dec   c
-              ld    a,b
-              ld    a,(bc)
-              ld    d,0x07
-              inc   de
-              rlca  
-              ld    b,a
-              ex    af,af'
-              and   d
-              ex    af,af'
-              inc   c
-              ld    a,(bc)
-              jp    nc,0xC70B
-              dec   bc
-              jp    p,0x900B
-              inc   h
-              add   hl,sp
-              ld    a,(bc)
-              ld    c,(hl)
-              ld    b,(hl)
-              ld    d,e
-              ld    c,(hl)
-              ld    d,d
-              ld    b,a
-              ld    c,a
-              ld    b,h
-              ld    b,(hl)
-              ld    b,e
-              ld    c,a
-              ld    d,(hl)
-              ld    c,a
-              ld    c,l
-              ld    d,l
-              ld    c,h
-              ld    b,d
-              ld    d,e
-              ld    b,h
-              ld    b,h
-              cpl   
-              jr    nc,$+75
-              ld    b,h
-              ld    d,h
-              ld    c,l
-              ld    c,a
-              ld    d,e
-              ld    c,h
-              ld    d,e
-              ld    d,e
-              ld    d,h
-              ld    b,e
-              ld    c,(hl)
-              ld    c,(hl)
-              ld    d,d
-              ld    d,d
-              ld    d,a
-              ld    d,l
-              ld    b,l
-              ld    c,l
-              ld    c,a
-              ld    b,(hl)
-              ld    b,h
-              ld    c,h
-              inc   sp
+
+; Constants for the Arcus-Tangens series
+              DEFB  0x09           ; Number = 9
+              DEFB  0x4A,0xD7,0x3B,0x78 ; = 2.86623 E-03
+              DEFB  0x02,0x6E,0x84,0x7B ; = -0.0161657
+              DEFB  0xFE,0xC1,0x2F,0x7C ; = 0.0429096
+              DEFB  0x74,0x31,0x9A,0x7D ; = -0.0752896
+              DEFB  0x84,0x3D,0x5A,0x7D ; = 0.106563
+              DEFB  0xC8,0x7F,0x91,0x7E ; = -0.142089
+              DEFB  0xE4,0xBB,0x4C,0x7E ; = 0.199936
+              DEFB  0x6C,0xAA,0xAA,0x7F ; = -0.333331
+              DEFB  0x00,0x00,0x00,0x81 ; = 1
+
+; (Tokens D7 to FA)
+              DEFW  0x098A         ; D7 = SGN
+              DEFW  0x0B37         ; D8 = INT
+              DEFW  0x0977         ; D9 = ABS
+              DEFW  0x27D4,0x2AEF,0x27F5 ; DA = FRE
+              DEFW  0x13E7         ; DD = SQR
+              DEFW  0x14C9         ; DE = RND
+              DEFW  0x0809         ; DF = LOG
+              DEFW  0x1439         ; E0 = EXP
+              DEFW  0x1541         ; E1 = COS
+              DEFW  0x1547         ; E2 = SIN
+              DEFW  0x15A8         ; E3 = TAN
+              DEFW  0x15BD         ; E4 = ATN
+              DEFW  0x2CAA         ; E5 = PEEK
+              DEFW  0x7952         ; E6 = CVI
+              DEFW  0x7958         ; E7 = CVS
+              DEFW  0x795E         ; E8 = CVD
+              DEFW  0x7961         ; E9 = EOF
+              DEFW  0x7964         ; EA = LOC
+              DEFW  0x7967         ; EB = LOF
+              DEFW  0x796A         ; EC = MKI$
+              DEFW  0x796D         ; ED = MKS$
+              DEFW  0x7970         ; EE = MKD$
+              DEFW  0x0A7F         ; EF = CINT
+              DEFW  0x0AB1         ; F0 = CSNG
+              DEFW  0x0ADB         ; F1 = CDBL
+              DEFW  0x0B26         ; F2 = FIX
+              DEFW  0x2A03,0x2836  ; F3 = LEN
+              DEFW  0x2AC5,0x2A0F  ; F5 = VAL
+              DEFW  0x2A1F,0x2A61  ; F7 = CHR$
+              DEFW  0x2A91,0x2A9A  ; F9 = RIGHT$
+
+; BASIC keyword table (sorted by token in ascending order)
+KWD_80_END:
+              DEFB  0xC5           ; 80 = END ('E'+0x80)
+              DEFM  "ND"
+              DEFB  0xC6           ; 81 = FOR ('F'+0x80)
+              DEFM  "OR"
+              DEFB  0xD2           ; 82 = RESET ('R'+0x80)
+              DEFM  "ESET"
+              DEFB  0xD3           ; 83 = SET ('S'+0x80)
+              DEFM  "ET"
+              DEFB  0xC3           ; 84 = CLS ('C'+0x80)
+              DEFM  "LS"
+              DEFB  0x81,0x00,0x00,0x81,0x00,0x00,0x00,0x00
+              DEFB  0x00,0xCE,0x45,0x58,0x54,0xC4,0x41,0x54
+              DEFB  0x41,0xC9,0x4E,0x50,0x55,0x54
+KWD_8A_DIM:
+              DEFB  0xC4,0x49,0x4D,0xD2,0x45,0x41,0x44,0xCC ; 8A = DIM
+              DEFB  0x45,0x54,0xC7,0x4F,0x54,0x4F,0xD2,0x55
+              DEFB  0x4E,0xC9,0x46,0xD2,0x45,0x53,0x54,0x4F
+              DEFB  0x52,0x45,0xC7,0x4F,0x53,0x55,0x42,0xD2
+              DEFB  0x45,0x54,0x55,0x52,0x4E
+KWD_93_REM:
+              DEFB  0xD2,0x45,0x4D,0xD3,0x54,0x4F,0x50,0xC5 ; 93 = REM
+              DEFB  0x4C,0x53,0x45,0xC3,0x4F,0x50,0x59,0xC3
+              DEFB  0x4F,0x4C,0x4F,0x52,0xD6,0x45,0x52,0x49
+              DEFB  0x46,0x59,0x81,0x00,0x00,0x00,0x00,0x00
+KWD_9A_DEFSNG:
+              DEFB  0x81,0x00,0x00,0x00 ; 9A = DEFSNG (not coded)
+KWD_9B_DEFDBL:
+              DEFB  0x00,0x00,0x81,0x00,0x00,0x00,0x00,0x00 ; 9B = DEFDBL
+KWD_9C_CRUN:
+              DEFB  0xC3,0x52,0x55,0x4E,0xCD,0x4F,0x44,0x45 ; 9C = CRUN
+KWD_9E_SOUND:
+              DEFB  0xD3,0x4F,0x55,0x4E,0x44,0x81,0x00,0x00 ; 9E = SOUND
+              DEFB  0x00,0x00,0x00,0xCF,0x55,0x54,0x81,0x00
+KWD_A2_OPEN:
+              DEFB  0x81,0x00,0x00,0x00,0x81,0x00,0x00,0x00 ; A2 = OPEN (not coded)
+              DEFB  0x00,0x81,0x00,0x00,0x81,0x00,0x00,0x81
+              DEFB  0x00,0x00,0x00,0x00,0x81,0x00,0x00,0x00
+KWD_A8_MERGE:
+              DEFB  0x81,0x00,0x00,0x00,0x00,0x81,0x00,0x00 ; A8 = MERGE (not coded)
+KWD_AA_KILL:
+              DEFB  0x00,0x81,0x00,0x00,0x00,0x81,0x00,0x00 ; AA = KILL
+              DEFB  0x00,0x81,0x00,0x00,0x00,0x81,0x00,0x00
+              DEFB  0x00,0x81,0x00,0x00,0x00,0x00,0x00,0xCC
+              DEFB  0x50,0x52,0x49,0x4E,0x54,0x81,0x00,0x00
+KWD_B1_POKE:
+              DEFB  0xD0,0x4F,0x4B,0x45,0xD0,0x52,0x49,0x4E ; B1 = POKE
+              DEFB  0x54,0xC3,0x4F,0x4E,0x54,0xCC,0x49,0x53
+              DEFB  0x54,0xCC,0x4C,0x49,0x53,0x54,0x81,0x00
+              DEFB  0x00,0x00,0x00,0x00,0x81,0x00,0x00,0x00
+KWD_B8_CLEAR:
+              DEFB  0xC3,0x4C,0x45,0x41,0x52,0xC3,0x4C,0x4F ; B8 = CLEAR
+              DEFB  0x41,0x44,0xC3,0x53,0x41,0x56,0x45,0xCE
+              DEFB  0x45,0x57,0xD4,0x41,0x42,0x28,0xD4,0x4F
+KWD_BE_FN:
+              DEFB  0x81,0x00,0xD5,0x53,0x49,0x4E,0x47,0x81 ; BE = FN (not coded)
+KWD_C1_USR_START:
+              DEFB  0x00,0x00,0x00,0x00,0x00,0xD5,0x53,0x52 ; C1 = USR
+KWD_C2_ERL:
+              DEFB  0x81,0x00,0x00,0x81,0x00,0x00,0x81,0x00 ; C2 = ERL (not coded)
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x81,0x00,0x00
+              DEFB  0x00,0x00,0xD0,0x4F,0x49,0x4E,0x54,0x81
+KWD_C8_MEM_START:
+              DEFB  0x00,0x00,0x00,0x00,0x81,0x00,0x00,0xC9 ; C8 = MEM
+              DEFB  0x4E,0x4B,0x45,0x59,0x24,0xD4,0x48,0x45
+              DEFB  0x4E,0xCE,0x4F,0x54,0xD3,0x54,0x45,0x50
+KWD_CD_PLUS:
+              DEFB  0xAB,0xAD,0xAA,0xAF,0xDE,0xC1,0x4E,0x44 ; CD = +
+KWD_D3_OR:
+              DEFB  0xCF,0x52,0xBE,0xBD,0xBC,0xD3,0x47,0x4E ; D3 = OR
+              DEFB  0xC9,0x4E,0x54,0xC1,0x42,0x53,0x81,0x00
+              DEFB  0x00,0xC9,0x4E,0x50,0x81,0x00,0x00,0xD3
+              DEFB  0x51,0x52,0xD2,0x4E,0x44,0xCC,0x4F,0x47
+KWD_E0_EXP:
+              DEFB  0xC5,0x58,0x50,0xC3,0x4F,0x53,0xD3,0x49 ; E0 = EXP
+              DEFB  0x4E,0xD4,0x41,0x4E,0xC1,0x54,0x4E,0xD0
+              DEFB  0x45,0x45,0x4B,0x81,0x00,0x00,0x81,0x00
+              DEFB  0x00,0x81,0x00,0x00,0x81,0x00,0x00,0x81
+KWD_E9_EOF_START:
+              DEFB  0x00,0x00,0x81,0x00,0x00,0x81,0x00,0x00 ; E9 = EOF
+              DEFB  0x00,0x81,0x00,0x00,0x00,0x81,0x00,0x00
+              DEFB  0x00,0x81,0x00,0x00,0x00,0x81,0x00,0x00
+              DEFB  0x00,0x81,0x00,0x00,0x00,0x81,0x00,0x00
+KWD_F3_LEN:
+              DEFB  0xCC,0x45,0x4E,0xD3,0x54,0x52,0x24,0xD6 ; F3 = LEN
+              DEFB  0x41,0x4C,0xC1,0x53,0x43,0xC3,0x48,0x52
+              DEFB  0x24,0xCC,0x45,0x46,0x54,0x24,0xD2,0x49
+              DEFB  0x47,0x48,0x54,0x24,0xCD,0x49,0x44,0x24
+KWD_FB_SPACE:
+              DEFB  0xA7,0x80      ; FB = ' '
+
+; (Token 80 - BB)
+              DEFW  0x1DAE         ; 80 = END
+              DEFW  0x1CA1         ; 81 = FOR
+              DEFW  0x0138         ; 82 = RESET
+              DEFW  0x0135         ; 83 = SET
+              DEFW  0x01C9         ; 84 = CLS
+              DEFW  0x7973         ; 85 = CMD
+              DEFW  0x01D3         ; 86 = RANDOM
+              DEFW  0x22B6         ; 87 = NEXT
+              DEFW  0x1F05         ; 88 = DATA
+              DEFW  0x219A         ; 89 = INPUT
+              DEFW  0x2608         ; 8A = DIM
+              DEFW  0x21EF         ; 8B = READ
+              DEFW  0x1F21         ; 8C = LET
+              DEFW  0x1EC2         ; 8D = GOTO
+              DEFW  0x1EA3         ; 8E = RUN
+              DEFW  0x2039         ; 8F = IF
+              DEFW  0x1D91         ; 90 = RESTORE
+              DEFW  0x1EB1         ; 91 = GOSUB
+              DEFW  0x1EDE         ; 92 = RETURN
+              DEFW  0x1F07         ; 93 = REM
+              DEFW  0x1DA9         ; 94 = STOP
+              DEFW  0x1F07         ; 95 = ELSE
+              DEFW  0x3912         ; 96 = COPY
+              DEFW  0x389D         ; 97 = COLOR
+              DEFW  0x3738         ; 98 = VERIFY
+              DEFW  0x1E03         ; 99 = DEFINT
+              DEFW  0x1E06         ; 9A = DEFSNG
+              DEFW  0x1E09         ; 9B = DEFDBL
+              DEFW  0x372E         ; 9C = CRUN
+              DEFW  0x2E63         ; 9D = MODE
+              DEFW  0x2BF5         ; 9E = SOUND
+              DEFW  0x1FAF         ; 9F = RESUME
+              DEFW  0x2AFB         ; A0 = OUT
+              DEFW  0x1F6C         ; A1 = ON
+              DEFW  0x7979         ; A2 = OPEN
+              DEFW  0x797C         ; A3 = FIELD
+              DEFW  0x797F         ; A4 = GET
+              DEFW  0x7982         ; A5 = PUT
+              DEFW  0x7985         ; A6 = CLOSE
+              DEFW  0x7988         ; A7 = LOAD
+              DEFW  0x798B         ; A8 = MERGE
+              DEFW  0x798E         ; A9 = NAME
+              DEFW  0x7991         ; AA = KILL
+              DEFW  0x7997         ; AB = LSET
+              DEFW  0x799A         ; AC = RSET
+              DEFW  0x79A0         ; AD = SAVE
+              DEFW  0x0000         ; AE = SYSTEM
+              DEFW  0x2067         ; AF = LPRINT
+              DEFW  0x795B         ; B0 = DEF
+              DEFW  0x2CB1         ; B1 = POKE
+              DEFW  0x206F         ; B2 = PRINT
+              DEFW  0x1DE4         ; B3 = CONT
+              DEFW  0x2B2E         ; B4 = LIST
+              DEFW  0x2B29         ; B5 = LLIST
+              DEFW  0x2BC6         ; B6 = DELETE
+              DEFW  0x2008         ; B7 = AUTO
+              DEFW  0x1E7A         ; B8 = CLEAR
+              DEFW  0x3656         ; B9 = CLOAD
+              DEFW  0x34A9         ; BA = CSAVE
+              DEFW  0x1B49         ; BB = NEW
+
+; The operator with the higher code has priority
+              DEFB  0x79           ; OP_PRI_PLUS
+              DEFB  0x79           ; OP_PRI_MINUS
+              DEFB  0x7C           ; OP_PRI_MUL
+              DEFB  0x7C           ; OP_PRI_DIV
+              DEFB  0x7F           ; OP_PRI_POW
+              DEFB  0x50           ; OP_PRI_AND
+              DEFB  0x46           ; OP_PRI_OR
+
+; Jump table for type adaptation
+              DEFW  0x0ADB         ; Conversion to double precision
+              DEFW  0x0000         ; unused
+              DEFW  0x0A7F         ; Conversion to integer
+              DEFW  0x0AF4         ; TYPE MISMATCH - Error if not!
+              DEFW  0x0AB1         ; Conversion to single precision
+
+; Double Precision
+              DEFW  0x0C77         ; Addition
+              DEFW  0x0C70         ; Subtraction
+              DEFW  0x0DA1         ; Multiplication
+              DEFW  0x0DE5         ; Division
+              DEFW  0x0A78         ; Power
+
+; Single Precision
+              DEFW  0x0716         ; Addition
+              DEFW  0x0713         ; Subtraction
+              DEFW  0x0847         ; Multiplication
+              DEFW  0x08A2         ; Division
+              DEFW  0x0A0C         ; Power
+
+; Integer
+              DEFW  0x0BD2         ; Addition
+              DEFW  0x0BC7         ; Subtraction
+              DEFW  0x0BF2         ; Multiplication
+              DEFW  0x2490         ; Division
+              DEFW  0x0A39         ; Power
+
+; (not used in LASER 110-310)
+              DEFB  0x4E,0x46      ; ERR_NF
+              DEFB  0x53,0x4E      ; ERR_SN
+              DEFB  0x52,0x47      ; ERR_RG
+              DEFB  0x4F,0x44      ; ERR_OD
+              DEFB  0x46,0x43      ; ERR_FC
+              DEFB  0x4F,0x56      ; ERR_OV
+              DEFB  0x4F,0x4D      ; ERR_OM
+              DEFB  0x55,0x4C      ; ERR_UL
+              DEFB  0x42,0x53      ; ERR_BS
+              DEFB  0x44,0x44      ; ERR_DD
+              DEFB  0x2F,0x30      ; ERR_D0
+              DEFB  0x49,0x44      ; ERR_ID
+              DEFB  0x54,0x4D      ; ERR_TM
+              DEFB  0x4F,0x53      ; ERR_OS
+              DEFB  0x4C,0x53      ; ERR_LS
+              DEFB  0x53,0x54      ; ERR_ST
+              DEFB  0x43,0x4E      ; ERR_CN
+              DEFB  0x4E,0x52      ; ERR_NR
+              DEFB  0x52,0x57      ; ERR_RW
+              DEFB  0x55,0x45      ; ERR_UE
+              DEFB  0x4D,0x4F      ; ERR_MO
+              DEFB  0x46,0x44      ; ERR_FD
+              DEFB  0x4C,0x33      ; ERR_L3
               sub   0x00
               ld    l,a
               ld    a,h
@@ -7274,7 +6810,7 @@ INT_TO_ASCII:
               sub   0x7F
               push  hl
               ld    e,a
-              ld    hl,0x1650
+              ld    hl,KWD_80_END
               ld    a,(hl)
               or    a
               inc   hl

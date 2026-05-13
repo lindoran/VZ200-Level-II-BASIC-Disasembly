@@ -1,5 +1,64 @@
 # VZ200 BASIC ROM Disassembly Progress
 
+## Session: May 12, 2026
+
+### Task
+Expand z80bench tool limits and establish a strategy for documenting the BASIC keyword table (page 100).
+
+### Work Summary
+- **Toolchain Upgrades**:
+  - Increased `MAX_MAP_ENTRIES` (segments) and `MAX_REGIONS` from 100 to 500 across the `z80bench` codebase (`memmap.c`, `annotate.c`, `project.c`, `ui_panels.c`).
+  - Increased `MAX_TOTAL_LINES` to 500,000 in `project.c` to accommodate larger disassemblies.
+  - Successfully rebuilt `z80bench` and `z80bench-cli` from source.
+- **Keyword Table Strategy**:
+  - Developed a hybrid annotation strategy for Microsoft BASIC keyword tables (where the first character typically has bit 7 set as a terminator/token).
+  - **Strategy**: Split each keyword into a `DIRECT_BYTE` segment for the first character and a `DEFINE_MSG` segment for the remainder.
+  - **Comments**: Applied descriptive inline comments to the first byte of each keyword indicating the token value and the character expression (e.g., `; 80 = END ('E'+0x80)`).
+  - **Demonstration**: Applied this strategy to the range `0x1650` - `0x1660` (END through CLS keywords).
+- **Verification**:
+  - `export.asm` continues to assemble to a bit-perfect match of `VZ200.bin`.
+  - `export.lst` now shows a highly readable hybrid hex/text representation for keywords that matches the logical structure of the original Laser 310 PDF.
+
+### Statistics
+- **Total Symbols:** 216 (Limit: 6000)
+- **Total Annotations:** 3343 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for the new keyword formatting.
+
+## Session: May 11, 2026
+
+### Task
+Annotate the byte range 0x15E3 to 0x18F5 based on Gerhard Wolf's Laser 310 German ROM listing (pages 99-109). This section contains table data including constants, keywords, jump tables, and error abbreviations.
+
+### Work Summary
+- Translated and applied English inline comments and block headers for the range 0x15E3 - 0x18F5.
+- Documented the following tables:
+  - **Arcus-Tangens Series Constants** (0x15E3 - 0x1607): Individually annotated 9 constants.
+  - **Function Jump Table** (0x1608 - 0x164F): Labeled and commented all function entry points (D7-FA).
+  - **BASIC Keyword Table** (0x1650 - 0x1821): Annotated ~124 keywords with their corresponding token values.
+  - **Command Jump Table** (0x1822 - 0x1899): Labeled and commented all command entry points (80-BB).
+  - **Operator Priority Table** (0x189A - 0x18A0): Documented priorities for Z80 operators.
+  - **Type Conversion Jump Table** (0x18A1 - 0x18AA): Annotated routines for precision and type handling.
+  - **Arithmetic and Comparison Jump Table** (0x18AB - 0x18C8): Documented entry points for DP, Single, and Integer math.
+  - **Error Abbreviation Table** (0x18C9 - 0x18F5): Labeled and translated all error message tokens (NF, SN, etc.).
+- **Workflow / Segment Management**:
+  - Combined multiple small, unrelated segments in `segments.map` to stay below the 100-segment limit of `z80bench`.
+  - Strategically split the `BASIC_KEYWORDS` and `ERROR_MESSAGES` tables into smaller segments to allow for precise line breaks and inline comments in the listing.
+  - Cleaned up duplicate symbols in `symbols.sym` and ensured no conflicts between global symbols and annotation labels in `export.asm`.
+- **Verification**:
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+  - `export.lst` verified for high-density English inline comments across all table sections.
+
+### Statistics
+- **Total Symbols:** 216 (Limit: 6000)
+- **Total Annotations:** 3338 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of English inline comments for the range 0x15E3-0x18F5.
+
 ## Session: May 10, 2026 (Part 2)
 
 ### Task

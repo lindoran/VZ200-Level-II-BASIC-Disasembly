@@ -6,16 +6,6 @@ load_addr = 0x0000
 
 [region]
 offset = 13
-end = 15
-type = DATA_BYTE
-
-[region]
-offset = 68
-end = 69
-type = DATA_BYTE
-
-[region]
-offset = 88
 end = 95
 type = DATA_BYTE
 
@@ -26,26 +16,6 @@ type = DATA_BYTE
 
 [region]
 offset = 266
-end = 270
-type = DATA_BYTE
-
-[region]
-offset = 271
-end = 286
-type = DATA_STRING
-
-[region]
-offset = 287
-end = 287
-type = DATA_BYTE
-
-[region]
-offset = 288
-end = 297
-type = DATA_STRING
-
-[region]
-offset = 298
 end = 300
 type = DATA_BYTE
 
@@ -65,92 +35,12 @@ end = 412
 type = DATA_BYTE
 
 [region]
-offset = 401
-end = 412
-type = DATA_BYTE
-
-[region]
 offset = 473
 end = 686
 type = DATA_BYTE
 
 [region]
 offset = 687
-end = 688
-type = DATA_BYTE
-
-[region]
-offset = 689
-end = 690
-type = DATA_BYTE
-
-[region]
-offset = 691
-end = 692
-type = DATA_BYTE
-
-[region]
-offset = 693
-end = 694
-type = DATA_BYTE
-
-[region]
-offset = 695
-end = 696
-type = DATA_BYTE
-
-[region]
-offset = 697
-end = 698
-type = DATA_BYTE
-
-[region]
-offset = 699
-end = 700
-type = DATA_BYTE
-
-[region]
-offset = 701
-end = 702
-type = DATA_BYTE
-
-[region]
-offset = 703
-end = 704
-type = DATA_BYTE
-
-[region]
-offset = 705
-end = 706
-type = DATA_BYTE
-
-[region]
-offset = 707
-end = 708
-type = DATA_BYTE
-
-[region]
-offset = 709
-end = 710
-type = DATA_BYTE
-
-[region]
-offset = 711
-end = 712
-type = DATA_BYTE
-
-[region]
-offset = 713
-end = 714
-type = DATA_BYTE
-
-[region]
-offset = 715
-end = 716
-type = DATA_BYTE
-
-[region]
-offset = 717
 end = 718
 type = DATA_BYTE
 
@@ -191,27 +81,12 @@ type = DATA_BYTE
 
 [region]
 offset = 1392
-end = 1395
-type = DATA_STRING
-
-[region]
-offset = 1396
 end = 1396
 type = DATA_BYTE
 
 [region]
 offset = 1767
-end = 1767
-type = DATA_BYTE
-
-[region]
-offset = 1768
-end = 1769
-type = DATA_WORD
-
-[region]
-offset = 1770
-end = 1772
+end = 1788
 type = DATA_BYTE
 
 [region]
@@ -220,64 +95,9 @@ end = 1774
 type = DATA_STRING
 
 [region]
-offset = 1775
-end = 1775
-type = DATA_BYTE
-
-[region]
-offset = 1776
-end = 1777
-type = DATA_WORD
-
-[region]
-offset = 1778
-end = 1779
-type = DATA_WORD
-
-[region]
-offset = 1780
-end = 1782
-type = DATA_BYTE
-
-[region]
-offset = 1783
-end = 1783
-type = DATA_BYTE
-
-[region]
-offset = 1784
-end = 1785
-type = DATA_WORD
-
-[region]
-offset = 1786
-end = 1786
-type = DATA_BYTE
-
-[region]
-offset = 1787
-end = 1787
-type = DATA_BYTE
-
-[region]
-offset = 1788
-end = 1788
-type = DATA_BYTE
-
-[region]
 offset = 1789
 end = 1790
 type = DATA_STRING
-
-[region]
-offset = 2040
-end = 2043
-type = DATA_BYTE
-
-[region]
-offset = 2044
-end = 2056
-type = DATA_BYTE
 
 [region]
 offset = 2264
@@ -316,161 +136,11 @@ type = DATA_BYTE
 
 [region]
 offset = 4964
-end = 4971
-type = DATA_BYTE
-
-[region]
-offset = 4972
-end = 4979
-type = DATA_BYTE
-
-[region]
-offset = 4980
-end = 4987
-type = DATA_BYTE
-
-[region]
-offset = 4988
-end = 4991
-type = DATA_BYTE
-
-[region]
-offset = 4992
-end = 4995
-type = DATA_BYTE
-
-[region]
-offset = 4996
-end = 5003
-type = DATA_BYTE
-
-[region]
-offset = 5004
-end = 5010
-type = DATA_BYTE
-
-[region]
-offset = 5011
-end = 5017
-type = DATA_BYTE
-
-[region]
-offset = 5018
-end = 5024
-type = DATA_BYTE
-
-[region]
-offset = 5025
-end = 5031
-type = DATA_BYTE
-
-[region]
-offset = 5032
-end = 5038
-type = DATA_BYTE
-
-[region]
-offset = 5039
-end = 5045
-type = DATA_BYTE
-
-[region]
-offset = 5046
-end = 5052
-type = DATA_BYTE
-
-[region]
-offset = 5053
-end = 5059
-type = DATA_BYTE
-
-[region]
-offset = 5060
-end = 5066
-type = DATA_BYTE
-
-[region]
-offset = 5067
-end = 5073
-type = DATA_BYTE
-
-[region]
-offset = 5074
-end = 5076
-type = DATA_BYTE
-
-[region]
-offset = 5077
-end = 5079
-type = DATA_BYTE
-
-[region]
-offset = 5080
-end = 5081
-type = DATA_BYTE
-
-[region]
-offset = 5082
-end = 5083
-type = DATA_BYTE
-
-[region]
-offset = 5084
-end = 5085
-type = DATA_BYTE
-
-[region]
-offset = 5086
-end = 5087
-type = DATA_BYTE
-
-[region]
-offset = 5088
 end = 5089
 type = DATA_BYTE
 
 [region]
 offset = 5241
-end = 5241
-type = DATA_BYTE
-
-[region]
-offset = 5242
-end = 5245
-type = DATA_BYTE
-
-[region]
-offset = 5246
-end = 5249
-type = DATA_BYTE
-
-[region]
-offset = 5250
-end = 5253
-type = DATA_BYTE
-
-[region]
-offset = 5254
-end = 5257
-type = DATA_BYTE
-
-[region]
-offset = 5258
-end = 5261
-type = DATA_BYTE
-
-[region]
-offset = 5262
-end = 5265
-type = DATA_BYTE
-
-[region]
-offset = 5266
-end = 5269
-type = DATA_BYTE
-
-[region]
-offset = 5270
 end = 5273
 type = DATA_BYTE
 
@@ -481,22 +151,347 @@ type = DATA_BYTE
 
 [region]
 offset = 5515
-end = 5518
-type = DATA_BYTE
-
-[region]
-offset = 5519
-end = 5522
-type = DATA_BYTE
-
-[region]
-offset = 5523
-end = 5523
-type = DATA_BYTE
-
-[region]
-offset = 5524
 end = 5543
+type = DATA_BYTE
+
+[region]
+offset = 5603
+end = 5603
+type = DATA_BYTE
+
+[region]
+offset = 5604
+end = 5607
+type = DATA_BYTE
+
+[region]
+offset = 5608
+end = 5611
+type = DATA_BYTE
+
+[region]
+offset = 5612
+end = 5615
+type = DATA_BYTE
+
+[region]
+offset = 5616
+end = 5619
+type = DATA_BYTE
+
+[region]
+offset = 5620
+end = 5623
+type = DATA_BYTE
+
+[region]
+offset = 5624
+end = 5627
+type = DATA_BYTE
+
+[region]
+offset = 5628
+end = 5631
+type = DATA_BYTE
+
+[region]
+offset = 5632
+end = 5635
+type = DATA_BYTE
+
+[region]
+offset = 5636
+end = 5639
+type = DATA_BYTE
+
+[region]
+offset = 5640
+end = 5711
+type = DATA_WORD
+
+[region]
+offset = 5712
+end = 5712
+type = DATA_BYTE
+
+[region]
+offset = 5713
+end = 5714
+type = DATA_STRING
+
+[region]
+offset = 5715
+end = 5715
+type = DATA_BYTE
+
+[region]
+offset = 5716
+end = 5717
+type = DATA_STRING
+
+[region]
+offset = 5718
+end = 5718
+type = DATA_BYTE
+
+[region]
+offset = 5719
+end = 5722
+type = DATA_STRING
+
+[region]
+offset = 5723
+end = 5723
+type = DATA_BYTE
+
+[region]
+offset = 5724
+end = 5725
+type = DATA_STRING
+
+[region]
+offset = 5726
+end = 5726
+type = DATA_BYTE
+
+[region]
+offset = 5727
+end = 5728
+type = DATA_STRING
+
+[region]
+offset = 5729
+end = 5750
+type = DATA_BYTE
+
+[region]
+offset = 5751
+end = 5787
+type = DATA_BYTE
+
+[region]
+offset = 5788
+end = 5823
+type = DATA_BYTE
+
+[region]
+offset = 5824
+end = 5855
+type = DATA_BYTE
+
+[region]
+offset = 5856
+end = 5887
+type = DATA_BYTE
+
+[region]
+offset = 5888
+end = 5919
+type = DATA_BYTE
+
+[region]
+offset = 5920
+end = 5951
+type = DATA_BYTE
+
+[region]
+offset = 5952
+end = 5983
+type = DATA_BYTE
+
+[region]
+offset = 5984
+end = 6015
+type = DATA_BYTE
+
+[region]
+offset = 6016
+end = 6047
+type = DATA_BYTE
+
+[region]
+offset = 6048
+end = 6079
+type = DATA_BYTE
+
+[region]
+offset = 6080
+end = 6111
+type = DATA_BYTE
+
+[region]
+offset = 6112
+end = 6143
+type = DATA_BYTE
+
+[region]
+offset = 6144
+end = 6177
+type = DATA_BYTE
+
+[region]
+offset = 6178
+end = 6297
+type = DATA_WORD
+
+[region]
+offset = 6298
+end = 6298
+type = DATA_BYTE
+
+[region]
+offset = 6299
+end = 6299
+type = DATA_BYTE
+
+[region]
+offset = 6300
+end = 6300
+type = DATA_BYTE
+
+[region]
+offset = 6301
+end = 6301
+type = DATA_BYTE
+
+[region]
+offset = 6302
+end = 6302
+type = DATA_BYTE
+
+[region]
+offset = 6303
+end = 6303
+type = DATA_BYTE
+
+[region]
+offset = 6304
+end = 6304
+type = DATA_BYTE
+
+[region]
+offset = 6305
+end = 6314
+type = DATA_WORD
+
+[region]
+offset = 6315
+end = 6344
+type = DATA_WORD
+
+[region]
+offset = 6345
+end = 6346
+type = DATA_BYTE
+
+[region]
+offset = 6347
+end = 6348
+type = DATA_BYTE
+
+[region]
+offset = 6349
+end = 6350
+type = DATA_BYTE
+
+[region]
+offset = 6351
+end = 6352
+type = DATA_BYTE
+
+[region]
+offset = 6353
+end = 6354
+type = DATA_BYTE
+
+[region]
+offset = 6355
+end = 6356
+type = DATA_BYTE
+
+[region]
+offset = 6357
+end = 6358
+type = DATA_BYTE
+
+[region]
+offset = 6359
+end = 6360
+type = DATA_BYTE
+
+[region]
+offset = 6361
+end = 6362
+type = DATA_BYTE
+
+[region]
+offset = 6363
+end = 6364
+type = DATA_BYTE
+
+[region]
+offset = 6365
+end = 6366
+type = DATA_BYTE
+
+[region]
+offset = 6367
+end = 6368
+type = DATA_BYTE
+
+[region]
+offset = 6369
+end = 6370
+type = DATA_BYTE
+
+[region]
+offset = 6371
+end = 6372
+type = DATA_BYTE
+
+[region]
+offset = 6373
+end = 6374
+type = DATA_BYTE
+
+[region]
+offset = 6375
+end = 6376
+type = DATA_BYTE
+
+[region]
+offset = 6377
+end = 6378
+type = DATA_BYTE
+
+[region]
+offset = 6379
+end = 6380
+type = DATA_BYTE
+
+[region]
+offset = 6381
+end = 6382
+type = DATA_BYTE
+
+[region]
+offset = 6383
+end = 6384
+type = DATA_BYTE
+
+[region]
+offset = 6385
+end = 6386
+type = DATA_BYTE
+
+[region]
+offset = 6387
+end = 6388
+type = DATA_BYTE
+
+[region]
+offset = 6389
+end = 6390
 type = DATA_BYTE
 
 [label]
@@ -506,62 +501,6 @@ name = START
 [label]
 offset = 8
 name = RST08_VEC
-
-[label]
-offset = 16
-name = RST10_VEC
-
-[label]
-offset = 19
-name = GET_CHAR_DCB
-
-[label]
-offset = 24
-name = RST18_VEC
-
-[label]
-offset = 27
-name = PUT_CHAR_DCB
-
-[label]
-offset = 32
-name = RST20_VEC
-
-[label]
-offset = 40
-name = RST28_VEC
-
-[label]
-offset = 43
-name = KBD_QUERY
-
-[label]
-offset = 48
-name = RST30_VEC
-
-[label]
-offset = 51
-name = SCR_OUT_DCB
-
-[label]
-offset = 56
-name = RST38_VEC
-
-[label]
-offset = 59
-name = PRN_OUT_DCB
-
-[label]
-offset = 70
-name = DCB_CALL
-
-[label]
-offset = 73
-name = KBD_WAIT
-
-[label]
-offset = 80
-name = GET_CURSOR_CHAR
 
 [label]
 offset = 96
@@ -1104,10 +1043,6 @@ offset = 3109
 name = IMULT_LD_BC_TRICK
 
 [label]
-offset = 3110
-name = IMULT_OVERFLOW
-
-[label]
 offset = 3127
 name = IMULT_CHECK_SIGN
 
@@ -1215,6 +1150,94 @@ name = FF_TO_ASCII_CONT
 offset = 4911
 name = INT_TO_ASCII
 
+[label]
+offset = 5712
+name = KWD_80_END
+
+[label]
+offset = 5751
+name = KWD_8A_DIM
+
+[label]
+offset = 5788
+name = KWD_93_REM
+
+[label]
+offset = 5820
+name = KWD_9A_DEFSNG
+
+[label]
+offset = 5824
+name = KWD_9B_DEFDBL
+
+[label]
+offset = 5832
+name = KWD_9C_CRUN
+
+[label]
+offset = 5840
+name = KWD_9E_SOUND
+
+[label]
+offset = 5856
+name = KWD_A2_OPEN
+
+[label]
+offset = 5880
+name = KWD_A8_MERGE
+
+[label]
+offset = 5888
+name = KWD_AA_KILL
+
+[label]
+offset = 5920
+name = KWD_B1_POKE
+
+[label]
+offset = 5952
+name = KWD_B8_CLEAR
+
+[label]
+offset = 5976
+name = KWD_BE_FN
+
+[label]
+offset = 5984
+name = KWD_C1_USR_START
+
+[label]
+offset = 5992
+name = KWD_C2_ERL
+
+[label]
+offset = 6016
+name = KWD_C8_MEM_START
+
+[label]
+offset = 6040
+name = KWD_CD_PLUS
+
+[label]
+offset = 6048
+name = KWD_D3_OR
+
+[label]
+offset = 6080
+name = KWD_E0_EXP
+
+[label]
+offset = 6112
+name = KWD_E9_EOF_START
+
+[label]
+offset = 6144
+name = KWD_F3_LEN
+
+[label]
+offset = 6176
+name = KWD_FB_SPACE
+
 [comment]
 offset = 0
 text = Test Start
@@ -1244,132 +1267,8 @@ offset = 12
 text = Jump to HL (return to caller)
 
 [comment]
-offset = 16
-text = RST 10H: Jump to RAM hook at 7803H (CHRGOT)
-
-[comment]
-offset = 19
-text = Read character via DCB
-
-[comment]
-offset = 20
-text = Set B for DCB check
-
-[comment]
-offset = 22
-text = Jump to DCB dispatcher
-
-[comment]
-offset = 24
-text = RST 18H: Jump to RAM hook at 7806H (CMPHDE)
-
-[comment]
-offset = 27
-text = Output character via DCB
-
-[comment]
-offset = 28
-text = Set B for DCB check
-
-[comment]
-offset = 30
-text = Jump to DCB dispatcher
-
-[comment]
-offset = 32
-text = RST 20H: Jump to RAM hook at 7809H (TSTTYP)
-
-[comment]
-offset = 35
-text = Unused code path (GET_CHAR skip)
-
-[comment]
-offset = 36
-text = Set B for DCB check
-
-[comment]
-offset = 38
-text = Jump to DCB dispatcher
-
-[comment]
-offset = 40
-text = RST 28H: Jump to RAM hook at 780CH
-
-[comment]
-offset = 43
-text = Load keyboard DCB address
-
-[comment]
-offset = 46
-text = Continue keyboard routine
-
-[comment]
-offset = 48
-text = RST 30H: Jump to RAM hook at 780FH
-
-[comment]
-offset = 51
-text = Load screen DCB address
-
-[comment]
-offset = 54
-text = Continue output routine
-
-[comment]
-offset = 56
-text = RST 38H: Jump to Interrupt Service Routine (2EB8H)
-
-[comment]
-offset = 59
-text = Load printer DCB address
-
-[comment]
-offset = 62
-text = Continue output routine
-
-[comment]
-offset = 64
-text = Jump to keyboard read routine (2EFDH)
-
-[comment]
-offset = 67
-text = Return from unused path
-
-[comment]
-offset = 70
-text = Jump to DCB dispatcher (0674H)
-
-[comment]
-offset = 73
-text = Call keyboard scan (002BH)
-
-[comment]
-offset = 76
-text = Key pressed?
-
-[comment]
 offset = 77
 text = Yes, return
-
-[comment]
-offset = 78
-text = No, wait
-
-[comment]
-offset = 80
-text = Load cursor address (7820H)
-
-[comment]
-offset = 83
-text = Load character from cursor position
-
-[comment]
-offset = 84
-text = Save character to 783CH
-
-[comment]
-offset = 87
-text = Return
 
 [comment]
 offset = 96
@@ -2092,64 +1991,16 @@ offset = 687
 text = Char 0x80
 
 [comment]
-offset = 689
-text = Char 0x81
-
-[comment]
-offset = 691
-text = Char 0x82
-
-[comment]
-offset = 693
-text = Char 0x83
-
-[comment]
 offset = 695
 text = Char 0x84
-
-[comment]
-offset = 697
-text = Char 0x85
-
-[comment]
-offset = 699
-text = Char 0x86
-
-[comment]
-offset = 701
-text = Char 0x87
 
 [comment]
 offset = 703
 text = Char 0x88
 
 [comment]
-offset = 705
-text = Char 0x89
-
-[comment]
-offset = 707
-text = Char 0x8A
-
-[comment]
-offset = 709
-text = Char 0x8B
-
-[comment]
 offset = 711
 text = Char 0x8C
-
-[comment]
-offset = 713
-text = Char 0x8D
-
-[comment]
-offset = 715
-text = Char 0x8E
-
-[comment]
-offset = 717
-text = Char 0x8F
 
 [comment]
 offset = 719
@@ -3464,10 +3315,6 @@ offset = 1392
 text = Data text 'RUN\00'
 
 [comment]
-offset = 1396
-text = Data bytes 0xC4
-
-[comment]
 offset = 1397
 text = Increment sp
 
@@ -4232,36 +4079,12 @@ offset = 1767
 text = DCB type
 
 [comment]
-offset = 1773
-text = Keyboard Name
-
-[comment]
 offset = 1775
 text = DCB type (unknown)
 
 [comment]
-offset = 1776
-text = used by SET, RESET and POINT.
-
-[comment]
-offset = 1778
-text = cursor address pointer
-
-[comment]
 offset = 1783
 text = DCB type
-
-[comment]
-offset = 1784
-text = driver address
-
-[comment]
-offset = 1786
-text = lines/page + 1
-
-[comment]
-offset = 1787
-text = line counter
 
 [comment]
 offset = 1789
@@ -5310,14 +5133,6 @@ text = Set carry flag (1 in quotient)
 [comment]
 offset = 2264
 text = JP NC,0E1C1H is never executed.
-
-[comment]
-offset = 2265
-text = Get dividend from stack
-
-[comment]
-offset = 2266
-text = = undo subtraction
 
 [comment]
 offset = 2267
@@ -7232,14 +7047,6 @@ offset = 3109
 text = Dummy instruction
 
 [comment]
-offset = 3110
-text = load sign flag
-
-[comment]
-offset = 3111
-text = load 1st factor in HL
-
-[comment]
 offset = 3112
 text = 1st factor to single precision in X
 
@@ -8248,14 +8055,6 @@ offset = 3601
 text = Dummy instruction (JP C, 0x0412)
 
 [comment]
-offset = 3602
-text = Store MSB of dividend
-
-[comment]
-offset = 3603
-text = Set flag
-
-[comment]
 offset = 3604
 text = Load MSB of result
 
@@ -9078,10 +8877,6 @@ text = new exponent
 [comment]
 offset = 4001
 text = Dummy, will never be executed
-
-[comment]
-offset = 4002
-text = Exponent = 32, causes overflow later
 
 [comment]
 offset = 4004
@@ -11268,10 +11063,6 @@ offset = 4988
 text = 0.5 (double precision)
 
 [comment]
-offset = 4992
-text = 1380-1383 = 0.5 (single precision)
-
-[comment]
 offset = 4996
 text = 1 * 10^16 (double precision)
 
@@ -11280,68 +11071,8 @@ offset = 5004
 text = 10^16 (double precision)
 
 [comment]
-offset = 5011
-text = 10^15 (double precision)
-
-[comment]
-offset = 5018
-text = 10^14 (double precision)
-
-[comment]
-offset = 5025
-text = 10^13 (double precision)
-
-[comment]
-offset = 5032
-text = 10^12 (double precision)
-
-[comment]
-offset = 5039
-text = 10^11 (double precision)
-
-[comment]
-offset = 5046
-text = 10^10 (double precision)
-
-[comment]
-offset = 5053
-text = 10^9 (double precision)
-
-[comment]
 offset = 5060
 text = 10^8 (double precision)
-
-[comment]
-offset = 5067
-text = 10^7 (double precision)
-
-[comment]
-offset = 5074
-text = 10^6 (single precision)
-
-[comment]
-offset = 5077
-text = 10^5 (single precision)
-
-[comment]
-offset = 5080
-text = 10000 (integer)
-
-[comment]
-offset = 5082
-text = 1000 (integer)
-
-[comment]
-offset = 5084
-text = 100 (integer)
-
-[comment]
-offset = 5086
-text = 10 (integer)
-
-[comment]
-offset = 5088
-text = 1 (integer)
 
 [comment]
 offset = 5090
@@ -11638,38 +11369,6 @@ text = Multiply with series result
 [comment]
 offset = 5241
 text = 8 constants
-
-[comment]
-offset = 5242
-text = -1.41316 E-04
-
-[comment]
-offset = 5246
-text = 1.32988 E-03
-
-[comment]
-offset = 5250
-text = -8.30136 E-03
-
-[comment]
-offset = 5254
-text = 0.0416574
-
-[comment]
-offset = 5258
-text = -0.166665
-
-[comment]
-offset = 5262
-text = 0.5
-
-[comment]
-offset = 5266
-text = -1
-
-[comment]
-offset = 5270
-text = 1
 
 [comment]
 offset = 5274
@@ -12179,6 +11878,710 @@ text = Load address of PI/2
 offset = 5602
 text = continue at 0710H
 
+[comment]
+offset = 5603
+text = Number = 9
+
+[comment]
+offset = 5604
+text = = 2.86623 E-03
+
+[comment]
+offset = 5608
+text = = -0.0161657
+
+[comment]
+offset = 5612
+text = = 0.0429096
+
+[comment]
+offset = 5616
+text = = -0.0752896
+
+[comment]
+offset = 5620
+text = = 0.106563
+
+[comment]
+offset = 5624
+text = = -0.142089
+
+[comment]
+offset = 5628
+text = = 0.199936
+
+[comment]
+offset = 5632
+text = = -0.333331
+
+[comment]
+offset = 5636
+text = = 1
+
+[comment]
+offset = 5640
+text = D7 = SGN
+
+[comment]
+offset = 5642
+text = D8 = INT
+
+[comment]
+offset = 5644
+text = D9 = ABS
+
+[comment]
+offset = 5646
+text = DA = FRE
+
+[comment]
+offset = 5652
+text = DD = SQR
+
+[comment]
+offset = 5654
+text = DE = RND
+
+[comment]
+offset = 5656
+text = DF = LOG
+
+[comment]
+offset = 5658
+text = E0 = EXP
+
+[comment]
+offset = 5660
+text = E1 = COS
+
+[comment]
+offset = 5662
+text = E2 = SIN
+
+[comment]
+offset = 5664
+text = E3 = TAN
+
+[comment]
+offset = 5666
+text = E4 = ATN
+
+[comment]
+offset = 5668
+text = E5 = PEEK
+
+[comment]
+offset = 5670
+text = E6 = CVI
+
+[comment]
+offset = 5672
+text = E7 = CVS
+
+[comment]
+offset = 5674
+text = E8 = CVD
+
+[comment]
+offset = 5676
+text = E9 = EOF
+
+[comment]
+offset = 5678
+text = EA = LOC
+
+[comment]
+offset = 5680
+text = EB = LOF
+
+[comment]
+offset = 5682
+text = EC = MKI$
+
+[comment]
+offset = 5684
+text = ED = MKS$
+
+[comment]
+offset = 5686
+text = EE = MKD$
+
+[comment]
+offset = 5688
+text = EF = CINT
+
+[comment]
+offset = 5690
+text = F0 = CSNG
+
+[comment]
+offset = 5692
+text = F1 = CDBL
+
+[comment]
+offset = 5694
+text = F2 = FIX
+
+[comment]
+offset = 5696
+text = F3 = LEN
+
+[comment]
+offset = 5700
+text = F5 = VAL
+
+[comment]
+offset = 5704
+text = F7 = CHR$
+
+[comment]
+offset = 5708
+text = F9 = RIGHT$
+
+[comment]
+offset = 5712
+text = 80 = END ('E'+0x80)
+
+[comment]
+offset = 5715
+text = 81 = FOR ('F'+0x80)
+
+[comment]
+offset = 5718
+text = 82 = RESET ('R'+0x80)
+
+[comment]
+offset = 5723
+text = 83 = SET ('S'+0x80)
+
+[comment]
+offset = 5726
+text = 84 = CLS ('C'+0x80)
+
+[comment]
+offset = 5751
+text = 8A = DIM
+
+[comment]
+offset = 5788
+text = 93 = REM
+
+[comment]
+offset = 5820
+text = 9A = DEFSNG (not coded)
+
+[comment]
+offset = 5824
+text = 9B = DEFDBL
+
+[comment]
+offset = 5832
+text = 9C = CRUN
+
+[comment]
+offset = 5840
+text = 9E = SOUND
+
+[comment]
+offset = 5856
+text = A2 = OPEN (not coded)
+
+[comment]
+offset = 5880
+text = A8 = MERGE (not coded)
+
+[comment]
+offset = 5888
+text = AA = KILL
+
+[comment]
+offset = 5920
+text = B1 = POKE
+
+[comment]
+offset = 5952
+text = B8 = CLEAR
+
+[comment]
+offset = 5976
+text = BE = FN (not coded)
+
+[comment]
+offset = 5984
+text = C1 = USR
+
+[comment]
+offset = 5992
+text = C2 = ERL (not coded)
+
+[comment]
+offset = 6016
+text = C8 = MEM
+
+[comment]
+offset = 6040
+text = CD = +
+
+[comment]
+offset = 6048
+text = D3 = OR
+
+[comment]
+offset = 6080
+text = E0 = EXP
+
+[comment]
+offset = 6112
+text = E9 = EOF
+
+[comment]
+offset = 6144
+text = F3 = LEN
+
+[comment]
+offset = 6176
+text = FB = ' '
+
+[comment]
+offset = 6178
+text = 80 = END
+
+[comment]
+offset = 6180
+text = 81 = FOR
+
+[comment]
+offset = 6182
+text = 82 = RESET
+
+[comment]
+offset = 6184
+text = 83 = SET
+
+[comment]
+offset = 6186
+text = 84 = CLS
+
+[comment]
+offset = 6188
+text = 85 = CMD
+
+[comment]
+offset = 6190
+text = 86 = RANDOM
+
+[comment]
+offset = 6192
+text = 87 = NEXT
+
+[comment]
+offset = 6194
+text = 88 = DATA
+
+[comment]
+offset = 6196
+text = 89 = INPUT
+
+[comment]
+offset = 6198
+text = 8A = DIM
+
+[comment]
+offset = 6200
+text = 8B = READ
+
+[comment]
+offset = 6202
+text = 8C = LET
+
+[comment]
+offset = 6204
+text = 8D = GOTO
+
+[comment]
+offset = 6206
+text = 8E = RUN
+
+[comment]
+offset = 6208
+text = 8F = IF
+
+[comment]
+offset = 6210
+text = 90 = RESTORE
+
+[comment]
+offset = 6212
+text = 91 = GOSUB
+
+[comment]
+offset = 6214
+text = 92 = RETURN
+
+[comment]
+offset = 6216
+text = 93 = REM
+
+[comment]
+offset = 6218
+text = 94 = STOP
+
+[comment]
+offset = 6220
+text = 95 = ELSE
+
+[comment]
+offset = 6222
+text = 96 = COPY
+
+[comment]
+offset = 6224
+text = 97 = COLOR
+
+[comment]
+offset = 6226
+text = 98 = VERIFY
+
+[comment]
+offset = 6228
+text = 99 = DEFINT
+
+[comment]
+offset = 6230
+text = 9A = DEFSNG
+
+[comment]
+offset = 6232
+text = 9B = DEFDBL
+
+[comment]
+offset = 6234
+text = 9C = CRUN
+
+[comment]
+offset = 6236
+text = 9D = MODE
+
+[comment]
+offset = 6238
+text = 9E = SOUND
+
+[comment]
+offset = 6240
+text = 9F = RESUME
+
+[comment]
+offset = 6242
+text = A0 = OUT
+
+[comment]
+offset = 6244
+text = A1 = ON
+
+[comment]
+offset = 6246
+text = A2 = OPEN
+
+[comment]
+offset = 6248
+text = A3 = FIELD
+
+[comment]
+offset = 6250
+text = A4 = GET
+
+[comment]
+offset = 6252
+text = A5 = PUT
+
+[comment]
+offset = 6254
+text = A6 = CLOSE
+
+[comment]
+offset = 6256
+text = A7 = LOAD
+
+[comment]
+offset = 6258
+text = A8 = MERGE
+
+[comment]
+offset = 6260
+text = A9 = NAME
+
+[comment]
+offset = 6262
+text = AA = KILL
+
+[comment]
+offset = 6264
+text = AB = LSET
+
+[comment]
+offset = 6266
+text = AC = RSET
+
+[comment]
+offset = 6268
+text = AD = SAVE
+
+[comment]
+offset = 6270
+text = AE = SYSTEM
+
+[comment]
+offset = 6272
+text = AF = LPRINT
+
+[comment]
+offset = 6274
+text = B0 = DEF
+
+[comment]
+offset = 6276
+text = B1 = POKE
+
+[comment]
+offset = 6278
+text = B2 = PRINT
+
+[comment]
+offset = 6280
+text = B3 = CONT
+
+[comment]
+offset = 6282
+text = B4 = LIST
+
+[comment]
+offset = 6284
+text = B5 = LLIST
+
+[comment]
+offset = 6286
+text = B6 = DELETE
+
+[comment]
+offset = 6288
+text = B7 = AUTO
+
+[comment]
+offset = 6290
+text = B8 = CLEAR
+
+[comment]
+offset = 6292
+text = B9 = CLOAD
+
+[comment]
+offset = 6294
+text = BA = CSAVE
+
+[comment]
+offset = 6296
+text = BB = NEW
+
+[comment]
+offset = 6298
+text = OP_PRI_PLUS
+
+[comment]
+offset = 6299
+text = OP_PRI_MINUS
+
+[comment]
+offset = 6300
+text = OP_PRI_MUL
+
+[comment]
+offset = 6301
+text = OP_PRI_DIV
+
+[comment]
+offset = 6302
+text = OP_PRI_POW
+
+[comment]
+offset = 6303
+text = OP_PRI_AND
+
+[comment]
+offset = 6304
+text = OP_PRI_OR
+
+[comment]
+offset = 6305
+text = Conversion to double precision
+
+[comment]
+offset = 6307
+text = unused
+
+[comment]
+offset = 6309
+text = Conversion to integer
+
+[comment]
+offset = 6311
+text = TYPE MISMATCH - Error if not!
+
+[comment]
+offset = 6313
+text = Conversion to single precision
+
+[comment]
+offset = 6315
+text = Addition
+
+[comment]
+offset = 6317
+text = Subtraction
+
+[comment]
+offset = 6319
+text = Multiplication
+
+[comment]
+offset = 6321
+text = Division
+
+[comment]
+offset = 6323
+text = Power
+
+[comment]
+offset = 6325
+text = Addition
+
+[comment]
+offset = 6327
+text = Subtraction
+
+[comment]
+offset = 6329
+text = Multiplication
+
+[comment]
+offset = 6331
+text = Division
+
+[comment]
+offset = 6333
+text = Power
+
+[comment]
+offset = 6335
+text = Addition
+
+[comment]
+offset = 6337
+text = Subtraction
+
+[comment]
+offset = 6339
+text = Multiplication
+
+[comment]
+offset = 6341
+text = Division
+
+[comment]
+offset = 6343
+text = Power
+
+[comment]
+offset = 6345
+text = ERR_NF
+
+[comment]
+offset = 6347
+text = ERR_SN
+
+[comment]
+offset = 6349
+text = ERR_RG
+
+[comment]
+offset = 6351
+text = ERR_OD
+
+[comment]
+offset = 6353
+text = ERR_FC
+
+[comment]
+offset = 6355
+text = ERR_OV
+
+[comment]
+offset = 6357
+text = ERR_OM
+
+[comment]
+offset = 6359
+text = ERR_UL
+
+[comment]
+offset = 6361
+text = ERR_BS
+
+[comment]
+offset = 6363
+text = ERR_DD
+
+[comment]
+offset = 6365
+text = ERR_D0
+
+[comment]
+offset = 6367
+text = ERR_ID
+
+[comment]
+offset = 6369
+text = ERR_TM
+
+[comment]
+offset = 6371
+text = ERR_OS
+
+[comment]
+offset = 6373
+text = ERR_LS
+
+[comment]
+offset = 6375
+text = ERR_ST
+
+[comment]
+offset = 6377
+text = ERR_CN
+
+[comment]
+offset = 6379
+text = ERR_NR
+
+[comment]
+offset = 6381
+text = ERR_RW
+
+[comment]
+offset = 6383
+text = ERR_UE
+
+[comment]
+offset = 6385
+text = ERR_MO
+
+[comment]
+offset = 6387
+text = ERR_FD
+
+[comment]
+offset = 6389
+text = ERR_L3
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -12192,41 +12595,6 @@ text =
 offset = 11
 text = 
               Not used in VZ200
-
-[block]
-offset = 19
-text = Reading a character via Device Control Block (DCB)
-
-[block]
-offset = 27
-text = Output of a character via Device Control Block (DCB)
-
-[block]
-offset = 43
-text = Keyboard query
-
-[block]
-offset = 51
-text = Screen output via DCB
-
-[block]
-offset = 59
-text = Printer output via Device Control Block (DCB)
-
-[block]
-offset = 73
-text = Keyboard query waits until a key is pressed
-
-[block]
-offset = 80
-text = 
-              *****************************************************************
-              
-              Save character from cursor position
-
-[block]
-offset = 88
-text = not used in vz200
 
 [block]
 offset = 96
@@ -12289,10 +12657,6 @@ text =
               ***********************************************************
               
               Set end of memory for BASIC
-
-[block]
-offset = 271
-text = Banner-Text: VIDEO TECHNOLOGY BASIC V2.0
 
 [block]
 offset = 301
@@ -12470,10 +12834,6 @@ offset = 1392
 text = RUN command for CRUN auto-start
 
 [block]
-offset = 1396
-text = Printer driver
-
-[block]
 offset = 1397
 text = Printer driver
 
@@ -12521,10 +12881,6 @@ text = The following area from 6D2 to 707 is transferred to the RAM area from 78
 [block]
 offset = 1767
 text = Keyboard - Device Control Block
-
-[block]
-offset = 1773
-text = Keyboard Name
 
 [block]
 offset = 1775
@@ -13155,24 +13511,6 @@ text = ******************************************************************
               ******************************************************************
 
 [block]
-offset = 5074
-text = ******************************************************************
-              * SINGLE PRECISION POWER OF TEN TABLE LOCATION – “FOSTBL”        *
-              ******************************************************************
-
-[block]
-offset = 5080
-text = ******************************************************************
-              * SINGLE PRECISION POWER OF TEN TABLE LOCATION – “FOITBL”        *
-              ******************************************************************
-
-[block]
-offset = 5088
-text = ******************************************************************
-              * CALCULATE ADDRESS – “GETADR”                                   *
-              ******************************************************************
-
-[block]
 offset = 5090
 text = ******************************************************************
               * Subroutine for SQR and ATN                                     *
@@ -13255,4 +13593,44 @@ text = TAN - Function
 offset = 5565
 text = ATN - Function
               Arc-tangent calculation
+
+[block]
+offset = 5603
+text = Constants for the Arcus-Tangens series
+
+[block]
+offset = 5640
+text = (Tokens D7 to FA)
+
+[block]
+offset = 5712
+text = BASIC keyword table (sorted by token in ascending order)
+
+[block]
+offset = 6178
+text = (Token 80 - BB)
+
+[block]
+offset = 6298
+text = The operator with the higher code has priority
+
+[block]
+offset = 6305
+text = Jump table for type adaptation
+
+[block]
+offset = 6315
+text = Double Precision
+
+[block]
+offset = 6325
+text = Single Precision
+
+[block]
+offset = 6335
+text = Integer
+
+[block]
+offset = 6345
+text = (not used in LASER 110-310)
 
