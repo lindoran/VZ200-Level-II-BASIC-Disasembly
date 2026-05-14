@@ -261,36 +261,496 @@ type = DATA_STRING
 
 [region]
 offset = 5729
-end = 5750
+end = 5729
 type = DATA_BYTE
+
+[region]
+offset = 5730
+end = 5731
+type = DATA_BYTE
+
+[region]
+offset = 5732
+end = 5732
+type = DATA_BYTE
+
+[region]
+offset = 5733
+end = 5737
+type = DATA_BYTE
+
+[region]
+offset = 5738
+end = 5738
+type = DATA_BYTE
+
+[region]
+offset = 5739
+end = 5741
+type = DATA_STRING
+
+[region]
+offset = 5742
+end = 5742
+type = DATA_BYTE
+
+[region]
+offset = 5743
+end = 5745
+type = DATA_STRING
+
+[region]
+offset = 5746
+end = 5746
+type = DATA_BYTE
+
+[region]
+offset = 5747
+end = 5750
+type = DATA_STRING
 
 [region]
 offset = 5751
-end = 5787
+end = 5751
 type = DATA_BYTE
+
+[region]
+offset = 5752
+end = 5753
+type = DATA_STRING
+
+[region]
+offset = 5754
+end = 5754
+type = DATA_BYTE
+
+[region]
+offset = 5755
+end = 5757
+type = DATA_STRING
+
+[region]
+offset = 5758
+end = 5758
+type = DATA_BYTE
+
+[region]
+offset = 5759
+end = 5760
+type = DATA_STRING
+
+[region]
+offset = 5761
+end = 5761
+type = DATA_BYTE
+
+[region]
+offset = 5762
+end = 5764
+type = DATA_STRING
+
+[region]
+offset = 5765
+end = 5765
+type = DATA_BYTE
+
+[region]
+offset = 5766
+end = 5767
+type = DATA_STRING
+
+[region]
+offset = 5768
+end = 5768
+type = DATA_BYTE
+
+[region]
+offset = 5769
+end = 5769
+type = DATA_STRING
+
+[region]
+offset = 5770
+end = 5770
+type = DATA_BYTE
+
+[region]
+offset = 5771
+end = 5776
+type = DATA_STRING
+
+[region]
+offset = 5777
+end = 5777
+type = DATA_BYTE
+
+[region]
+offset = 5778
+end = 5781
+type = DATA_STRING
+
+[region]
+offset = 5782
+end = 5782
+type = DATA_BYTE
+
+[region]
+offset = 5783
+end = 5787
+type = DATA_STRING
 
 [region]
 offset = 5788
-end = 5823
+end = 5788
 type = DATA_BYTE
 
 [region]
-offset = 5824
+offset = 5789
+end = 5790
+type = DATA_STRING
+
+[region]
+offset = 5791
+end = 5791
+type = DATA_BYTE
+
+[region]
+offset = 5792
+end = 5794
+type = DATA_STRING
+
+[region]
+offset = 5795
+end = 5795
+type = DATA_BYTE
+
+[region]
+offset = 5796
+end = 5798
+type = DATA_STRING
+
+[region]
+offset = 5799
+end = 5799
+type = DATA_BYTE
+
+[region]
+offset = 5800
+end = 5802
+type = DATA_STRING
+
+[region]
+offset = 5803
+end = 5803
+type = DATA_BYTE
+
+[region]
+offset = 5804
+end = 5807
+type = DATA_STRING
+
+[region]
+offset = 5808
+end = 5808
+type = DATA_BYTE
+
+[region]
+offset = 5809
+end = 5813
+type = DATA_STRING
+
+[region]
+offset = 5814
+end = 5814
+type = DATA_BYTE
+
+[region]
+offset = 5815
+end = 5819
+type = DATA_BYTE
+
+[region]
+offset = 5820
+end = 5820
+type = DATA_BYTE
+
+[region]
+offset = 5821
+end = 5825
+type = DATA_BYTE
+
+[region]
+offset = 5826
+end = 5826
+type = DATA_BYTE
+
+[region]
+offset = 5827
+end = 5831
+type = DATA_BYTE
+
+[region]
+offset = 5832
+end = 5832
+type = DATA_BYTE
+
+[region]
+offset = 5833
+end = 5835
+type = DATA_STRING
+
+[region]
+offset = 5836
+end = 5836
+type = DATA_BYTE
+
+[region]
+offset = 5837
+end = 5839
+type = DATA_STRING
+
+[region]
+offset = 5840
+end = 5840
+type = DATA_BYTE
+
+[region]
+offset = 5841
+end = 5844
+type = DATA_STRING
+
+[region]
+offset = 5845
+end = 5845
+type = DATA_BYTE
+
+[region]
+offset = 5846
+end = 5850
+type = DATA_BYTE
+
+[region]
+offset = 5851
+end = 5851
+type = DATA_BYTE
+
+[region]
+offset = 5852
+end = 5853
+type = DATA_STRING
+
+[region]
+offset = 5854
+end = 5854
+type = DATA_BYTE
+
+[region]
+offset = 5855
 end = 5855
 type = DATA_BYTE
 
 [region]
 offset = 5856
-end = 5887
+end = 5856
 type = DATA_BYTE
 
 [region]
-offset = 5888
+offset = 5857
+end = 5859
+type = DATA_BYTE
+
+[region]
+offset = 5860
+end = 5860
+type = DATA_BYTE
+
+[region]
+offset = 5861
+end = 5864
+type = DATA_BYTE
+
+[region]
+offset = 5865
+end = 5865
+type = DATA_BYTE
+
+[region]
+offset = 5866
+end = 5867
+type = DATA_BYTE
+
+[region]
+offset = 5868
+end = 5868
+type = DATA_BYTE
+
+[region]
+offset = 5869
+end = 5870
+type = DATA_BYTE
+
+[region]
+offset = 5871
+end = 5871
+type = DATA_BYTE
+
+[region]
+offset = 5872
+end = 5875
+type = DATA_BYTE
+
+[region]
+offset = 5876
+end = 5876
+type = DATA_BYTE
+
+[region]
+offset = 5877
+end = 5879
+type = DATA_BYTE
+
+[region]
+offset = 5880
+end = 5880
+type = DATA_BYTE
+
+[region]
+offset = 5881
+end = 5884
+type = DATA_BYTE
+
+[region]
+offset = 5885
+end = 5885
+type = DATA_BYTE
+
+[region]
+offset = 5886
+end = 5888
+type = DATA_BYTE
+
+[region]
+offset = 5889
+end = 5889
+type = DATA_BYTE
+
+[region]
+offset = 5890
+end = 5892
+type = DATA_BYTE
+
+[region]
+offset = 5893
+end = 5893
+type = DATA_BYTE
+
+[region]
+offset = 5894
+end = 5896
+type = DATA_BYTE
+
+[region]
+offset = 5897
+end = 5897
+type = DATA_BYTE
+
+[region]
+offset = 5898
+end = 5900
+type = DATA_BYTE
+
+[region]
+offset = 5901
+end = 5901
+type = DATA_BYTE
+
+[region]
+offset = 5902
+end = 5904
+type = DATA_BYTE
+
+[region]
+offset = 5905
+end = 5905
+type = DATA_BYTE
+
+[region]
+offset = 5906
+end = 5910
+type = DATA_BYTE
+
+[region]
+offset = 5911
+end = 5911
+type = DATA_BYTE
+
+[region]
+offset = 5912
+end = 5916
+type = DATA_STRING
+
+[region]
+offset = 5917
+end = 5917
+type = DATA_BYTE
+
+[region]
+offset = 5918
 end = 5919
 type = DATA_BYTE
 
 [region]
 offset = 5920
+end = 5920
+type = DATA_BYTE
+
+[region]
+offset = 5921
+end = 5923
+type = DATA_STRING
+
+[region]
+offset = 5924
+end = 5924
+type = DATA_BYTE
+
+[region]
+offset = 5925
+end = 5928
+type = DATA_STRING
+
+[region]
+offset = 5929
+end = 5929
+type = DATA_BYTE
+
+[region]
+offset = 5930
+end = 5932
+type = DATA_STRING
+
+[region]
+offset = 5933
+end = 5933
+type = DATA_BYTE
+
+[region]
+offset = 5934
+end = 5936
+type = DATA_STRING
+
+[region]
+offset = 5937
+end = 5937
+type = DATA_BYTE
+
+[region]
+offset = 5938
+end = 5941
+type = DATA_STRING
+
+[region]
+offset = 5942
 end = 5951
 type = DATA_BYTE
 
@@ -1155,19 +1615,99 @@ offset = 5712
 name = KWD_80_END
 
 [label]
+offset = 5729
+name = KWD_85_CMD
+
+[label]
+offset = 5732
+name = KWD_86_RANDOM
+
+[label]
+offset = 5738
+name = KWD_87_NEXT
+
+[label]
+offset = 5742
+name = KWD_88_DATA
+
+[label]
+offset = 5746
+name = KWD_89_INPUT
+
+[label]
 offset = 5751
 name = KWD_8A_DIM
+
+[label]
+offset = 5754
+name = KWD_8B_READ
+
+[label]
+offset = 5758
+name = KWD_8C_LET
+
+[label]
+offset = 5761
+name = KWD_8D_GOTO
+
+[label]
+offset = 5765
+name = KWD_8E_RUN
+
+[label]
+offset = 5768
+name = KWD_8F_IF
+
+[label]
+offset = 5770
+name = KWD_90_RESTORE
+
+[label]
+offset = 5777
+name = KWD_91_GOSUB
+
+[label]
+offset = 5778
+name = KWD_92_RETURN
+
+[label]
+offset = 5782
+name = KWD_92_RETURN
 
 [label]
 offset = 5788
 name = KWD_93_REM
 
 [label]
+offset = 5791
+name = KWD_94_STOP
+
+[label]
+offset = 5795
+name = KWD_95_ELSE
+
+[label]
+offset = 5799
+name = KWD_96_COPY
+
+[label]
+offset = 5803
+name = KWD_97_COLOR
+
+[label]
+offset = 5808
+name = KWD_98_VERIFY
+
+[label]
+offset = 5814
+name = KWD_99_DEFINT
+
+[label]
 offset = 5820
 name = KWD_9A_DEFSNG
 
 [label]
-offset = 5824
+offset = 5826
 name = KWD_9B_DEFDBL
 
 [label]
@@ -1175,24 +1715,104 @@ offset = 5832
 name = KWD_9C_CRUN
 
 [label]
+offset = 5836
+name = KWD_9D_MODE
+
+[label]
 offset = 5840
 name = KWD_9E_SOUND
+
+[label]
+offset = 5845
+name = KWD_9F_RESUME
+
+[label]
+offset = 5851
+name = KWD_A0_OUT
+
+[label]
+offset = 5854
+name = KWD_A1_ON
 
 [label]
 offset = 5856
 name = KWD_A2_OPEN
 
 [label]
+offset = 5860
+name = KWD_A3_FIELD
+
+[label]
+offset = 5865
+name = KWD_A4_GET
+
+[label]
+offset = 5868
+name = KWD_A5_PUT
+
+[label]
+offset = 5871
+name = KWD_A6_CLOSE
+
+[label]
+offset = 5876
+name = KWD_A7_LOAD
+
+[label]
 offset = 5880
 name = KWD_A8_MERGE
 
 [label]
-offset = 5888
+offset = 5885
+name = KWD_A9_NAME
+
+[label]
+offset = 5889
 name = KWD_AA_KILL
+
+[label]
+offset = 5893
+name = KWD_AB_LSET
+
+[label]
+offset = 5897
+name = KWD_AC_RSET
+
+[label]
+offset = 5901
+name = KWD_AD_SAVE
+
+[label]
+offset = 5905
+name = KWD_AE_SYSTEM
+
+[label]
+offset = 5911
+name = KWD_AF_LPRINT
+
+[label]
+offset = 5917
+name = KWD_B0_DEF
 
 [label]
 offset = 5920
 name = KWD_B1_POKE
+
+[label]
+offset = 5924
+name = KWD_B2_PRINT
+
+[label]
+offset = 5929
+name = KWD_B3_CONT
+
+[label]
+offset = 5933
+name = KWD_B4_LIST
+
+[label]
+offset = 5937
+name = KWD_B5_LLIST
 
 [label]
 offset = 5952
@@ -12059,44 +12679,200 @@ offset = 5726
 text = 84 = CLS ('C'+0x80)
 
 [comment]
+offset = 5729
+text = 85 = CMD (not coded)
+
+[comment]
+offset = 5732
+text = 86 = RANDOM (not coded)
+
+[comment]
+offset = 5738
+text = 87 = NEXT ('N'+0x80)
+
+[comment]
+offset = 5742
+text = 88 = DATA ('D'+0x80)
+
+[comment]
+offset = 5746
+text = 89 = INPUT ('I'+0x80)
+
+[comment]
 offset = 5751
-text = 8A = DIM
+text = 8A = DIM ('D'+0x80)
+
+[comment]
+offset = 5754
+text = 8B = READ ('R'+0x80)
+
+[comment]
+offset = 5758
+text = 8C = LET ('L'+0x80)
+
+[comment]
+offset = 5761
+text = 8D = GOTO ('G'+0x80)
+
+[comment]
+offset = 5765
+text = 8E = RUN ('R'+0x80)
+
+[comment]
+offset = 5768
+text = 8F = IF ('I'+0x80)
+
+[comment]
+offset = 5770
+text = 90 = RESTORE ('R'+0x80)
+
+[comment]
+offset = 5777
+text = 91 = GOSUB ('G'+0x80)
+
+[comment]
+offset = 5782
+text = 92 = RETURN ('R'+0x80)
 
 [comment]
 offset = 5788
-text = 93 = REM
+text = 93 = REM ('R'+0x80)
+
+[comment]
+offset = 5791
+text = 94 = STOP ('S'+0x80)
+
+[comment]
+offset = 5795
+text = 95 = ELSE ('E'+0x80)
+
+[comment]
+offset = 5799
+text = 96 = COPY ('C'+0x80)
+
+[comment]
+offset = 5803
+text = 97 = COLOR ('C'+0x80)
+
+[comment]
+offset = 5808
+text = 98 = VERIFY ('V'+0x80)
+
+[comment]
+offset = 5814
+text = 99 = DEFINT (not coded)
 
 [comment]
 offset = 5820
 text = 9A = DEFSNG (not coded)
 
 [comment]
-offset = 5824
-text = 9B = DEFDBL
+offset = 5826
+text = 9B = DEFDBL (not coded)
 
 [comment]
 offset = 5832
-text = 9C = CRUN
+text = 9C = CRUN ('C'+0x80)
+
+[comment]
+offset = 5836
+text = 9D = MODE ('M'+0x80)
 
 [comment]
 offset = 5840
-text = 9E = SOUND
+text = 9E = SOUND ('S'+0x80)
+
+[comment]
+offset = 5845
+text = 9F = RESUME (not coded)
+
+[comment]
+offset = 5851
+text = A0 = OUT ('O'+0x80)
+
+[comment]
+offset = 5854
+text = A1 = ON (not coded)
 
 [comment]
 offset = 5856
 text = A2 = OPEN (not coded)
 
 [comment]
+offset = 5860
+text = A3 = FIELD (not coded)
+
+[comment]
+offset = 5865
+text = A4 = GET (not coded)
+
+[comment]
+offset = 5868
+text = A5 = PUT (not coded)
+
+[comment]
+offset = 5871
+text = A6 = CLOSE (not coded)
+
+[comment]
+offset = 5876
+text = A7 = LOAD (not coded)
+
+[comment]
 offset = 5880
 text = A8 = MERGE (not coded)
 
 [comment]
-offset = 5888
-text = AA = KILL
+offset = 5885
+text = A9 = NAME (not coded)
+
+[comment]
+offset = 5889
+text = AA = KILL (not coded)
+
+[comment]
+offset = 5893
+text = AB = LSET (not coded)
+
+[comment]
+offset = 5897
+text = AC = RSET (not coded)
+
+[comment]
+offset = 5901
+text = AD = SAVE (not coded)
+
+[comment]
+offset = 5905
+text = AE = SYSTEM (not coded)
+
+[comment]
+offset = 5911
+text = AF = LPRINT ('L'+0x80)
+
+[comment]
+offset = 5917
+text = B0 = DEF (not coded)
 
 [comment]
 offset = 5920
-text = B1 = POKE
+text = B1 = POKE ('P'+0x80)
+
+[comment]
+offset = 5924
+text = B2 = PRINT ('P'+0x80)
+
+[comment]
+offset = 5929
+text = B3 = CONT ('C'+0x80)
+
+[comment]
+offset = 5933
+text = B4 = LIST ('L'+0x80)
+
+[comment]
+offset = 5937
+text = B5 = LLIST ('L'+0x80)
 
 [comment]
 offset = 5952
