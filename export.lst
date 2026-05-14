@@ -17,31 +17,62 @@
                      ; Not used in VZ200
 000B  E1       .                   pop   hl             ; Pop return address to HL
 000C  E9       .                   jp    (hl)           ; Jump to HL (return to caller)
-000D  000000C3 ....                DEFB  0x00,0x00,0x00,0xC3,0x03,0x78,0xC5,0x06
-      0378C506 .x..  
-0015  01182EC3 ....                DEFB  0x01,0x18,0x2E,0xC3,0x06,0x78,0xC5,0x06
-      0678C506 .x..  
-001D  021826C3 ..&.                DEFB  0x02,0x18,0x26,0xC3,0x09,0x78,0xC5,0x06
-      0978C506 .x..  
-0025  04181EC3 ....                DEFB  0x04,0x18,0x1E,0xC3,0x0C,0x78,0x11,0x15
-      0C781115 .x..  
-002D  7818E3C3 x...                DEFB  0x78,0x18,0xE3,0xC3,0x0F,0x78,0x11,0x1D
-      0F78111D .x..  
-0035  7818E3C3 x...                DEFB  0x78,0x18,0xE3,0xC3,0xB8,0x2E,0x11,0x25
-      B82E1125 ...%  
-003D  7818DBC3 x...                DEFB  0x78,0x18,0xDB,0xC3,0xFD,0x2E,0xC9,0x00
-      FD2EC900 ....  
-0045  00C3C203 ....                DEFB  0x00,0xC3,0xC2,0x03,0xCD,0x2B,0x00,0xB7
-      CD2B00B7 .+..  
-004D  C018F92A ...*                DEFB  0xC0,0x18,0xF9,0x2A,0x20,0x78,0x7E,0x32 ; Yes, return
-      20787E32  x~2  
-0055  3C78C94C <x.L                DEFB  0x3C,0x78,0xC9,0x4C,0xFE,0x54,0x20,0xD6
-      FE5420D6 .T .  
-005D  FD21F1   .!.                 DEFB  0xFD,0x21,0xF1
-                     ;
-                     ; Delay loop (input: register BC determines duration)
-                     DELAY_LOOP:
-0060  0B       .                   dec   bc             ; Decrement BC
+000D  000000   ...                 DEFB  0x00,0x00,0x00 ; unused
+                     ; Restart 10
+0010  C30378   ..x                 jp    0x7803         ; Jump via RAM vector 7803H to address 1D78H
+                     ; Read a character via Device Control Block (DCB)
+0013  C5       .                   push  bc             ; Save BC
+0014  0601     ..                  ld    b,0x01         ; Set B for DCB check
+0016  182E     ..                  jr    $+48           ; to DCB call routine
+                     ; Restart 18
+0018  C30678   ..x                 jp    0x7806         ; Jump via RAM vector 7806H to address 1C90H
+                     ; Output a character via Device Control Block (DCB)
+001B  C5       .                   push  bc             ; Save BC
+001C  0602     ..                  ld    b,0x02         ; Set B for DCB check
+001E  1826     .&                  jr    $+40           ; to DCB call routine
+                     ; Restart 20
+0020  C30978   ..x                 jp    0x7809         ; Jump via RAM vector 7809H to address 25D9H
+0023  C5       .                   push  bc             ; not used
+0024  0604     ..                  ld    b,0x04
+0026  181E     ..                  jr    $+32
+                     ; Restart 28
+0028  C30C78   ..x                 jp    0x780C         ; Jump to RAM vector 780CH
+                     ; Keyboard query
+                     ; On return, Reg. A contains the ASCII code of a pressed key, or 0 if none 
+                     ; pressed.
+002B  111578   ..x                 ld    de,0x7815      ; Load DCB address for keyboard
+002E  18E3     ..                  jr    $-27           ; continue at 13H
+                     ; Restart 30
+0030  C30F78   ..x                 jp    0x780F         ; Jump to RAM vector 780FH
+                     ; Screen output via DCB
+                     ; Not used on LASER 110-310.
+0033  111D78   ..x                 ld    de,0x781D      ; Load DCB address
+0036  18E3     ..                  jr    $-27           ; continue at 1BH
+                     ; Restart 38 - Interrupt vector for IM1
+0038  C3B82E   ...                 jp    0x2EB8         ; to Interrupt Service Routine
+                     ; Printer output via Device Control Block (DCB)
+                     ; Reg. A must contain the character to be output
+003B  112578   .%x                 ld    de,0x7825      ; Load DCB address
+003E  18DB     ..                  jr    $-35           ; continue at 1BH
+0040  C3FD2E   ...                 jp    0x2EFD         ; to keyboard read routine
+0043  C9       .                   ret                  ; not used
+0044  0000     ..                  DEFB  0x00,0x00      ; unused
+0046  C3C203   ...                 jp    DCB_DISPATCH   ; Jump to DCB call routine
+                     ; Keyboard query
+                     ; waits until a key is pressed.
+                     ; Output: A-reg contains ASCII code of the pressed key
+0049  CD2B00   .+.                 call  KBD_QUERY      ; Evaluate keyboard
+004C  B7       .                   or    a              ; Key pressed?
+004D  C0       .                   ret   nz             ; Yes, return
+004E  18F9     ..                  jr    $-5            ; no, wait
+                     ; Save character from cursor position
+0050  2A2078   * x                 ld    hl,(0x7820)    ; Load cursor address
+0053  7E       ~                   ld    a,(hl)         ; Load character
+0054  323C78   2<x                 ld    (0x783C),a     ; save to 783CH
+0057  C9       .                   ret   
+0058  4CFE5420 L.T                 DEFB  0x4C,0xFE,0x54,0x20,0xD6,0xFD,0x21,0xF1 ; not used
+      D6FD21F1 ..!.  
+0060  0B       .                   dec   bc
 0061  78       x                   ld    a,b            ; B = 0?
 0062  B1       .                   or    c              ; C = 0?
 0063  20FB      .                  jr    nz,$-3         ; No, continue loop
@@ -4136,16 +4167,16 @@
 191D  20455252  ERR                DEFM  " ERROR\00"
       4F5200   OR.   
                      MSG_IN_TEXT:
-1924  20494E20  IN                 DEFM  " IN \00"
+1924  20494E20  IN                 DEFB  0x20,0x49,0x4E,0x20,0x00
       00       .     
                      MSG_READY_TEXT:
-1929  52454144 READ                DEFM  "READY\0D\00"
+1929  52454144 READ                DEFB  0x52,0x45,0x41,0x44,0x59,0x0D,0x00
       590D00   Y..   
                      MSG_BREAK_TEXT:
-1930  42524541 BREA                DEFM  "BREAK\00"
+1930  42524541 BREA                DEFB  0x42,0x52,0x45,0x41,0x4B,0x00
       4B00     K.    
                      ; Subroutine for FOR/NEXT and GOSUB/RETURN
-                     ; holts data back from stack
+                     ; retrieves data back from the stack
                      STACK_RECOVERY:
 1936  210400   !..                 ld    hl,0x0004      ; Stack pointer + 4 into HL
 1939  39       9                   add   hl,sp          ; (bypass 2 return addresses)
@@ -4193,8 +4224,7 @@
 1967  0600     ..                  ld    b,0x00         ; B=0
 1969  09       .                   add   hl,bc          ; Add BC to HL twice
 196A  09       .                   add   hl,bc
-196B  3E       >                   DEFB  0x3E           ; LD A,0E5H Dummy instruction
-196C  E5       .                   push  hl             ; test if HL is still in free memory
+196B  3EE5     >.                  ld    a,0xE5         ; LD A,0E5H Dummy instruction
 196D  3EC6     >.                  ld    a,0xC6         ; HL > FFC6H ?
 196F  95       .                   sub   l
 1970  6F       o                   ld    l,a

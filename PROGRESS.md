@@ -1,5 +1,35 @@
 # VZ200 BASIC ROM Disassembly Progress
 
+## Session: May 14, 2026
+
+### Task
+Re-work and annotate the memory range 0x000D to 0x005F based on Gerhard Wolf's Laser 310 German ROM listing (pages 6-8). This range was previously showing as raw byte data and required disassembly into instructions and English translation of the German annotations.
+
+### Work Summary
+- **Disassembly Fixes**:
+  - Removed a large `DIRECT_BYTE` segment that was forcing the entire range to show as `DEFB` data.
+  - Correctly disassembled the RST jump vectors and DCB call routines.
+  - Added specific `DIRECT_BYTE` segments for truly unused/garbage data areas: `UNUSED_DATA_1` (0x000D-0x000F), `UNUSED_DATA_2` (0x0044-0x0045), and `UNUSED_DATA_3` (0x0058-0x005F).
+- **DCB Dispatch Logic**:
+  - Annotated the "DCB-Aufrufroutine" path. Validated that `0x0046` correctly jumps to `DCB_DISPATCH` at `0x03C2` in the VZ200 ROM, despite potential OCR discrepancies in some listing versions.
+- **Translation**:
+  - Translated all German block headers, inline comments, and separators into English.
+  - Included detailed block notes for routines such as the keyboard query (`0x002B` and `0x0049`) and screen output (`0x0033`).
+- **Bit-Perfection Fix**:
+  - Identified and fixed a pre-existing assembly shift issue where `DEFINE_MSG` segments (0x191D-0x1935) were being exported in a format (`\0D\00`) that `z88dk-z80asm` misinterpreted, adding extra bytes to the binary. 
+  - Updated these segments to `DIRECT_BYTE` to ensure stable, bit-perfect assembly across all tools.
+- **Verification**:
+  - `export.asm` now assembles to a bit-perfect match of `VZ200.bin` (MD5: `42c8f9e6c2133ae0e953b89ccbbdb7e2`).
+  - `export.lst` verified for correct English inline comments and logical disassembly across the 0x000D-0x005F range.
+
+### Statistics
+- **Total Symbols:** 216 (Limit: 6000)
+- **Total Annotations:** 3104 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of English inline comments for the range 0x000D-0x005F.
+
 ## Session: May 13, 2026 (Part 2)
 
 ### Task

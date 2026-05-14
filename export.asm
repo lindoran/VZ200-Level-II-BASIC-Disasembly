@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Wed May 13 22:41:16 2026
+; Generated: Thu May 14 14:03:09 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -22,22 +22,74 @@
 ; Not used in VZ200
               pop   hl             ; Pop return address to HL
               jp    (hl)           ; Jump to HL (return to caller)
-              DEFB  0x00,0x00,0x00,0xC3,0x03,0x78,0xC5,0x06
-              DEFB  0x01,0x18,0x2E,0xC3,0x06,0x78,0xC5,0x06
-              DEFB  0x02,0x18,0x26,0xC3,0x09,0x78,0xC5,0x06
-              DEFB  0x04,0x18,0x1E,0xC3,0x0C,0x78,0x11,0x15
-              DEFB  0x78,0x18,0xE3,0xC3,0x0F,0x78,0x11,0x1D
-              DEFB  0x78,0x18,0xE3,0xC3,0xB8,0x2E,0x11,0x25
-              DEFB  0x78,0x18,0xDB,0xC3,0xFD,0x2E,0xC9,0x00
-              DEFB  0x00,0xC3,0xC2,0x03,0xCD,0x2B,0x00,0xB7
-              DEFB  0xC0,0x18,0xF9,0x2A,0x20,0x78,0x7E,0x32 ; Yes, return
-              DEFB  0x3C,0x78,0xC9,0x4C,0xFE,0x54,0x20,0xD6
-              DEFB  0xFD,0x21,0xF1
+              DEFB  0x00,0x00,0x00 ; unused
 
-;
-; Delay loop (input: register BC determines duration)
-; DELAY_LOOP: (defined in symbols.sym)
-              dec   bc             ; Decrement BC
+; Restart 10
+              jp    0x7803         ; Jump via RAM vector 7803H to address 1D78H
+
+; Read a character via Device Control Block (DCB)
+              push  bc             ; Save BC
+              ld    b,0x01         ; Set B for DCB check
+              jr    $+48           ; to DCB call routine
+
+; Restart 18
+              jp    0x7806         ; Jump via RAM vector 7806H to address 1C90H
+
+; Output a character via Device Control Block (DCB)
+              push  bc             ; Save BC
+              ld    b,0x02         ; Set B for DCB check
+              jr    $+40           ; to DCB call routine
+
+; Restart 20
+              jp    0x7809         ; Jump via RAM vector 7809H to address 25D9H
+              push  bc             ; not used
+              ld    b,0x04
+              jr    $+32
+
+; Restart 28
+              jp    0x780C         ; Jump to RAM vector 780CH
+
+; Keyboard query
+; On return, Reg. A contains the ASCII code of a pressed key, or 0 if none 
+; pressed.
+              ld    de,0x7815      ; Load DCB address for keyboard
+              jr    $-27           ; continue at 13H
+
+; Restart 30
+              jp    0x780F         ; Jump to RAM vector 780FH
+
+; Screen output via DCB
+; Not used on LASER 110-310.
+              ld    de,0x781D      ; Load DCB address
+              jr    $-27           ; continue at 1BH
+
+; Restart 38 - Interrupt vector for IM1
+              jp    0x2EB8         ; to Interrupt Service Routine
+
+; Printer output via Device Control Block (DCB)
+; Reg. A must contain the character to be output
+              ld    de,0x7825      ; Load DCB address
+              jr    $-35           ; continue at 1BH
+              jp    0x2EFD         ; to keyboard read routine
+              ret                  ; not used
+              DEFB  0x00,0x00      ; unused
+              jp    DCB_DISPATCH   ; Jump to DCB call routine
+
+; Keyboard query
+; waits until a key is pressed.
+; Output: A-reg contains ASCII code of the pressed key
+              call  KBD_QUERY      ; Evaluate keyboard
+              or    a              ; Key pressed?
+              ret   nz             ; Yes, return
+              jr    $-5            ; no, wait
+
+; Save character from cursor position
+              ld    hl,(0x7820)    ; Load cursor address
+              ld    a,(hl)         ; Load character
+              ld    (0x783C),a     ; save to 783CH
+              ret   
+              DEFB  0x4C,0xFE,0x54,0x20,0xD6,0xFD,0x21,0xF1 ; not used
+              dec   bc
               ld    a,b            ; B = 0?
               or    c              ; C = 0?
               jr    nz,$-3         ; No, continue loop
@@ -4261,14 +4313,14 @@ PROG_START_ROM:
 MSG_ERROR_TEXT:
               DEFM  " ERROR\00"
 MSG_IN_TEXT:
-              DEFM  " IN \00"
+              DEFB  0x20,0x49,0x4E,0x20,0x00
 MSG_READY_TEXT:
-              DEFM  "READY\0D\00"
+              DEFB  0x52,0x45,0x41,0x44,0x59,0x0D,0x00
 MSG_BREAK_TEXT:
-              DEFM  "BREAK\00"
+              DEFB  0x42,0x52,0x45,0x41,0x4B,0x00
 
 ; Subroutine for FOR/NEXT and GOSUB/RETURN
-; holts data back from stack
+; retrieves data back from the stack
 STACK_RECOVERY:
               ld    hl,0x0004      ; Stack pointer + 4 into HL
               add   hl,sp          ; (bypass 2 return addresses)
@@ -4318,8 +4370,7 @@ CHECK_FREE_MEMORY:
               ld    b,0x00         ; B=0
               add   hl,bc          ; Add BC to HL twice
               add   hl,bc
-              DEFB  0x3E           ; LD A,0E5H Dummy instruction
-              push  hl             ; test if HL is still in free memory
+              ld    a,0xE5         ; LD A,0E5H Dummy instruction
               ld    a,0xC6         ; HL > FFC6H ?
               sub   l
               ld    l,a

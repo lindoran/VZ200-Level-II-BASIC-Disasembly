@@ -6,6 +6,16 @@ load_addr = 0x0000
 
 [region]
 offset = 13
+end = 15
+type = DATA_BYTE
+
+[region]
+offset = 68
+end = 69
+type = DATA_BYTE
+
+[region]
+offset = 88
 end = 95
 type = DATA_BYTE
 
@@ -1640,23 +1650,23 @@ end = 6435
 type = DATA_STRING
 
 [region]
+offset = 6429
+end = 6435
+type = DATA_BYTE
+
+[region]
 offset = 6436
 end = 6440
-type = DATA_STRING
+type = DATA_BYTE
 
 [region]
 offset = 6441
 end = 6447
-type = DATA_STRING
+type = DATA_BYTE
 
 [region]
 offset = 6448
 end = 6453
-type = DATA_STRING
-
-[region]
-offset = 6507
-end = 6507
 type = DATA_BYTE
 
 [region]
@@ -1681,10 +1691,6 @@ name = START
 [label]
 offset = 8
 name = RST08_VEC
-
-[label]
-offset = 96
-name = DELAY_LOOP
 
 [label]
 offset = 102
@@ -2963,12 +2969,132 @@ offset = 12
 text = Jump to HL (return to caller)
 
 [comment]
+offset = 13
+text = unused
+
+[comment]
+offset = 16
+text = Jump via RAM vector 7803H to address 1D78H
+
+[comment]
+offset = 19
+text = Save BC
+
+[comment]
+offset = 20
+text = Set B for DCB check
+
+[comment]
+offset = 22
+text = to DCB call routine
+
+[comment]
+offset = 24
+text = Jump via RAM vector 7806H to address 1C90H
+
+[comment]
+offset = 27
+text = Save BC
+
+[comment]
+offset = 28
+text = Set B for DCB check
+
+[comment]
+offset = 30
+text = to DCB call routine
+
+[comment]
+offset = 32
+text = Jump via RAM vector 7809H to address 25D9H
+
+[comment]
+offset = 35
+text = not used
+
+[comment]
+offset = 40
+text = Jump to RAM vector 780CH
+
+[comment]
+offset = 43
+text = Load DCB address for keyboard
+
+[comment]
+offset = 46
+text = continue at 13H
+
+[comment]
+offset = 48
+text = Jump to RAM vector 780FH
+
+[comment]
+offset = 51
+text = Load DCB address
+
+[comment]
+offset = 54
+text = continue at 1BH
+
+[comment]
+offset = 56
+text = to Interrupt Service Routine
+
+[comment]
+offset = 59
+text = Load DCB address
+
+[comment]
+offset = 62
+text = continue at 1BH
+
+[comment]
+offset = 64
+text = to keyboard read routine
+
+[comment]
+offset = 67
+text = not used
+
+[comment]
+offset = 68
+text = unused
+
+[comment]
+offset = 70
+text = Jump to DCB call routine
+
+[comment]
+offset = 73
+text = Evaluate keyboard
+
+[comment]
+offset = 76
+text = Key pressed?
+
+[comment]
 offset = 77
 text = Yes, return
 
 [comment]
-offset = 96
-text = Decrement BC
+offset = 78
+text = no, wait
+
+[comment]
+offset = 80
+text = Load cursor address
+
+[comment]
+offset = 83
+text = Load character
+
+[comment]
+offset = 84
+text = save to 783CH
+
+[comment]
+offset = 88
+text = not used
 
 [comment]
 offset = 97
@@ -14955,10 +15081,6 @@ offset = 6507
 text = LD A,0E5H Dummy instruction
 
 [comment]
-offset = 6508
-text = test if HL is still in free memory
-
-[comment]
 offset = 6509
 text = HL > FFC6H ?
 
@@ -15221,9 +15343,61 @@ text =
               Not used in VZ200
 
 [block]
-offset = 96
-text = 
-              Delay loop (input: register BC determines duration)
+offset = 16
+text = Restart 10
+
+[block]
+offset = 19
+text = Read a character via Device Control Block (DCB)
+
+[block]
+offset = 24
+text = Restart 18
+
+[block]
+offset = 27
+text = Output a character via Device Control Block (DCB)
+
+[block]
+offset = 32
+text = Restart 20
+
+[block]
+offset = 40
+text = Restart 28
+
+[block]
+offset = 43
+text = Keyboard query
+              On return, Reg. A contains the ASCII code of a pressed key, or 0 if none pressed.
+
+[block]
+offset = 48
+text = Restart 30
+
+[block]
+offset = 51
+text = Screen output via DCB
+              Not used on LASER 110-310.
+
+[block]
+offset = 56
+text = Restart 38 - Interrupt vector for IM1
+
+[block]
+offset = 59
+text = Printer output via Device Control Block (DCB)
+              Reg. A must contain the character to be output
+
+[block]
+offset = 73
+text = Keyboard query
+              waits until a key is pressed.
+              Output: A-reg contains ASCII code of the pressed key
+
+[block]
+offset = 80
+text = Save character from cursor position
 
 [block]
 offset = 102
@@ -16268,7 +16442,8 @@ text = Texts
 
 [block]
 offset = 6454
-text = Subroutine for FOR/NEXT and GOSUB/RETURN\nretrieves data back from the stack
+text = Subroutine for FOR/NEXT and GOSUB/RETURN
+              retrieves data back from the stack
 
 [block]
 offset = 6485
