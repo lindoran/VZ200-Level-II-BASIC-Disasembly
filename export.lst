@@ -3647,8 +3647,8 @@
       5245     RE    
                      KWD_91_GOSUB:
 1691  C7       .                   DEFB  0xC7           ; 91 = GOSUB ('G'+0x80)
-                     KWD_92_RETURN:
 1692  4F535542 OSUB                DEFM  "OSUB"
+                     KWD_92_RETURN:
 1696  D2       .                   DEFB  0xD2           ; 92 = RETURN ('R'+0x80)
 1697  45545552 ETUR                DEFM  "ETURN"
       4E       N     
@@ -3764,77 +3764,214 @@
                      KWD_B5_LLIST:
 1731  CC       .                   DEFB  0xCC           ; B5 = LLIST ('L'+0x80)
 1732  4C495354 LIST                DEFM  "LIST"
-1736  81000000 ....                DEFB  0x81,0x00,0x00,0x00,0x00,0x00,0x81,0x00
-      00008100 ....  
-173E  0000     ..                  DEFB  0x00,0x00
+                     KWD_B6_DELETE:
+1736  81       .                   DEFB  0x81           ; B6 = DELETE (not coded)
+1737  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00 ; not coded
+      00       .     
+                     KWD_B7_AUTO:
+173C  81       .                   DEFB  0x81           ; B7 = AUTO (not coded)
+173D  000000   ...                 DEFB  0x00,0x00,0x00 ; not coded
                      KWD_B8_CLEAR:
-1740  C34C4541 .LEA                DEFB  0xC3,0x4C,0x45,0x41,0x52,0xC3,0x4C,0x4F ; B8 = CLEAR
-      52C34C4F R.LO  
-1748  4144C353 AD.S                DEFB  0x41,0x44,0xC3,0x53,0x41,0x56,0x45,0xCE
-      415645CE AVE.  
-1750  4557D441 EW.A                DEFB  0x45,0x57,0xD4,0x41,0x42,0x28,0xD4,0x4F
-      4228D44F B(.O  
+1740  C3       .                   DEFB  0xC3           ; B8 = CLEAR ('C'+0x80)
+1741  4C454152 LEAR                DEFM  "LEAR"
+                     KWD_B9_CLOAD:
+1745  C3       .                   DEFB  0xC3           ; B9 = CLOAD ('C'+0x80)
+1746  4C4F4144 LOAD                DEFM  "LOAD"
+                     KWD_BA_CSAVE:
+174A  C3       .                   DEFB  0xC3           ; BA = CSAVE ('C'+0x80)
+174B  53415645 SAVE                DEFM  "SAVE"
+                     KWD_BB_NEW:
+174F  CE       .                   DEFB  0xCE           ; BB = NEW ('N'+0x80)
+1750  4557     EW                  DEFM  "EW"
+                     KWD_BC_TAB:
+1752  D4       .                   DEFB  0xD4           ; BC = TAB( ('T'+0x80)
+1753  414228   AB(                 DEFM  "AB("
+                     KWD_BD_TO:
+1756  D4       .                   DEFB  0xD4           ; BD = TO ('T'+0x80)
+1757  4F       O                   DEFM  "O"
                      KWD_BE_FN:
-1758  8100D553 ...S                DEFB  0x81,0x00,0xD5,0x53,0x49,0x4E,0x47,0x81 ; BE = FN (not coded)
-      494E4781 ING.  
-                     KWD_C1_USR_START:
-1760  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0xD5,0x53,0x52 ; C1 = USR
-      00D55352 ..SR  
+1758  81       .                   DEFB  0x81           ; BE = FN (not coded)
+1759  00       .                   DEFB  0x00           ; not coded
+                     KWD_BF_USING:
+175A  D5       .                   DEFB  0xD5           ; BF = USING ('U'+0x80)
+175B  53494E47 SING                DEFM  "SING"
+                     KWD_C0_VARPTR:
+175F  81       .                   DEFB  0x81           ; C0 = VARPTR (not coded)
+1760  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00 ; not coded
+      00       .     
+                     KWD_C1_USR:
+1765  D5       .                   DEFB  0xD5           ; C1 = USR ('U'+0x80)
+1766  5352     SR                  DEFM  "SR"
                      KWD_C2_ERL:
-1768  81000081 ....                DEFB  0x81,0x00,0x00,0x81,0x00,0x00,0x81,0x00 ; C2 = ERL (not coded)
-      00008100 ....  
-1770  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x81,0x00,0x00
-      00810000 ....  
-1778  0000D04F ...O                DEFB  0x00,0x00,0xD0,0x4F,0x49,0x4E,0x54,0x81
-      494E5481 INT.  
-                     KWD_C8_MEM_START:
-1780  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x81,0x00,0x00,0xC9 ; C8 = MEM
-      810000C9 ....  
-1788  4E4B4559 NKEY                DEFB  0x4E,0x4B,0x45,0x59,0x24,0xD4,0x48,0x45
-      24D44845 $.HE  
-1790  4ECE4F54 N.OT                DEFB  0x4E,0xCE,0x4F,0x54,0xD3,0x54,0x45,0x50
-      D3544550 .TEP  
+1768  81       .                   DEFB  0x81           ; C2 = ERL (not coded)
+1769  0000     ..                  DEFB  0x00,0x00      ; not coded
+                     KWD_C3_ERR:
+176B  81       .                   DEFB  0x81           ; C3 = ERR (not coded)
+176C  0000     ..                  DEFB  0x00,0x00      ; not coded
+                     KWD_C4_STRINGS:
+176E  81       .                   DEFB  0x81           ; C4 = STRING$ (not coded)
+176F  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00 ; not coded
+      0000     ..    
+                     KWD_C5_INSTR:
+1775  81       .                   DEFB  0x81           ; C5 = INSTR (not coded)
+1776  00000000 ....                DEFB  0x00,0x00,0x00,0x00 ; not coded
+                     KWD_C6_POINT:
+177A  D0       .                   DEFB  0xD0           ; C6 = POINT ('P'+0x80)
+177B  4F494E54 OINT                DEFM  "OINT"
+                     KWD_C7_TIMES:
+177F  81       .                   DEFB  0x81           ; C7 = TIME$ (not coded)
+1780  00000000 ....                DEFB  0x00,0x00,0x00,0x00 ; not coded
+                     KWD_C8_MEM:
+1784  81       .                   DEFB  0x81           ; C8 = MEM (not coded)
+1785  0000     ..                  DEFB  0x00,0x00      ; not coded
+                     KWD_C9_INKEYS:
+1787  C9       .                   DEFB  0xC9           ; C9 = INKEY$ ('I'+0x80)
+1788  4E4B4559 NKEY                DEFM  "NKEY$"
+      24       $     
+                     KWD_CA_THEN:
+178D  D4       .                   DEFB  0xD4           ; CA = THEN ('T'+0x80)
+178E  48454E   HEN                 DEFM  "HEN"
+                     KWD_CB_NOT:
+1791  CE       .                   DEFB  0xCE           ; CB = NOT ('N'+0x80)
+1792  4F54     OT                  DEFM  "OT"
+                     KWD_CC_STEP:
+1794  D3       .                   DEFB  0xD3           ; CC = STEP ('S'+0x80)
+1795  544550   TEP                 DEFM  "TEP"
                      KWD_CD_PLUS:
-1798  ABADAAAF ....                DEFB  0xAB,0xAD,0xAA,0xAF,0xDE,0xC1,0x4E,0x44 ; CD = +
-      DEC14E44 ..ND  
+1798  AB       .                   DEFB  0xAB           ; CD = + ('+'+0x80)
+                     KWD_CE_MINUS:
+1799  AD       .                   DEFB  0xAD           ; CE = - ('-'+0x80)
+                     KWD_CF_MUL:
+179A  AA       .                   DEFB  0xAA           ; CF = * ('*'+0x80)
+                     KWD_D0_DIV:
+179B  AF       .                   DEFB  0xAF           ; D0 = / ('/'+0x80)
+                     KWD_D1_UP:
+179C  DE       .                   DEFB  0xDE           ; D1 = ^ (exponentiation) (0x5E+0x80)
+                     KWD_D2_AND:
+179D  C1       .                   DEFB  0xC1           ; D2 = AND ('A'+0x80)
+179E  4E44     ND                  DEFM  "ND"
                      KWD_D3_OR:
-17A0  CF52BEBD .R..                DEFB  0xCF,0x52,0xBE,0xBD,0xBC,0xD3,0x47,0x4E ; D3 = OR
-      BCD3474E ..GN  
-17A8  C94E54C1 .NT.                DEFB  0xC9,0x4E,0x54,0xC1,0x42,0x53,0x81,0x00
-      42538100 BS..  
-17B0  00C94E50 ..NP                DEFB  0x00,0xC9,0x4E,0x50,0x81,0x00,0x00,0xD3
-      810000D3 ....  
-17B8  5152D24E QR.N                DEFB  0x51,0x52,0xD2,0x4E,0x44,0xCC,0x4F,0x47
-      44CC4F47 D.OG  
+17A0  CF       .                   DEFB  0xCF           ; D3 = OR ('O'+0x80)
+17A1  52       R                   DEFM  "R"
+                     KWD_D4_GT:
+17A2  BE       .                   DEFB  0xBE           ; D4 = > ('>'+0x80)
+                     KWD_D5_EQ:
+17A3  BD       .                   DEFB  0xBD           ; D5 = = ('='+0x80)
+                     KWD_D6_LT:
+17A4  BC       .                   DEFB  0xBC           ; D6 = < ('<'+0x80)
+                     KWD_D7_SGN:
+17A5  D3       .                   DEFB  0xD3           ; D7 = SGN ('S'+0x80)
+17A6  474E     GN                  DEFM  "GN"
+                     KWD_D8_INT:
+17A8  C9       .                   DEFB  0xC9           ; D8 = INT ('I'+0x80)
+17A9  4E54     NT                  DEFM  "NT"
+                     KWD_D9_ABS:
+17AB  C1       .                   DEFB  0xC1           ; D9 = ABS ('A'+0x80)
+17AC  4253     BS                  DEFM  "BS"
+                     KWD_DA_FRE:
+17AE  81       .                   DEFB  0x81           ; DA = FRE (not coded)
+17AF  0000     ..                  DEFB  0x00,0x00      ; not coded
+                     KWD_DB_INP:
+17B1  C9       .                   DEFB  0xC9           ; DB = INP ('I'+0x80)
+17B2  4E50     NP                  DEFM  "NP"
+                     KWD_DC_POS:
+17B4  81       .                   DEFB  0x81           ; DC = POS (not coded)
+17B5  0000     ..                  DEFB  0x00,0x00      ; not coded
+                     KWD_DD_SQR:
+17B7  D3       .                   DEFB  0xD3           ; DD = SQR ('S'+0x80)
+17B8  5152     QR                  DEFM  "QR"
+                     KWD_DE_RND:
+17BA  D2       .                   DEFB  0xD2           ; DE = RND ('R'+0x80)
+17BB  4E44     ND                  DEFM  "ND"
+                     KWD_DF_LOG:
+17BD  CC       .                   DEFB  0xCC           ; DF = LOG ('L'+0x80)
+17BE  4F47     OG                  DEFM  "OG"
                      KWD_E0_EXP:
-17C0  C55850C3 .XP.                DEFB  0xC5,0x58,0x50,0xC3,0x4F,0x53,0xD3,0x49 ; E0 = EXP
-      4F53D349 OS.I  
-17C8  4ED4414E N.AN                DEFB  0x4E,0xD4,0x41,0x4E,0xC1,0x54,0x4E,0xD0
-      C1544ED0 .TN.  
-17D0  45454B81 EEK.                DEFB  0x45,0x45,0x4B,0x81,0x00,0x00,0x81,0x00
-      00008100 ....  
-17D8  00810000 ....                DEFB  0x00,0x81,0x00,0x00,0x81,0x00,0x00,0x81
-      81000081 ....  
-                     KWD_E9_EOF_START:
-17E0  00008100 ....                DEFB  0x00,0x00,0x81,0x00,0x00,0x81,0x00,0x00 ; E9 = EOF
-      00810000 ....  
-17E8  00810000 ....                DEFB  0x00,0x81,0x00,0x00,0x00,0x81,0x00,0x00
-      00810000 ....  
-17F0  00810000 ....                DEFB  0x00,0x81,0x00,0x00,0x00,0x81,0x00,0x00
-      00810000 ....  
-17F8  00810000 ....                DEFB  0x00,0x81,0x00,0x00,0x00,0x81,0x00,0x00
-      00810000 ....  
+17C0  C5       .                   DEFB  0xC5           ; E0 = EXP ('E'+0x80)
+17C1  5850     XP                  DEFM  "XP"
+                     KWD_E1_COS:
+17C3  C3       .                   DEFB  0xC3           ; E1 = COS ('C'+0x80)
+17C4  4F53     OS                  DEFM  "OS"
+                     KWD_E2_SIN:
+17C6  D3       .                   DEFB  0xD3           ; E2 = SIN ('S'+0x80)
+17C7  494E     IN                  DEFM  "IN"
+                     KWD_E3_TAN:
+17C9  D4       .                   DEFB  0xD4           ; E3 = TAN ('T'+0x80)
+17CA  414E     AN                  DEFM  "AN"
+                     KWD_E4_ATN:
+17CC  C1       .                   DEFB  0xC1           ; E4 = ATN ('A'+0x80)
+17CD  544E     TN                  DEFM  "TN"
+                     KWD_E5_PEEK:
+17CF  D0       .                   DEFB  0xD0           ; E5 = PEEK ('P'+0x80)
+17D0  45454B   EEK                 DEFM  "EEK"
+                     KWD_E6_CVI:
+17D3  81       .                   DEFB  0x81           ; E6 = CVI (not coded)
+17D4  0000     ..                  DEFB  0x00,0x00      ; not coded
+                     KWD_E7_CVS:
+17D6  81       .                   DEFB  0x81           ; E7 = CVS (not coded)
+17D7  0000     ..                  DEFB  0x00,0x00      ; not coded
+                     KWD_E8_CVD:
+17D9  81       .                   DEFB  0x81           ; E8 = CVD (not coded)
+17DA  0000     ..                  DEFB  0x00,0x00      ; not coded
+                     KWD_E9_EOF:
+17DC  81       .                   DEFB  0x81           ; E9 = EOF (not coded)
+17DD  0000     ..                  DEFB  0x00,0x00      ; not coded
+                     KWD_EA_LOC:
+17DF  81       .                   DEFB  0x81           ; EA = LOC (not coded)
+17E0  0000     ..                  DEFB  0x00,0x00      ; not coded
+                     KWD_EB_LOF:
+17E2  81       .                   DEFB  0x81           ; EB = LOF (not coded)
+17E3  0000     ..                  DEFB  0x00,0x00      ; not coded
+                     KWD_EC_MKIS:
+17E5  81       .                   DEFB  0x81           ; EC = MKI$ (not coded)
+17E6  000000   ...                 DEFB  0x00,0x00,0x00 ; not coded
+                     KWD_ED_MKSS:
+17E9  81       .                   DEFB  0x81           ; ED = MKS$ (not coded)
+17EA  000000   ...                 DEFB  0x00,0x00,0x00 ; not coded
+                     KWD_EE_MKDS:
+17ED  81       .                   DEFB  0x81           ; EE = MKD$ (not coded)
+17EE  000000   ...                 DEFB  0x00,0x00,0x00 ; not coded
+                     KWD_EF_CINT:
+17F1  81       .                   DEFB  0x81           ; EF = CINT (not coded)
+17F2  000000   ...                 DEFB  0x00,0x00,0x00 ; not coded
+                     KWD_F0_CSNG:
+17F5  81       .                   DEFB  0x81           ; F0 = CSNG (not coded)
+17F6  000000   ...                 DEFB  0x00,0x00,0x00 ; not coded
+                     KWD_F1_CDBL:
+17F9  81       .                   DEFB  0x81           ; F1 = CDBL (not coded)
+17FA  000000   ...                 DEFB  0x00,0x00,0x00 ; not coded
+                     KWD_F2_FIX:
+17FD  81       .                   DEFB  0x81           ; F2 = FIX (not coded)
+17FE  0000     ..                  DEFB  0x00,0x00      ; not coded
                      KWD_F3_LEN:
-1800  CC454ED3 .EN.                DEFB  0xCC,0x45,0x4E,0xD3,0x54,0x52,0x24,0xD6 ; F3 = LEN
-      545224D6 TR$.  
-1808  414CC153 AL.S                DEFB  0x41,0x4C,0xC1,0x53,0x43,0xC3,0x48,0x52
-      43C34852 C.HR  
-1810  24CC4546 $.EF                DEFB  0x24,0xCC,0x45,0x46,0x54,0x24,0xD2,0x49
-      5424D249 T$.I  
-1818  47485424 GHT$                DEFB  0x47,0x48,0x54,0x24,0xCD,0x49,0x44,0x24
-      CD494424 .ID$  
+1800  CC       .                   DEFB  0xCC           ; F3 = LEN ('L'+0x80)
+1801  454E     EN                  DEFM  "EN"
+                     KWD_F4_STRS:
+1803  D3       .                   DEFB  0xD3           ; F4 = STR$ ('S'+0x80)
+1804  545224   TR$                 DEFM  "TR$"
+                     KWD_F5_VAL:
+1807  D6       .                   DEFB  0xD6           ; F5 = VAL ('V'+0x80)
+1808  414C     AL                  DEFM  "AL"
+                     KWD_F6_ASC:
+180A  C1       .                   DEFB  0xC1           ; F6 = ASC ('A'+0x80)
+180B  5343     SC                  DEFM  "SC"
+                     KWD_F7_CHRS:
+180D  C3       .                   DEFB  0xC3           ; F7 = CHR$ ('C'+0x80)
+180E  485224   HR$                 DEFM  "HR$"
+                     KWD_F8_LEFTS:
+1811  CC       .                   DEFB  0xCC           ; F8 = LEFT$ ('L'+0x80)
+1812  45465424 EFT$                DEFM  "EFT$"
+                     KWD_F9_RIGHTS:
+1816  D2       .                   DEFB  0xD2           ; F9 = RIGHT$ ('R'+0x80)
+1817  49474854 IGHT                DEFM  "IGHT$"
+      24       $     
+                     KWD_FA_MIDS:
+181C  CD       .                   DEFB  0xCD           ; FA = MID$ ('M'+0x80)
+181D  494424   ID$                 DEFM  "ID$"
                      KWD_FB_SPACE:
-1820  A780     ..                  DEFB  0xA7,0x80      ; FB = ' '
+1820  A7       .                   DEFB  0xA7           ; FB = ' ('\''+0x80)
+                     KWD_END_TABLE:
+1821  80       .                   DEFB  0x80           ; End of table
                      ; (Token 80 - BB)
 1822  AE1D     ..                  DEFW  0x1DAE         ; 80 = END
 1824  A11C     ..                  DEFW  0x1CA1         ; 81 = FOR

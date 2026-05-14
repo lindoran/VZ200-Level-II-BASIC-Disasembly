@@ -1,5 +1,31 @@
 # VZ200 BASIC ROM Disassembly Progress
 
+## Session: May 13, 2026
+
+### Task
+Annotate the byte range 0x1736 to 0x1821 based on Gerhard Wolf's Laser 310 German ROM listing (pages 102-105) and cross-referenced with TRS-80 Level II BASIC sources.
+
+### Work Summary
+- **Keyword Table Restructuring**:
+  - Successfully restructured the second half of the BASIC keyword table (Tokens B6 to FB) into the requested "unpacked" format.
+  - Split each keyword into a `DIRECT_BYTE` segment for the first character (token indicator) and a `DEFINE_MSG` segment for the remaining characters.
+  - Handled "not coded" keywords (DELETE, AUTO, FN, VARPTR, ERL, ERR, STRING$, INSTR, TIME$, MEM, FRE, POS, CVI, CVS, CVD, EOF, LOC, LOF, MKI$, MKS$, MKD$, CINT, CSNG, CDBL, FIX) by defining them as `DIRECT_BYTE` segments with appropriate English annotations.
+  - Fixed a duplicate label issue for `KWD_92_RETURN` which was incorrectly placed in a previous session.
+- **Translation**:
+  - Translated all German ROM annotations into English.
+  - Applied descriptive inline comments indicating the token value and the character expression for each keyword.
+- **Verification**:
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+  - `export.lst` verified for correct unpacked formatting and English inline comments across the target range.
+
+### Statistics
+- **Total Symbols:** 216 (Limit: 6000)
+- **Total Annotations:** 2963 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of high-density English inline comments for the range 0x1736-0x1821.
+
 ## Session: May 12, 2026
 
 ### Task

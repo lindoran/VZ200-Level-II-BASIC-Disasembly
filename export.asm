@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Wed May 13 14:53:02 2026
+; Generated: Wed May 13 21:49:46 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -3777,8 +3777,8 @@ KWD_90_RESTORE:
               DEFM  "ESTORE"
 KWD_91_GOSUB:
               DEFB  0xC7           ; 91 = GOSUB ('G'+0x80)
-KWD_92_RETURN:
               DEFM  "OSUB"
+KWD_92_RETURN:
               DEFB  0xD2           ; 92 = RETURN ('R'+0x80)
               DEFM  "ETURN"
 KWD_93_REM:
@@ -3886,48 +3886,209 @@ KWD_B4_LIST:
 KWD_B5_LLIST:
               DEFB  0xCC           ; B5 = LLIST ('L'+0x80)
               DEFM  "LIST"
-              DEFB  0x81,0x00,0x00,0x00,0x00,0x00,0x81,0x00
-              DEFB  0x00,0x00
+KWD_B6_DELETE:
+              DEFB  0x81           ; B6 = DELETE (not coded)
+              DEFB  0x00,0x00,0x00,0x00,0x00 ; not coded
+KWD_B7_AUTO:
+              DEFB  0x81           ; B7 = AUTO (not coded)
+              DEFB  0x00,0x00,0x00 ; not coded
 KWD_B8_CLEAR:
-              DEFB  0xC3,0x4C,0x45,0x41,0x52,0xC3,0x4C,0x4F ; B8 = CLEAR
-              DEFB  0x41,0x44,0xC3,0x53,0x41,0x56,0x45,0xCE
-              DEFB  0x45,0x57,0xD4,0x41,0x42,0x28,0xD4,0x4F
+              DEFB  0xC3           ; B8 = CLEAR ('C'+0x80)
+              DEFM  "LEAR"
+KWD_B9_CLOAD:
+              DEFB  0xC3           ; B9 = CLOAD ('C'+0x80)
+              DEFM  "LOAD"
+KWD_BA_CSAVE:
+              DEFB  0xC3           ; BA = CSAVE ('C'+0x80)
+              DEFM  "SAVE"
+KWD_BB_NEW:
+              DEFB  0xCE           ; BB = NEW ('N'+0x80)
+              DEFM  "EW"
+KWD_BC_TAB:
+              DEFB  0xD4           ; BC = TAB( ('T'+0x80)
+              DEFM  "AB("
+KWD_BD_TO:
+              DEFB  0xD4           ; BD = TO ('T'+0x80)
+              DEFM  "O"
 KWD_BE_FN:
-              DEFB  0x81,0x00,0xD5,0x53,0x49,0x4E,0x47,0x81 ; BE = FN (not coded)
-KWD_C1_USR_START:
-              DEFB  0x00,0x00,0x00,0x00,0x00,0xD5,0x53,0x52 ; C1 = USR
+              DEFB  0x81           ; BE = FN (not coded)
+              DEFB  0x00           ; not coded
+KWD_BF_USING:
+              DEFB  0xD5           ; BF = USING ('U'+0x80)
+              DEFM  "SING"
+KWD_C0_VARPTR:
+              DEFB  0x81           ; C0 = VARPTR (not coded)
+              DEFB  0x00,0x00,0x00,0x00,0x00 ; not coded
+KWD_C1_USR:
+              DEFB  0xD5           ; C1 = USR ('U'+0x80)
+              DEFM  "SR"
 KWD_C2_ERL:
-              DEFB  0x81,0x00,0x00,0x81,0x00,0x00,0x81,0x00 ; C2 = ERL (not coded)
-              DEFB  0x00,0x00,0x00,0x00,0x00,0x81,0x00,0x00
-              DEFB  0x00,0x00,0xD0,0x4F,0x49,0x4E,0x54,0x81
-KWD_C8_MEM_START:
-              DEFB  0x00,0x00,0x00,0x00,0x81,0x00,0x00,0xC9 ; C8 = MEM
-              DEFB  0x4E,0x4B,0x45,0x59,0x24,0xD4,0x48,0x45
-              DEFB  0x4E,0xCE,0x4F,0x54,0xD3,0x54,0x45,0x50
+              DEFB  0x81           ; C2 = ERL (not coded)
+              DEFB  0x00,0x00      ; not coded
+KWD_C3_ERR:
+              DEFB  0x81           ; C3 = ERR (not coded)
+              DEFB  0x00,0x00      ; not coded
+KWD_C4_STRINGS:
+              DEFB  0x81           ; C4 = STRING$ (not coded)
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x00 ; not coded
+KWD_C5_INSTR:
+              DEFB  0x81           ; C5 = INSTR (not coded)
+              DEFB  0x00,0x00,0x00,0x00 ; not coded
+KWD_C6_POINT:
+              DEFB  0xD0           ; C6 = POINT ('P'+0x80)
+              DEFM  "OINT"
+KWD_C7_TIMES:
+              DEFB  0x81           ; C7 = TIME$ (not coded)
+              DEFB  0x00,0x00,0x00,0x00 ; not coded
+KWD_C8_MEM:
+              DEFB  0x81           ; C8 = MEM (not coded)
+              DEFB  0x00,0x00      ; not coded
+KWD_C9_INKEYS:
+              DEFB  0xC9           ; C9 = INKEY$ ('I'+0x80)
+              DEFM  "NKEY$"
+KWD_CA_THEN:
+              DEFB  0xD4           ; CA = THEN ('T'+0x80)
+              DEFM  "HEN"
+KWD_CB_NOT:
+              DEFB  0xCE           ; CB = NOT ('N'+0x80)
+              DEFM  "OT"
+KWD_CC_STEP:
+              DEFB  0xD3           ; CC = STEP ('S'+0x80)
+              DEFM  "TEP"
 KWD_CD_PLUS:
-              DEFB  0xAB,0xAD,0xAA,0xAF,0xDE,0xC1,0x4E,0x44 ; CD = +
+              DEFB  0xAB           ; CD = + ('+'+0x80)
+KWD_CE_MINUS:
+              DEFB  0xAD           ; CE = - ('-'+0x80)
+KWD_CF_MUL:
+              DEFB  0xAA           ; CF = * ('*'+0x80)
+KWD_D0_DIV:
+              DEFB  0xAF           ; D0 = / ('/'+0x80)
+KWD_D1_UP:
+              DEFB  0xDE           ; D1 = ^ (exponentiation) (0x5E+0x80)
+KWD_D2_AND:
+              DEFB  0xC1           ; D2 = AND ('A'+0x80)
+              DEFM  "ND"
 KWD_D3_OR:
-              DEFB  0xCF,0x52,0xBE,0xBD,0xBC,0xD3,0x47,0x4E ; D3 = OR
-              DEFB  0xC9,0x4E,0x54,0xC1,0x42,0x53,0x81,0x00
-              DEFB  0x00,0xC9,0x4E,0x50,0x81,0x00,0x00,0xD3
-              DEFB  0x51,0x52,0xD2,0x4E,0x44,0xCC,0x4F,0x47
+              DEFB  0xCF           ; D3 = OR ('O'+0x80)
+              DEFM  "R"
+KWD_D4_GT:
+              DEFB  0xBE           ; D4 = > ('>'+0x80)
+KWD_D5_EQ:
+              DEFB  0xBD           ; D5 = = ('='+0x80)
+KWD_D6_LT:
+              DEFB  0xBC           ; D6 = < ('<'+0x80)
+KWD_D7_SGN:
+              DEFB  0xD3           ; D7 = SGN ('S'+0x80)
+              DEFM  "GN"
+KWD_D8_INT:
+              DEFB  0xC9           ; D8 = INT ('I'+0x80)
+              DEFM  "NT"
+KWD_D9_ABS:
+              DEFB  0xC1           ; D9 = ABS ('A'+0x80)
+              DEFM  "BS"
+KWD_DA_FRE:
+              DEFB  0x81           ; DA = FRE (not coded)
+              DEFB  0x00,0x00      ; not coded
+KWD_DB_INP:
+              DEFB  0xC9           ; DB = INP ('I'+0x80)
+              DEFM  "NP"
+KWD_DC_POS:
+              DEFB  0x81           ; DC = POS (not coded)
+              DEFB  0x00,0x00      ; not coded
+KWD_DD_SQR:
+              DEFB  0xD3           ; DD = SQR ('S'+0x80)
+              DEFM  "QR"
+KWD_DE_RND:
+              DEFB  0xD2           ; DE = RND ('R'+0x80)
+              DEFM  "ND"
+KWD_DF_LOG:
+              DEFB  0xCC           ; DF = LOG ('L'+0x80)
+              DEFM  "OG"
 KWD_E0_EXP:
-              DEFB  0xC5,0x58,0x50,0xC3,0x4F,0x53,0xD3,0x49 ; E0 = EXP
-              DEFB  0x4E,0xD4,0x41,0x4E,0xC1,0x54,0x4E,0xD0
-              DEFB  0x45,0x45,0x4B,0x81,0x00,0x00,0x81,0x00
-              DEFB  0x00,0x81,0x00,0x00,0x81,0x00,0x00,0x81
-KWD_E9_EOF_START:
-              DEFB  0x00,0x00,0x81,0x00,0x00,0x81,0x00,0x00 ; E9 = EOF
-              DEFB  0x00,0x81,0x00,0x00,0x00,0x81,0x00,0x00
-              DEFB  0x00,0x81,0x00,0x00,0x00,0x81,0x00,0x00
-              DEFB  0x00,0x81,0x00,0x00,0x00,0x81,0x00,0x00
+              DEFB  0xC5           ; E0 = EXP ('E'+0x80)
+              DEFM  "XP"
+KWD_E1_COS:
+              DEFB  0xC3           ; E1 = COS ('C'+0x80)
+              DEFM  "OS"
+KWD_E2_SIN:
+              DEFB  0xD3           ; E2 = SIN ('S'+0x80)
+              DEFM  "IN"
+KWD_E3_TAN:
+              DEFB  0xD4           ; E3 = TAN ('T'+0x80)
+              DEFM  "AN"
+KWD_E4_ATN:
+              DEFB  0xC1           ; E4 = ATN ('A'+0x80)
+              DEFM  "TN"
+KWD_E5_PEEK:
+              DEFB  0xD0           ; E5 = PEEK ('P'+0x80)
+              DEFM  "EEK"
+KWD_E6_CVI:
+              DEFB  0x81           ; E6 = CVI (not coded)
+              DEFB  0x00,0x00      ; not coded
+KWD_E7_CVS:
+              DEFB  0x81           ; E7 = CVS (not coded)
+              DEFB  0x00,0x00      ; not coded
+KWD_E8_CVD:
+              DEFB  0x81           ; E8 = CVD (not coded)
+              DEFB  0x00,0x00      ; not coded
+KWD_E9_EOF:
+              DEFB  0x81           ; E9 = EOF (not coded)
+              DEFB  0x00,0x00      ; not coded
+KWD_EA_LOC:
+              DEFB  0x81           ; EA = LOC (not coded)
+              DEFB  0x00,0x00      ; not coded
+KWD_EB_LOF:
+              DEFB  0x81           ; EB = LOF (not coded)
+              DEFB  0x00,0x00      ; not coded
+KWD_EC_MKIS:
+              DEFB  0x81           ; EC = MKI$ (not coded)
+              DEFB  0x00,0x00,0x00 ; not coded
+KWD_ED_MKSS:
+              DEFB  0x81           ; ED = MKS$ (not coded)
+              DEFB  0x00,0x00,0x00 ; not coded
+KWD_EE_MKDS:
+              DEFB  0x81           ; EE = MKD$ (not coded)
+              DEFB  0x00,0x00,0x00 ; not coded
+KWD_EF_CINT:
+              DEFB  0x81           ; EF = CINT (not coded)
+              DEFB  0x00,0x00,0x00 ; not coded
+KWD_F0_CSNG:
+              DEFB  0x81           ; F0 = CSNG (not coded)
+              DEFB  0x00,0x00,0x00 ; not coded
+KWD_F1_CDBL:
+              DEFB  0x81           ; F1 = CDBL (not coded)
+              DEFB  0x00,0x00,0x00 ; not coded
+KWD_F2_FIX:
+              DEFB  0x81           ; F2 = FIX (not coded)
+              DEFB  0x00,0x00      ; not coded
 KWD_F3_LEN:
-              DEFB  0xCC,0x45,0x4E,0xD3,0x54,0x52,0x24,0xD6 ; F3 = LEN
-              DEFB  0x41,0x4C,0xC1,0x53,0x43,0xC3,0x48,0x52
-              DEFB  0x24,0xCC,0x45,0x46,0x54,0x24,0xD2,0x49
-              DEFB  0x47,0x48,0x54,0x24,0xCD,0x49,0x44,0x24
+              DEFB  0xCC           ; F3 = LEN ('L'+0x80)
+              DEFM  "EN"
+KWD_F4_STRS:
+              DEFB  0xD3           ; F4 = STR$ ('S'+0x80)
+              DEFM  "TR$"
+KWD_F5_VAL:
+              DEFB  0xD6           ; F5 = VAL ('V'+0x80)
+              DEFM  "AL"
+KWD_F6_ASC:
+              DEFB  0xC1           ; F6 = ASC ('A'+0x80)
+              DEFM  "SC"
+KWD_F7_CHRS:
+              DEFB  0xC3           ; F7 = CHR$ ('C'+0x80)
+              DEFM  "HR$"
+KWD_F8_LEFTS:
+              DEFB  0xCC           ; F8 = LEFT$ ('L'+0x80)
+              DEFM  "EFT$"
+KWD_F9_RIGHTS:
+              DEFB  0xD2           ; F9 = RIGHT$ ('R'+0x80)
+              DEFM  "IGHT$"
+KWD_FA_MIDS:
+              DEFB  0xCD           ; FA = MID$ ('M'+0x80)
+              DEFM  "ID$"
 KWD_FB_SPACE:
-              DEFB  0xA7,0x80      ; FB = ' '
+              DEFB  0xA7           ; FB = ' ('\''+0x80)
+KWD_END_TABLE:
+              DEFB  0x80           ; End of table
 
 ; (Token 80 - BB)
               DEFW  0x1DAE         ; 80 = END

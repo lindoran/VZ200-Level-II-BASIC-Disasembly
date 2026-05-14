@@ -751,41 +751,661 @@ type = DATA_STRING
 
 [region]
 offset = 5942
+end = 5942
+type = DATA_BYTE
+
+[region]
+offset = 5943
+end = 5947
+type = DATA_BYTE
+
+[region]
+offset = 5948
+end = 5948
+type = DATA_BYTE
+
+[region]
+offset = 5949
 end = 5951
 type = DATA_BYTE
 
 [region]
 offset = 5952
+end = 5952
+type = DATA_BYTE
+
+[region]
+offset = 5953
+end = 5956
+type = DATA_STRING
+
+[region]
+offset = 5957
+end = 5957
+type = DATA_BYTE
+
+[region]
+offset = 5958
+end = 5961
+type = DATA_STRING
+
+[region]
+offset = 5962
+end = 5962
+type = DATA_BYTE
+
+[region]
+offset = 5963
+end = 5966
+type = DATA_STRING
+
+[region]
+offset = 5967
+end = 5967
+type = DATA_BYTE
+
+[region]
+offset = 5968
+end = 5969
+type = DATA_STRING
+
+[region]
+offset = 5970
+end = 5970
+type = DATA_BYTE
+
+[region]
+offset = 5971
+end = 5973
+type = DATA_STRING
+
+[region]
+offset = 5974
+end = 5974
+type = DATA_BYTE
+
+[region]
+offset = 5975
+end = 5975
+type = DATA_STRING
+
+[region]
+offset = 5976
+end = 5976
+type = DATA_BYTE
+
+[region]
+offset = 5977
+end = 5977
+type = DATA_BYTE
+
+[region]
+offset = 5978
+end = 5978
+type = DATA_BYTE
+
+[region]
+offset = 5979
+end = 5982
+type = DATA_STRING
+
+[region]
+offset = 5983
 end = 5983
 type = DATA_BYTE
 
 [region]
 offset = 5984
+end = 5988
+type = DATA_BYTE
+
+[region]
+offset = 5989
+end = 5989
+type = DATA_BYTE
+
+[region]
+offset = 5990
+end = 5991
+type = DATA_STRING
+
+[region]
+offset = 5992
+end = 5992
+type = DATA_BYTE
+
+[region]
+offset = 5993
+end = 5994
+type = DATA_BYTE
+
+[region]
+offset = 5995
+end = 5995
+type = DATA_BYTE
+
+[region]
+offset = 5996
+end = 5997
+type = DATA_BYTE
+
+[region]
+offset = 5998
+end = 5998
+type = DATA_BYTE
+
+[region]
+offset = 5999
+end = 6004
+type = DATA_BYTE
+
+[region]
+offset = 6005
+end = 6005
+type = DATA_BYTE
+
+[region]
+offset = 6006
+end = 6009
+type = DATA_BYTE
+
+[region]
+offset = 6010
+end = 6010
+type = DATA_BYTE
+
+[region]
+offset = 6011
+end = 6014
+type = DATA_STRING
+
+[region]
+offset = 6015
 end = 6015
 type = DATA_BYTE
 
 [region]
 offset = 6016
-end = 6047
+end = 6019
 type = DATA_BYTE
+
+[region]
+offset = 6020
+end = 6020
+type = DATA_BYTE
+
+[region]
+offset = 6021
+end = 6022
+type = DATA_BYTE
+
+[region]
+offset = 6023
+end = 6023
+type = DATA_BYTE
+
+[region]
+offset = 6024
+end = 6028
+type = DATA_STRING
+
+[region]
+offset = 6029
+end = 6029
+type = DATA_BYTE
+
+[region]
+offset = 6030
+end = 6032
+type = DATA_STRING
+
+[region]
+offset = 6033
+end = 6033
+type = DATA_BYTE
+
+[region]
+offset = 6034
+end = 6035
+type = DATA_STRING
+
+[region]
+offset = 6036
+end = 6036
+type = DATA_BYTE
+
+[region]
+offset = 6037
+end = 6039
+type = DATA_STRING
+
+[region]
+offset = 6040
+end = 6040
+type = DATA_BYTE
+
+[region]
+offset = 6041
+end = 6041
+type = DATA_BYTE
+
+[region]
+offset = 6042
+end = 6042
+type = DATA_BYTE
+
+[region]
+offset = 6043
+end = 6043
+type = DATA_BYTE
+
+[region]
+offset = 6044
+end = 6044
+type = DATA_BYTE
+
+[region]
+offset = 6045
+end = 6045
+type = DATA_BYTE
+
+[region]
+offset = 6046
+end = 6047
+type = DATA_STRING
 
 [region]
 offset = 6048
-end = 6079
+end = 6048
 type = DATA_BYTE
 
 [region]
+offset = 6049
+end = 6049
+type = DATA_STRING
+
+[region]
+offset = 6050
+end = 6050
+type = DATA_BYTE
+
+[region]
+offset = 6051
+end = 6051
+type = DATA_BYTE
+
+[region]
+offset = 6052
+end = 6052
+type = DATA_BYTE
+
+[region]
+offset = 6053
+end = 6053
+type = DATA_BYTE
+
+[region]
+offset = 6054
+end = 6055
+type = DATA_STRING
+
+[region]
+offset = 6056
+end = 6056
+type = DATA_BYTE
+
+[region]
+offset = 6057
+end = 6058
+type = DATA_STRING
+
+[region]
+offset = 6059
+end = 6059
+type = DATA_BYTE
+
+[region]
+offset = 6060
+end = 6061
+type = DATA_STRING
+
+[region]
+offset = 6062
+end = 6062
+type = DATA_BYTE
+
+[region]
+offset = 6063
+end = 6064
+type = DATA_BYTE
+
+[region]
+offset = 6065
+end = 6065
+type = DATA_BYTE
+
+[region]
+offset = 6066
+end = 6067
+type = DATA_STRING
+
+[region]
+offset = 6068
+end = 6068
+type = DATA_BYTE
+
+[region]
+offset = 6069
+end = 6070
+type = DATA_BYTE
+
+[region]
+offset = 6071
+end = 6071
+type = DATA_BYTE
+
+[region]
+offset = 6072
+end = 6073
+type = DATA_STRING
+
+[region]
+offset = 6074
+end = 6074
+type = DATA_BYTE
+
+[region]
+offset = 6075
+end = 6076
+type = DATA_STRING
+
+[region]
+offset = 6077
+end = 6077
+type = DATA_BYTE
+
+[region]
+offset = 6078
+end = 6079
+type = DATA_STRING
+
+[region]
 offset = 6080
+end = 6080
+type = DATA_BYTE
+
+[region]
+offset = 6081
+end = 6082
+type = DATA_STRING
+
+[region]
+offset = 6083
+end = 6083
+type = DATA_BYTE
+
+[region]
+offset = 6084
+end = 6085
+type = DATA_STRING
+
+[region]
+offset = 6086
+end = 6086
+type = DATA_BYTE
+
+[region]
+offset = 6087
+end = 6088
+type = DATA_STRING
+
+[region]
+offset = 6089
+end = 6089
+type = DATA_BYTE
+
+[region]
+offset = 6090
+end = 6091
+type = DATA_STRING
+
+[region]
+offset = 6092
+end = 6092
+type = DATA_BYTE
+
+[region]
+offset = 6093
+end = 6094
+type = DATA_STRING
+
+[region]
+offset = 6095
+end = 6095
+type = DATA_BYTE
+
+[region]
+offset = 6096
+end = 6098
+type = DATA_STRING
+
+[region]
+offset = 6099
+end = 6099
+type = DATA_BYTE
+
+[region]
+offset = 6100
+end = 6101
+type = DATA_BYTE
+
+[region]
+offset = 6102
+end = 6102
+type = DATA_BYTE
+
+[region]
+offset = 6103
+end = 6104
+type = DATA_BYTE
+
+[region]
+offset = 6105
+end = 6105
+type = DATA_BYTE
+
+[region]
+offset = 6106
+end = 6107
+type = DATA_BYTE
+
+[region]
+offset = 6108
+end = 6108
+type = DATA_BYTE
+
+[region]
+offset = 6109
+end = 6110
+type = DATA_BYTE
+
+[region]
+offset = 6111
 end = 6111
 type = DATA_BYTE
 
 [region]
 offset = 6112
+end = 6113
+type = DATA_BYTE
+
+[region]
+offset = 6114
+end = 6114
+type = DATA_BYTE
+
+[region]
+offset = 6115
+end = 6116
+type = DATA_BYTE
+
+[region]
+offset = 6117
+end = 6117
+type = DATA_BYTE
+
+[region]
+offset = 6118
+end = 6120
+type = DATA_BYTE
+
+[region]
+offset = 6121
+end = 6121
+type = DATA_BYTE
+
+[region]
+offset = 6122
+end = 6124
+type = DATA_BYTE
+
+[region]
+offset = 6125
+end = 6125
+type = DATA_BYTE
+
+[region]
+offset = 6126
+end = 6128
+type = DATA_BYTE
+
+[region]
+offset = 6129
+end = 6129
+type = DATA_BYTE
+
+[region]
+offset = 6130
+end = 6132
+type = DATA_BYTE
+
+[region]
+offset = 6133
+end = 6133
+type = DATA_BYTE
+
+[region]
+offset = 6134
+end = 6136
+type = DATA_BYTE
+
+[region]
+offset = 6137
+end = 6137
+type = DATA_BYTE
+
+[region]
+offset = 6138
+end = 6140
+type = DATA_BYTE
+
+[region]
+offset = 6141
+end = 6141
+type = DATA_BYTE
+
+[region]
+offset = 6142
 end = 6143
 type = DATA_BYTE
 
 [region]
 offset = 6144
+end = 6144
+type = DATA_BYTE
+
+[region]
+offset = 6145
+end = 6146
+type = DATA_STRING
+
+[region]
+offset = 6147
+end = 6147
+type = DATA_BYTE
+
+[region]
+offset = 6148
+end = 6150
+type = DATA_STRING
+
+[region]
+offset = 6151
+end = 6151
+type = DATA_BYTE
+
+[region]
+offset = 6152
+end = 6153
+type = DATA_STRING
+
+[region]
+offset = 6154
+end = 6154
+type = DATA_BYTE
+
+[region]
+offset = 6155
+end = 6156
+type = DATA_STRING
+
+[region]
+offset = 6157
+end = 6157
+type = DATA_BYTE
+
+[region]
+offset = 6158
+end = 6160
+type = DATA_STRING
+
+[region]
+offset = 6161
+end = 6161
+type = DATA_BYTE
+
+[region]
+offset = 6162
+end = 6165
+type = DATA_STRING
+
+[region]
+offset = 6166
+end = 6166
+type = DATA_BYTE
+
+[region]
+offset = 6167
+end = 6171
+type = DATA_STRING
+
+[region]
+offset = 6172
+end = 6172
+type = DATA_BYTE
+
+[region]
+offset = 6173
+end = 6175
+type = DATA_STRING
+
+[region]
+offset = 6176
+end = 6176
+type = DATA_BYTE
+
+[region]
+offset = 6177
 end = 6177
 type = DATA_BYTE
 
@@ -1667,10 +2287,6 @@ offset = 5777
 name = KWD_91_GOSUB
 
 [label]
-offset = 5778
-name = KWD_92_RETURN
-
-[label]
 offset = 5782
 name = KWD_92_RETURN
 
@@ -1815,48 +2431,288 @@ offset = 5937
 name = KWD_B5_LLIST
 
 [label]
+offset = 5942
+name = KWD_B6_DELETE
+
+[label]
+offset = 5948
+name = KWD_B7_AUTO
+
+[label]
 offset = 5952
 name = KWD_B8_CLEAR
+
+[label]
+offset = 5957
+name = KWD_B9_CLOAD
+
+[label]
+offset = 5962
+name = KWD_BA_CSAVE
+
+[label]
+offset = 5967
+name = KWD_BB_NEW
+
+[label]
+offset = 5970
+name = KWD_BC_TAB
+
+[label]
+offset = 5974
+name = KWD_BD_TO
 
 [label]
 offset = 5976
 name = KWD_BE_FN
 
 [label]
-offset = 5984
-name = KWD_C1_USR_START
+offset = 5978
+name = KWD_BF_USING
+
+[label]
+offset = 5983
+name = KWD_C0_VARPTR
+
+[label]
+offset = 5989
+name = KWD_C1_USR
 
 [label]
 offset = 5992
 name = KWD_C2_ERL
 
 [label]
-offset = 6016
-name = KWD_C8_MEM_START
+offset = 5995
+name = KWD_C3_ERR
+
+[label]
+offset = 5998
+name = KWD_C4_STRINGS
+
+[label]
+offset = 6005
+name = KWD_C5_INSTR
+
+[label]
+offset = 6010
+name = KWD_C6_POINT
+
+[label]
+offset = 6015
+name = KWD_C7_TIMES
+
+[label]
+offset = 6020
+name = KWD_C8_MEM
+
+[label]
+offset = 6023
+name = KWD_C9_INKEYS
+
+[label]
+offset = 6029
+name = KWD_CA_THEN
+
+[label]
+offset = 6033
+name = KWD_CB_NOT
+
+[label]
+offset = 6036
+name = KWD_CC_STEP
 
 [label]
 offset = 6040
 name = KWD_CD_PLUS
 
 [label]
+offset = 6041
+name = KWD_CE_MINUS
+
+[label]
+offset = 6042
+name = KWD_CF_MUL
+
+[label]
+offset = 6043
+name = KWD_D0_DIV
+
+[label]
+offset = 6044
+name = KWD_D1_UP
+
+[label]
+offset = 6045
+name = KWD_D2_AND
+
+[label]
 offset = 6048
 name = KWD_D3_OR
+
+[label]
+offset = 6050
+name = KWD_D4_GT
+
+[label]
+offset = 6051
+name = KWD_D5_EQ
+
+[label]
+offset = 6052
+name = KWD_D6_LT
+
+[label]
+offset = 6053
+name = KWD_D7_SGN
+
+[label]
+offset = 6056
+name = KWD_D8_INT
+
+[label]
+offset = 6059
+name = KWD_D9_ABS
+
+[label]
+offset = 6062
+name = KWD_DA_FRE
+
+[label]
+offset = 6065
+name = KWD_DB_INP
+
+[label]
+offset = 6068
+name = KWD_DC_POS
+
+[label]
+offset = 6071
+name = KWD_DD_SQR
+
+[label]
+offset = 6074
+name = KWD_DE_RND
+
+[label]
+offset = 6077
+name = KWD_DF_LOG
 
 [label]
 offset = 6080
 name = KWD_E0_EXP
 
 [label]
-offset = 6112
-name = KWD_E9_EOF_START
+offset = 6083
+name = KWD_E1_COS
+
+[label]
+offset = 6086
+name = KWD_E2_SIN
+
+[label]
+offset = 6089
+name = KWD_E3_TAN
+
+[label]
+offset = 6092
+name = KWD_E4_ATN
+
+[label]
+offset = 6095
+name = KWD_E5_PEEK
+
+[label]
+offset = 6099
+name = KWD_E6_CVI
+
+[label]
+offset = 6102
+name = KWD_E7_CVS
+
+[label]
+offset = 6105
+name = KWD_E8_CVD
+
+[label]
+offset = 6108
+name = KWD_E9_EOF
+
+[label]
+offset = 6111
+name = KWD_EA_LOC
+
+[label]
+offset = 6114
+name = KWD_EB_LOF
+
+[label]
+offset = 6117
+name = KWD_EC_MKIS
+
+[label]
+offset = 6121
+name = KWD_ED_MKSS
+
+[label]
+offset = 6125
+name = KWD_EE_MKDS
+
+[label]
+offset = 6129
+name = KWD_EF_CINT
+
+[label]
+offset = 6133
+name = KWD_F0_CSNG
+
+[label]
+offset = 6137
+name = KWD_F1_CDBL
+
+[label]
+offset = 6141
+name = KWD_F2_FIX
 
 [label]
 offset = 6144
 name = KWD_F3_LEN
 
 [label]
+offset = 6147
+name = KWD_F4_STRS
+
+[label]
+offset = 6151
+name = KWD_F5_VAL
+
+[label]
+offset = 6154
+name = KWD_F6_ASC
+
+[label]
+offset = 6157
+name = KWD_F7_CHRS
+
+[label]
+offset = 6161
+name = KWD_F8_LEFTS
+
+[label]
+offset = 6166
+name = KWD_F9_RIGHTS
+
+[label]
+offset = 6172
+name = KWD_FA_MIDS
+
+[label]
 offset = 6176
 name = KWD_FB_SPACE
+
+[label]
+offset = 6177
+name = KWD_END_TABLE
 
 [comment]
 offset = 0
@@ -12875,48 +13731,388 @@ offset = 5937
 text = B5 = LLIST ('L'+0x80)
 
 [comment]
+offset = 5942
+text = B6 = DELETE (not coded)
+
+[comment]
+offset = 5943
+text = not coded
+
+[comment]
+offset = 5948
+text = B7 = AUTO (not coded)
+
+[comment]
+offset = 5949
+text = not coded
+
+[comment]
 offset = 5952
-text = B8 = CLEAR
+text = B8 = CLEAR ('C'+0x80)
+
+[comment]
+offset = 5957
+text = B9 = CLOAD ('C'+0x80)
+
+[comment]
+offset = 5962
+text = BA = CSAVE ('C'+0x80)
+
+[comment]
+offset = 5967
+text = BB = NEW ('N'+0x80)
+
+[comment]
+offset = 5970
+text = BC = TAB( ('T'+0x80)
+
+[comment]
+offset = 5974
+text = BD = TO ('T'+0x80)
 
 [comment]
 offset = 5976
 text = BE = FN (not coded)
 
 [comment]
+offset = 5977
+text = not coded
+
+[comment]
+offset = 5978
+text = BF = USING ('U'+0x80)
+
+[comment]
+offset = 5983
+text = C0 = VARPTR (not coded)
+
+[comment]
 offset = 5984
-text = C1 = USR
+text = not coded
+
+[comment]
+offset = 5989
+text = C1 = USR ('U'+0x80)
 
 [comment]
 offset = 5992
 text = C2 = ERL (not coded)
 
 [comment]
+offset = 5993
+text = not coded
+
+[comment]
+offset = 5995
+text = C3 = ERR (not coded)
+
+[comment]
+offset = 5996
+text = not coded
+
+[comment]
+offset = 5998
+text = C4 = STRING$ (not coded)
+
+[comment]
+offset = 5999
+text = not coded
+
+[comment]
+offset = 6005
+text = C5 = INSTR (not coded)
+
+[comment]
+offset = 6006
+text = not coded
+
+[comment]
+offset = 6010
+text = C6 = POINT ('P'+0x80)
+
+[comment]
+offset = 6015
+text = C7 = TIME$ (not coded)
+
+[comment]
 offset = 6016
-text = C8 = MEM
+text = not coded
+
+[comment]
+offset = 6020
+text = C8 = MEM (not coded)
+
+[comment]
+offset = 6021
+text = not coded
+
+[comment]
+offset = 6023
+text = C9 = INKEY$ ('I'+0x80)
+
+[comment]
+offset = 6029
+text = CA = THEN ('T'+0x80)
+
+[comment]
+offset = 6033
+text = CB = NOT ('N'+0x80)
+
+[comment]
+offset = 6036
+text = CC = STEP ('S'+0x80)
 
 [comment]
 offset = 6040
-text = CD = +
+text = CD = + ('+'+0x80)
+
+[comment]
+offset = 6041
+text = CE = - ('-'+0x80)
+
+[comment]
+offset = 6042
+text = CF = * ('*'+0x80)
+
+[comment]
+offset = 6043
+text = D0 = / ('/'+0x80)
+
+[comment]
+offset = 6044
+text = D1 = ^ (exponentiation) (0x5E+0x80)
+
+[comment]
+offset = 6045
+text = D2 = AND ('A'+0x80)
 
 [comment]
 offset = 6048
-text = D3 = OR
+text = D3 = OR ('O'+0x80)
+
+[comment]
+offset = 6050
+text = D4 = > ('>'+0x80)
+
+[comment]
+offset = 6051
+text = D5 = = ('='+0x80)
+
+[comment]
+offset = 6052
+text = D6 = < ('<'+0x80)
+
+[comment]
+offset = 6053
+text = D7 = SGN ('S'+0x80)
+
+[comment]
+offset = 6056
+text = D8 = INT ('I'+0x80)
+
+[comment]
+offset = 6059
+text = D9 = ABS ('A'+0x80)
+
+[comment]
+offset = 6062
+text = DA = FRE (not coded)
+
+[comment]
+offset = 6063
+text = not coded
+
+[comment]
+offset = 6065
+text = DB = INP ('I'+0x80)
+
+[comment]
+offset = 6068
+text = DC = POS (not coded)
+
+[comment]
+offset = 6069
+text = not coded
+
+[comment]
+offset = 6071
+text = DD = SQR ('S'+0x80)
+
+[comment]
+offset = 6074
+text = DE = RND ('R'+0x80)
+
+[comment]
+offset = 6077
+text = DF = LOG ('L'+0x80)
 
 [comment]
 offset = 6080
-text = E0 = EXP
+text = E0 = EXP ('E'+0x80)
+
+[comment]
+offset = 6083
+text = E1 = COS ('C'+0x80)
+
+[comment]
+offset = 6086
+text = E2 = SIN ('S'+0x80)
+
+[comment]
+offset = 6089
+text = E3 = TAN ('T'+0x80)
+
+[comment]
+offset = 6092
+text = E4 = ATN ('A'+0x80)
+
+[comment]
+offset = 6095
+text = E5 = PEEK ('P'+0x80)
+
+[comment]
+offset = 6099
+text = E6 = CVI (not coded)
+
+[comment]
+offset = 6100
+text = not coded
+
+[comment]
+offset = 6102
+text = E7 = CVS (not coded)
+
+[comment]
+offset = 6103
+text = not coded
+
+[comment]
+offset = 6105
+text = E8 = CVD (not coded)
+
+[comment]
+offset = 6106
+text = not coded
+
+[comment]
+offset = 6108
+text = E9 = EOF (not coded)
+
+[comment]
+offset = 6109
+text = not coded
+
+[comment]
+offset = 6111
+text = EA = LOC (not coded)
 
 [comment]
 offset = 6112
-text = E9 = EOF
+text = not coded
+
+[comment]
+offset = 6114
+text = EB = LOF (not coded)
+
+[comment]
+offset = 6115
+text = not coded
+
+[comment]
+offset = 6117
+text = EC = MKI$ (not coded)
+
+[comment]
+offset = 6118
+text = not coded
+
+[comment]
+offset = 6121
+text = ED = MKS$ (not coded)
+
+[comment]
+offset = 6122
+text = not coded
+
+[comment]
+offset = 6125
+text = EE = MKD$ (not coded)
+
+[comment]
+offset = 6126
+text = not coded
+
+[comment]
+offset = 6129
+text = EF = CINT (not coded)
+
+[comment]
+offset = 6130
+text = not coded
+
+[comment]
+offset = 6133
+text = F0 = CSNG (not coded)
+
+[comment]
+offset = 6134
+text = not coded
+
+[comment]
+offset = 6137
+text = F1 = CDBL (not coded)
+
+[comment]
+offset = 6138
+text = not coded
+
+[comment]
+offset = 6141
+text = F2 = FIX (not coded)
+
+[comment]
+offset = 6142
+text = not coded
 
 [comment]
 offset = 6144
-text = F3 = LEN
+text = F3 = LEN ('L'+0x80)
+
+[comment]
+offset = 6147
+text = F4 = STR$ ('S'+0x80)
+
+[comment]
+offset = 6151
+text = F5 = VAL ('V'+0x80)
+
+[comment]
+offset = 6154
+text = F6 = ASC ('A'+0x80)
+
+[comment]
+offset = 6157
+text = F7 = CHR$ ('C'+0x80)
+
+[comment]
+offset = 6161
+text = F8 = LEFT$ ('L'+0x80)
+
+[comment]
+offset = 6166
+text = F9 = RIGHT$ ('R'+0x80)
+
+[comment]
+offset = 6172
+text = FA = MID$ ('M'+0x80)
 
 [comment]
 offset = 6176
-text = FB = ' '
+text = FB = ' ('\''+0x80)
+
+[comment]
+offset = 6177
+text = End of table
 
 [comment]
 offset = 6178
