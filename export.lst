@@ -57,7 +57,7 @@
                      ; BASIC initialisation part 2
                      BASIC_INIT_2:
 0075  118078   ..x                 ld    de,FDIVC       ; Destination: 7880H (RAM hooks)
-0078  21F718   !..                 ld    hl,0x18F7      ; Source: 18F7H
+0078  21F718   !..                 ld    hl,FDIV_HELPER_ROM ; Source: 18F7H
 007B  012700   .'.                 ld    bc,0x0027      ; Length: 27H bytes
 007E  EDB0     ..                  ldir                 ; Copy routines to RAM
                      ; Set up I/O buffer
@@ -139,7 +139,7 @@
                      MEM_SIZE_INPUT:
 00D6  CD5A1E   .Z.                 call  0x1E5A         ; Handle memory size input
 00D9  B7       .                   or    a
-00DA  C29719   ...                 jp    nz,0x1997
+00DA  C29719   ...                 jp    nz,SYNTAX_ERR_HANDLER
 00DD  EB       .                   ex    de,hl
 00DE  2B       +                   dec   hl
 00DF  3E8F     >.                  ld    a,0x8F
@@ -155,7 +155,7 @@
 00E7  2B       +                   dec   hl             ; address of the last byte
 00E8  11147C   ..|                 ld    de,0x7C14      ; at least 1868 bytes must be free
 00EB  DF       .                   rst   0x18           ; check free memory
-00EC  DA7A19   .z.                 jp    c,0x197A       ; otherwise: OUT OF MEMORY error (197AH)
+00EC  DA7A19   .z.                 jp    c,ERROR_ENTRY  ; otherwise: OUT OF MEMORY error (197AH)
 00EF  11CEFF   ...                 ld    de,0xFFCE      ; DE = -50 (FFCE is 2s comp. -50)
 00F2  22B178   ".x                 ld    (0x78B1),hl    ; store end-of-memory address (@ 78B1H)
 00F5  19       .                   add   hl,de          ; HL = end of memory - 50
@@ -179,7 +179,7 @@
                      ; L3 Error Handler (?L3 ERROR)
                      ERROR_L3:
 012D  1E2C     .,                  ld    e,0x2C         ; Load error code 44 (L3 Error)
-012F  C3A219   ...                 jp    0x19A2         ; Jump to main error handler
+012F  C3A219   ...                 jp    ERROR_HANDLER  ; Jump to main error handler
                      ; GRAPHICS ROUTINE - Common Code for SET, RESET and POINT
                      ; A will be 0 for POINT, 80H for SET and 1 for RESET.
                      POINT:
@@ -770,7 +770,7 @@
 0576  32CDA3   2..                 ld    (0xA3CD),a     ; Load (0xA3CD) from a
 0579  1A       .                   ld    a,(de)         ; Load a from (de)
 057A  CDD817   ...                 call  0x17D8         ; Call 0x17D8
-057D  CD0D19   ...                 call  0x190D         ; Call 0x190D
+057D  CD0D19   ...                 call  OUT_HELPER_ROM ; Call 0x190D
 0580  CA5A12   .Z.                 jp    z,0x125A       ; Jump if z to 0x125A
 0583  CD491F   .I.                 call  0x1F49         ; Call 0x1F49
 0586  3818     8.                  jr    c,$+26         ; Relative jump if c to $+26
@@ -1127,7 +1127,7 @@
 07B1  C0       .                   ret   nz             ; = 0?, no-back
                      ; Overflow error
 07B2  1E0A     ..                  ld    e,0x0A         ; error number in E
-07B4  C3A219   ...                 jp    0x19A2         ; to error routine
+07B4  C3A219   ...                 jp    ERROR_HANDLER  ; to error routine
                      ; Single precision mantissa addition
 07B7  7E       ~                   ld    a,(hl)         ; LSB X in A
 07B8  83       .                   add   a,e            ; + LSB Y
@@ -1322,7 +1322,7 @@
                      ; Single Precision Division
 08A2  CD5509   .U.                 call  SIGN           ; divisor = 0?
                      DV0ERR_JMP:
-08A5  CA9A19   ...                 jp    z,0x199A       ; yes, DIVISION BY ZERO - Error
+08A5  CA9A19   ...                 jp    z,DIV_ZERO_ERR_HANDLER ; yes, DIVISION BY ZERO - Error
                      ; X = Y / X
 08A8  2EFF     ..                  ld    l,0xFF         ; Flag for exponent processing for division
 08AA  CD1409   ...                 call  MULDIV         ; Process exponents and signs
@@ -1788,7 +1788,7 @@
                      ; TYPE MISMATCH Error
                      TMERR:
 0AF6  1E18     ..                  ld    e,0x18         ; Error code
-0AF8  C3A219   ...                 jp    0x19A2         ; Display error
+0AF8  C3A219   ...                 jp    ERROR_HANDLER  ; Display error
                      ; Quick integer conversion / Rounding
                      DROUND:
 0AFB  47       G                   ld    b,a            ; A in B
@@ -2326,7 +2326,7 @@
                      ; LEVEL II BASIC DOUBLE PRECISION DIVISION - \
 0DE5  3A2E79   :.y                 ld    a,(ARG_EXP)    ; Divisor = 0?
 0DE8  B7       .                   or    a
-0DE9  CA9A19   ...                 jp    z,0x199A       ; Yes, DIVISION BY ZERO error
+0DE9  CA9A19   ...                 jp    z,DIV_ZERO_ERR_HANDLER ; Yes, DIVISION BY ZERO error
 0DEC  CD0709   ...                 call  MULDVS         ; Process sign and exponent
 0DEF  34       4                   inc   (hl)           ; Exponent correction (+2)
 0DF0  34       4                   inc   (hl)           ; (0907 results in Exp X - Exp Y - 1)
@@ -2481,7 +2481,7 @@
 0EEB  C3830E   ...                 jp    FINC           ; next character
                      ; '%' found
 0EEE  E7       .                   rst   0x20           ; Test type
-0EEF  F29719   ...                 jp    p,0x1997       ; not integer, SYNTAX - Error
+0EEF  F29719   ...                 jp    p,SYNTAX_ERR_HANDLER ; not integer, SYNTAX - Error
 0EF2  23       #                   inc   hl             ; address pointer + 1
 0EF3  18D2     ..                  jr    $-44           ; done!
                      ; '#' found
@@ -3298,7 +3298,7 @@
 13FB  283C     (<                  jr    z,$+62         ; Exponent = 0? yes, result = 1
 13FD  F20414   ...                 jp    p,0x1404       ; Exponent > 0? yes, jump
 1400  B7       .                   or    a              ; Base = 0 and exponent < 0?
-1401  CA9A19   ...                 jp    z,0x199A       ; yes, DIVISION BY ZERO error
+1401  CA9A19   ...                 jp    z,DIV_ZERO_ERR_HANDLER ; yes, DIVISION BY ZERO error
 1404  B7       .                   or    a              ; Base = 0 and exponent > 0?
 1405  CA7907   .y.                 jp    z,0x0779       ; yes, 0 as result in X
 1408  D5       .                   push  de             ; Base on stack
@@ -4089,8 +4089,10 @@
 18F1  4D4F     MO                  DEFB  0x4D,0x4F      ; ERR_MO
 18F3  4644     FD                  DEFB  0x46,0x44      ; ERR_FD
 18F5  4C33     L3                  DEFB  0x4C,0x33      ; ERR_L3
-18F7  D600     ..                  sub   0x00
-18F9  6F       o                   ld    l,a
+                     ; Data and subroutines that are transferred to RAM during BASIC initialization.
+                     FDIV_HELPER_ROM:
+18F7  D600     ..                  sub   0x00           ; Subtraction Z2 - Z1
+18F9  6F       o                   ld    l,a            ; modified before each call
 18FA  7C       |                   ld    a,h
 18FB  DE00     ..                  sbc   a,0x00
 18FD  67       g                   ld    h,a
@@ -4099,164 +4101,189 @@
 1901  47       G                   ld    b,a
 1902  3E00     >.                  ld    a,0x00
 1904  C9       .                   ret   
-1905  4A       J                   ld    c,d
-1906  1E40     .@                  ld    e,0x40
-1908  E64D     .M                  and   0x4D
-190A  DB00     ..                  in    a,(0x00)
+                     USR_START_VEC_ROM:
+1905  4A1E     J.                  DEFW  0x1E4A         ; USR start address, pre-initialized with FU
+                     RND_MULT_ROM:
+1907  40E64D   @.M                 DEFB  0x40,0xE6,0x4D ; Multiplier for RND
+                     INP_HELPER_ROM:
+190A  DB00     ..                  in    a,(0x00)       ; Subroutine for INP: Load input port into A
 190C  C9       .                   ret   
-190D  D300     ..                  out   (0x00),a
+                     OUT_HELPER_ROM:
+190D  D300     ..                  out   (0x00),a       ; Subroutine for OUT: Output A register over
 190F  C9       .                   ret   
-1910  00       .                   nop   
-1911  00       .                   nop   
-1912  00       .                   nop   
-1913  00       .                   nop   
-1914  40       @                   ld    b,b
-1915  3000     0.                  jr    nc,$+2
-1917  4C       L                   ld    c,h
-1918  7B       {                   ld    a,e
-1919  FEFF     ..                  cp    0xFF
-191B  E9       .                   jp    (hl)
-191C  7A       z                   ld    a,d
-191D  2045      E                  jr    nz,$+71
-191F  52       R                   ld    d,d
-1920  52       R                   ld    d,d
-1921  4F       O                   ld    c,a
-1922  52       R                   ld    d,d
-1923  00       .                   nop   
-1924  2049      I                  jr    nz,$+75
-1926  4E       N                   ld    c,(hl)
-1927  2000      .                  jr    nz,$+2
-1929  52       R                   ld    d,d
-192A  45       E                   ld    b,l
-192B  41       A                   ld    b,c
-192C  44       D                   ld    b,h
-192D  59       Y                   ld    e,c
-192E  0D       .                   dec   c
-192F  00       .                   nop   
-1930  42       B                   ld    b,d
-1931  52       R                   ld    d,d
-1932  45       E                   ld    b,l
-1933  41       A                   ld    b,c
-1934  4B       K                   ld    c,e
-1935  00       .                   nop   
-1936  210400   !..                 ld    hl,0x0004
-1939  39       9                   add   hl,sp
-193A  7E       ~                   ld    a,(hl)
+                     INKEY_BUF_ROM:
+1910  00       .                   DEFB  0x00           ; INKEY$ temporary storage
+                     LAST_ERR_ROM:
+1911  00       .                   DEFB  0x00           ; last error code for ERR
+                     PRN_POS_ROM:
+1912  00       .                   DEFB  0x00           ; Print head position
+                     OUT_FLAG_ROM:
+1913  00       .                   DEFB  0x00           ; Output flag
+                     LINE_LEN_ROM:
+1914  40       @                   DEFB  0x40           ; Line length on screen
+                     TAB_POS_ROM:
+1915  30       0                   DEFB  0x30           ; last tab position on screen
+                     UNUSED_1916:
+1916  00       .                   DEFB  0x00           ; unused
+                     STR_SPACE_ROM:
+1917  4C7B     L{                  DEFW  0x7B4C         ; Start of string space
+                     CURR_LINE_ROM:
+1919  FEFF     ..                  DEFW  0xFFFE         ; Current line number
+                     PROG_START_ROM:
+191B  E97A     .z                  DEFW  0x7AE9         ; Program text start
+                     ; Texts
+                     MSG_ERROR_TEXT:
+191D  20455252  ERR                DEFM  " ERROR\00"
+      4F5200   OR.   
+                     MSG_IN_TEXT:
+1924  20494E20  IN                 DEFM  " IN \00"
+      00       .     
+                     MSG_READY_TEXT:
+1929  52454144 READ                DEFM  "READY\0D\00"
+      590D00   Y..   
+                     MSG_BREAK_TEXT:
+1930  42524541 BREA                DEFM  "BREAK\00"
+      4B00     K.    
+                     ; Subroutine for FOR/NEXT and GOSUB/RETURN
+                     ; holts data back from stack
+                     STACK_RECOVERY:
+1936  210400   !..                 ld    hl,0x0004      ; Stack pointer + 4 into HL
+1939  39       9                   add   hl,sp          ; (bypass 2 return addresses)
+193A  7E       ~                   ld    a,(hl)         ; Load flag
 193B  23       #                   inc   hl
-193C  FE81     ..                  cp    0x81
-193E  C0       .                   ret   nz
-193F  4E       N                   ld    c,(hl)
+193C  FE81     ..                  cp    0x81           ; Data from FOR loop?
+193E  C0       .                   ret   nz             ; no, finished
+193F  4E       N                   ld    c,(hl)         ; yes, load loop variable address
 1940  23       #                   inc   hl
 1941  46       F                   ld    b,(hl)
 1942  23       #                   inc   hl
-1943  E5       .                   push  hl
-1944  69       i                   ld    l,c
+1943  E5       .                   push  hl             ; on stack
+1944  69       i                   ld    l,c            ; loop variable in HL
 1945  60       `                   ld    h,b
 1946  7A       z                   ld    a,d
-1947  B3       .                   or    e
-1948  EB       .                   ex    de,hl
+1947  B3       .                   or    e              ; loop variable specified?
+1948  EB       .                   ex    de,hl          ; no, return with address in DE
 1949  2802     (.                  jr    z,$+4
 194B  EB       .                   ex    de,hl
-194C  DF       .                   rst   0x18
-194D  010E00   ...                 ld    bc,0x000E
-1950  E1       .                   pop   hl
-1951  C8       .                   ret   z
-1952  09       .                   add   hl,bc
-1953  18E5     ..                  jr    $-25
-1955  CD6C19   .l.                 call  0x196C
-1958  C5       .                   push  bc
-1959  E3       .                   ex    (sp),hl
+194C  DF       .                   rst   0x18           ; yes, = found loop variable?
+194D  010E00   ...                 ld    bc,0x000E      ; 14 in BC
+1950  E1       .                   pop   hl             ; Reload address pointer
+1951  C8       .                   ret   z              ; yes, finished
+1952  09       .                   add   hl,bc          ; Pointer to next stack data
+1953  18E5     ..                  jr    $-25           ; same once more
+                     ; Make space for program line to be inserted
+                     ; or free up variable
+                     MAKE_SPACE:
+1955  CD6C19   .l.                 call  0x196C         ; is HL still in free memory?
+1958  C5       .                   push  bc             ; no, OUT OF MEMORY - Error
+1959  E3       .                   ex    (sp),hl        ; Swap HL and BC
 195A  C1       .                   pop   bc
-195B  DF       .                   rst   0x18
-195C  7E       ~                   ld    a,(hl)
+195B  DF       .                   rst   0x18           ; Start of source block reached?
+195C  7E       ~                   ld    a,(hl)         ; Relocate 1 byte
 195D  02       .                   ld    (bc),a
-195E  C8       .                   ret   z
-195F  0B       .                   dec   bc
+195E  C8       .                   ret   z              ; yes, finished!
+195F  0B       .                   dec   bc             ; Address pointer - 1
 1960  2B       +                   dec   hl
-1961  18F8     ..                  jr    $-6
-1963  E5       .                   push  hl
-1964  2AFD78   *.x                 ld    hl,(0x78FD)
-1967  0600     ..                  ld    b,0x00
-1969  09       .                   add   hl,bc
+1961  18F8     ..                  jr    $-6            ; next byte
+                     ; Test if 2*C bytes are free
+                     ; if not, OUT OF MEMORY - Error
+                     CHECK_FREE_MEMORY:
+1963  E5       .                   push  hl             ; HL onto stack
+1964  2AFD78   *.x                 ld    hl,(0x78FD)    ; Starting address of free memory
+1967  0600     ..                  ld    b,0x00         ; B=0
+1969  09       .                   add   hl,bc          ; Add BC to HL twice
 196A  09       .                   add   hl,bc
-196B  3EE5     >.                  ld    a,0xE5
-196D  3EC6     >.                  ld    a,0xC6
+196B  3E       >                   DEFB  0x3E           ; LD A,0E5H Dummy instruction
+196C  E5       .                   push  hl             ; test if HL is still in free memory
+196D  3EC6     >.                  ld    a,0xC6         ; HL > FFC6H ?
 196F  95       .                   sub   l
 1970  6F       o                   ld    l,a
 1971  3EFF     >.                  ld    a,0xFF
 1973  9C       .                   sbc   a,h
-1974  3804     8.                  jr    c,$+6
+1974  3804     8.                  jr    c,$+6          ; yes, OUT OF MEMORY - Error
 1976  67       g                   ld    h,a
-1977  39       9                   add   hl,sp
-1978  E1       .                   pop   hl
-1979  D8       .                   ret   c
-197A  1E0C     ..                  ld    e,0x0C
-197C  1824     .$                  jr    $+38
-197E  2AA278   *.x                 ld    hl,(0x78A2)
-1981  7C       |                   ld    a,h
+1977  39       9                   add   hl,sp          ; HL + 4A >= SP ?
+1978  E1       .                   pop   hl             ; Restore HL
+1979  D8       .                   ret   c              ; no, return
+                     ; Preparation and output of error messages
+                     ERROR_ENTRY:
+197A  1E0C     ..                  ld    e,0x0C         ; Error code in E
+197C  1824     .$                  jr    $+38           ; to message output
+                     IMPLICIT_END:
+197E  2AA278   *.x                 ld    hl,(0x78A2)    ; Load line number
+1981  7C       |                   ld    a,h            ; in direct mode? (=FFFF)
 1982  A5       .                   and   l
 1983  3C       <                   inc   a
-1984  2808     (.                  jr    z,$+10
-1986  3AF278   :.x                 ld    a,(0x78F2)
+1984  2808     (.                  jr    z,$+10         ; no, jump to END
+1986  3AF278   :.x                 ld    a,(0x78F2)     ; Trap flag set?
 1989  B7       .                   or    a
-198A  1E22     ."                  ld    e,0x22
-198C  2014      .                  jr    nz,$+22
-198E  C3C11D   ...                 jp    0x1DC1
-1991  2ADA78   *.x                 ld    hl,(0x78DA)
-1994  22A278   ".x                 ld    (0x78A2),hl
-1997  1E02     ..                  ld    e,0x02
-1999  011E14   ...                 ld    bc,0x141E
-199C  011E00   ...                 ld    bc,0x001E
-199F  011E24   ..$                 ld    bc,0x241E
-19A2  2AA278   *.x                 ld    hl,(0x78A2)
-19A5  22EA78   ".x                 ld    (0x78EA),hl
-19A8  22EC78   ".x                 ld    (0x78EC),hl
-19AB  01B419   ...                 ld    bc,0x19B4
-19AE  2AE878   *.x                 ld    hl,(0x78E8)
-19B1  C39A1B   ...                 jp    0x1B9A
-19B4  C1       .                   pop   bc
-19B5  7B       {                   ld    a,e
+198A  1E22     ."                  ld    e,0x22         ; NO RESUME - Load error code
+198C  2014      .                  jr    nz,$+22        ; yes, to message output
+198E  C3C11D   ...                 jp    0x1DC1         ; Jump to END
+                     SYNTAX_ERR_DATA:
+1991  2ADA78   *.x                 ld    hl,(0x78DA)    ; last DATA line
+1994  22A278   ".x                 ld    (0x78A2),hl    ; as current line number
+                     SYNTAX_ERR_HANDLER:
+1997  1E02     ..                  ld    e,0x02         ; Error code in E
+1999  01       .                   DEFB  0x01           ; LD BC,141EH Dummy instruction
+                     DIV_ZERO_ERR_HANDLER:
+199A  1E14     ..                  ld    e,0x14         ; DIVISION BY ZERO
+199C  01       .                   DEFB  0x01           ; LD BC,001EH Dummy instruction
+                     NEXT_WITHOUT_FOR_ERR_HANDLER:
+199D  1E00     ..                  ld    e,0x00         ; NEXT WITHOUT FOR
+199F  01       .                   DEFB  0x01           ; LD BC,241EH Dummy instruction
+                     RESUME_WITHOUT_ERR_HANDLER:
+19A0  1E24     .$                  ld    e,0x24         ; RESUME WITHOUT ERROR
+                     ERROR_HANDLER:
+19A2  2AA278   *.x                 ld    hl,(0x78A2)    ; Load current line number
+19A5  22EA78   ".x                 ld    (0x78EA),hl    ; store as error line
+19A8  22EC78   ".x                 ld    (0x78EC),hl    ; store as error line
+19AB  01B419   ...                 ld    bc,0x19B4      ; Load resume address
+19AE  2AE878   *.x                 ld    hl,(0x78E8)    ; Load current program pointer
+19B1  C39A1B   ...                 jp    0x1B9A         ; Jump to NEW, initialize stack
+19B4  C1       .                   pop   bc             ; Fix stack
+19B5  7B       {                   ld    a,e            ; Error code in A and C
 19B6  4B       K                   ld    c,e
-19B7  329A78   2.x                 ld    (0x789A),a
-19BA  2AE678   *.x                 ld    hl,(0x78E6)
-19BD  22EE78   ".x                 ld    (0x78EE),hl
-19C0  EB       .                   ex    de,hl
-19C1  2AEA78   *.x                 ld    hl,(0x78EA)
-19C4  7C       |                   ld    a,h
+19B7  329A78   2.x                 ld    (0x789A),a     ; store
+19BA  2AE678   *.x                 ld    hl,(0x78E6)    ; Load program pointer
+19BD  22EE78   ".x                 ld    (0x78EE),hl    ; store as error pointer
+19C0  EB       .                   ex    de,hl          ; and into DE
+19C1  2AEA78   *.x                 ld    hl,(0x78EA)    ; Line number = FFFF ?
+19C4  7C       |                   ld    a,h            ; (= Direct mode)
 19C5  A5       .                   and   l
 19C6  3C       <                   inc   a
-19C7  2807     (.                  jr    z,$+9
-19C9  22F578   ".x                 ld    (0x78F5),hl
-19CC  EB       .                   ex    de,hl
-19CD  22F778   ".x                 ld    (0x78F7),hl
-19D0  2AF078   *.x                 ld    hl,(0x78F0)
-19D3  7C       |                   ld    a,h
+19C7  2807     (.                  jr    z,$+9          ; yes, no interruption parameters
+19C9  22F578   ".x                 ld    (0x78F5),hl    ; store error line number for CONT
+19CC  EB       .                   ex    de,hl          ; and in DE
+19CD  22F778   ".x                 ld    (0x78F7),hl    ; store as CONT pointer
+19D0  2AF078   *.x                 ld    hl,(0x78F0)    ; Address of an error routine (ON ERROR)
+19D3  7C       |                   ld    a,h            ; 0?
 19D4  B5       .                   or    l
-19D5  EB       .                   ex    de,hl
-19D6  21F278   !.x                 ld    hl,0x78F2
-19D9  2808     (.                  jr    z,$+10
-19DB  A6       .                   and   (hl)
-19DC  2005      .                  jr    nz,$+7
-19DE  35       5                   dec   (hl)
-19DF  EB       .                   ex    de,hl
-19E0  C3361D   .6.                 jp    0x1D36
-19E3  AF       .                   xor   a
-19E4  77       w                   ld    (hl),a
-19E5  59       Y                   ld    e,c
-19E6  CDF920   ..                  call  0x20F9
-19E9  21EC3C   !.<                 ld    hl,0x3CEC
-19EC  CDA679   ..y                 call  0x79A6
-19EF  57       W                   ld    d,a
-19F0  3E3F     >?                  ld    a,0x3F
-19F2  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH
-19F5  CDD43C   ..<                 call  0x3CD4
-19F8  00       .                   nop   
+19D5  EB       .                   ex    de,hl          ; into DE
+19D6  21F278   !.x                 ld    hl,0x78F2      ; Load trap flag address
+19D9  2808     (.                  jr    z,$+10         ; no error routine (TRAP)
+19DB  A6       .                   and   (hl)           ; still open error trap
+19DC  2005      .                  jr    nz,$+7         ; yes, do not perform error handling
+19DE  35       5                   dec   (hl)           ; Set trap flag
+19DF  EB       .                   ex    de,hl          ; Address of error routine in HL
+19E0  C3361D   .6.                 jp    0x1D36         ; Continue program there
+19E3  AF       .                   xor   a              ; Clear trap flag
+19E4  77       w                   ld    (hl),a         ; store
+19E5  59       Y                   ld    e,c            ; Error code back in E
+19E6  CDF920   ..                  call  0x20F9         ; if required, output CR
+19E9  21EC3C   !.<                 ld    hl,0x3CEC      ; Address of error messages
+19EC  CDA679   ..y                 call  0x79A6         ; RAM expansion output
+19EF  57       W                   ld    d,a            ; D = 0
+19F0  3E3F     >?                  ld    a,0x3F         ; output '?'
+19F2  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH ; output error message
+19F5  CDD43C   ..<                 call  0x3CD4         ; output error message
+19F8  00       .                   nop                  ; 6 x NOP
 19F9  00       .                   nop   
 19FA  00       .                   nop   
 19FB  00       .                   nop   
 19FC  00       .                   nop   
 19FD  00       .                   nop   
-19FE  211D19   !..                 ld    hl,0x191D
+19FE  211D19   !..                 ld    hl,MSG_ERROR_TEXT
 1A01  E5       .                   push  hl
 1A02  2AEA78   *.x                 ld    hl,(0x78EA)
 1A05  E3       .                   ex    (sp),hl
@@ -4276,7 +4303,7 @@
 1A20  00       .                   nop   
 1A21  00       .                   nop   
 1A22  CDF920   ..                  call  0x20F9
-1A25  212919   !).                 ld    hl,0x1929
+1A25  212919   !).                 ld    hl,MSG_READY_TEXT
 1A28  CDA728   ..(                 call  OUTSTR
 1A2B  3A9A78   :.x                 ld    a,(0x789A)
 1A2E  D602     ..                  sub   0x02
@@ -4365,7 +4392,7 @@
 1AC6  C1       .                   pop   bc
 1AC7  09       .                   add   hl,bc
 1AC8  E5       .                   push  hl
-1AC9  CD5519   .U.                 call  0x1955
+1AC9  CD5519   .U.                 call  MAKE_SPACE
 1ACC  E1       .                   pop   hl
 1ACD  22F978   ".x                 ld    (0x78F9),hl
 1AD0  EB       .                   ex    de,hl
@@ -4663,12 +4690,12 @@
 1C99  23       #                   inc   hl
 1C9A  E3       .                   ex    (sp),hl
 1C9B  CA781D   .x.                 jp    z,0x1D78
-1C9E  C39719   ...                 jp    0x1997
+1C9E  C39719   ...                 jp    SYNTAX_ERR_HANDLER
 1CA1  3E64     >d                  ld    a,0x64
 1CA3  32DC78   2.x                 ld    (0x78DC),a
 1CA6  CD211F   .!.                 call  0x1F21
 1CA9  E3       .                   ex    (sp),hl
-1CAA  CD3619   .6.                 call  0x1936
+1CAA  CD3619   .6.                 call  STACK_RECOVERY
 1CAD  D1       .                   pop   de
 1CAE  2005      .                  jr    nz,$+7
 1CB0  09       .                   add   hl,bc
@@ -4676,7 +4703,7 @@
 1CB2  22E878   ".x                 ld    (0x78E8),hl
 1CB5  EB       .                   ex    de,hl
 1CB6  0E08     ..                  ld    c,0x08
-1CB8  CD6319   .c.                 call  0x1963
+1CB8  CD6319   .c.                 call  CHECK_FREE_MEMORY
 1CBB  E5       .                   push  hl
 1CBC  CD051F   ...                 call  0x1F05
 1CBF  E3       .                   ex    (sp),hl
@@ -4743,12 +4770,12 @@
 1D2D  FE3A     .:                  cp    0x3A
 1D2F  2829     ()                  jr    z,$+43
 1D31  B7       .                   or    a
-1D32  C29719   ...                 jp    nz,0x1997
+1D32  C29719   ...                 jp    nz,SYNTAX_ERR_HANDLER
 1D35  23       #                   inc   hl
 1D36  7E       ~                   ld    a,(hl)
 1D37  23       #                   inc   hl
 1D38  B6       .                   or    (hl)
-1D39  CA7E19   .~.                 jp    z,0x197E
+1D39  CA7E19   .~.                 jp    z,IMPLICIT_END
 1D3C  23       #                   inc   hl
 1D3D  5E       ^                   ld    e,(hl)
 1D3E  23       #                   inc   hl
@@ -4841,14 +4868,14 @@
 1DD4  CD8B03   ...                 call  OUTPUT_SCREEN_SELECT
 1DD7  CDF920   ..                  call  0x20F9
 1DDA  F1       .                   pop   af
-1DDB  213019   !0.                 ld    hl,0x1930
+1DDB  213019   !0.                 ld    hl,MSG_BREAK_TEXT
 1DDE  C2061A   ...                 jp    nz,0x1A06
 1DE1  C3181A   ...                 jp    0x1A18
 1DE4  2AF778   *.x                 ld    hl,(0x78F7)
 1DE7  7C       |                   ld    a,h
 1DE8  B5       .                   or    l
 1DE9  1E20     .                   ld    e,0x20
-1DEB  CAA219   ...                 jp    z,0x19A2
+1DEB  CAA219   ...                 jp    z,ERROR_HANDLER
 1DEE  EB       .                   ex    de,hl
 1DEF  2AF578   *.x                 ld    hl,(0x78F5)
 1DF2  22A278   ".x                 ld    (0x78A2),hl
@@ -4865,7 +4892,7 @@
 1E05  011E04   ...                 ld    bc,0x041E
 1E08  011E08   ...                 ld    bc,0x081E
 1E0B  CD3D1E   .=.                 call  0x1E3D
-1E0E  019719   ...                 ld    bc,0x1997
+1E0E  019719   ...                 ld    bc,SYNTAX_ERR_HANDLER
 1E11  C5       .                   push  bc
 1E12  D8       .                   ret   c
 1E13  D641     .A                  sub   0x41
@@ -4908,7 +4935,7 @@
 1E46  CD022B   ..+                 call  0x2B02
 1E49  F0       .                   ret   p
 1E4A  1E08     ..                  ld    e,0x08
-1E4C  C3A219   ...                 jp    0x19A2
+1E4C  C3A219   ...                 jp    ERROR_HANDLER
 1E4F  7E       ~                   ld    a,(hl)
 1E50  FE2E     ..                  cp    0x2E
 1E52  EB       .                   ex    de,hl
@@ -4923,7 +4950,7 @@
 1E61  F5       .                   push  af
 1E62  219819   !..                 ld    hl,0x1998
 1E65  DF       .                   rst   0x18
-1E66  DA9719   ...                 jp    c,0x1997
+1E66  DA9719   ...                 jp    c,SYNTAX_ERR_HANDLER
 1E69  62       b                   ld    h,d
 1E6A  6B       k                   ld    l,e
 1E6B  19       .                   add   hl,de
@@ -4951,12 +4978,12 @@
 1E8A  7C       |                   ld    a,h
 1E8B  9A       .                   sbc   a,d
 1E8C  57       W                   ld    d,a
-1E8D  DA7A19   .z.                 jp    c,0x197A
+1E8D  DA7A19   .z.                 jp    c,ERROR_ENTRY
 1E90  2AF978   *.x                 ld    hl,(0x78F9)
 1E93  012800   .(.                 ld    bc,RST28_VEC
 1E96  09       .                   add   hl,bc
 1E97  DF       .                   rst   0x18
-1E98  D27A19   .z.                 jp    nc,0x197A
+1E98  D27A19   .z.                 jp    nc,ERROR_ENTRY
 1E9B  EB       .                   ex    de,hl
 1E9C  22A078   ".x                 ld    (0x78A0),hl
 1E9F  E1       .                   pop   hl
@@ -4967,7 +4994,7 @@
 1EAC  011E1D   ...                 ld    bc,0x1D1E
 1EAF  1810     ..                  jr    $+18
 1EB1  0E03     ..                  ld    c,0x03
-1EB3  CD6319   .c.                 call  0x1963
+1EB3  CD6319   .c.                 call  CHECK_FREE_MEMORY
 1EB6  C1       .                   pop   bc
 1EB7  E5       .                   push  hl
 1EB8  E5       .                   push  hl
@@ -4991,15 +5018,15 @@
 1ED7  2B       +                   dec   hl
 1ED8  D8       .                   ret   c
 1ED9  1E0E     ..                  ld    e,0x0E
-1EDB  C3A219   ...                 jp    0x19A2
+1EDB  C3A219   ...                 jp    ERROR_HANDLER
 1EDE  C0       .                   ret   nz
 1EDF  16FF     ..                  ld    d,0xFF
-1EE1  CD3619   .6.                 call  0x1936
+1EE1  CD3619   .6.                 call  STACK_RECOVERY
 1EE4  F9       .                   ld    sp,hl
 1EE5  22E878   ".x                 ld    (0x78E8),hl
 1EE8  FE91     ..                  cp    0x91
 1EEA  1E04     ..                  ld    e,0x04
-1EEC  C2A219   ...                 jp    nz,0x19A2
+1EEC  C2A219   ...                 jp    nz,ERROR_HANDLER
 1EEF  E1       .                   pop   hl
 1EF0  22A278   ".x                 ld    (0x78A2),hl
 1EF3  23       #                   inc   hl
@@ -5118,7 +5145,7 @@
 1FAF  11F278   ..x                 ld    de,0x78F2
 1FB2  1A       .                   ld    a,(de)
 1FB3  B7       .                   or    a
-1FB4  CAA019   ...                 jp    z,0x19A0
+1FB4  CAA019   ...                 jp    z,RESUME_WITHOUT_ERR_HANDLER
 1FB7  3C       <                   inc   a
 1FB8  329A78   2.x                 ld    (0x789A),a
 1FBB  12       .                   ld    (de),a
@@ -5166,7 +5193,7 @@
 1FFF  FE2D     .-                  cp    0x2D
 2001  3802     8.                  jr    c,$+4
 2003  1E26     .&                  ld    e,0x26
-2005  C3A219   ...                 jp    0x19A2
+2005  C3A219   ...                 jp    ERROR_HANDLER
 2008  110A00   ...                 ld    de,0x000A
 200B  D5       .                   push  de
 200C  2817     (.                  jr    z,$+25
@@ -5182,7 +5209,7 @@
 201C  EB       .                   ex    de,hl
 201D  2806     (.                  jr    z,$+8
 201F  CD5A1E   .Z.                 call  0x1E5A
-2022  C29719   ...                 jp    nz,0x1997
+2022  C29719   ...                 jp    nz,SYNTAX_ERR_HANDLER
 2025  EB       .                   ex    de,hl
 2026  7C       |                   ld    a,h
 2027  B5       .                   or    l
@@ -5358,11 +5385,11 @@
 217E  00       .                   nop   
 217F  3ADE78   :.x                 ld    a,(0x78DE)
 2182  B7       .                   or    a
-2183  C29119   ...                 jp    nz,0x1991
+2183  C29119   ...                 jp    nz,SYNTAX_ERR_DATA
 2186  3AA978   :.x                 ld    a,(0x78A9)
 2189  B7       .                   or    a
 218A  1E2A     .*                  ld    e,0x2A
-218C  CAA219   ...                 jp    z,0x19A2
+218C  CAA219   ...                 jp    z,ERROR_HANDLER
 218F  C1       .                   pop   bc
 2190  217821   !x!                 ld    hl,0x2178
 2193  CDA728   ..(                 call  OUTSTR
@@ -5436,7 +5463,7 @@
 220E  3AA978   :.x                 ld    a,(0x78A9)
 2211  B7       .                   or    a
 2212  1E06     ..                  ld    e,0x06
-2214  CAA219   ...                 jp    z,0x19A2
+2214  CAA219   ...                 jp    z,ERROR_HANDLER
 2217  3E3F     >?                  ld    a,0x3F
 2219  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH
 221C  CDB31B   ...                 call  0x1BB3
@@ -5525,7 +5552,7 @@
 229E  23       #                   inc   hl
 229F  B6       .                   or    (hl)
 22A0  1E06     ..                  ld    e,0x06
-22A2  CAA219   ...                 jp    z,0x19A2
+22A2  CAA219   ...                 jp    z,ERROR_HANDLER
 22A5  23       #                   inc   hl
 22A6  5E       ^                   ld    e,(hl)
 22A7  23       #                   inc   hl
@@ -5540,8 +5567,8 @@
 22B6  110000   ...                 ld    de,START
 22B9  C40D26   ..&                 call  nz,0x260D
 22BC  22DF78   ".x                 ld    (0x78DF),hl
-22BF  CD3619   .6.                 call  0x1936
-22C2  C29D19   ...                 jp    nz,0x199D
+22BF  CD3619   .6.                 call  STACK_RECOVERY
+22C2  C29D19   ...                 jp    nz,NEXT_WITHOUT_FOR_ERR_HANDLER
 22C5  F9       .                   ld    sp,hl
 22C6  22E878   ".x                 ld    (0x78E8),hl
 22C9  D5       .                   push  de
@@ -5619,7 +5646,7 @@
 2338  1600     ..                  ld    d,0x00
 233A  D5       .                   push  de
 233B  0E01     ..                  ld    c,0x01
-233D  CD6319   .c.                 call  0x1963
+233D  CD6319   .c.                 call  CHECK_FREE_MEMORY
 2340  CD9F24   ..$                 call  0x249F
 2343  22F378   ".x                 ld    (0x78F3),hl
 2346  2AF378   *.x                 ld    hl,(0x78F3)
@@ -5635,7 +5662,7 @@
 2358  AA       .                   xor   d
 2359  BA       .                   cp    d
 235A  57       W                   ld    d,a
-235B  DA9719   ...                 jp    c,0x1997
+235B  DA9719   ...                 jp    c,SYNTAX_ERR_HANDLER
 235E  22D878   ".x                 ld    (FMT_FLAG),hl
 2361  D7       .                   rst   0x10
 2362  18E9     ..                  jr    $-21
@@ -5817,7 +5844,7 @@
 249C  C3A008   ...                 jp    0x08A0
 249F  D7       .                   rst   0x10
 24A0  1E28     .(                  ld    e,0x28
-24A2  CAA219   ...                 jp    z,0x19A2
+24A2  CAA219   ...                 jp    z,ERROR_HANDLER
 24A5  DA6C0E   .l.                 jp    c,FIN
 24A8  CD3D1E   .=.                 call  0x1E3D
 24AB  D24025   .@%                 jp    nc,0x2540
@@ -6038,7 +6065,7 @@
 260E  32AE78   2.x                 ld    (0x78AE),a
 2611  46       F                   ld    b,(hl)
 2612  CD3D1E   .=.                 call  0x1E3D
-2615  DA9719   ...                 jp    c,0x1997
+2615  DA9719   ...                 jp    c,SYNTAX_ERR_HANDLER
 2618  AF       .                   xor   a
 2619  4F       O                   ld    c,a
 261A  D7       .                   rst   0x10
@@ -6143,7 +6170,7 @@
 26AF  09       .                   add   hl,bc
 26B0  C1       .                   pop   bc
 26B1  E5       .                   push  hl
-26B2  CD5519   .U.                 call  0x1955
+26B2  CD5519   .U.                 call  MAKE_SPACE
 26B5  E1       .                   pop   hl
 26B6  22FD78   ".x                 ld    (0x78FD),hl
 26B9  60       `                   ld    h,b
@@ -6232,12 +6259,12 @@
 272F  3AAE78   :.x                 ld    a,(0x78AE)
 2732  B7       .                   or    a
 2733  1E12     ..                  ld    e,0x12
-2735  C2A219   ...                 jp    nz,0x19A2
+2735  C2A219   ...                 jp    nz,ERROR_HANDLER
 2738  F1       .                   pop   af
 2739  96       .                   sub   (hl)
 273A  CA9527   ..'                 jp    z,0x2795
 273D  1E10     ..                  ld    e,0x10
-273F  C3A219   ...                 jp    0x19A2
+273F  C3A219   ...                 jp    ERROR_HANDLER
 2742  77       w                   ld    (hl),a
 2743  23       #                   inc   hl
 2744  5F       _                   ld    e,a
@@ -6248,7 +6275,7 @@
 274A  70       p                   ld    (hl),b
 274B  23       #                   inc   hl
 274C  4F       O                   ld    c,a
-274D  CD6319   .c.                 call  0x1963
+274D  CD6319   .c.                 call  CHECK_FREE_MEMORY
 2750  23       #                   inc   hl
 2751  23       #                   inc   hl
 2752  22D878   ".x                 ld    (FMT_FLAG),hl
@@ -6396,7 +6423,7 @@
 282F  E1       .                   pop   hl
 2830  C0       .                   ret   nz
 2831  1E16     ..                  ld    e,0x16
-2833  C3A219   ...                 jp    0x19A2
+2833  C3A219   ...                 jp    ERROR_HANDLER
 2836  CDBD0F   ...                 call  PUSTR_UNFORM_INIT
 2839  CD6528   .e(                 call  0x2865
 283C  CDDA29   ..)                 call  0x29DA
@@ -6461,7 +6488,7 @@
 289F  7E       ~                   ld    a,(hl)
 28A0  C0       .                   ret   nz
 28A1  1E1E     ..                  ld    e,0x1E
-28A3  C3A219   ...                 jp    0x19A2
+28A3  C3A219   ...                 jp    ERROR_HANDLER
 28A6  23       #                   inc   hl
 28A7  CD6528   .e(                 call  0x2865
 28AA  CDDA29   ..)                 call  0x29DA
@@ -6495,7 +6522,7 @@
 28D9  C9       .                   ret   
 28DA  F1       .                   pop   af
 28DB  1E1A     ..                  ld    e,0x1A
-28DD  CAA219   ...                 jp    z,0x19A2
+28DD  CAA219   ...                 jp    z,ERROR_HANDLER
 28E0  BF       .                   cp    a
 28E1  F5       .                   push  af
 28E2  01C128   ..(                 ld    bc,0x28C1
@@ -6630,7 +6657,7 @@
 29A1  E5       .                   push  hl
 29A2  86       .                   add   a,(hl)
 29A3  1E1C     ..                  ld    e,0x1C
-29A5  DAA219   ...                 jp    c,0x19A2
+29A5  DAA219   ...                 jp    c,ERROR_HANDLER
 29A8  CD5728   .W(                 call  0x2857
 29AB  D1       .                   pop   de
 29AC  CDDE29   ..)                 call  0x29DE
@@ -6846,7 +6873,7 @@
 2AE5  43       C                   ld    b,e
 2AE6  C9       .                   ret   
 2AE7  FE7A     .z                  cp    0x7A
-2AE9  C29719   ...                 jp    nz,0x1997
+2AE9  C29719   ...                 jp    nz,SYNTAX_ERR_HANDLER
 2AEC  C3D979   ..y                 jp    0x79D9
 2AEF  CD1F2B   ..+                 call  0x2B1F
 2AF2  329478   2.x                 ld    (0x7894),a
@@ -6987,7 +7014,7 @@
 2BD4  E5       .                   push  hl
 2BD5  DF       .                   rst   0x18
 2BD6  D24A1E   .J.                 jp    nc,0x1E4A
-2BD9  212919   !).                 ld    hl,0x1929
+2BD9  212919   !).                 ld    hl,MSG_READY_TEXT
 2BDC  CDA728   ..(                 call  OUTSTR
 2BDF  C1       .                   pop   bc
 2BE0  21E81A   !..                 ld    hl,0x1AE8
@@ -7073,7 +7100,7 @@
 2C5C  212103   !!.                 ld    hl,0x0321
 2C5F  09       .                   add   hl,bc
 2C60  46       F                   ld    b,(hl)
-2C61  213619   !6.                 ld    hl,0x1936
+2C61  213619   !6.                 ld    hl,STACK_RECOVERY
 2C64  E5       .                   push  hl
 2C65  D1       .                   pop   de
 2C66  19       .                   add   hl,de
@@ -7316,7 +7343,7 @@
 2DDC  FE3B     .;                  cp    0x3B
 2DDE  2805     (.                  jr    z,$+7
 2DE0  FE2C     .,                  cp    0x2C
-2DE2  C29719   ...                 jp    nz,0x1997
+2DE2  C29719   ...                 jp    nz,SYNTAX_ERR_HANDLER
 2DE5  D7       .                   rst   0x10
 2DE6  C1       .                   pop   bc
 2DE7  EB       .                   ex    de,hl
@@ -8514,7 +8541,7 @@
 36C9  2004      .                  jr    nz,$+6
 36CB  2A1E78   *.x                 ld    hl,(0x781E)
 36CE  E9       .                   jp    (hl)
-36CF  212919   !).                 ld    hl,0x1929
+36CF  212919   !).                 ld    hl,MSG_READY_TEXT
 36D2  CDA728   ..(                 call  OUTSTR
 36D5  2AA478   *.x                 ld    hl,(0x78A4)
 36D8  E5       .                   push  hl

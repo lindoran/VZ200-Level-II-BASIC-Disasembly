@@ -1574,6 +1574,106 @@ offset = 6389
 end = 6390
 type = DATA_BYTE
 
+[region]
+offset = 6405
+end = 6406
+type = DATA_WORD
+
+[region]
+offset = 6407
+end = 6409
+type = DATA_BYTE
+
+[region]
+offset = 6416
+end = 6416
+type = DATA_BYTE
+
+[region]
+offset = 6417
+end = 6417
+type = DATA_BYTE
+
+[region]
+offset = 6418
+end = 6418
+type = DATA_BYTE
+
+[region]
+offset = 6419
+end = 6419
+type = DATA_BYTE
+
+[region]
+offset = 6420
+end = 6420
+type = DATA_BYTE
+
+[region]
+offset = 6421
+end = 6421
+type = DATA_BYTE
+
+[region]
+offset = 6422
+end = 6422
+type = DATA_BYTE
+
+[region]
+offset = 6423
+end = 6424
+type = DATA_WORD
+
+[region]
+offset = 6425
+end = 6426
+type = DATA_WORD
+
+[region]
+offset = 6427
+end = 6428
+type = DATA_WORD
+
+[region]
+offset = 6429
+end = 6435
+type = DATA_STRING
+
+[region]
+offset = 6436
+end = 6440
+type = DATA_STRING
+
+[region]
+offset = 6441
+end = 6447
+type = DATA_STRING
+
+[region]
+offset = 6448
+end = 6453
+type = DATA_STRING
+
+[region]
+offset = 6507
+end = 6507
+type = DATA_BYTE
+
+[region]
+offset = 6553
+end = 6553
+type = DATA_BYTE
+
+[region]
+offset = 6556
+end = 6556
+type = DATA_BYTE
+
+[region]
+offset = 6559
+end = 6559
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -2713,6 +2813,126 @@ name = KWD_FB_SPACE
 [label]
 offset = 6177
 name = KWD_END_TABLE
+
+[label]
+offset = 6391
+name = FDIV_HELPER_ROM
+
+[label]
+offset = 6405
+name = USR_START_VEC_ROM
+
+[label]
+offset = 6407
+name = RND_MULT_ROM
+
+[label]
+offset = 6410
+name = INP_HELPER_ROM
+
+[label]
+offset = 6413
+name = OUT_HELPER_ROM
+
+[label]
+offset = 6416
+name = INKEY_BUF_ROM
+
+[label]
+offset = 6417
+name = LAST_ERR_ROM
+
+[label]
+offset = 6418
+name = PRN_POS_ROM
+
+[label]
+offset = 6419
+name = OUT_FLAG_ROM
+
+[label]
+offset = 6420
+name = LINE_LEN_ROM
+
+[label]
+offset = 6421
+name = TAB_POS_ROM
+
+[label]
+offset = 6422
+name = UNUSED_1916
+
+[label]
+offset = 6423
+name = STR_SPACE_ROM
+
+[label]
+offset = 6425
+name = CURR_LINE_ROM
+
+[label]
+offset = 6427
+name = PROG_START_ROM
+
+[label]
+offset = 6429
+name = MSG_ERROR_TEXT
+
+[label]
+offset = 6436
+name = MSG_IN_TEXT
+
+[label]
+offset = 6441
+name = MSG_READY_TEXT
+
+[label]
+offset = 6448
+name = MSG_BREAK_TEXT
+
+[label]
+offset = 6454
+name = STACK_RECOVERY
+
+[label]
+offset = 6485
+name = MAKE_SPACE
+
+[label]
+offset = 6499
+name = CHECK_FREE_MEMORY
+
+[label]
+offset = 6522
+name = ERROR_ENTRY
+
+[label]
+offset = 6526
+name = IMPLICIT_END
+
+[label]
+offset = 6545
+name = SYNTAX_ERR_DATA
+
+[label]
+offset = 6551
+name = SYNTAX_ERR_HANDLER
+
+[label]
+offset = 6554
+name = DIV_ZERO_ERR_HANDLER
+
+[label]
+offset = 6557
+name = NEXT_WITHOUT_FOR_ERR_HANDLER
+
+[label]
+offset = 6560
+name = RESUME_WITHOUT_ERR_HANDLER
+
+[label]
+offset = 6562
+name = ERROR_HANDLER
 
 [comment]
 offset = 0
@@ -14554,6 +14774,438 @@ text = ERR_FD
 offset = 6389
 text = ERR_L3
 
+[comment]
+offset = 6391
+text = Subtraction Z2 - Z1
+
+[comment]
+offset = 6393
+text = modified before each call
+
+[comment]
+offset = 6405
+text = USR start address, pre-initialized with FUNCTION CODE -Error
+
+[comment]
+offset = 6407
+text = Multiplier for RND
+
+[comment]
+offset = 6410
+text = Subroutine for INP: Load input port into A
+
+[comment]
+offset = 6413
+text = Subroutine for OUT: Output A register over port
+
+[comment]
+offset = 6416
+text = INKEY$ temporary storage
+
+[comment]
+offset = 6417
+text = last error code for ERR
+
+[comment]
+offset = 6418
+text = Print head position
+
+[comment]
+offset = 6419
+text = Output flag
+
+[comment]
+offset = 6420
+text = Line length on screen
+
+[comment]
+offset = 6421
+text = last tab position on screen
+
+[comment]
+offset = 6422
+text = unused
+
+[comment]
+offset = 6423
+text = Start of string space
+
+[comment]
+offset = 6425
+text = Current line number
+
+[comment]
+offset = 6427
+text = Program text start
+
+[comment]
+offset = 6454
+text = Stack pointer + 4 into HL
+
+[comment]
+offset = 6457
+text = (bypass 2 return addresses)
+
+[comment]
+offset = 6458
+text = Load flag
+
+[comment]
+offset = 6460
+text = Data from FOR loop?
+
+[comment]
+offset = 6462
+text = no, finished
+
+[comment]
+offset = 6463
+text = yes, load loop variable address
+
+[comment]
+offset = 6467
+text = on stack
+
+[comment]
+offset = 6468
+text = loop variable in HL
+
+[comment]
+offset = 6471
+text = loop variable specified?
+
+[comment]
+offset = 6472
+text = no, return with address in DE
+
+[comment]
+offset = 6476
+text = yes, = found loop variable?
+
+[comment]
+offset = 6477
+text = 14 in BC
+
+[comment]
+offset = 6480
+text = Reload address pointer
+
+[comment]
+offset = 6481
+text = yes, finished
+
+[comment]
+offset = 6482
+text = Pointer to next stack data
+
+[comment]
+offset = 6483
+text = same once more
+
+[comment]
+offset = 6485
+text = is HL still in free memory?
+
+[comment]
+offset = 6488
+text = no, OUT OF MEMORY - Error
+
+[comment]
+offset = 6489
+text = Swap HL and BC
+
+[comment]
+offset = 6491
+text = Start of source block reached?
+
+[comment]
+offset = 6492
+text = Relocate 1 byte
+
+[comment]
+offset = 6494
+text = yes, finished!
+
+[comment]
+offset = 6495
+text = Address pointer - 1
+
+[comment]
+offset = 6497
+text = next byte
+
+[comment]
+offset = 6499
+text = HL onto stack
+
+[comment]
+offset = 6500
+text = Starting address of free memory
+
+[comment]
+offset = 6503
+text = B=0
+
+[comment]
+offset = 6505
+text = Add BC to HL twice
+
+[comment]
+offset = 6507
+text = LD A,0E5H Dummy instruction
+
+[comment]
+offset = 6508
+text = test if HL is still in free memory
+
+[comment]
+offset = 6509
+text = HL > FFC6H ?
+
+[comment]
+offset = 6516
+text = yes, OUT OF MEMORY - Error
+
+[comment]
+offset = 6519
+text = HL + 4A >= SP ?
+
+[comment]
+offset = 6520
+text = Restore HL
+
+[comment]
+offset = 6521
+text = no, return
+
+[comment]
+offset = 6522
+text = Error code in E
+
+[comment]
+offset = 6524
+text = to message output
+
+[comment]
+offset = 6526
+text = Load line number
+
+[comment]
+offset = 6529
+text = in direct mode? (=FFFF)
+
+[comment]
+offset = 6532
+text = no, jump to END
+
+[comment]
+offset = 6534
+text = Trap flag set?
+
+[comment]
+offset = 6538
+text = NO RESUME - Load error code
+
+[comment]
+offset = 6540
+text = yes, to message output
+
+[comment]
+offset = 6542
+text = Jump to END
+
+[comment]
+offset = 6545
+text = last DATA line
+
+[comment]
+offset = 6548
+text = as current line number
+
+[comment]
+offset = 6551
+text = Error code in E
+
+[comment]
+offset = 6553
+text = LD BC,141EH Dummy instruction
+
+[comment]
+offset = 6554
+text = DIVISION BY ZERO
+
+[comment]
+offset = 6556
+text = LD BC,001EH Dummy instruction
+
+[comment]
+offset = 6557
+text = NEXT WITHOUT FOR
+
+[comment]
+offset = 6559
+text = LD BC,241EH Dummy instruction
+
+[comment]
+offset = 6560
+text = RESUME WITHOUT ERROR
+
+[comment]
+offset = 6562
+text = Load current line number
+
+[comment]
+offset = 6565
+text = store as error line
+
+[comment]
+offset = 6568
+text = store as error line
+
+[comment]
+offset = 6571
+text = Load resume address
+
+[comment]
+offset = 6574
+text = Load current program pointer
+
+[comment]
+offset = 6577
+text = Jump to NEW, initialize stack
+
+[comment]
+offset = 6580
+text = Fix stack
+
+[comment]
+offset = 6581
+text = Error code in A and C
+
+[comment]
+offset = 6583
+text = store
+
+[comment]
+offset = 6586
+text = Load program pointer
+
+[comment]
+offset = 6589
+text = store as error pointer
+
+[comment]
+offset = 6592
+text = and into DE
+
+[comment]
+offset = 6593
+text = Line number = FFFF ?
+
+[comment]
+offset = 6596
+text = (= Direct mode)
+
+[comment]
+offset = 6599
+text = yes, no interruption parameters
+
+[comment]
+offset = 6601
+text = store error line number for CONT
+
+[comment]
+offset = 6604
+text = and in DE
+
+[comment]
+offset = 6605
+text = store as CONT pointer
+
+[comment]
+offset = 6608
+text = Address of an error routine (ON ERROR)
+
+[comment]
+offset = 6611
+text = 0?
+
+[comment]
+offset = 6613
+text = into DE
+
+[comment]
+offset = 6614
+text = Load trap flag address
+
+[comment]
+offset = 6617
+text = no error routine (TRAP)
+
+[comment]
+offset = 6619
+text = still open error trap
+
+[comment]
+offset = 6620
+text = yes, do not perform error handling
+
+[comment]
+offset = 6622
+text = Set trap flag
+
+[comment]
+offset = 6623
+text = Address of error routine in HL
+
+[comment]
+offset = 6624
+text = Continue program there
+
+[comment]
+offset = 6627
+text = Clear trap flag
+
+[comment]
+offset = 6628
+text = store
+
+[comment]
+offset = 6629
+text = Error code back in E
+
+[comment]
+offset = 6630
+text = if required, output CR
+
+[comment]
+offset = 6633
+text = Address of error messages
+
+[comment]
+offset = 6636
+text = RAM expansion output
+
+[comment]
+offset = 6639
+text = D = 0
+
+[comment]
+offset = 6640
+text = output '?'
+
+[comment]
+offset = 6642
+text = output error message
+
+[comment]
+offset = 6645
+text = output error message
+
+[comment]
+offset = 6648
+text = 6 x NOP
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -15605,4 +16257,30 @@ text = Integer
 [block]
 offset = 6345
 text = (not used in LASER 110-310)
+
+[block]
+offset = 6391
+text = Data and subroutines that are transferred to RAM during BASIC initialization.
+
+[block]
+offset = 6429
+text = Texts
+
+[block]
+offset = 6454
+text = Subroutine for FOR/NEXT and GOSUB/RETURN\nretrieves data back from the stack
+
+[block]
+offset = 6485
+text = Make space for program line to be inserted
+              or free up variable
+
+[block]
+offset = 6499
+text = Test if 2*C bytes are free
+              if not, OUT OF MEMORY - Error
+
+[block]
+offset = 6522
+text = Preparation and output of error messages
 

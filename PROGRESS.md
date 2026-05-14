@@ -1,6 +1,41 @@
 # VZ200 BASIC ROM Disassembly Progress
 
-## Session: May 13, 2026
+## Session: May 13, 2026 (Part 2)
+
+### Task
+Annotate the byte range 0x18F7 to 0x19FD based on Gerhard Wolf's Laser 310 German ROM listing (pages 109-113). This section contains system routines for division, I/O handling, and error message processing.
+
+### Work Summary
+- **System Routines & Data**:
+  - Documented the ROM source for self-modifying RAM routines: `FDIV_HELPER_ROM` (0x18F7), `INP_HELPER_ROM` (0x190A), and `OUT_HELPER_ROM` (0x190D).
+  - Labeled and annotated system data word vectors: `USR_START_VEC_ROM`, `RND_MULT_ROM`, `STR_SPACE_ROM`, `CURR_LINE_ROM`, and `PROG_START_ROM`.
+  - Documented internal system variables including `INKEY_BUF_ROM`, `LAST_ERR_ROM`, `PRN_POS_ROM`, `OUT_FLAG_ROM`, `LINE_LEN_ROM`, and `TAB_POS_ROM`.
+- **System Messages**:
+  - Annotated and formatted core system messages: `MSG_ERROR_TEXT` (" ERROR"), `MSG_IN_TEXT` (" IN "), `MSG_READY_TEXT` ("READY\r"), and `MSG_BREAK_TEXT` ("BREAK").
+- **Core Subroutines**:
+  - `STACK_RECOVERY` (0x1936): Subroutine for retrieving loop and call data from the stack for FOR/NEXT and GOSUB/RETURN.
+  - `MAKE_SPACE` (0x1955): Subroutine to relocate program blocks or variables in memory.
+  - `CHECK_FREE_MEMORY` (0x1963): Memory validation routine.
+  - `ERROR_HANDLER` (0x19A2): Main error processing and reporting logic.
+- **Error Entry Points**:
+  - Documented individual error handlers: `ERROR_ENTRY` (0x197A), `IMPLICIT_END` (0x197E), `SYNTAX_ERR_DATA` (0x1991), `SYNTAX_ERR_HANDLER` (0x1997), `DIV_ZERO_ERR_HANDLER` (0x199A), `NEXT_WITHOUT_FOR_ERR_HANDLER` (0x199D), and `RESUME_WITHOUT_ERR_HANDLER` (0x19A0).
+- **Tricks & Overlaps**:
+  - Handled multiple "LD BC trick" and "LD A trick" overlapping instructions at addresses 0x196B, 0x1999, 0x199C, and 0x199F using `DIRECT_BYTE` segments and explanatory annotations.
+- **Translation**:
+  - Translated all German annotations and block headers into technical English.
+- **Verification**:
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+  - `export.lst` verified for correct formatting and English inline comments across the target range.
+
+### Statistics
+- **Total Symbols:** 216 (Limit: 6000)
+- **Total Annotations:** 3075 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of English inline comments for the range 0x18F7-0x19FD.
+
+## Session: May 13, 2026 (Part 1)
 
 ### Task
 Annotate the byte range 0x1736 to 0x1821 based on Gerhard Wolf's Laser 310 German ROM listing (pages 102-105) and cross-referenced with TRS-80 Level II BASIC sources.

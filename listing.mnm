@@ -3372,46 +3372,26 @@
 6401	1	ld	b,a
 6402	2	ld	a,0x00
 6404	1	ret	
-6405	1	ld	c,d
-6406	2	ld	e,0x40
-6408	2	and	0x4D
+6405	2	DEFW	0x1E4A
+6407	3	DEFB	0x40,0xE6,0x4D
 6410	2	in	a,(0x00)
 6412	1	ret	
 6413	2	out	(0x00),a
 6415	1	ret	
-6416	1	nop	
-6417	1	nop	
-6418	1	nop	
-6419	1	nop	
-6420	1	ld	b,b
-6421	2	jr	nc,$+2
-6423	1	ld	c,h
-6424	1	ld	a,e
-6425	2	cp	0xFF
-6427	1	jp	(hl)
-6428	1	ld	a,d
-6429	2	jr	nz,$+71
-6431	1	ld	d,d
-6432	1	ld	d,d
-6433	1	ld	c,a
-6434	1	ld	d,d
-6435	1	nop	
-6436	2	jr	nz,$+75
-6438	1	ld	c,(hl)
-6439	2	jr	nz,$+2
-6441	1	ld	d,d
-6442	1	ld	b,l
-6443	1	ld	b,c
-6444	1	ld	b,h
-6445	1	ld	e,c
-6446	1	dec	c
-6447	1	nop	
-6448	1	ld	b,d
-6449	1	ld	d,d
-6450	1	ld	b,l
-6451	1	ld	b,c
-6452	1	ld	c,e
-6453	1	nop	
+6416	1	DEFB	0x00
+6417	1	DEFB	0x00
+6418	1	DEFB	0x00
+6419	1	DEFB	0x00
+6420	1	DEFB	0x40
+6421	1	DEFB	0x30
+6422	1	DEFB	0x00
+6423	2	DEFW	0x7B4C
+6425	2	DEFW	0xFFFE
+6427	2	DEFW	0x7AE9
+6429	7	DEFM	" ERROR\00"
+6436	5	DEFM	" IN \00"
+6441	7	DEFM	"READY\0D\00"
+6448	6	DEFM	"BREAK\00"
 6454	3	ld	hl,0x0004
 6457	1	add	hl,sp
 6458	1	ld	a,(hl)
@@ -3452,7 +3432,8 @@
 6503	2	ld	b,0x00
 6505	1	add	hl,bc
 6506	1	add	hl,bc
-6507	2	ld	a,0xE5
+6507	1	DEFB	0x3E
+6508	1	push	hl
 6509	2	ld	a,0xC6
 6511	1	sub	l
 6512	1	ld	l,a
@@ -3478,9 +3459,12 @@
 6545	3	ld	hl,(0x78DA)
 6548	3	ld	(0x78A2),hl
 6551	2	ld	e,0x02
-6553	3	ld	bc,0x141E
-6556	3	ld	bc,0x001E
-6559	3	ld	bc,0x241E
+6553	1	DEFB	0x01
+6554	2	ld	e,0x14
+6556	1	DEFB	0x01
+6557	2	ld	e,0x00
+6559	1	DEFB	0x01
+6560	2	ld	e,0x24
 6562	3	ld	hl,(0x78A2)
 6565	3	ld	(0x78EA),hl
 6568	3	ld	(0x78EC),hl

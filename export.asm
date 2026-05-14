@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Wed May 13 21:49:46 2026
+; Generated: Wed May 13 22:41:16 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -55,7 +55,7 @@
 ; BASIC initialisation part 2
 ; BASIC_INIT_2: (defined in symbols.sym)
               ld    de,FDIVC       ; Destination: 7880H (RAM hooks)
-              ld    hl,0x18F7      ; Source: 18F7H
+              ld    hl,FDIV_HELPER_ROM ; Source: 18F7H
               ld    bc,0x0027      ; Length: 27H bytes
               ldir                 ; Copy routines to RAM
 
@@ -144,7 +144,7 @@ MEM_TEST_LOOP:
 MEM_SIZE_INPUT:
               call  0x1E5A         ; Handle memory size input
               or    a
-              jp    nz,0x1997
+              jp    nz,SYNTAX_ERR_HANDLER
               ex    de,hl
               dec   hl
               ld    a,0x8F
@@ -161,7 +161,7 @@ MEM_SIZE_INPUT:
               dec   hl             ; address of the last byte
               ld    de,0x7C14      ; at least 1868 bytes must be free
               rst   0x18           ; check free memory
-              jp    c,0x197A       ; otherwise: OUT OF MEMORY error (197AH)
+              jp    c,ERROR_ENTRY  ; otherwise: OUT OF MEMORY error (197AH)
               ld    de,0xFFCE      ; DE = -50 (FFCE is 2s comp. -50)
               ld    (0x78B1),hl    ; store end-of-memory address (@ 78B1H)
               add   hl,de          ; HL = end of memory - 50
@@ -182,7 +182,7 @@ INIT_VARS_2:
 ; L3 Error Handler (?L3 ERROR)
 ; ERROR_L3: (defined in symbols.sym)
               ld    e,0x2C         ; Load error code 44 (L3 Error)
-              jp    0x19A2         ; Jump to main error handler
+              jp    ERROR_HANDLER  ; Jump to main error handler
 
 ; GRAPHICS ROUTINE - Common Code for SET, RESET and POINT
 ; A will be 0 for POINT, 80H for SET and 1 for RESET.
@@ -760,7 +760,7 @@ PRINTER_DRIVER:
               ld    (0xA3CD),a     ; Load (0xA3CD) from a
               ld    a,(de)         ; Load a from (de)
               call  0x17D8         ; Call 0x17D8
-              call  0x190D         ; Call 0x190D
+              call  OUT_HELPER_ROM ; Call 0x190D
               jp    z,0x125A       ; Jump if z to 0x125A
               call  0x1F49         ; Call 0x1F49
               jr    c,$+26         ; Relative jump if c to $+26
@@ -1135,7 +1135,7 @@ FP_ADD_X_PLUS_Y:
 
 ; Overflow error
               ld    e,0x0A         ; error number in E
-              jp    0x19A2         ; to error routine
+              jp    ERROR_HANDLER  ; to error routine
 
 ; Single precision mantissa addition
               ld    a,(hl)         ; LSB X in A
@@ -1341,7 +1341,7 @@ FDIV:
 ; Single Precision Division
               call  SIGN           ; divisor = 0?
 DV0ERR_JMP:
-              jp    z,0x199A       ; yes, DIVISION BY ZERO - Error
+              jp    z,DIV_ZERO_ERR_HANDLER ; yes, DIVISION BY ZERO - Error
 
 ; X = Y / X
               ld    l,0xFF         ; Flag for exponent processing for division
@@ -1850,7 +1850,7 @@ UNPACK:
 ; TYPE MISMATCH Error
 ; TMERR: (defined in symbols.sym)
               ld    e,0x18         ; Error code
-              jp    0x19A2         ; Display error
+              jp    ERROR_HANDLER  ; Display error
 
 ; Quick integer conversion / Rounding
 ; DROUND: (defined in symbols.sym)
@@ -2416,7 +2416,7 @@ DNORM_BIT_LOOP:
 ; LEVEL II BASIC DOUBLE PRECISION DIVISION - \
               ld    a,(ARG_EXP)    ; Divisor = 0?
               or    a
-              jp    z,0x199A       ; Yes, DIVISION BY ZERO error
+              jp    z,DIV_ZERO_ERR_HANDLER ; Yes, DIVISION BY ZERO error
               call  MULDVS         ; Process sign and exponent
               inc   (hl)           ; Exponent correction (+2)
               inc   (hl)           ; (0907 results in Exp X - Exp Y - 1)
@@ -2578,7 +2578,7 @@ DNORM_BIT_LOOP:
 
 ; '%' found
               rst   0x20           ; Test type
-              jp    p,0x1997       ; not integer, SYNTAX - Error
+              jp    p,SYNTAX_ERR_HANDLER ; not integer, SYNTAX - Error
               inc   hl             ; address pointer + 1
               jr    $-44           ; done!
 
@@ -3425,7 +3425,7 @@ INT_TO_ASCII:
               jr    z,$+62         ; Exponent = 0? yes, result = 1
               jp    p,0x1404       ; Exponent > 0? yes, jump
               or    a              ; Base = 0 and exponent < 0?
-              jp    z,0x199A       ; yes, DIVISION BY ZERO error
+              jp    z,DIV_ZERO_ERR_HANDLER ; yes, DIVISION BY ZERO error
               or    a              ; Base = 0 and exponent > 0?
               jp    z,0x0779       ; yes, 0 as result in X
               push  de             ; Base on stack
@@ -4213,8 +4213,11 @@ KWD_END_TABLE:
               DEFB  0x4D,0x4F      ; ERR_MO
               DEFB  0x46,0x44      ; ERR_FD
               DEFB  0x4C,0x33      ; ERR_L3
-              sub   0x00
-              ld    l,a
+
+; Data and subroutines that are transferred to RAM during BASIC initialization.
+FDIV_HELPER_ROM:
+              sub   0x00           ; Subtraction Z2 - Z1
+              ld    l,a            ; modified before each call
               ld    a,h
               sbc   a,0x00
               ld    h,a
@@ -4223,164 +4226,190 @@ KWD_END_TABLE:
               ld    b,a
               ld    a,0x00
               ret   
-              ld    c,d
-              ld    e,0x40
-              and   0x4D
-              in    a,(0x00)
+USR_START_VEC_ROM:
+              DEFW  0x1E4A         ; USR start address, pre-initialized with FUNCTION CODE -Error
+RND_MULT_ROM:
+              DEFB  0x40,0xE6,0x4D ; Multiplier for RND
+INP_HELPER_ROM:
+              in    a,(0x00)       ; Subroutine for INP: Load input port into A
               ret   
-              out   (0x00),a
+OUT_HELPER_ROM:
+              out   (0x00),a       ; Subroutine for OUT: Output A register over port
               ret   
-              nop   
-              nop   
-              nop   
-              nop   
-              ld    b,b
-              jr    nc,$+2
-              ld    c,h
-              ld    a,e
-              cp    0xFF
-              jp    (hl)
-              ld    a,d
-              jr    nz,$+71
-              ld    d,d
-              ld    d,d
-              ld    c,a
-              ld    d,d
-              nop   
-              jr    nz,$+75
-              ld    c,(hl)
-              jr    nz,$+2
-              ld    d,d
-              ld    b,l
-              ld    b,c
-              ld    b,h
-              ld    e,c
-              dec   c
-              nop   
-              ld    b,d
-              ld    d,d
-              ld    b,l
-              ld    b,c
-              ld    c,e
-              nop   
-              ld    hl,0x0004
-              add   hl,sp
-              ld    a,(hl)
+INKEY_BUF_ROM:
+              DEFB  0x00           ; INKEY$ temporary storage
+LAST_ERR_ROM:
+              DEFB  0x00           ; last error code for ERR
+PRN_POS_ROM:
+              DEFB  0x00           ; Print head position
+OUT_FLAG_ROM:
+              DEFB  0x00           ; Output flag
+LINE_LEN_ROM:
+              DEFB  0x40           ; Line length on screen
+TAB_POS_ROM:
+              DEFB  0x30           ; last tab position on screen
+UNUSED_1916:
+              DEFB  0x00           ; unused
+STR_SPACE_ROM:
+              DEFW  0x7B4C         ; Start of string space
+CURR_LINE_ROM:
+              DEFW  0xFFFE         ; Current line number
+PROG_START_ROM:
+              DEFW  0x7AE9         ; Program text start
+
+; Texts
+MSG_ERROR_TEXT:
+              DEFM  " ERROR\00"
+MSG_IN_TEXT:
+              DEFM  " IN \00"
+MSG_READY_TEXT:
+              DEFM  "READY\0D\00"
+MSG_BREAK_TEXT:
+              DEFM  "BREAK\00"
+
+; Subroutine for FOR/NEXT and GOSUB/RETURN
+; holts data back from stack
+STACK_RECOVERY:
+              ld    hl,0x0004      ; Stack pointer + 4 into HL
+              add   hl,sp          ; (bypass 2 return addresses)
+              ld    a,(hl)         ; Load flag
               inc   hl
-              cp    0x81
-              ret   nz
-              ld    c,(hl)
+              cp    0x81           ; Data from FOR loop?
+              ret   nz             ; no, finished
+              ld    c,(hl)         ; yes, load loop variable address
               inc   hl
               ld    b,(hl)
               inc   hl
-              push  hl
-              ld    l,c
+              push  hl             ; on stack
+              ld    l,c            ; loop variable in HL
               ld    h,b
               ld    a,d
-              or    e
-              ex    de,hl
+              or    e              ; loop variable specified?
+              ex    de,hl          ; no, return with address in DE
               jr    z,$+4
               ex    de,hl
-              rst   0x18
-              ld    bc,0x000E
-              pop   hl
-              ret   z
-              add   hl,bc
-              jr    $-25
-              call  0x196C
-              push  bc
-              ex    (sp),hl
+              rst   0x18           ; yes, = found loop variable?
+              ld    bc,0x000E      ; 14 in BC
+              pop   hl             ; Reload address pointer
+              ret   z              ; yes, finished
+              add   hl,bc          ; Pointer to next stack data
+              jr    $-25           ; same once more
+
+; Make space for program line to be inserted
+; or free up variable
+MAKE_SPACE:
+              call  0x196C         ; is HL still in free memory?
+              push  bc             ; no, OUT OF MEMORY - Error
+              ex    (sp),hl        ; Swap HL and BC
               pop   bc
-              rst   0x18
-              ld    a,(hl)
+              rst   0x18           ; Start of source block reached?
+              ld    a,(hl)         ; Relocate 1 byte
               ld    (bc),a
-              ret   z
-              dec   bc
+              ret   z              ; yes, finished!
+              dec   bc             ; Address pointer - 1
               dec   hl
-              jr    $-6
-              push  hl
-              ld    hl,(0x78FD)
-              ld    b,0x00
+              jr    $-6            ; next byte
+
+; Test if 2*C bytes are free
+; if not, OUT OF MEMORY - Error
+CHECK_FREE_MEMORY:
+              push  hl             ; HL onto stack
+              ld    hl,(0x78FD)    ; Starting address of free memory
+              ld    b,0x00         ; B=0
+              add   hl,bc          ; Add BC to HL twice
               add   hl,bc
-              add   hl,bc
-              ld    a,0xE5
-              ld    a,0xC6
+              DEFB  0x3E           ; LD A,0E5H Dummy instruction
+              push  hl             ; test if HL is still in free memory
+              ld    a,0xC6         ; HL > FFC6H ?
               sub   l
               ld    l,a
               ld    a,0xFF
               sbc   a,h
-              jr    c,$+6
+              jr    c,$+6          ; yes, OUT OF MEMORY - Error
               ld    h,a
-              add   hl,sp
-              pop   hl
-              ret   c
-              ld    e,0x0C
-              jr    $+38
-              ld    hl,(0x78A2)
-              ld    a,h
+              add   hl,sp          ; HL + 4A >= SP ?
+              pop   hl             ; Restore HL
+              ret   c              ; no, return
+
+; Preparation and output of error messages
+ERROR_ENTRY:
+              ld    e,0x0C         ; Error code in E
+              jr    $+38           ; to message output
+IMPLICIT_END:
+              ld    hl,(0x78A2)    ; Load line number
+              ld    a,h            ; in direct mode? (=FFFF)
               and   l
               inc   a
-              jr    z,$+10
-              ld    a,(0x78F2)
+              jr    z,$+10         ; no, jump to END
+              ld    a,(0x78F2)     ; Trap flag set?
               or    a
-              ld    e,0x22
-              jr    nz,$+22
-              jp    0x1DC1
-              ld    hl,(0x78DA)
-              ld    (0x78A2),hl
-              ld    e,0x02
-              ld    bc,0x141E
-              ld    bc,0x001E
-              ld    bc,0x241E
-              ld    hl,(0x78A2)
-              ld    (0x78EA),hl
-              ld    (0x78EC),hl
-              ld    bc,0x19B4
-              ld    hl,(0x78E8)
-              jp    0x1B9A
-              pop   bc
-              ld    a,e
+              ld    e,0x22         ; NO RESUME - Load error code
+              jr    nz,$+22        ; yes, to message output
+              jp    0x1DC1         ; Jump to END
+SYNTAX_ERR_DATA:
+              ld    hl,(0x78DA)    ; last DATA line
+              ld    (0x78A2),hl    ; as current line number
+SYNTAX_ERR_HANDLER:
+              ld    e,0x02         ; Error code in E
+              DEFB  0x01           ; LD BC,141EH Dummy instruction
+DIV_ZERO_ERR_HANDLER:
+              ld    e,0x14         ; DIVISION BY ZERO
+              DEFB  0x01           ; LD BC,001EH Dummy instruction
+NEXT_WITHOUT_FOR_ERR_HANDLER:
+              ld    e,0x00         ; NEXT WITHOUT FOR
+              DEFB  0x01           ; LD BC,241EH Dummy instruction
+RESUME_WITHOUT_ERR_HANDLER:
+              ld    e,0x24         ; RESUME WITHOUT ERROR
+ERROR_HANDLER:
+              ld    hl,(0x78A2)    ; Load current line number
+              ld    (0x78EA),hl    ; store as error line
+              ld    (0x78EC),hl    ; store as error line
+              ld    bc,0x19B4      ; Load resume address
+              ld    hl,(0x78E8)    ; Load current program pointer
+              jp    0x1B9A         ; Jump to NEW, initialize stack
+              pop   bc             ; Fix stack
+              ld    a,e            ; Error code in A and C
               ld    c,e
-              ld    (0x789A),a
-              ld    hl,(0x78E6)
-              ld    (0x78EE),hl
-              ex    de,hl
-              ld    hl,(0x78EA)
-              ld    a,h
+              ld    (0x789A),a     ; store
+              ld    hl,(0x78E6)    ; Load program pointer
+              ld    (0x78EE),hl    ; store as error pointer
+              ex    de,hl          ; and into DE
+              ld    hl,(0x78EA)    ; Line number = FFFF ?
+              ld    a,h            ; (= Direct mode)
               and   l
               inc   a
-              jr    z,$+9
-              ld    (0x78F5),hl
-              ex    de,hl
-              ld    (0x78F7),hl
-              ld    hl,(0x78F0)
-              ld    a,h
+              jr    z,$+9          ; yes, no interruption parameters
+              ld    (0x78F5),hl    ; store error line number for CONT
+              ex    de,hl          ; and in DE
+              ld    (0x78F7),hl    ; store as CONT pointer
+              ld    hl,(0x78F0)    ; Address of an error routine (ON ERROR)
+              ld    a,h            ; 0?
               or    l
-              ex    de,hl
-              ld    hl,0x78F2
-              jr    z,$+10
-              and   (hl)
-              jr    nz,$+7
-              dec   (hl)
-              ex    de,hl
-              jp    0x1D36
-              xor   a
-              ld    (hl),a
-              ld    e,c
-              call  0x20F9
-              ld    hl,0x3CEC
-              call  0x79A6
-              ld    d,a
-              ld    a,0x3F
-              call  CHAR_OUTPUT_DISPATCH
-              call  0x3CD4
+              ex    de,hl          ; into DE
+              ld    hl,0x78F2      ; Load trap flag address
+              jr    z,$+10         ; no error routine (TRAP)
+              and   (hl)           ; still open error trap
+              jr    nz,$+7         ; yes, do not perform error handling
+              dec   (hl)           ; Set trap flag
+              ex    de,hl          ; Address of error routine in HL
+              jp    0x1D36         ; Continue program there
+              xor   a              ; Clear trap flag
+              ld    (hl),a         ; store
+              ld    e,c            ; Error code back in E
+              call  0x20F9         ; if required, output CR
+              ld    hl,0x3CEC      ; Address of error messages
+              call  0x79A6         ; RAM expansion output
+              ld    d,a            ; D = 0
+              ld    a,0x3F         ; output '?'
+              call  CHAR_OUTPUT_DISPATCH ; output error message
+              call  0x3CD4         ; output error message
+              nop                  ; 6 x NOP
               nop   
               nop   
               nop   
               nop   
               nop   
-              nop   
-              ld    hl,0x191D
+              ld    hl,MSG_ERROR_TEXT
               push  hl
               ld    hl,(0x78EA)
               ex    (sp),hl
@@ -4400,7 +4429,7 @@ KWD_END_TABLE:
               nop   
               nop   
               call  0x20F9
-              ld    hl,0x1929
+              ld    hl,MSG_READY_TEXT
               call  OUTSTR
               ld    a,(0x789A)
               sub   0x02
@@ -4489,7 +4518,7 @@ KWD_END_TABLE:
               pop   bc
               add   hl,bc
               push  hl
-              call  0x1955
+              call  MAKE_SPACE
               pop   hl
               ld    (0x78F9),hl
               ex    de,hl
@@ -4787,12 +4816,12 @@ KWD_END_TABLE:
               inc   hl
               ex    (sp),hl
               jp    z,0x1D78
-              jp    0x1997
+              jp    SYNTAX_ERR_HANDLER
               ld    a,0x64
               ld    (0x78DC),a
               call  0x1F21
               ex    (sp),hl
-              call  0x1936
+              call  STACK_RECOVERY
               pop   de
               jr    nz,$+7
               add   hl,bc
@@ -4800,7 +4829,7 @@ KWD_END_TABLE:
               ld    (0x78E8),hl
               ex    de,hl
               ld    c,0x08
-              call  0x1963
+              call  CHECK_FREE_MEMORY
               push  hl
               call  0x1F05
               ex    (sp),hl
@@ -4867,12 +4896,12 @@ KWD_END_TABLE:
               cp    0x3A
               jr    z,$+43
               or    a
-              jp    nz,0x1997
+              jp    nz,SYNTAX_ERR_HANDLER
               inc   hl
               ld    a,(hl)
               inc   hl
               or    (hl)
-              jp    z,0x197E
+              jp    z,IMPLICIT_END
               inc   hl
               ld    e,(hl)
               inc   hl
@@ -4965,14 +4994,14 @@ KWD_END_TABLE:
               call  OUTPUT_SCREEN_SELECT
               call  0x20F9
               pop   af
-              ld    hl,0x1930
+              ld    hl,MSG_BREAK_TEXT
               jp    nz,0x1A06
               jp    0x1A18
               ld    hl,(0x78F7)
               ld    a,h
               or    l
               ld    e,0x20
-              jp    z,0x19A2
+              jp    z,ERROR_HANDLER
               ex    de,hl
               ld    hl,(0x78F5)
               ld    (0x78A2),hl
@@ -4989,7 +5018,7 @@ KWD_END_TABLE:
               ld    bc,0x041E
               ld    bc,0x081E
               call  0x1E3D
-              ld    bc,0x1997
+              ld    bc,SYNTAX_ERR_HANDLER
               push  bc
               ret   c
               sub   0x41
@@ -5032,7 +5061,7 @@ KWD_END_TABLE:
               call  0x2B02
               ret   p
               ld    e,0x08
-              jp    0x19A2
+              jp    ERROR_HANDLER
               ld    a,(hl)
               cp    0x2E
               ex    de,hl
@@ -5047,7 +5076,7 @@ KWD_END_TABLE:
               push  af
               ld    hl,0x1998
               rst   0x18
-              jp    c,0x1997
+              jp    c,SYNTAX_ERR_HANDLER
               ld    h,d
               ld    l,e
               add   hl,de
@@ -5075,12 +5104,12 @@ KWD_END_TABLE:
               ld    a,h
               sbc   a,d
               ld    d,a
-              jp    c,0x197A
+              jp    c,ERROR_ENTRY
               ld    hl,(0x78F9)
               ld    bc,RST28_VEC
               add   hl,bc
               rst   0x18
-              jp    nc,0x197A
+              jp    nc,ERROR_ENTRY
               ex    de,hl
               ld    (0x78A0),hl
               pop   hl
@@ -5091,7 +5120,7 @@ KWD_END_TABLE:
               ld    bc,0x1D1E
               jr    $+18
               ld    c,0x03
-              call  0x1963
+              call  CHECK_FREE_MEMORY
               pop   bc
               push  hl
               push  hl
@@ -5115,15 +5144,15 @@ KWD_END_TABLE:
               dec   hl
               ret   c
               ld    e,0x0E
-              jp    0x19A2
+              jp    ERROR_HANDLER
               ret   nz
               ld    d,0xFF
-              call  0x1936
+              call  STACK_RECOVERY
               ld    sp,hl
               ld    (0x78E8),hl
               cp    0x91
               ld    e,0x04
-              jp    nz,0x19A2
+              jp    nz,ERROR_HANDLER
               pop   hl
               ld    (0x78A2),hl
               inc   hl
@@ -5242,7 +5271,7 @@ KWD_END_TABLE:
               ld    de,0x78F2
               ld    a,(de)
               or    a
-              jp    z,0x19A0
+              jp    z,RESUME_WITHOUT_ERR_HANDLER
               inc   a
               ld    (0x789A),a
               ld    (de),a
@@ -5290,7 +5319,7 @@ KWD_END_TABLE:
               cp    0x2D
               jr    c,$+4
               ld    e,0x26
-              jp    0x19A2
+              jp    ERROR_HANDLER
               ld    de,0x000A
               push  de
               jr    z,$+25
@@ -5306,7 +5335,7 @@ KWD_END_TABLE:
               ex    de,hl
               jr    z,$+8
               call  0x1E5A
-              jp    nz,0x1997
+              jp    nz,SYNTAX_ERR_HANDLER
               ex    de,hl
               ld    a,h
               or    l
@@ -5482,11 +5511,11 @@ KWD_END_TABLE:
               nop   
               ld    a,(0x78DE)
               or    a
-              jp    nz,0x1991
+              jp    nz,SYNTAX_ERR_DATA
               ld    a,(0x78A9)
               or    a
               ld    e,0x2A
-              jp    z,0x19A2
+              jp    z,ERROR_HANDLER
               pop   bc
               ld    hl,0x2178
               call  OUTSTR
@@ -5560,7 +5589,7 @@ KWD_END_TABLE:
               ld    a,(0x78A9)
               or    a
               ld    e,0x06
-              jp    z,0x19A2
+              jp    z,ERROR_HANDLER
               ld    a,0x3F
               call  CHAR_OUTPUT_DISPATCH
               call  0x1BB3
@@ -5649,7 +5678,7 @@ KWD_END_TABLE:
               inc   hl
               or    (hl)
               ld    e,0x06
-              jp    z,0x19A2
+              jp    z,ERROR_HANDLER
               inc   hl
               ld    e,(hl)
               inc   hl
@@ -5664,8 +5693,8 @@ KWD_END_TABLE:
               ld    de,START
               call  nz,0x260D
               ld    (0x78DF),hl
-              call  0x1936
-              jp    nz,0x199D
+              call  STACK_RECOVERY
+              jp    nz,NEXT_WITHOUT_FOR_ERR_HANDLER
               ld    sp,hl
               ld    (0x78E8),hl
               push  de
@@ -5743,7 +5772,7 @@ KWD_END_TABLE:
               ld    d,0x00
               push  de
               ld    c,0x01
-              call  0x1963
+              call  CHECK_FREE_MEMORY
               call  0x249F
               ld    (0x78F3),hl
               ld    hl,(0x78F3)
@@ -5759,7 +5788,7 @@ KWD_END_TABLE:
               xor   d
               cp    d
               ld    d,a
-              jp    c,0x1997
+              jp    c,SYNTAX_ERR_HANDLER
               ld    (FMT_FLAG),hl
               rst   0x10
               jr    $-21
@@ -5941,7 +5970,7 @@ KWD_END_TABLE:
               jp    0x08A0
               rst   0x10
               ld    e,0x28
-              jp    z,0x19A2
+              jp    z,ERROR_HANDLER
               jp    c,FIN
               call  0x1E3D
               jp    nc,0x2540
@@ -6162,7 +6191,7 @@ KWD_END_TABLE:
               ld    (0x78AE),a
               ld    b,(hl)
               call  0x1E3D
-              jp    c,0x1997
+              jp    c,SYNTAX_ERR_HANDLER
               xor   a
               ld    c,a
               rst   0x10
@@ -6267,7 +6296,7 @@ KWD_END_TABLE:
               add   hl,bc
               pop   bc
               push  hl
-              call  0x1955
+              call  MAKE_SPACE
               pop   hl
               ld    (0x78FD),hl
               ld    h,b
@@ -6356,12 +6385,12 @@ KWD_END_TABLE:
               ld    a,(0x78AE)
               or    a
               ld    e,0x12
-              jp    nz,0x19A2
+              jp    nz,ERROR_HANDLER
               pop   af
               sub   (hl)
               jp    z,0x2795
               ld    e,0x10
-              jp    0x19A2
+              jp    ERROR_HANDLER
               ld    (hl),a
               inc   hl
               ld    e,a
@@ -6372,7 +6401,7 @@ KWD_END_TABLE:
               ld    (hl),b
               inc   hl
               ld    c,a
-              call  0x1963
+              call  CHECK_FREE_MEMORY
               inc   hl
               inc   hl
               ld    (FMT_FLAG),hl
@@ -6520,7 +6549,7 @@ KWD_END_TABLE:
               pop   hl
               ret   nz
               ld    e,0x16
-              jp    0x19A2
+              jp    ERROR_HANDLER
               call  PUSTR_UNFORM_INIT
               call  0x2865
               call  0x29DA
@@ -6585,7 +6614,7 @@ KWD_END_TABLE:
               ld    a,(hl)
               ret   nz
               ld    e,0x1E
-              jp    0x19A2
+              jp    ERROR_HANDLER
               inc   hl
               call  0x2865
               call  0x29DA
@@ -6619,7 +6648,7 @@ KWD_END_TABLE:
               ret   
               pop   af
               ld    e,0x1A
-              jp    z,0x19A2
+              jp    z,ERROR_HANDLER
               cp    a
               push  af
               ld    bc,0x28C1
@@ -6754,7 +6783,7 @@ KWD_END_TABLE:
               push  hl
               add   a,(hl)
               ld    e,0x1C
-              jp    c,0x19A2
+              jp    c,ERROR_HANDLER
               call  0x2857
               pop   de
               call  0x29DE
@@ -6970,7 +6999,7 @@ KWD_END_TABLE:
               ld    b,e
               ret   
               cp    0x7A
-              jp    nz,0x1997
+              jp    nz,SYNTAX_ERR_HANDLER
               jp    0x79D9
               call  0x2B1F
               ld    (0x7894),a
@@ -7111,7 +7140,7 @@ KWD_END_TABLE:
               push  hl
               rst   0x18
               jp    nc,0x1E4A
-              ld    hl,0x1929
+              ld    hl,MSG_READY_TEXT
               call  OUTSTR
               pop   bc
               ld    hl,0x1AE8
@@ -7197,7 +7226,7 @@ KWD_END_TABLE:
               ld    hl,0x0321
               add   hl,bc
               ld    b,(hl)
-              ld    hl,0x1936
+              ld    hl,STACK_RECOVERY
               push  hl
               pop   de
               add   hl,de
@@ -7440,7 +7469,7 @@ KWD_END_TABLE:
               cp    0x3B
               jr    z,$+7
               cp    0x2C
-              jp    nz,0x1997
+              jp    nz,SYNTAX_ERR_HANDLER
               rst   0x10
               pop   bc
               ex    de,hl
@@ -8638,7 +8667,7 @@ KWD_END_TABLE:
               jr    nz,$+6
               ld    hl,(0x781E)
               jp    (hl)
-              ld    hl,0x1929
+              ld    hl,MSG_READY_TEXT
               call  OUTSTR
               ld    hl,(0x78A4)
               push  hl
