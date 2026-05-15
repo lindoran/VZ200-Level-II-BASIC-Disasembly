@@ -168,7 +168,7 @@
                      ; TODO: Document from TRS 80 listing.
                      ; ***********************************************************
                      MEM_SIZE_INPUT:
-00D6  CD5A1E   .Z.                 call  0x1E5A         ; Handle memory size input
+00D6  CD5A1E   .Z.                 call  DECZ           ; Handle memory size input
 00D9  B7       .                   or    a
 00DA  C29719   ...                 jp    nz,SYNTAX_ERR_HANDLER
 00DD  EB       .                   ex    de,hl
@@ -682,7 +682,7 @@
 04A4  D8       .                   ret   c              ; BREAK, back to BASIC
 04A5  211A3E   !.>                 ld    hl,0x3E1A      ; text \
 04A8  CDA728   ..(                 call  OUTSTR         ; output
-04AB  C3E303   ...                 jp    INPUT_LINE_READ ; back to line entry
+04AB  C3E303   ...                 jp    RDLINE         ; back to line entry
 04AE  FE22     ."                  cp    0x22           ; string identifier?
 04B0  2031      1                  jr    nz,$+51        ; no, continue
 04B2  12       .                   ld    (de),a         ; character in I/O buffer
@@ -790,7 +790,7 @@
 0566  C1       .                   pop   bc             ; reload column counter
 0567  213978   !9x                 ld    hl,0x7839      ; address Flag 2
 056A  CBE6     ..                  set   4,(hl)         ; set INPUT-Cmd flag
-056C  CDE303   ...                 call  INPUT_LINE_READ ; read line
+056C  CDE303   ...                 call  RDLINE         ; read line
 056F  C9       .                   ret                  ; Return
                      ; RUN command for CRUN auto-start
 0570  52554E00 RUN.                DEFB  0x52,0x55,0x4E,0x00,0xC4 ; Data text 'RUN\00'
@@ -964,7 +964,7 @@
 069A  210080   !..                 ld    hl,0x8000      ; 3rd possibility at 8000H
 069D  CDA406   ...                 call  ROM_CART_CHECK ; check
 06A0  FB       .                   ei                   ; no insert - interrupts on
-06A1  C3191A   ...                 jp    0x1A19         ; to BASIC - main loop
+06A1  C3191A   ...                 jp    MAIN_LOOP      ; to BASIC - main loop
                      ; ROM insert must begin with the byte sequence AA 55 E7 18
                      ROM_CART_CHECK:
 06A4  3EAA     >.                  ld    a,0xAA         ; ROM insert must begin with the
@@ -994,7 +994,7 @@
 06C6  2C       ,                   inc   l              ; Increment l
 06C7  2814     (.                  jr    z,$+22         ; Relative jump if z to $+22
 06C9  CDF134   ..4                 call  0x34F1         ; Call 0x34F1
-06CC  01181A   ...                 ld    bc,0x1A18      ; load address of main loop
+06CC  01181A   ...                 ld    bc,MAIN_LOOP_ENTRY ; load address of main loop
 06CF  C3AE19   ...                 jp    0x19AE         ; init BASIC variables and pointers.
                      ; The following area from 6D2 to 707 is transferred to the RAM area from 7800 
                      ; to 7835
@@ -4313,153 +4313,158 @@
 19FB  00       .                   nop   
 19FC  00       .                   nop   
 19FD  00       .                   nop   
-19FE  211D19   !..                 ld    hl,MSG_ERROR_TEXT
-1A01  E5       .                   push  hl
-1A02  2AEA78   *.x                 ld    hl,(0x78EA)
-1A05  E3       .                   ex    (sp),hl
-1A06  CDA728   ..(                 call  OUTSTR
-1A09  E1       .                   pop   hl
-1A0A  11FEFF   ...                 ld    de,0xFFFE
+19FE  211D19   !..                 ld    hl,MSG_ERROR_TEXT ; Address 'ERROR' text
+1A01  E5       .                   push  hl             ; and onto stack
+1A02  2AEA78   *.x                 ld    hl,(0x78EA)    ; Load error line number
+1A05  E3       .                   ex    (sp),hl        ; swap with text address on stack
+1A06  CDA728   ..(                 call  OUTSTR         ; output 'ERROR'
+1A09  E1       .                   pop   hl             ; error line number from stack
+1A0A  11FEFF   ...                 ld    de,0xFFFE      ; = 65535? (FFFF)
 1A0D  DF       .                   rst   0x18
-1A0E  CA7406   .t.                 jp    z,BASIC_INIT_1
-1A11  7C       |                   ld    a,h
-1A12  A5       .                   and   l
+1A0E  CA7406   .t.                 jp    z,BASIC_INIT_1 ; yes, new system initialization
+1A11  7C       |                   ld    a,h            ; = 65535? (FFFF)
+1A12  A5       .                   and   l              ; (= direct mode)
 1A13  3C       <                   inc   a
-1A14  C4A70F   ...                 call  nz,INPRT
-1A17  3EC1     >.                  ld    a,0xC1
-1A19  CD8B03   ...                 call  OUTPUT_SCREEN_SELECT
-1A1C  CDAC79   ..y                 call  0x79AC
+1A14  C4A70F   ...                 call  nz,INPRT       ; no, output 'IN Line'
+1A17  3E       >                   DEFB  0x3E           ; LD A,0C1H dummy instruction
+                     ; BASIC - Main Loop
+                     ; Jump entry at either 1A18 or 1A19
+1A18  C1       .                   pop   bc             ; Correct stack
+1A19  CD8B03   ...                 call  OUTPUT_SCREEN_SELECT ; Output flag to screen, CR to printer if ne
+1A1C  CDAC79   ..y                 call  0x79AC         ; RAM expansion output
 1A1F  00       .                   nop   
 1A20  00       .                   nop   
 1A21  00       .                   nop   
-1A22  CDF920   ..                  call  0x20F9
-1A25  212919   !).                 ld    hl,MSG_READY_TEXT
-1A28  CDA728   ..(                 call  OUTSTR
-1A2B  3A9A78   :.x                 ld    a,(0x789A)
-1A2E  D602     ..                  sub   0x02
+1A22  CDF920   ..                  call  0x20F9         ; CR on screen, if necessary
+1A25  212919   !).                 ld    hl,MSG_READY_TEXT ; Address 'READY' text
+1A28  CDA728   ..(                 call  OUTSTR         ; and output
+1A2B  3A9A78   :.x                 ld    a,(0x789A)     ; no significance
+1A2E  D602     ..                  sub   0x02           ; no significance
 1A30  00       .                   nop   
 1A31  00       .                   nop   
 1A32  00       .                   nop   
-1A33  21FFFF   !..                 ld    hl,0xFFFF
+1A33  21FFFF   !..                 ld    hl,0xFFFF      ; Set current line number to FFFF
 1A36  22A278   ".x                 ld    (0x78A2),hl
-1A39  3AE178   :.x                 ld    a,(0x78E1)
+1A39  3AE178   :.x                 ld    a,(0x78E1)     ; AUTO function enabled?
 1A3C  B7       .                   or    a
-1A3D  283A     (:                  jr    z,$+60
-1A3F  2AE278   *.x                 ld    hl,(0x78E2)
-1A42  E5       .                   push  hl
-1A43  CDAF0F   ...                 call  LINPRT
-1A46  3E20     >                   ld    a,0x20
-1A48  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH
-1A4B  D1       .                   pop   de
-1A4C  D5       .                   push  de
-1A4D  CD2C1B   .,.                 call  0x1B2C
-1A50  DC532E   .S.                 call  c,0x2E53
+1A3D  283A     (:                  jr    z,$+60         ; no, normal input
+                     ; Program input under AUTO function
+1A3F  2AE278   *.x                 ld    hl,(0x78E2)    ; load next AUTO line number
+1A42  E5       .                   push  hl             ; and onto stack
+1A43  CDAF0F   ...                 call  LINPRT         ; output line number
+1A46  3E20     >                   ld    a,0x20         ; then a space
+1A48  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH ; and output
+1A4B  D1       .                   pop   de             ; line number in DE
+1A4C  D5       .                   push  de             ; and back on stack
+1A4D  CD2C1B   .,.                 call  FNDLIN         ; search for line in program text
+1A50  DC532E   .S.                 call  c,0x2E53       ; exists! output line
 1A53  00       .                   nop   
-1A54  CDE303   ...                 call  INPUT_LINE_READ
-1A57  D1       .                   pop   de
-1A58  3006     0.                  jr    nc,$+8
-1A5A  AF       .                   xor   a
+1A54  CDE303   ...                 call  RDLINE         ; read line from keyboard
+1A57  D1       .                   pop   de             ; load AUTO line number
+1A58  3006     0.                  jr    nc,$+8         ; no BREAK, continue normally
+1A5A  AF       .                   xor   a              ; clear AUTO flag
 1A5B  32E178   2.x                 ld    (0x78E1),a
-1A5E  18B9     ..                  jr    $-69
-1A60  2AE478   *.x                 ld    hl,(0x78E4)
-1A63  19       .                   add   hl,de
-1A64  38F4     8.                  jr    c,$-10
-1A66  D5       .                   push  de
-1A67  11F9FF   ...                 ld    de,0xFFF9
-1A6A  DF       .                   rst   0x18
-1A6B  D1       .                   pop   de
-1A6C  30EC     0.                  jr    nc,$-18
-1A6E  22E278   ".x                 ld    (0x78E2),hl
-1A71  00       .                   nop   
-1A72  00       .                   nop   
-1A73  21E779   !.y                 ld    hl,0x79E7
-1A76  C3811A   ...                 jp    0x1A81
-1A79  00       .                   nop   
-1A7A  00       .                   nop   
-1A7B  CDE303   ...                 call  INPUT_LINE_READ
-1A7E  DA331A   .3.                 jp    c,0x1A33
-1A81  D7       .                   rst   0x10
-1A82  3C       <                   inc   a
+1A5E  18B9     ..                  jr    $-69           ; back to main loop
+1A60  2AE478   *.x                 ld    hl,(0x78E4)    ; load AUTO increment
+1A63  19       .                   add   hl,de          ; add to AUTO line number
+1A64  38F4     8.                  jr    c,$-10         ; overflow, leave AUTO mode
+1A66  D5       .                   push  de             ; AUTO line number on stack
+1A67  11F9FF   ...                 ld    de,0xFFF9      ; new AUTO line number > 65528?
+1A6A  DF       .                   rst   0x18           ; Compare HL/DE
+1A6B  D1       .                   pop   de             ; load AUTO line number again
+1A6C  30EC     0.                  jr    nc,$-18        ; > 65528! leave AUTO mode
+1A6E  22E278   ".x                 ld    (0x78E2),hl    ; remember new AUTO line number
+1A71  0000     ..                  DEFB  0x00,0x00
+1A73  21E779   !.y                 ld    hl,0x79E7      ; address I/O buffer - 1
+1A76  C3811A   ...                 jp    0x1A81         ; analyze line and accept
+                     ; Normal program input without AUTO
+1A79  0000     ..                  DEFB  0x00,0x00
+1A7B  CDE303   ...                 call  RDLINE         ; read line from keyboard
+1A7E  DA331A   .3.                 jp    c,MAIN_LOOP_READY ; BREAK! to main loop start
+1A81  D7       .                   rst   0x10           ; search for first character <> ' '
+1A82  3C       <                   inc   a              ; line end (00)?
 1A83  3D       =                   dec   a
-1A84  CA331A   .3.                 jp    z,0x1A33
-1A87  F5       .                   push  af
-1A88  CD5A1E   .Z.                 call  0x1E5A
-1A8B  2B       +                   dec   hl
-1A8C  7E       ~                   ld    a,(hl)
-1A8D  FE20     .                   cp    0x20
-1A8F  28FA     (.                  jr    z,$-4
-1A91  23       #                   inc   hl
-1A92  7E       ~                   ld    a,(hl)
-1A93  FE20     .                   cp    0x20
-1A95  CCC909   ...                 call  z,INXHRT
-1A98  D5       .                   push  de
-1A99  CDC01B   ...                 call  0x1BC0
+1A84  CA331A   .3.                 jp    z,MAIN_LOOP_READY ; yes, to main loop start
+1A87  F5       .                   push  af             ; save flag (Cy=1 if digit)
+1A88  CD5A1E   .Z.                 call  DECZ           ; decode line number
+1A8B  2B       +                   dec   hl             ; buffer address back (after line number)
+1A8C  7E       ~                   ld    a,(hl)         ; load character
+1A8D  FE20     .                   cp    0x20           ; = space?
+1A8F  28FA     (.                  jr    z,$-4          ; yes, further back
+1A91  23       #                   inc   hl             ; buffer pointer to first char after line nu
+1A92  7E       ~                   ld    a,(hl)         ; load character
+1A93  FE20     .                   cp    0x20           ; = space?
+1A95  CCC909   ...                 call  z,INXHRT       ; yes, skip first space
+1A98  D5       .                   push  de             ; line number on stack
+1A99  CDC01B   ...                 call  STOKEN         ; generate intermediate code
 1A9C  D1       .                   pop   de
 1A9D  F1       .                   pop   af
-1A9E  22E678   ".x                 ld    (0x78E6),hl
-1AA1  CDB279   ..y                 call  0x79B2
-1AA4  D25A1D   .Z.                 jp    nc,0x1D5A
-1AA7  D5       .                   push  de
-1AA8  C5       .                   push  bc
-1AA9  AF       .                   xor   a
-1AAA  32DD78   2.x                 ld    (0x78DD),a
-1AAD  D7       .                   rst   0x10
-1AAE  B7       .                   or    a
-1AAF  F5       .                   push  af
-1AB0  EB       .                   ex    de,hl
-1AB1  22EC78   ".x                 ld    (0x78EC),hl
+1A9E  22E678   ".x                 ld    (0x78E6),hl    ; save current program pointer
+1AA1  CDB279   ..y                 call  0x79B2         ; RAM expansion output
+1AA4  D25A1D   .Z.                 jp    nc,EXEC        ; execute direct command
+1AA7  D5       .                   push  de             ; line number on stack
+1AA8  C5       .                   push  bc             ; line length on stack
+1AA9  AF       .                   xor   a              ; clear RESUME/RETURN flag
+1AAA  32DD78   2.x                 ld    (0x78DD),a     ; clear flag
+1AAD  D7       .                   rst   0x10           ; line empty?
+1AAE  B7       .                   or    a              ; yes, zero flag = 1
+1AAF  F5       .                   push  af             ; save flag on stack
+1AB0  EB       .                   ex    de,hl          ; nostalgia from TRS-80 editor
+1AB1  22EC78   ".x                 ld    (0x78EC),hl    ; save line address in HL
 1AB4  EB       .                   ex    de,hl
-1AB5  CD2C1B   .,.                 call  0x1B2C
-1AB8  C5       .                   push  bc
-1AB9  DCE42B   ..+                 call  c,0x2BE4
-1ABC  D1       .                   pop   de
-1ABD  F1       .                   pop   af
-1ABE  D5       .                   push  de
-1ABF  2827     ('                  jr    z,$+41
-1AC1  D1       .                   pop   de
-1AC2  2AF978   *.x                 ld    hl,(0x78F9)
-1AC5  E3       .                   ex    (sp),hl
-1AC6  C1       .                   pop   bc
-1AC7  09       .                   add   hl,bc
-1AC8  E5       .                   push  hl
-1AC9  CD5519   .U.                 call  MAKE_SPACE
-1ACC  E1       .                   pop   hl
-1ACD  22F978   ".x                 ld    (0x78F9),hl
-1AD0  EB       .                   ex    de,hl
-1AD1  74       t                   ld    (hl),h
-1AD2  D1       .                   pop   de
-1AD3  E5       .                   push  hl
-1AD4  23       #                   inc   hl
+1AB5  CD2C1B   .,.                 call  FNDLIN         ; search for line in program text
+1AB8  C5       .                   push  bc             ; save address pointer on stack
+1AB9  DCE42B   ..+                 call  c,DELLIN       ; if found, delete
+1ABC  D1       .                   pop   de             ; line address in DE
+1ABD  F1       .                   pop   af             ; load flags again
+1ABE  D5       .                   push  de             ; line address back on stack
+1ABF  2827     ('                  jr    z,$+41         ; at empty line back to start
+1AC1  D1       .                   pop   de             ; load line address again
+1AC2  2AF978   *.x                 ld    hl,(0x78F9)    ; load program end address
+1AC5  E3       .                   ex    (sp),hl        ; swap with line length on stack
+1AC6  C1       .                   pop   bc             ; program end address in BC
+1AC7  09       .                   add   hl,bc          ; end address + line length
+1AC8  E5       .                   push  hl             ; = new end address, save on stack
+1AC9  CD5519   .U.                 call  MAKE_SPACE     ; make space for new line
+1ACC  E1       .                   pop   hl             ; load new program address
+1ACD  22F978   ".x                 ld    (0x78F9),hl    ; and save
+1AD0  EB       .                   ex    de,hl          ; line address in HL
+1AD1  74       t                   ld    (hl),h         ; enter any line pointer
+1AD2  D1       .                   pop   de             ; load line number again
+1AD3  E5       .                   push  hl             ; line address on stack
+1AD4  23       #                   inc   hl             ; line pointer on line number field
 1AD5  23       #                   inc   hl
-1AD6  73       s                   ld    (hl),e
+1AD6  73       s                   ld    (hl),e         ; enter line number into line
 1AD7  23       #                   inc   hl
 1AD8  72       r                   ld    (hl),d
-1AD9  23       #                   inc   hl
+1AD9  23       #                   inc   hl             ; line pointer to first text byte
 1ADA  EB       .                   ex    de,hl
-1ADB  2AA778   *.x                 ld    hl,(0x78A7)
-1ADE  EB       .                   ex    de,hl
-1ADF  1B       .                   dec   de
+1ADB  2AA778   *.x                 ld    hl,(0x78A7)    ; I/O buffer start address
+1ADE  EB       .                   ex    de,hl          ; in DE
+1ADF  1B       .                   dec   de             ; - 2 = start of intermediate code
 1AE0  1B       .                   dec   de
-1AE1  1A       .                   ld    a,(de)
-1AE2  77       w                   ld    (hl),a
-1AE3  23       #                   inc   hl
+1AE1  1A       .                   ld    a,(de)         ; transfer intermediate code to program text
+1AE2  77       w                   ld    (hl),a         ; transfer
+1AE3  23       #                   inc   hl             ; address pointer + 1
 1AE4  13       .                   inc   de
-1AE5  B7       .                   or    a
-1AE6  20F9      .                  jr    nz,$-5
-1AE8  D1       .                   pop   de
-1AE9  CDFC1A   ...                 call  0x1AFC
-1AEC  CDB579   ..y                 call  0x79B5
-1AEF  CD5D1B   .].                 call  0x1B5D
-1AF2  CDB879   ..y                 call  0x79B8
-1AF5  C3331A   .3.                 jp    0x1A33
-1AF8  2AA478   *.x                 ld    hl,(0x78A4)
+1AE5  B7       .                   or    a              ; line end? (00)
+1AE6  20F9      .                  jr    nz,$-5         ; no, transfer next byte
+1AE8  D1       .                   pop   de             ; load line start address
+1AE9  CDFC1A   ...                 call  RENEW_LINE_PTRS ; from line address, renew line pointer
+1AEC  CDB579   ..y                 call  0x79B5         ; RAM expansion output
+1AEF  CD5D1B   .].                 call  CLEAR          ; Clear variable table and other program dat
+1AF2  CDB879   ..y                 call  0x79B8         ; RAM expansion output
+1AF5  C3331A   .3.                 jp    MAIN_LOOP_READY ; to main loop start
+                     ; Renew line pointers in entire program text
+1AF8  2AA478   *.x                 ld    hl,(0x78A4)    ; program text start in DE
 1AFB  EB       .                   ex    de,hl
-1AFC  62       b                   ld    h,d
+                     ; Renew line pointers partially
+1AFC  62       b                   ld    h,d            ; line start address in HL
 1AFD  6B       k                   ld    l,e
-1AFE  7E       ~                   ld    a,(hl)
-1AFF  23       #                   inc   hl
+1AFE  7E       ~                   ld    a,(hl)         ; line pointer = 0?
+1AFF  23       #                   inc   hl             ; (program end?)
 1B00  B6       .                   or    (hl)
-1B01  C8       .                   ret   z
+1B01  C8       .                   ret   z              ; yes, done
 1B02  23       #                   inc   hl
 1B03  23       #                   inc   hl
 1B04  23       #                   inc   hl
@@ -4900,7 +4905,7 @@
 1DDA  F1       .                   pop   af
 1DDB  213019   !0.                 ld    hl,MSG_BREAK_TEXT
 1DDE  C2061A   ...                 jp    nz,0x1A06
-1DE1  C3181A   ...                 jp    0x1A18
+1DE1  C3181A   ...                 jp    MAIN_LOOP_ENTRY
 1DE4  2AF778   *.x                 ld    hl,(0x78F7)
 1DE7  7C       |                   ld    a,h
 1DE8  B5       .                   or    l
@@ -5018,7 +5023,7 @@
 1E9C  22A078   ".x                 ld    (0x78A0),hl
 1E9F  E1       .                   pop   hl
 1EA0  C3611B   .a.                 jp    0x1B61
-1EA3  CA5D1B   .].                 jp    z,0x1B5D
+1EA3  CA5D1B   .].                 jp    z,CLEAR
 1EA6  CDC779   ..y                 call  0x79C7
 1EA9  CD611B   .a.                 call  0x1B61
 1EAC  011E1D   ...                 ld    bc,0x1D1E
@@ -5034,7 +5039,7 @@
 1EBF  F5       .                   push  af
 1EC0  33       3                   inc   sp
 1EC1  C5       .                   push  bc
-1EC2  CD5A1E   .Z.                 call  0x1E5A
+1EC2  CD5A1E   .Z.                 call  DECZ
 1EC5  CD071F   ...                 call  0x1F07
 1EC8  E5       .                   push  hl
 1EC9  2AA278   *.x                 ld    hl,(0x78A2)
@@ -5042,7 +5047,7 @@
 1ECD  E1       .                   pop   hl
 1ECE  23       #                   inc   hl
 1ECF  DC2F1B   ./.                 call  c,0x1B2F
-1ED2  D42C1B   .,.                 call  nc,0x1B2C
+1ED2  D42C1B   .,.                 call  nc,FNDLIN
 1ED5  60       `                   ld    h,b
 1ED6  69       i                   ld    l,c
 1ED7  2B       +                   dec   hl
@@ -5065,7 +5070,7 @@
 1EF6  2007      .                  jr    nz,$+9
 1EF8  3ADD78   :.x                 ld    a,(0x78DD)
 1EFB  B7       .                   or    a
-1EFC  C2181A   ...                 jp    nz,0x1A18
+1EFC  C2181A   ...                 jp    nz,MAIN_LOOP_ENTRY
 1EFF  211E1D   !..                 ld    hl,0x1D1E
 1F02  E3       .                   ex    (sp),hl
 1F03  3EE1     >.                  ld    a,0xE1
@@ -5137,7 +5142,7 @@
 1F70  D7       .                   rst   0x10
 1F71  CF       .                   rst   8
 1F72  8D       .                   adc   a,l
-1F73  CD5A1E   .Z.                 call  0x1E5A
+1F73  CD5A1E   .Z.                 call  DECZ
 1F76  7A       z                   ld    a,d
 1F77  B3       .                   or    e
 1F78  2809     (.                  jr    z,$+11
@@ -5182,7 +5187,7 @@
 1FBC  7E       ~                   ld    a,(hl)
 1FBD  FE87     ..                  cp    0x87
 1FBF  280C     (.                  jr    z,$+14
-1FC1  CD5A1E   .Z.                 call  0x1E5A
+1FC1  CD5A1E   .Z.                 call  DECZ
 1FC4  C0       .                   ret   nz
 1FC5  7A       z                   ld    a,d
 1FC6  B3       .                   or    e
@@ -5238,7 +5243,7 @@
 2019  2AE478   *.x                 ld    hl,(0x78E4)
 201C  EB       .                   ex    de,hl
 201D  2806     (.                  jr    z,$+8
-201F  CD5A1E   .Z.                 call  0x1E5A
+201F  CD5A1E   .Z.                 call  DECZ
 2022  C29719   ...                 jp    nz,SYNTAX_ERR_HANDLER
 2025  EB       .                   ex    de,hl
 2026  7C       |                   ld    a,h
@@ -5249,7 +5254,7 @@
 2031  E1       .                   pop   hl
 2032  22E278   ".x                 ld    (0x78E2),hl
 2035  C1       .                   pop   bc
-2036  C3331A   .3.                 jp    0x1A33
+2036  C3331A   .3.                 jp    MAIN_LOOP_READY
 2039  CD3723   .7#                 call  0x2337
 203C  7E       ~                   ld    a,(hl)
 203D  FE2C     .,                  cp    0x2C
@@ -6949,7 +6954,7 @@
 2B3E  23       #                   inc   hl
 2B3F  78       x                   ld    a,b
 2B40  B1       .                   or    c
-2B41  CA191A   ...                 jp    z,0x1A19
+2B41  CA191A   ...                 jp    z,MAIN_LOOP
 2B44  CDDF79   ..y                 call  0x79DF
 2B47  CD9B1D   ...                 call  0x1D9B
 2B4A  C5       .                   push  bc
@@ -6962,7 +6967,7 @@
 2B51  EB       .                   ex    de,hl
 2B52  DF       .                   rst   0x18
 2B53  C1       .                   pop   bc
-2B54  DA181A   ...                 jp    c,0x1A18
+2B54  DA181A   ...                 jp    c,MAIN_LOOP_ENTRY
 2B57  E3       .                   ex    (sp),hl
 2B58  E5       .                   push  hl
 2B59  C5       .                   push  bc
@@ -7036,7 +7041,7 @@
 2BC9  D1       .                   pop   de
 2BCA  C5       .                   push  bc
 2BCB  C5       .                   push  bc
-2BCC  CD2C1B   .,.                 call  0x1B2C
+2BCC  CD2C1B   .,.                 call  FNDLIN
 2BCF  3005     0.                  jr    nc,$+7
 2BD1  54       T                   ld    d,h
 2BD2  5D       ]                   ld    e,l
@@ -8582,9 +8587,9 @@
 36E3  213978   !9x                 ld    hl,0x7839
 36E6  CBB6     ..                  res   6,(hl)
 36E8  D1       .                   pop   de
-36E9  CDFC1A   ...                 call  0x1AFC
+36E9  CDFC1A   ...                 call  RENEW_LINE_PTRS
 36EC  CDB579   ..y                 call  0x79B5
-36EF  CD5D1B   .].                 call  0x1B5D
+36EF  CD5D1B   .].                 call  CLEAR
 36F2  CDB879   ..y                 call  0x79B8
 36F5  21FFFF   !..                 ld    hl,0xFFFF
 36F8  22A278   ".x                 ld    (0x78A2),hl
@@ -9798,7 +9803,7 @@
 3E53  D8       .                   ret   c
 3E54  211A3E   !.>                 ld    hl,0x3E1A
 3E57  CDA728   ..(                 call  OUTSTR
-3E5A  C3E303   ...                 jp    INPUT_LINE_READ
+3E5A  C3E303   ...                 jp    RDLINE
 3E5D  FE62     .b                  cp    0x62
 3E5F  2039      9                  jr    nz,$+59
 3E61  E6BF     ..                  and   0xBF

@@ -1684,6 +1684,21 @@ offset = 6559
 end = 6559
 type = DATA_BYTE
 
+[region]
+offset = 6679
+end = 6679
+type = DATA_BYTE
+
+[region]
+offset = 6769
+end = 6770
+type = DATA_BYTE
+
+[region]
+offset = 6777
+end = 6778
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -15328,6 +15343,482 @@ text = output error message
 offset = 6648
 text = 6 x NOP
 
+[comment]
+offset = 6654
+text = Address 'ERROR' text
+
+[comment]
+offset = 6657
+text = and onto stack
+
+[comment]
+offset = 6658
+text = Load error line number
+
+[comment]
+offset = 6661
+text = swap with text address on stack
+
+[comment]
+offset = 6662
+text = output 'ERROR'
+
+[comment]
+offset = 6665
+text = error line number from stack
+
+[comment]
+offset = 6666
+text = = 65535? (FFFF)
+
+[comment]
+offset = 6670
+text = yes, new system initialization
+
+[comment]
+offset = 6673
+text = = 65535? (FFFF)
+
+[comment]
+offset = 6674
+text = (= direct mode)
+
+[comment]
+offset = 6676
+text = no, output 'IN Line'
+
+[comment]
+offset = 6679
+text = LD A,0C1H dummy instruction
+
+[comment]
+offset = 6680
+text = Correct stack
+
+[comment]
+offset = 6681
+text = Output flag to screen, CR to printer if necessary
+
+[comment]
+offset = 6684
+text = RAM expansion output
+
+[comment]
+offset = 6690
+text = CR on screen, if necessary
+
+[comment]
+offset = 6693
+text = Address 'READY' text
+
+[comment]
+offset = 6696
+text = and output
+
+[comment]
+offset = 6699
+text = no significance
+
+[comment]
+offset = 6702
+text = no significance
+
+[comment]
+offset = 6707
+text = Set current line number to FFFF
+
+[comment]
+offset = 6713
+text = AUTO function enabled?
+
+[comment]
+offset = 6717
+text = no, normal input
+
+[comment]
+offset = 6719
+text = load next AUTO line number
+
+[comment]
+offset = 6722
+text = and onto stack
+
+[comment]
+offset = 6723
+text = output line number
+
+[comment]
+offset = 6726
+text = then a space
+
+[comment]
+offset = 6728
+text = and output
+
+[comment]
+offset = 6731
+text = line number in DE
+
+[comment]
+offset = 6732
+text = and back on stack
+
+[comment]
+offset = 6733
+text = search for line in program text
+
+[comment]
+offset = 6736
+text = exists! output line
+
+[comment]
+offset = 6740
+text = read line from keyboard
+
+[comment]
+offset = 6743
+text = load AUTO line number
+
+[comment]
+offset = 6744
+text = no BREAK, continue normally
+
+[comment]
+offset = 6746
+text = clear AUTO flag
+
+[comment]
+offset = 6750
+text = back to main loop
+
+[comment]
+offset = 6752
+text = load AUTO increment
+
+[comment]
+offset = 6755
+text = add to AUTO line number
+
+[comment]
+offset = 6756
+text = overflow, leave AUTO mode
+
+[comment]
+offset = 6758
+text = AUTO line number on stack
+
+[comment]
+offset = 6759
+text = new AUTO line number > 65528?
+
+[comment]
+offset = 6762
+text = Compare HL/DE
+
+[comment]
+offset = 6763
+text = load AUTO line number again
+
+[comment]
+offset = 6764
+text = > 65528! leave AUTO mode
+
+[comment]
+offset = 6766
+text = remember new AUTO line number
+
+[comment]
+offset = 6771
+text = address I/O buffer - 1
+
+[comment]
+offset = 6774
+text = analyze line and accept
+
+[comment]
+offset = 6779
+text = read line from keyboard
+
+[comment]
+offset = 6782
+text = BREAK! to main loop start
+
+[comment]
+offset = 6785
+text = search for first character <> ' '
+
+[comment]
+offset = 6786
+text = line end (00)?
+
+[comment]
+offset = 6788
+text = yes, to main loop start
+
+[comment]
+offset = 6791
+text = save flag (Cy=1 if digit)
+
+[comment]
+offset = 6792
+text = decode line number
+
+[comment]
+offset = 6795
+text = buffer address back (after line number)
+
+[comment]
+offset = 6796
+text = load character
+
+[comment]
+offset = 6797
+text = = space?
+
+[comment]
+offset = 6799
+text = yes, further back
+
+[comment]
+offset = 6801
+text = buffer pointer to first char after line number
+
+[comment]
+offset = 6802
+text = load character
+
+[comment]
+offset = 6803
+text = = space?
+
+[comment]
+offset = 6805
+text = yes, skip first space
+
+[comment]
+offset = 6808
+text = line number on stack
+
+[comment]
+offset = 6809
+text = generate intermediate code
+
+[comment]
+offset = 6814
+text = save current program pointer
+
+[comment]
+offset = 6817
+text = RAM expansion output
+
+[comment]
+offset = 6820
+text = execute direct command
+
+[comment]
+offset = 6823
+text = line number on stack
+
+[comment]
+offset = 6824
+text = line length on stack
+
+[comment]
+offset = 6825
+text = clear RESUME/RETURN flag
+
+[comment]
+offset = 6826
+text = clear flag
+
+[comment]
+offset = 6829
+text = line empty?
+
+[comment]
+offset = 6830
+text = yes, zero flag = 1
+
+[comment]
+offset = 6831
+text = save flag on stack
+
+[comment]
+offset = 6832
+text = nostalgia from TRS-80 editor
+
+[comment]
+offset = 6833
+text = save line address in HL
+
+[comment]
+offset = 6837
+text = search for line in program text
+
+[comment]
+offset = 6840
+text = save address pointer on stack
+
+[comment]
+offset = 6841
+text = if found, delete
+
+[comment]
+offset = 6844
+text = line address in DE
+
+[comment]
+offset = 6845
+text = load flags again
+
+[comment]
+offset = 6846
+text = line address back on stack
+
+[comment]
+offset = 6847
+text = at empty line back to start
+
+[comment]
+offset = 6849
+text = load line address again
+
+[comment]
+offset = 6850
+text = load program end address
+
+[comment]
+offset = 6853
+text = swap with line length on stack
+
+[comment]
+offset = 6854
+text = program end address in BC
+
+[comment]
+offset = 6855
+text = end address + line length
+
+[comment]
+offset = 6856
+text = = new end address, save on stack
+
+[comment]
+offset = 6857
+text = make space for new line
+
+[comment]
+offset = 6860
+text = load new program address
+
+[comment]
+offset = 6861
+text = and save
+
+[comment]
+offset = 6864
+text = line address in HL
+
+[comment]
+offset = 6865
+text = enter any line pointer
+
+[comment]
+offset = 6866
+text = load line number again
+
+[comment]
+offset = 6867
+text = line address on stack
+
+[comment]
+offset = 6868
+text = line pointer on line number field
+
+[comment]
+offset = 6870
+text = enter line number into line
+
+[comment]
+offset = 6873
+text = line pointer to first text byte
+
+[comment]
+offset = 6875
+text = I/O buffer start address
+
+[comment]
+offset = 6878
+text = in DE
+
+[comment]
+offset = 6879
+text = - 2 = start of intermediate code
+
+[comment]
+offset = 6881
+text = transfer intermediate code to program text
+
+[comment]
+offset = 6882
+text = transfer
+
+[comment]
+offset = 6883
+text = address pointer + 1
+
+[comment]
+offset = 6885
+text = line end? (00)
+
+[comment]
+offset = 6886
+text = no, transfer next byte
+
+[comment]
+offset = 6888
+text = load line start address
+
+[comment]
+offset = 6889
+text = from line address, renew line pointer
+
+[comment]
+offset = 6892
+text = RAM expansion output
+
+[comment]
+offset = 6895
+text = Clear variable table and other program data
+
+[comment]
+offset = 6898
+text = RAM expansion output
+
+[comment]
+offset = 6901
+text = to main loop start
+
+[comment]
+offset = 6904
+text = program text start in DE
+
+[comment]
+offset = 6908
+text = line start address in HL
+
+[comment]
+offset = 6910
+text = line pointer = 0?
+
+[comment]
+offset = 6911
+text = (program end?)
+
+[comment]
+offset = 6913
+text = yes, done
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -16458,4 +16949,25 @@ text = Test if 2*C bytes are free
 [block]
 offset = 6522
 text = Preparation and output of error messages
+
+[block]
+offset = 6680
+text = BASIC - Main Loop
+              Jump entry at either 1A18 or 1A19
+
+[block]
+offset = 6719
+text = Program input under AUTO function
+
+[block]
+offset = 6777
+text = Normal program input without AUTO
+
+[block]
+offset = 6904
+text = Renew line pointers in entire program text
+
+[block]
+offset = 6908
+text = Renew line pointers partially
 

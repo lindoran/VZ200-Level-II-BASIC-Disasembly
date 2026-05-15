@@ -3549,7 +3549,8 @@
 6674	1	and	l
 6675	1	inc	a
 6676	3	call	nz,0x0FA7
-6679	2	ld	a,0xC1
+6679	1	DEFB	0x3E
+6680	1	pop	bc
 6681	3	call	0x038B
 6684	3	call	0x79AC
 6687	1	nop	
@@ -3593,12 +3594,10 @@
 6763	1	pop	de
 6764	2	jr	nc,$-18
 6766	3	ld	(0x78E2),hl
-6769	1	nop	
-6770	1	nop	
+6769	2	DEFB	0x00,0x00
 6771	3	ld	hl,0x79E7
 6774	3	jp	0x1A81
-6777	1	nop	
-6778	1	nop	
+6777	2	DEFB	0x00,0x00
 6779	3	call	0x03E3
 6782	3	jp	c,0x1A33
 6785	1	rst	0x10

@@ -1,6 +1,38 @@
 # VZ200 BASIC ROM Disassembly Progress
 
-## Session: May 14, 2026
+## Session: May 14, 2026 (Part 2)
+
+### Task
+Annotate the memory range 0x19FE to 0x1B01 based on Gerhard Wolf's Laser 310 German ROM listing (pages 113-117). This section includes the BASIC main loop, the AUTO command routine, and program line insertion logic.
+
+### Work Summary
+- **Main Loop & Input**:
+  - Annotated `MAIN_LOOP` (0x1A19) and `MAIN_LOOP_READY` (0x1A33).
+  - Documented the `AUTO` command routine (0x1A3F) including line number generation and increment logic.
+  - Labeled `NORMAL_INPUT` (0x1A79) for standard program line entry.
+- **Program Management**:
+  - Annotated the logic for searching, deleting, and inserting program lines (0x1AA7-0x1AF5).
+  - Labeled `RENEW_LINE_PTRS` (0x1AFC) and `RENEW_LINE_PTRS_ALL` (0x1AF8) which maintain the linked list structure of BASIC program lines.
+- **Tricks & Disassembly**:
+  - Handled a "LD A trick" at 0x1A17 using a `DIRECT_BYTE` segment to correctly reveal the `POP BC` instruction at 0x1A18 (`MAIN_LOOP_ENTRY`).
+  - Added `DIRECT_BYTE` segments for `DEFB 0,0` padding at 0x1A71 and 0x1A79 to match the original listing.
+- **Symbols**:
+  - Added global symbols for core routines called in this range: `RDLINE` (0x03E3), `FNDLIN` (0x1B2C), `STOKEN` (0x1BC0), `EXEC` (0x1D5A), `DELLIN` (0x2BE4), `CLEAR` (0x1B5D), and `DECZ` (0x1E5A).
+- **Translation**:
+  - Translated all German block headers and inline comments into English.
+- **Verification**:
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin` (MD5: `42c8f9e6c2133ae0e953b89ccbbdb7e2`).
+  - `export.lst` verified for correct English inline comments and logical disassembly across the 0x19FE-0x1B01 range.
+
+### Statistics
+- **Total Symbols:** 231 (Limit: 6000)
+- **Total Annotations:** 3224 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of English inline comments for the range 0x19FE-0x1B01.
+
+## Session: May 14, 2026 (Part 1)
 
 ### Task
 Re-work and annotate the memory range 0x000D to 0x005F based on Gerhard Wolf's Laser 310 German ROM listing (pages 6-8). This range was previously showing as raw byte data and required disassembly into instructions and English translation of the German annotations.

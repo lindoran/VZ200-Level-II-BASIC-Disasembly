@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Thu May 14 14:03:09 2026
+; Generated: Thu May 14 22:01:19 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -194,7 +194,7 @@ MEM_TEST_LOOP:
 ; TODO: Document from TRS 80 listing.
 ; ***********************************************************
 MEM_SIZE_INPUT:
-              call  0x1E5A         ; Handle memory size input
+              call  DECZ           ; Handle memory size input
               or    a
               jp    nz,SYNTAX_ERR_HANDLER
               ex    de,hl
@@ -688,7 +688,7 @@ INPUT_LINE_READ:
               ret   c              ; BREAK, back to BASIC
               ld    hl,0x3E1A      ; text \
               call  OUTSTR         ; output
-              jp    INPUT_LINE_READ ; back to line entry
+              jp    RDLINE         ; back to line entry
               cp    0x22           ; string identifier?
               jr    nz,$+51        ; no, continue
               ld    (de),a         ; character in I/O buffer
@@ -800,7 +800,7 @@ INPUT_LINE_READ:
               pop   bc             ; reload column counter
               ld    hl,0x7839      ; address Flag 2
               set   4,(hl)         ; set INPUT-Cmd flag
-              call  INPUT_LINE_READ ; read line
+              call  RDLINE         ; read line
               ret                  ; Return
 
 ; RUN command for CRUN auto-start
@@ -981,7 +981,7 @@ BASIC_INIT_3:
               ld    hl,0x8000      ; 3rd possibility at 8000H
               call  ROM_CART_CHECK ; check
               ei                   ; no insert - interrupts on
-              jp    0x1A19         ; to BASIC - main loop
+              jp    MAIN_LOOP      ; to BASIC - main loop
 
 ; ROM insert must begin with the byte sequence AA 55 E7 18
 ROM_CART_CHECK:
@@ -1012,7 +1012,7 @@ ROM_CART_CHECK:
               inc   l              ; Increment l
               jr    z,$+22         ; Relative jump if z to $+22
               call  0x34F1         ; Call 0x34F1
-              ld    bc,0x1A18      ; load address of main loop
+              ld    bc,MAIN_LOOP_ENTRY ; load address of main loop
               jp    0x19AE         ; init BASIC variables and pointers.
 
 ; The following area from 6D2 to 707 is transferred to the RAM area from 7800 
@@ -4460,153 +4460,163 @@ ERROR_HANDLER:
               nop   
               nop   
               nop   
-              ld    hl,MSG_ERROR_TEXT
-              push  hl
-              ld    hl,(0x78EA)
-              ex    (sp),hl
-              call  OUTSTR
-              pop   hl
-              ld    de,0xFFFE
+              ld    hl,MSG_ERROR_TEXT ; Address 'ERROR' text
+              push  hl             ; and onto stack
+              ld    hl,(0x78EA)    ; Load error line number
+              ex    (sp),hl        ; swap with text address on stack
+              call  OUTSTR         ; output 'ERROR'
+              pop   hl             ; error line number from stack
+              ld    de,0xFFFE      ; = 65535? (FFFF)
               rst   0x18
-              jp    z,BASIC_INIT_1
-              ld    a,h
-              and   l
+              jp    z,BASIC_INIT_1 ; yes, new system initialization
+              ld    a,h            ; = 65535? (FFFF)
+              and   l              ; (= direct mode)
               inc   a
-              call  nz,INPRT
-              ld    a,0xC1
-              call  OUTPUT_SCREEN_SELECT
-              call  0x79AC
+              call  nz,INPRT       ; no, output 'IN Line'
+              DEFB  0x3E           ; LD A,0C1H dummy instruction
+
+; BASIC - Main Loop
+; Jump entry at either 1A18 or 1A19
+              pop   bc             ; Correct stack
+              call  OUTPUT_SCREEN_SELECT ; Output flag to screen, CR to printer if necessary
+              call  0x79AC         ; RAM expansion output
               nop   
               nop   
               nop   
-              call  0x20F9
-              ld    hl,MSG_READY_TEXT
-              call  OUTSTR
-              ld    a,(0x789A)
-              sub   0x02
+              call  0x20F9         ; CR on screen, if necessary
+              ld    hl,MSG_READY_TEXT ; Address 'READY' text
+              call  OUTSTR         ; and output
+              ld    a,(0x789A)     ; no significance
+              sub   0x02           ; no significance
               nop   
               nop   
               nop   
-              ld    hl,0xFFFF
+              ld    hl,0xFFFF      ; Set current line number to FFFF
               ld    (0x78A2),hl
-              ld    a,(0x78E1)
+              ld    a,(0x78E1)     ; AUTO function enabled?
               or    a
-              jr    z,$+60
-              ld    hl,(0x78E2)
-              push  hl
-              call  LINPRT
-              ld    a,0x20
-              call  CHAR_OUTPUT_DISPATCH
-              pop   de
-              push  de
-              call  0x1B2C
-              call  c,0x2E53
+              jr    z,$+60         ; no, normal input
+
+; Program input under AUTO function
+              ld    hl,(0x78E2)    ; load next AUTO line number
+              push  hl             ; and onto stack
+              call  LINPRT         ; output line number
+              ld    a,0x20         ; then a space
+              call  CHAR_OUTPUT_DISPATCH ; and output
+              pop   de             ; line number in DE
+              push  de             ; and back on stack
+              call  FNDLIN         ; search for line in program text
+              call  c,0x2E53       ; exists! output line
               nop   
-              call  INPUT_LINE_READ
-              pop   de
-              jr    nc,$+8
-              xor   a
+              call  RDLINE         ; read line from keyboard
+              pop   de             ; load AUTO line number
+              jr    nc,$+8         ; no BREAK, continue normally
+              xor   a              ; clear AUTO flag
               ld    (0x78E1),a
-              jr    $-69
-              ld    hl,(0x78E4)
-              add   hl,de
-              jr    c,$-10
-              push  de
-              ld    de,0xFFF9
-              rst   0x18
-              pop   de
-              jr    nc,$-18
-              ld    (0x78E2),hl
-              nop   
-              nop   
-              ld    hl,0x79E7
-              jp    0x1A81
-              nop   
-              nop   
-              call  INPUT_LINE_READ
-              jp    c,0x1A33
-              rst   0x10
-              inc   a
+              jr    $-69           ; back to main loop
+              ld    hl,(0x78E4)    ; load AUTO increment
+              add   hl,de          ; add to AUTO line number
+              jr    c,$-10         ; overflow, leave AUTO mode
+              push  de             ; AUTO line number on stack
+              ld    de,0xFFF9      ; new AUTO line number > 65528?
+              rst   0x18           ; Compare HL/DE
+              pop   de             ; load AUTO line number again
+              jr    nc,$-18        ; > 65528! leave AUTO mode
+              ld    (0x78E2),hl    ; remember new AUTO line number
+              DEFB  0x00,0x00
+              ld    hl,0x79E7      ; address I/O buffer - 1
+              jp    0x1A81         ; analyze line and accept
+
+; Normal program input without AUTO
+              DEFB  0x00,0x00
+              call  RDLINE         ; read line from keyboard
+              jp    c,MAIN_LOOP_READY ; BREAK! to main loop start
+              rst   0x10           ; search for first character <> ' '
+              inc   a              ; line end (00)?
               dec   a
-              jp    z,0x1A33
-              push  af
-              call  0x1E5A
-              dec   hl
-              ld    a,(hl)
-              cp    0x20
-              jr    z,$-4
-              inc   hl
-              ld    a,(hl)
-              cp    0x20
-              call  z,INXHRT
-              push  de
-              call  0x1BC0
+              jp    z,MAIN_LOOP_READY ; yes, to main loop start
+              push  af             ; save flag (Cy=1 if digit)
+              call  DECZ           ; decode line number
+              dec   hl             ; buffer address back (after line number)
+              ld    a,(hl)         ; load character
+              cp    0x20           ; = space?
+              jr    z,$-4          ; yes, further back
+              inc   hl             ; buffer pointer to first char after line number
+              ld    a,(hl)         ; load character
+              cp    0x20           ; = space?
+              call  z,INXHRT       ; yes, skip first space
+              push  de             ; line number on stack
+              call  STOKEN         ; generate intermediate code
               pop   de
               pop   af
-              ld    (0x78E6),hl
-              call  0x79B2
-              jp    nc,0x1D5A
-              push  de
-              push  bc
-              xor   a
-              ld    (0x78DD),a
-              rst   0x10
-              or    a
-              push  af
+              ld    (0x78E6),hl    ; save current program pointer
+              call  0x79B2         ; RAM expansion output
+              jp    nc,EXEC        ; execute direct command
+              push  de             ; line number on stack
+              push  bc             ; line length on stack
+              xor   a              ; clear RESUME/RETURN flag
+              ld    (0x78DD),a     ; clear flag
+              rst   0x10           ; line empty?
+              or    a              ; yes, zero flag = 1
+              push  af             ; save flag on stack
+              ex    de,hl          ; nostalgia from TRS-80 editor
+              ld    (0x78EC),hl    ; save line address in HL
               ex    de,hl
-              ld    (0x78EC),hl
-              ex    de,hl
-              call  0x1B2C
-              push  bc
-              call  c,0x2BE4
-              pop   de
-              pop   af
-              push  de
-              jr    z,$+41
-              pop   de
-              ld    hl,(0x78F9)
-              ex    (sp),hl
-              pop   bc
-              add   hl,bc
-              push  hl
-              call  MAKE_SPACE
-              pop   hl
-              ld    (0x78F9),hl
-              ex    de,hl
-              ld    (hl),h
-              pop   de
-              push  hl
+              call  FNDLIN         ; search for line in program text
+              push  bc             ; save address pointer on stack
+              call  c,DELLIN       ; if found, delete
+              pop   de             ; line address in DE
+              pop   af             ; load flags again
+              push  de             ; line address back on stack
+              jr    z,$+41         ; at empty line back to start
+              pop   de             ; load line address again
+              ld    hl,(0x78F9)    ; load program end address
+              ex    (sp),hl        ; swap with line length on stack
+              pop   bc             ; program end address in BC
+              add   hl,bc          ; end address + line length
+              push  hl             ; = new end address, save on stack
+              call  MAKE_SPACE     ; make space for new line
+              pop   hl             ; load new program address
+              ld    (0x78F9),hl    ; and save
+              ex    de,hl          ; line address in HL
+              ld    (hl),h         ; enter any line pointer
+              pop   de             ; load line number again
+              push  hl             ; line address on stack
+              inc   hl             ; line pointer on line number field
               inc   hl
-              inc   hl
-              ld    (hl),e
+              ld    (hl),e         ; enter line number into line
               inc   hl
               ld    (hl),d
-              inc   hl
+              inc   hl             ; line pointer to first text byte
               ex    de,hl
-              ld    hl,(0x78A7)
-              ex    de,hl
+              ld    hl,(0x78A7)    ; I/O buffer start address
+              ex    de,hl          ; in DE
+              dec   de             ; - 2 = start of intermediate code
               dec   de
-              dec   de
-              ld    a,(de)
-              ld    (hl),a
-              inc   hl
+              ld    a,(de)         ; transfer intermediate code to program text
+              ld    (hl),a         ; transfer
+              inc   hl             ; address pointer + 1
               inc   de
-              or    a
-              jr    nz,$-5
-              pop   de
-              call  0x1AFC
-              call  0x79B5
-              call  0x1B5D
-              call  0x79B8
-              jp    0x1A33
-              ld    hl,(0x78A4)
+              or    a              ; line end? (00)
+              jr    nz,$-5         ; no, transfer next byte
+              pop   de             ; load line start address
+              call  RENEW_LINE_PTRS ; from line address, renew line pointer
+              call  0x79B5         ; RAM expansion output
+              call  CLEAR          ; Clear variable table and other program data
+              call  0x79B8         ; RAM expansion output
+              jp    MAIN_LOOP_READY ; to main loop start
+
+; Renew line pointers in entire program text
+              ld    hl,(0x78A4)    ; program text start in DE
               ex    de,hl
-              ld    h,d
+
+; Renew line pointers partially
+              ld    h,d            ; line start address in HL
               ld    l,e
-              ld    a,(hl)
-              inc   hl
+              ld    a,(hl)         ; line pointer = 0?
+              inc   hl             ; (program end?)
               or    (hl)
-              ret   z
+              ret   z              ; yes, done
               inc   hl
               inc   hl
               inc   hl
@@ -5047,7 +5057,7 @@ ERROR_HANDLER:
               pop   af
               ld    hl,MSG_BREAK_TEXT
               jp    nz,0x1A06
-              jp    0x1A18
+              jp    MAIN_LOOP_ENTRY
               ld    hl,(0x78F7)
               ld    a,h
               or    l
@@ -5165,7 +5175,7 @@ ERROR_HANDLER:
               ld    (0x78A0),hl
               pop   hl
               jp    0x1B61
-              jp    z,0x1B5D
+              jp    z,CLEAR
               call  0x79C7
               call  0x1B61
               ld    bc,0x1D1E
@@ -5181,7 +5191,7 @@ ERROR_HANDLER:
               push  af
               inc   sp
               push  bc
-              call  0x1E5A
+              call  DECZ
               call  0x1F07
               push  hl
               ld    hl,(0x78A2)
@@ -5189,7 +5199,7 @@ ERROR_HANDLER:
               pop   hl
               inc   hl
               call  c,0x1B2F
-              call  nc,0x1B2C
+              call  nc,FNDLIN
               ld    h,b
               ld    l,c
               dec   hl
@@ -5212,7 +5222,7 @@ ERROR_HANDLER:
               jr    nz,$+9
               ld    a,(0x78DD)
               or    a
-              jp    nz,0x1A18
+              jp    nz,MAIN_LOOP_ENTRY
               ld    hl,0x1D1E
               ex    (sp),hl
               ld    a,0xE1
@@ -5284,7 +5294,7 @@ ERROR_HANDLER:
               rst   0x10
               rst   8
               adc   a,l
-              call  0x1E5A
+              call  DECZ
               ld    a,d
               or    e
               jr    z,$+11
@@ -5329,7 +5339,7 @@ ERROR_HANDLER:
               ld    a,(hl)
               cp    0x87
               jr    z,$+14
-              call  0x1E5A
+              call  DECZ
               ret   nz
               ld    a,d
               or    e
@@ -5385,7 +5395,7 @@ ERROR_HANDLER:
               ld    hl,(0x78E4)
               ex    de,hl
               jr    z,$+8
-              call  0x1E5A
+              call  DECZ
               jp    nz,SYNTAX_ERR_HANDLER
               ex    de,hl
               ld    a,h
@@ -5396,7 +5406,7 @@ ERROR_HANDLER:
               pop   hl
               ld    (0x78E2),hl
               pop   bc
-              jp    0x1A33
+              jp    MAIN_LOOP_READY
               call  0x2337
               ld    a,(hl)
               cp    0x2C
@@ -7096,7 +7106,7 @@ ERROR_HANDLER:
               inc   hl
               ld    a,b
               or    c
-              jp    z,0x1A19
+              jp    z,MAIN_LOOP
               call  0x79DF
               call  0x1D9B
               push  bc
@@ -7109,7 +7119,7 @@ ERROR_HANDLER:
               ex    de,hl
               rst   0x18
               pop   bc
-              jp    c,0x1A18
+              jp    c,MAIN_LOOP_ENTRY
               ex    (sp),hl
               push  hl
               push  bc
@@ -7183,7 +7193,7 @@ ERROR_HANDLER:
               pop   de
               push  bc
               push  bc
-              call  0x1B2C
+              call  FNDLIN
               jr    nc,$+7
               ld    d,h
               ld    e,l
@@ -8729,9 +8739,9 @@ ERROR_HANDLER:
               ld    hl,0x7839
               res   6,(hl)
               pop   de
-              call  0x1AFC
+              call  RENEW_LINE_PTRS
               call  0x79B5
-              call  0x1B5D
+              call  CLEAR
               call  0x79B8
               ld    hl,0xFFFF
               ld    (0x78A2),hl
@@ -9945,7 +9955,7 @@ ERROR_HANDLER:
               ret   c
               ld    hl,0x3E1A
               call  OUTSTR
-              jp    INPUT_LINE_READ
+              jp    RDLINE
               cp    0x62
               jr    nz,$+59
               and   0xBF

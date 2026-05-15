@@ -317,3 +317,22 @@ PI2              EQU     0x158B      ;
 F025             EQU     0x158F      ;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 SIN_CONST        EQU     0x1593      ;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 ATN_CONST        EQU     0x15E3      ;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+
+; [JUMP_LABEL]
+ERROR_PRINT      EQU     0x19FE      ;                                                                                                                                           
+MAIN_LOOP_ENTRY  EQU     0x1A18      ;                                                                                                                                          
+MAIN_LOOP        EQU     0x1A19      ;                                                                                                                                         
+MAIN_LOOP_READY  EQU     0x1A33      ;                                                                                                                                        
+AUTO_COMMAND     EQU     0x1A3F      ;                                                                                                                                       
+NORMAL_INPUT     EQU     0x1A79      ;                                                                                                                                      
+RENEW_LINE_PTRS_ALL EQU     0x1AF8      ;                                                                                                                                     
+RENEW_LINE_PTRS  EQU     0x1AFC      ;                                                                                                                                    
+
+; [ROM_CALL]
+RDLINE           EQU     0x03E3      ;                                                                                                                                   
+FNDLIN           EQU     0x1B2C      ;                                                                                                                                  
+STOKEN           EQU     0x1BC0      ;                                                                                                                                 
+EXEC             EQU     0x1D5A      ;                                                                                                                                
+DELLIN           EQU     0x2BE4      ;                                                                                                                               
+CLEAR            EQU     0x1B5D      ;                                                                                                                              
+DECZ             EQU     0x1E5A      ;                                                                                                                             
