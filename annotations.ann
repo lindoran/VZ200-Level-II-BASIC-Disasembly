@@ -1699,6 +1699,36 @@ offset = 6777
 end = 6778
 type = DATA_BYTE
 
+[region]
+offset = 6942
+end = 6942
+type = DATA_BYTE
+
+[region]
+offset = 7613
+end = 7613
+type = DATA_BYTE
+
+[region]
+offset = 7671
+end = 7671
+type = DATA_BYTE
+
+[region]
+offset = 7682
+end = 7682
+type = DATA_BYTE
+
+[region]
+offset = 7685
+end = 7685
+type = DATA_BYTE
+
+[region]
+offset = 7688
+end = 7688
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -15819,6 +15849,2018 @@ text = (program end?)
 offset = 6913
 text = yes, done
 
+[comment]
+offset = 6914
+text = Skip pointer and line number
+
+[comment]
+offset = 6920
+text = no line end, back
+
+[comment]
+offset = 6922
+text = line start address in HL
+
+[comment]
+offset = 6923
+text = Address of next line as line pointer
+
+[comment]
+offset = 6924
+text = store it
+
+[comment]
+offset = 6926
+text = next line
+
+[comment]
+offset = 6928
+text = set 1st line number = 0
+
+[comment]
+offset = 6931
+text = and on stack
+
+[comment]
+offset = 6932
+text = no arguments, continue
+
+[comment]
+offset = 6934
+text = remove 0 from stack
+
+[comment]
+offset = 6935
+text = decode 1st line number
+
+[comment]
+offset = 6938
+text = and pack on stack
+
+[comment]
+offset = 6939
+text = no more characters! set 2nd line number = 1st
+
+[comment]
+offset = 6941
+text = follows a '-' ?
+
+[comment]
+offset = 6942
+text = Token for '-'
+
+[comment]
+offset = 6943
+text = set 2nd line number = 65530
+
+[comment]
+offset = 6946
+text = more characters? yes, decode 2nd line number
+
+[comment]
+offset = 6949
+text = even more characters? yes, SYNTAX ERROR
+
+[comment]
+offset = 6952
+text = 2nd line number in HL
+
+[comment]
+offset = 6953
+text = 1st line number in DE
+
+[comment]
+offset = 6954
+text = 2nd line number on stack with swap return address.
+
+[comment]
+offset = 6955
+text = return address back on stack
+
+[comment]
+offset = 6956
+text = load program start address
+
+[comment]
+offset = 6959
+text = line address in BC
+
+[comment]
+offset = 6961
+text = program end ?
+
+[comment]
+offset = 6962
+text = (line pointer = 0000)
+
+[comment]
+offset = 6965
+text = yes, done!
+
+[comment]
+offset = 6966
+text = program pointer to line number
+
+[comment]
+offset = 6968
+text = load line number into HL
+
+[comment]
+offset = 6972
+text = Compare HL/DE = searched line ?
+
+[comment]
+offset = 6973
+text = load line start address
+
+[comment]
+offset = 6975
+text = load line pointer
+
+[comment]
+offset = 6979
+text = invert carry flag
+
+[comment]
+offset = 6980
+text = searched line? yes-done
+
+[comment]
+offset = 6981
+text = carry flag back again
+
+[comment]
+offset = 6982
+text = line number > searched line
+
+[comment]
+offset = 6983
+text = examine next line
+
+[comment]
+offset = 6985
+text = Parameter? yes-SYNTAX ERROR
+
+[comment]
+offset = 6986
+text = clear screen
+
+[comment]
+offset = 6989
+text = program text start in HL
+
+[comment]
+offset = 6992
+text = call TROFF
+
+[comment]
+offset = 6995
+text = delete AUTO mode
+
+[comment]
+offset = 6998
+text = line pointer = 0000 at program text start (delete program)
+
+[comment]
+offset = 7001
+text = pointer behind 0000
+
+[comment]
+offset = 7002
+text = save as program end address
+
+[comment]
+offset = 7005
+text = load program start address
+
+[comment]
+offset = 7008
+text = - 1
+
+[comment]
+offset = 7009
+text = as pointer for program continuation
+
+[comment]
+offset = 7012
+text = counter = 26
+
+[comment]
+offset = 7014
+text = table start address
+
+[comment]
+offset = 7017
+text = enter code for single precision
+
+[comment]
+offset = 7019
+text = next byte
+
+[comment]
+offset = 7020
+text = counter - 1. done ?
+
+[comment]
+offset = 7022
+text = yes, clear TRAP flag
+
+[comment]
+offset = 7026
+text = HL = 0
+
+[comment]
+offset = 7028
+text = address of an error routine = 0
+
+[comment]
+offset = 7031
+text = CONT address pointer = 0
+
+[comment]
+offset = 7034
+text = load BASIC-RAM end address
+
+[comment]
+offset = 7037
+text = store as string area pointer; deletes all string variables
+
+[comment]
+offset = 7040
+text = call RESTORE
+
+[comment]
+offset = 7043
+text = load program end address
+
+[comment]
+offset = 7046
+text = = end address of variable table
+
+[comment]
+offset = 7049
+text = = end address of matrix table
+
+[comment]
+offset = 7052
+text = RAM expansion output
+
+[comment]
+offset = 7055
+text = load return address
+
+[comment]
+offset = 7056
+text = address of string area
+
+[comment]
+offset = 7059
+text = - 2
+
+[comment]
+offset = 7061
+text = store as stack start address
+
+[comment]
+offset = 7064
+text = + 2
+
+[comment]
+offset = 7066
+text = transfer to stack pointer
+
+[comment]
+offset = 7067
+text = clear string buffer
+
+[comment]
+offset = 7070
+text = (start address in pointer)
+
+[comment]
+offset = 7073
+text = output flag to screen, CR on printer if necessary.
+
+[comment]
+offset = 7076
+text = end check
+
+[comment]
+offset = 7079
+text = A = 0
+
+[comment]
+offset = 7080
+text = HL = 0
+
+[comment]
+offset = 7082
+text = release indexing lock
+
+[comment]
+offset = 7085
+text = 0 on stack as end identifier
+
+[comment]
+offset = 7086
+text = return addr. back on stack
+
+[comment]
+offset = 7087
+text = pointer for program continuation
+
+[comment]
+offset = 7091
+text = output question mark
+
+[comment]
+offset = 7096
+text = output space
+
+[comment]
+offset = 7101
+text = read a line
+
+[comment]
+offset = 7104
+text = clear DATA flag
+
+[comment]
+offset = 7108
+text = character counter = 0
+
+[comment]
+offset = 7110
+text = address of I/O buffer
+
+[comment]
+offset = 7113
+text = - 2
+
+[comment]
+offset = 7115
+text = in DE
+
+[comment]
+offset = 7116
+text = load character from text line
+
+[comment]
+offset = 7117
+text = = space ?
+
+[comment]
+offset = 7119
+text = yes! transfer directly
+
+[comment]
+offset = 7122
+text = character in B (as separator)
+
+[comment]
+offset = 7123
+text = = double quote ?
+
+[comment]
+offset = 7125
+text = yes! transfer string
+
+[comment]
+offset = 7128
+text = line end ?
+
+[comment]
+offset = 7129
+text = yes! done
+
+[comment]
+offset = 7132
+text = load DATA flag
+
+[comment]
+offset = 7135
+text = set ?
+
+[comment]
+offset = 7136
+text = load character
+
+[comment]
+offset = 7137
+text = yes! transfer directly
+
+[comment]
+offset = 7140
+text = = question mark ?
+
+[comment]
+offset = 7142
+text = load PRINT token
+
+[comment]
+offset = 7144
+text = yes! transfer to intermediate code
+
+[comment]
+offset = 7147
+text = load character again
+
+[comment]
+offset = 7148
+text = character < '0' ?
+
+[comment]
+offset = 7150
+text = yes, check for keywords
+
+[comment]
+offset = 7152
+text = character < '<' ?
+
+[comment]
+offset = 7154
+text = yes, accept directly
+
+[comment]
+offset = 7157
+text = intermediate code pointer on stack
+
+[comment]
+offset = 7158
+text = start address of keywords
+
+[comment]
+offset = 7161
+text = character counter on stack
+
+[comment]
+offset = 7162
+text = set return address
+
+[comment]
+offset = 7166
+text = set token counter = 7F
+
+[comment]
+offset = 7168
+text = load character from text
+
+[comment]
+offset = 7169
+text = lowercase?
+
+[comment]
+offset = 7171
+text = no!
+
+[comment]
+offset = 7175
+text = no!
+
+[comment]
+offset = 7177
+text = convert to uppercase
+
+[comment]
+offset = 7179
+text = write character back to text
+
+[comment]
+offset = 7180
+text = load 1st character
+
+[comment]
+offset = 7181
+text = keyword pointer in HL
+
+[comment]
+offset = 7182
+text = search for next keyword
+
+[comment]
+offset = 7183
+text = start of a keyword?
+
+[comment]
+offset = 7184
+text = no, continue
+
+[comment]
+offset = 7187
+text = token counter + 1
+
+[comment]
+offset = 7188
+text = 1st character of keyword
+
+[comment]
+offset = 7189
+text = clear bit 7
+
+[comment]
+offset = 7191
+text = end of keyword table
+
+[comment]
+offset = 7192
+text = = text character ?
+
+[comment]
+offset = 7193
+text = no, next keyword
+
+[comment]
+offset = 7195
+text = swap address pointers
+
+[comment]
+offset = 7196
+text = buffer pointer on stack
+
+[comment]
+offset = 7197
+text = keyword pointer + 1
+
+[comment]
+offset = 7198
+text = next char of keyword
+
+[comment]
+offset = 7199
+text = new keyword ?
+
+[comment]
+offset = 7200
+text = yes, keyword recognized
+
+[comment]
+offset = 7203
+text = character in C
+
+[comment]
+offset = 7204
+text = Token = GOTO?
+
+[comment]
+offset = 7207
+text = no, continue
+
+[comment]
+offset = 7209
+text = yes, space allowed
+
+[comment]
+offset = 7210
+text = buffer pointer back one char
+
+[comment]
+offset = 7211
+text = buffer pointer to next character
+
+[comment]
+offset = 7212
+text = load character
+
+[comment]
+offset = 7213
+text = lowercase ?
+
+[comment]
+offset = 7215
+text = no!
+
+[comment]
+offset = 7217
+text = convert to uppercase
+
+[comment]
+offset = 7219
+text = = letter from keyword ?
+
+[comment]
+offset = 7220
+text = yes, continue
+
+[comment]
+offset = 7222
+text = no, buffer pointer back again
+
+[comment]
+offset = 7223
+text = try next keyword
+
+[comment]
+offset = 7225
+text = Token determined. Token in C
+
+[comment]
+offset = 7226
+text = clear stack
+
+[comment]
+offset = 7227
+text = swap address pointers
+
+[comment]
+offset = 7229
+text = HL = buffer pointer
+
+[comment]
+offset = 7230
+text = character or token in A
+
+[comment]
+offset = 7231
+text = load character counter
+
+[comment]
+offset = 7232
+text = load intermediate code pointer
+
+[comment]
+offset = 7233
+text = swap address pointers
+
+[comment]
+offset = 7234
+text = = ELSE token ?
+
+[comment]
+offset = 7236
+text = ':' to intermediate code
+
+[comment]
+offset = 7238
+text = no, ignore ':'
+
+[comment]
+offset = 7240
+text = yes, character counter + 1
+
+[comment]
+offset = 7241
+text = intermediate code pointer after ':'
+
+[comment]
+offset = 7242
+text = = '\
+
+[comment]
+offset = 7244
+text = no!
+
+[comment]
+offset = 7246
+text = yes, ':' to intermediate code
+
+[comment]
+offset = 7248
+text = intermediate code pointer + 1
+
+[comment]
+offset = 7249
+text = REM token to intermediate code
+
+[comment]
+offset = 7252
+text = intermediate code pointer + 1
+
+[comment]
+offset = 7253
+text = swap address pointers
+
+[comment]
+offset = 7254
+text = character counter + 2
+
+[comment]
+offset = 7256
+text = transfer remaining text from buffer unchanged to intermediate code
+
+[comment]
+offset = 7258
+text = swap address pointers
+
+[comment]
+offset = 7259
+text = buffer pointer + 1
+
+[comment]
+offset = 7260
+text = token or character to intermediate code
+
+[comment]
+offset = 7261
+text = intermediate code pointer + 1
+
+[comment]
+offset = 7262
+text = character counter + 1
+
+[comment]
+offset = 7263
+text = = ':' ?
+
+[comment]
+offset = 7265
+text = yes, clear DATA flag
+
+[comment]
+offset = 7267
+text = DATA token ? (88 - 3A)
+
+[comment]
+offset = 7269
+text = no!
+
+[comment]
+offset = 7271
+text = yes, set DATA flag
+
+[comment]
+offset = 7274
+text = REM token ? (93 - 3A)
+
+[comment]
+offset = 7276
+text = no, back
+
+[comment]
+offset = 7279
+text = 0 as separator in B
+
+[comment]
+offset = 7280
+text = text until separator or line end unchanged in intermediate code
+
+[comment]
+offset = 7281
+text = line end ?
+
+[comment]
+offset = 7282
+text = yes, done
+
+[comment]
+offset = 7284
+text = separator ? (with ' = \
+
+[comment]
+offset = 7285
+text = yes, back
+
+[comment]
+offset = 7287
+text = buffer pointer + 1
+
+[comment]
+offset = 7288
+text = character to intermediate code
+
+[comment]
+offset = 7289
+text = character counter + 1
+
+[comment]
+offset = 7290
+text = intermediate code pointer + 1
+
+[comment]
+offset = 7291
+text = next character
+
+[comment]
+offset = 7293
+text = HL = 5
+
+[comment]
+offset = 7296
+text = B = 0
+
+[comment]
+offset = 7297
+text = character counter + 5
+
+[comment]
+offset = 7298
+text = in BC
+
+[comment]
+offset = 7300
+text = start address of I/O buffer - 3
+
+[comment]
+offset = 7304
+text = pointer to byte before intermediate code
+
+[comment]
+offset = 7306
+text = mark intermediate code end with 3 zeros
+
+[comment]
+offset = 7308
+text = (end identifier for direct commands)
+
+[comment]
+offset = 7311
+text = that's it
+
+[comment]
+offset = 7312
+text = MSB HL = MSB DE ?
+
+[comment]
+offset = 7314
+text = no, done
+
+[comment]
+offset = 7315
+text = LSB HL = LSB DE ?
+
+[comment]
+offset = 7318
+text = load character from pointer position
+
+[comment]
+offset = 7319
+text = swap pointer with return address
+
+[comment]
+offset = 7320
+text = = the character following the call ?
+
+[comment]
+offset = 7321
+text = return address + 1
+
+[comment]
+offset = 7322
+text = swap with pointer again
+
+[comment]
+offset = 7323
+text = equal, continue with RST 10
+
+[comment]
+offset = 7326
+text = not equal, SYNTAX ERROR
+
+[comment]
+offset = 7329
+text = lock indexing
+
+[comment]
+offset = 7334
+text = starting value in loop variable
+
+[comment]
+offset = 7337
+text = program pointer on stack
+
+[comment]
+offset = 7338
+text = loop with same loop variable already on stack ?
+
+[comment]
+offset = 7341
+text = program pointer in DE
+
+[comment]
+offset = 7342
+text = no!
+
+[comment]
+offset = 7344
+text = yes, delete all loops up to that point by stack correction
+
+[comment]
+offset = 7345
+text = set stack pointer new
+
+[comment]
+offset = 7346
+text = and save new starting value
+
+[comment]
+offset = 7349
+text = program pointer in HL
+
+[comment]
+offset = 7350
+text = at least 16 bytes free ?
+
+[comment]
+offset = 7352
+text = no, OUT OF MEMORY error
+
+[comment]
+offset = 7355
+text = program pointer on stack
+
+[comment]
+offset = 7356
+text = search for next statement
+
+[comment]
+offset = 7359
+text = program pointer to next statement on stack, save old pointer
+
+[comment]
+offset = 7360
+text = and also back on the stack
+
+[comment]
+offset = 7361
+text = load line number
+
+[comment]
+offset = 7364
+text = swap with pointer on stack
+
+[comment]
+offset = 7365
+text = follows a 'TO' token ?
+
+[comment]
+offset = 7367
+text = test type of loop variable
+
+[comment]
+offset = 7368
+text = String? yes, TYPE MISMATCH error
+
+[comment]
+offset = 7371
+text = double precision? yes, TYPE MISMATCH error
+
+[comment]
+offset = 7374
+text = (FF = Integer, 01 = single precision)
+
+[comment]
+offset = 7375
+text = calculate end value expression
+
+[comment]
+offset = 7378
+text = load type flag
+
+[comment]
+offset = 7379
+text = program pointer on stack
+
+[comment]
+offset = 7380
+text = single precision!
+
+[comment]
+offset = 7383
+text = Integer, convert end value
+
+[comment]
+offset = 7386
+text = end value on the stack
+
+[comment]
+offset = 7387
+text = increment value = 1
+
+[comment]
+offset = 7390
+text = load next character
+
+[comment]
+offset = 7391
+text = = STEP token ?
+
+[comment]
+offset = 7393
+text = yes, evaluate increment value and convert to integer (in DE)
+
+[comment]
+offset = 7396
+text = increment value on the stack
+
+[comment]
+offset = 7397
+text = save program pointer
+
+[comment]
+offset = 7398
+text = increment value in HL
+
+[comment]
+offset = 7399
+text = test increment value
+
+[comment]
+offset = 7402
+text = continue at 1D0E
+
+[comment]
+offset = 7404
+text = convert end value to single precision
+
+[comment]
+offset = 7407
+text = transfer to Y
+
+[comment]
+offset = 7410
+text = reload program pointer
+
+[comment]
+offset = 7411
+text = end value on the stack
+
+[comment]
+offset = 7413
+text = increment value = 1 in Y
+
+[comment]
+offset = 7418
+text = load next character
+
+[comment]
+offset = 7419
+text = = STEP token ?
+
+[comment]
+offset = 7421
+text = set flag for positive increment
+
+[comment]
+offset = 7423
+text = no!
+
+[comment]
+offset = 7425
+text = evaluate increment value
+
+[comment]
+offset = 7428
+text = program pointer on the stack
+
+[comment]
+offset = 7429
+text = evaluate increment value
+
+[comment]
+offset = 7432
+text = and enter in Y
+
+[comment]
+offset = 7435
+text = test increment value (A=1 if positive, A=FF if negative)
+
+[comment]
+offset = 7438
+text = reload program pointer
+
+[comment]
+offset = 7439
+text = increment value on stack
+
+[comment]
+offset = 7440
+text = load program pointer
+
+[comment]
+offset = 7441
+text = increment flag in C
+
+[comment]
+offset = 7442
+text = test type of increment value
+
+[comment]
+offset = 7443
+text = (01 = single precision, FF = Integer)
+
+[comment]
+offset = 7444
+text = type flag and increment flag on stack
+
+[comment]
+offset = 7445
+text = program pointer on stack
+
+[comment]
+offset = 7446
+text = address of loop variable in HL
+
+[comment]
+offset = 7449
+text = swap with program pointer on stack
+
+[comment]
+offset = 7450
+text = FOR token (81) in B
+
+[comment]
+offset = 7452
+text = as marker on the stack
+
+[comment]
+offset = 7453
+text = remove LSB
+
+[comment]
+offset = 7454
+text = query keyboard
+
+[comment]
+offset = 7457
+text = new key pressed?
+
+[comment]
+offset = 7458
+text = yes, analyze
+
+[comment]
+offset = 7461
+text = save program pointer
+
+[comment]
+offset = 7464
+text = save stack pointer
+
+[comment]
+offset = 7468
+text = load character
+
+[comment]
+offset = 7469
+text = ':''? (multiple statements in line)
+
+[comment]
+offset = 7471
+text = yes!
+
+[comment]
+offset = 7473
+text = line end ?
+
+[comment]
+offset = 7474
+text = no, SYNTAX ERROR
+
+[comment]
+offset = 7477
+text = program end?
+
+[comment]
+offset = 7478
+text = (line pointer = 0000)
+
+[comment]
+offset = 7481
+text = yes, implicit end
+
+[comment]
+offset = 7484
+text = program pointer to line number
+
+[comment]
+offset = 7485
+text = load line number in DE
+
+[comment]
+offset = 7487
+text = line number in HL, program pointer in DE
+
+[comment]
+offset = 7489
+text = line number = current line number
+
+[comment]
+offset = 7492
+text = (TRON)
+
+[comment]
+offset = 7495
+text = no!
+
+[comment]
+offset = 7498
+text = program pointer on stack
+
+[comment]
+offset = 7499
+text = '<' output
+
+[comment]
+offset = 7504
+text = line number output
+
+[comment]
+offset = 7507
+text = '>' output
+
+[comment]
+offset = 7512
+text = reload program pointer
+
+[comment]
+offset = 7513
+text = program pointer in HL
+
+[comment]
+offset = 7514
+text = address next character
+
+[comment]
+offset = 7515
+text = return address on stack
+
+[comment]
+offset = 7519
+text = end of statement
+
+[comment]
+offset = 7520
+text = token ?
+
+[comment]
+offset = 7522
+text = no, assignment without LET
+
+[comment]
+offset = 7525
+text = statement token ?
+
+[comment]
+offset = 7527
+text = no!
+
+[comment]
+offset = 7530
+text = token * 2 in BC
+
+[comment]
+offset = 7534
+text = program pointer in DE
+
+[comment]
+offset = 7535
+text = start of jump table
+
+[comment]
+offset = 7538
+text = + 2*token = pointer to jump address
+
+[comment]
+offset = 7539
+text = load jump address
+
+[comment]
+offset = 7542
+text = and onto the stack
+
+[comment]
+offset = 7543
+text = reload program pointer in HL
+
+[comment]
+offset = 7544
+text = program pointer + 1
+
+[comment]
+offset = 7545
+text = load character
+
+[comment]
+offset = 7546
+text = ':''?
+
+[comment]
+offset = 7548
+text = yes!
+
+[comment]
+offset = 7549
+text = space ?
+
+[comment]
+offset = 7551
+text = yes, next character
+
+[comment]
+offset = 7554
+text = digit ?
+
+[comment]
+offset = 7556
+text = next character
+
+[comment]
+offset = 7558
+text = > 09H ? (excludes 09 and 0A)
+
+[comment]
+offset = 7560
+text = yes, next character
+
+[comment]
+offset = 7563
+text = '0' ?
+
+[comment]
+offset = 7565
+text = yes, Carry = 1
+
+[comment]
+offset = 7566
+text = line end ?
+
+[comment]
+offset = 7568
+text = done
+
+[comment]
+offset = 7569
+text = program pointer in DE
+
+[comment]
+offset = 7570
+text = program start address
+
+[comment]
+offset = 7573
+text = - 1
+
+[comment]
+offset = 7574
+text = store as DATA pointer
+
+[comment]
+offset = 7577
+text = reload program pointer
+
+[comment]
+offset = 7578
+text = done
+
+[comment]
+offset = 7579
+text = key pressed ?
+
+[comment]
+offset = 7582
+text = no!
+
+[comment]
+offset = 7583
+text = no, done!
+
+[comment]
+offset = 7594
+text = A = 1 set (BREAK identifier)
+
+[comment]
+offset = 7595
+text = continue at END
+
+[comment]
+offset = 7598
+text = following parameters? yes, error
+
+[comment]
+offset = 7599
+text = END flag (A=0) on stack
+
+[comment]
+offset = 7600
+text = RAM expansion exit
+
+[comment]
+offset = 7603
+text = END flag reload
+
+[comment]
+offset = 7604
+text = save current program pointer
+
+[comment]
+offset = 7607
+text = clear intermediate buffer for strings.
+
+[comment]
+offset = 7610
+text = (pointer to start)
+
+[comment]
+offset = 7613
+text = LD HL,0FFF6H Dummy instruction
+
+[comment]
+offset = 7614
+text = END flag = FF (BREAK in INPUT)
+
+[comment]
+offset = 7616
+text = remove return address from stack.
+
+[comment]
+offset = 7617
+text = load current line number
+
+[comment]
+offset = 7620
+text = on stack
+
+[comment]
+offset = 7621
+text = END flag on stack
+
+[comment]
+offset = 7622
+text = line number = FFFF ?
+
+[comment]
+offset = 7623
+text = (= direct mode)
+
+[comment]
+offset = 7625
+text = yes!
+
+[comment]
+offset = 7627
+text = no, save as CONT line number.
+
+[comment]
+offset = 7630
+text = current program pointer
+
+[comment]
+offset = 7633
+text = as CONT pointer save
+
+[comment]
+offset = 7636
+text = output flag on screen. CR on
+
+[comment]
+offset = 7639
+text = CR on screen, if required
+
+[comment]
+offset = 7642
+text = reload END flag
+
+[comment]
+offset = 7643
+text = address 'BREAK' text
+
+[comment]
+offset = 7646
+text = if not END and not direct mode, output 'BREAK IN line'
+
+[comment]
+offset = 7649
+text = back to main loop
+
+[comment]
+offset = 7652
+text = load CONT program pointer
+
+[comment]
+offset = 7655
+text = = 0000 ?
+
+[comment]
+offset = 7656
+text = (no continuation possible)
+
+[comment]
+offset = 7657
+text = load error code CAN'T CONTINUE
+
+[comment]
+offset = 7659
+text = yes, output error message
+
+[comment]
+offset = 7662
+text = program pointer in DE
+
+[comment]
+offset = 7663
+text = load CONT line number
+
+[comment]
+offset = 7666
+text = and save in current line pointer.
+
+[comment]
+offset = 7669
+text = program pointer in HL
+
+[comment]
+offset = 7670
+text = resume program execution
+
+[comment]
+offset = 7671
+text = LD A,0AFH at TRON A<>0 set
+
+[comment]
+offset = 7672
+text = at TROFF A = 0 set
+
+[comment]
+offset = 7673
+text = save as TRACE flag
+
+[comment]
+offset = 7677
+text = not used
+
+[comment]
+offset = 7680
+text = typecode = String in E
+
+[comment]
+offset = 7682
+text = LD BC,021EH Dummy instruction
+
+[comment]
+offset = 7683
+text = typecode = Integer in E
+
+[comment]
+offset = 7685
+text = LD BC,041EH Dummy instruction
+
+[comment]
+offset = 7686
+text = typecode = single precision in E
+
+[comment]
+offset = 7688
+text = LD BC,081EH Dummy instruction
+
+[comment]
+offset = 7689
+text = typecode = double precision in E
+
+[comment]
+offset = 7691
+text = next character = letter?
+
+[comment]
+offset = 7694
+text = address SN error routine
+
+[comment]
+offset = 7697
+text = and on stack
+
+[comment]
+offset = 7698
+text = no letter, output SYNTAX ERROR.
+
+[comment]
+offset = 7699
+text = determine position in alphabet
+
+[comment]
+offset = 7701
+text = transfer to B and C
+
+[comment]
+offset = 7703
+text = load next character
+
+[comment]
+offset = 7704
+text = = '-' token
+
+[comment]
+offset = 7706
+text = no!
+
+[comment]
+offset = 7708
+text = load next character
+
+[comment]
+offset = 7709
+text = = letter ?
+
+[comment]
+offset = 7712
+text = no, output SYNTAX ERROR
+
+[comment]
+offset = 7713
+text = determine position in alphabet
+
+[comment]
+offset = 7715
+text = as high value in B
+
+[comment]
+offset = 7716
+text = load next character
+
+[comment]
+offset = 7717
+text = 2nd letter < 1st letter ?
+
+[comment]
+offset = 7719
+text = yes, output SYNTAX ERROR
+
+[comment]
+offset = 7720
+text = difference + 1 = counter
+
+[comment]
+offset = 7721
+text = program pointer on stack
+
+[comment]
+offset = 7722
+text = address typecode table
+
+[comment]
+offset = 7725
+text = offset for 1st letter in BC
+
+[comment]
+offset = 7727
+text = table start = 1st letter in tab.
+
+[comment]
+offset = 7728
+text = enter typecode in table
+
+[comment]
+offset = 7729
+text = table address + 1
+
+[comment]
+offset = 7730
+text = counter - 1
+
+[comment]
+offset = 7731
+text = done? no - next letter
+
+[comment]
+offset = 7733
+text = reload program pointer
+
+[comment]
+offset = 7734
+text = load character from program text
+
+[comment]
+offset = 7735
+text = follow more parameters ?
+
+[comment]
+offset = 7737
+text = no, done
+
+[comment]
+offset = 7738
+text = load next character
+
+[comment]
+offset = 7739
+text = enter more definitions
+
+[comment]
+offset = 7741
+text = load character
+
+[comment]
+offset = 7742
+text = < A ?
+
+[comment]
+offset = 7744
+text = yes, no letter
+
+[comment]
+offset = 7745
+text = <= Z yes, Carry = 1
+
+[comment]
+offset = 7747
+text = invert carry
+
+[comment]
+offset = 7749
+text = address next character
+
+[comment]
+offset = 7750
+text = evaluate expression
+
+[comment]
+offset = 7753
+text = > 32767 ? no, done
+
+[comment]
+offset = 7754
+text = error code in E
+
+[comment]
+offset = 7756
+text = output error message
+
+[comment]
+offset = 7759
+text = load character from string
+
+[comment]
+offset = 7760
+text = = '.' ?
+
+[comment]
+offset = 7762
+text = string pointer in DE
+
+[comment]
+offset = 7763
+text = '.'-line number in HL
+
+[comment]
+offset = 7766
+text = swap string and '.'-ZNr
+
+[comment]
+offset = 7767
+text = yes, done
+
+[comment]
+offset = 7770
+text = string pointer - 1
+
+[comment]
+offset = 7771
+text = value = 0 set
+
+[comment]
+offset = 7774
+text = load next character
+
+[comment]
+offset = 7775
+text = no digit, done
+
+[comment]
+offset = 7776
+text = string pointer on stack
+
+[comment]
+offset = 7777
+text = digit on stack
+
+[comment]
+offset = 7778
+text = value > 1998H ?
+
+[comment]
+offset = 7781
+text = (i.e. value*10 > 65529)
+
+[comment]
+offset = 7782
+text = yes, SYNTAX ERROR
+
+[comment]
+offset = 7785
+text = transfer value in HL
+
+[comment]
+offset = 7787
+text = value * 2
+
+[comment]
+offset = 7788
+text = * 4
+
+[comment]
+offset = 7789
+text = * 5
+
+[comment]
+offset = 7790
+text = * 10
+
+[comment]
+offset = 7791
+text = reload digit
+
+[comment]
+offset = 7792
+text = remove zone part
+
+[comment]
+offset = 7794
+text = in DE transfer
+
+[comment]
+offset = 7797
+text = add to 10*value
+
+[comment]
+offset = 7798
+text = transfer value in DE
+
+[comment]
+offset = 7799
+text = pop string pointer
+
+[comment]
+offset = 7800
+text = next digit
+
+[comment]
+offset = 7802
+text = no parameters? Jump to NEW
+
+[comment]
+offset = 7805
+text = evaluate expression
+
+[comment]
+offset = 7808
+text = program pointer - 1
+
+[comment]
+offset = 7809
+text = address next character
+
+[comment]
+offset = 7810
+text = command end?
+
+[comment]
+offset = 7811
+text = program pointer on stack
+
+[comment]
+offset = 7812
+text = BASIC-RAM end address loaded
+
+[comment]
+offset = 7815
+text = - argument of CLEAR statement
+
+[comment]
+offset = 7816
+text = = start of string area - 1
+
+[comment]
+offset = 7821
+text = underflow, OUT OF MEMORY - error
+
+[comment]
+offset = 7824
+text = start of variable table
+
+[comment]
+offset = 7827
+text = + 64
+
+[comment]
+offset = 7831
+text = < new string area address - 1?
+
+[comment]
+offset = 7832
+text = no, OUT OF MEMORY - error
+
+[comment]
+offset = 7835
+text = new string area start - 1
+
+[comment]
+offset = 7836
+text = save
+
+[comment]
+offset = 7839
+text = reload program pointer
+
+[comment]
+offset = 7840
+text = continue at NEW
+
+[comment]
+offset = 7843
+text = no line number? continue at NEW
+
+[comment]
+offset = 7846
+text = RAM expansion exit
+
+[comment]
+offset = 7849
+text = clear variables
+
+[comment]
+offset = 7852
+text = load return address
+
+[comment]
+offset = 7855
+text = continue at GOTO
+
+[comment]
+offset = 7857
+text = check if 6 bytes are free
+
+[comment]
+offset = 7862
+text = remove return address
+
+[comment]
+offset = 7863
+text = HL on the stack
+
+[comment]
+offset = 7864
+text = program pointer again on stack
+
+[comment]
+offset = 7865
+text = with current line number
+
+[comment]
+offset = 7868
+text = swap
+
+[comment]
+offset = 7869
+text = 91 as flag for GOSUB
+
+[comment]
+offset = 7871
+text = on the stack
+
+[comment]
+offset = 7872
+text = remove LSB
+
+[comment]
+offset = 7873
+text = return address back on stack
+
+[comment]
+offset = 7874
+text = determine jump line number
+
+[comment]
+offset = 7877
+text = search for end of statement
+
+[comment]
+offset = 7880
+text = program pointer on stack
+
+[comment]
+offset = 7881
+text = current line number in HL
+
+[comment]
+offset = 7884
+text = jump to < line number ?
+
+[comment]
+offset = 7885
+text = load program pointer
+
+[comment]
+offset = 7886
+text = on next line
+
+[comment]
+offset = 7887
+text = yes, search jump line from this line
+
+[comment]
+offset = 7890
+text = no, search jump line from program start
+
+[comment]
+offset = 7893
+text = address of jump line in HL
+
+[comment]
+offset = 7895
+text = program pointer before jump line
+
+[comment]
+offset = 7896
+text = line present? yes, continue there
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -16970,4 +19012,153 @@ text = Renew line pointers in entire program text
 [block]
 offset = 6908
 text = Renew line pointers partially
+
+[block]
+offset = 6928
+text = Analyze arguments for LIST command
+
+[block]
+offset = 6956
+text = Search for line in program text
+
+[block]
+offset = 6985
+text = NEW command
+              Reset all variables and pointers
+              (the string area definition is preserved)
+
+[block]
+offset = 7091
+text = Output question mark and read a line
+
+[block]
+offset = 7104
+text = Analyze line and generate intermediate code (tokenize)
+
+[block]
+offset = 7157
+text = Check text for valid BASIC keyword
+
+[block]
+offset = 7229
+text = Token or text to intermediate code
+
+[block]
+offset = 7312
+text = Restart 18
+              Compare HL and DE
+
+[block]
+offset = 7318
+text = Restart 8
+              Syntax check
+
+[block]
+offset = 7329
+text = FOR statement
+
+[block]
+offset = 7454
+text = Program execution
+              HL must point to ':' or end of line
+
+[block]
+offset = 7544
+text = Restart 10
+              Search for next character in program text
+              09, 0A (LF) and 20 (' ') are skipped
+
+[block]
+offset = 7569
+text = RESTORE statement
+              Resetting the DATA pointer
+
+[block]
+offset = 7579
+text = keyboard activity during program execution
+              or analyze during LIST
+
+[block]
+offset = 7598
+text = END - statement
+              Terminate program execution
+
+[block]
+offset = 7614
+text = Entry for BREAK in INPUT statement
+
+[block]
+offset = 7652
+text = CONT - statement
+              Resume program execution after BREAK or error
+
+[block]
+offset = 7671
+text = TRON - statement
+              Turn trace on
+
+[block]
+offset = 7672
+text = TROFF - statement
+              Turn trace off
+
+[block]
+offset = 7680
+text = DEFSTR - statement
+              Define string variables
+
+[block]
+offset = 7683
+text = DEFINT - statement
+              Define integer variables
+
+[block]
+offset = 7686
+text = DEFSNG - statement
+              Define single precision variables
+
+[block]
+offset = 7689
+text = DEFDBL - statement
+              Define double precision variables
+
+[block]
+offset = 7691
+text = common routine
+
+[block]
+offset = 7741
+text = Tests if character is a letter
+
+[block]
+offset = 7749
+text = Evaluate expression and determine integer value < 32768.
+
+[block]
+offset = 7754
+text = FUNCTION CODE - Error
+
+[block]
+offset = 7759
+text = Convert string to number ( < 65530 )
+
+[block]
+offset = 7802
+text = CLEAR - statement
+              Clear variables and define string area
+
+[block]
+offset = 7843
+text = RUN statement
+              Start program
+
+[block]
+offset = 7857
+text = GOSUB statement
+              Call subroutine
+
+[block]
+offset = 7874
+text = GOTO - statement
+              unconditional jump
 

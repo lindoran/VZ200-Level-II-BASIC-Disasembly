@@ -1,4 +1,132 @@
 # VZ200 BASIC ROM Disassembly Progress
+## Session: May 17, 2026 (Part 1)
+
+### Task
+Re-work and annotate the memory range 0x1EA3 to 0x1EC1 based on Gerhard Wolf's Laser 310 German ROM listing (pages 134-135). This section covers the entry points for the `RUN` and `GOSUB` statements.
+
+### Work Summary
+- **Statement Execution**:
+  - Annotated the `RUN` statement entry point (0x1EA3), including the path to `VRESET` (0x1B5D) when no line number is specified.
+  - Annotated the `GOSUB` statement routine (0x1EB1), including stack manipulation and free memory checks.
+- **Symbols**:
+  - Added global symbols: `RUN` (0x1EA3), `GOSUB` (0x1EB1).
+- **Translation**:
+  - Translated all German block headers and inline comments into English.
+- **Verification**:
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin` (MD5: `42c8f9e6c2133ae0e953b89ccbbdb7e2`).
+  - `export.lst` verified for correct English inline comments across the 0x1EA3-0x1EC1 range.
+
+### Statistics
+- **Total Symbols:** 263 (Limit: 6000)
+- **Total Annotations:** ~19164 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of English inline comments for the range 0x1EA3-0x1EC1.
+
+## Session: May 16, 2026 (Part 3)
+
+### Task
+Annotate the memory range 0x1DA0 to 0x1ED8 based on Gerhard Wolf's Laser 310 German ROM listing (pages 129-135). This section includes BREAK/END/CONT/TRON/TROFF statement handling, type definition commands (DEFSTR, DEFINT, DEFSNG, DEFDBL), and utility routines for character and expression parsing.
+
+### Work Summary
+- **Program Flow Control**:
+  - Annotated `BREAK` signal handling and the `END` (0x1DAE) and `CONT` (0x1DE4) statements.
+  - Documented `TRON` (0x1DF7) and `TROFF` (0x1DF8) statements for trace control.
+- **Type Definitions**:
+  - Annotated the `DEFSTR`, `DEFINT`, `DEFSNG`, and `DEFDBL` command routines (0x1E00-0x1E09), including the common processing logic (0x1E0B).
+- **Utility Routines**:
+  - Labeled and annotated `ISLET` (0x1E3D) for character testing.
+  - Labeled and annotated `GETVAL` (0x1E45) for expression evaluation to a 16-bit integer.
+  - Labeled and annotated `VAL` (0x1E4F) for converting numeric strings to binary.
+- **Statement Execution**:
+  - Annotated the `GOTO` (0x1EC2) and `CLEAR` (0x1E7A) statement logic.
+- **Tricks & Disassembly**:
+  - Handled multiple Z80 instruction skip tricks using `DIRECT_BYTE` segments at 0x1DBD (`END_TRICK`), 0x1DF7 (`TRON_TRICK`), 0x1E02 (`DEFINT_TRICK`), 0x1E05 (`DEFSNG_TRICK`), and 0x1E08 (`DEFDBL_TRICK`).
+- **Symbols**:
+  - Added global symbols: `END` (0x1DAE), `CONT` (0x1DE4), `TRON` (0x1DF7), `TROFF` (0x1DF8), `DEFSTR` (0x1E00), `DEFINT` (0x1E03), `DEFSNG` (0x1E06), `DEFDBL` (0x1E09), `ISLET` (0x1E3D), `GETVAL` (0x1E45), `VAL` (0x1E4F), `CLEAR` (0x1E7A), `GOSUB` (0x1EB1), `GOTO` (0x1EC2).
+  - Resolved symbol name conflict for `CLEAR` and renamed internal routine at 0x1B5D to `VRESET`.
+- **Translation**:
+  - Translated all German block headers and inline comments into English.
+- **Verification**:
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin` (MD5: `42c8f9e6c2133ae0e953b89ccbbdb7e2`).
+  - `export.lst` verified for correct English inline comments across the target range.
+
+### Statistics
+- **Total Symbols:** 260 (Limit: 6000)
+- **Total Annotations:** 3712 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of English inline comments for the range 0x1DA0-0x1ED8.
+
+## Session: May 16, 2026 (Part 2)
+
+### Task
+Annotate the memory range 0x1C3D to 0x1D9F based on Gerhard Wolf's Laser 310 German ROM listing (pages 123-129). This section includes the tokenization of ELSE/REM, the start of statement execution, unsigned comparison of HL and DE, syntax check logic, and the FOR statement initialization. **Note: A correction pass was performed to ensure all German "ja/Ja" strings were translated to "yes/Yes".**
+
+### Work Summary
+- **Tokenization & Execution**:
+  - Documented the tokenization of `ELSE` and `REM` tokens.
+  - Labeled and annotated `NEWSTT` (0x1D1E) which handles the execution of a new BASIC statement.
+- **Utility Routines (RST Handlers)**:
+  - Labeled and annotated `DCOMPR` (0x1C90) for unsigned comparison of HL and DE (Restart 18 handler).
+  - Labeled and annotated `SYNCHR` (0x1C96) for syntax checking (Restart 8 handler).
+  - Labeled and annotated `CHRGTR` (0x1D78) for fetching the next character and ignoring white space (Restart 10 handler).
+- **FOR Statement**:
+  - Annotated the `FOR` command routine (0x1CA1), including stack management for nested loops and end-value parsing.
+- **RESTORE & Keyboard**:
+  - Labeled and annotated `RESTORE` (0x1D91) for resetting the DATA pointer.
+  - Labeled and annotated `ISCNTC` (0x1D9B) for checking keyboard activity during execution (break/pause detection).
+- **Symbols**:
+  - Added global symbols: `NOTRES` (0x1C3D), `DCOMPR` (0x1C90), `SYNCHR` (0x1C96), `FOR` (0x1CA1), `NEWSTT` (0x1D1E), `CHRGTR` (0x1D78), `RESTORE` (0x1D91), `ISCNTC` (0x1D9B).
+- **Translation**:
+  - Translated all German block headers and inline comments into English, including a specific correction pass for "ja" to "yes" translations.
+- **Verification**:
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin` (MD5: `42c8f9e6c2133ae0e953b89ccbbdb7e2`).
+  - `export.lst` verified for correct English inline comments across the 0x1C3D-0x1D9F range.
+
+### Statistics
+- **Total Symbols:** 247 (Limit: 6000)
+- **Total Annotations:** 3565 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of English inline comments for the range 0x1C3D-0x1D9F.
+
+## Session: May 16, 2026
+
+### Task
+Annotate the memory range 0x1B02 to 0x1C3C based on Gerhard Wolf's Laser 310 German ROM listing (pages 117-123). This section includes the LIST command argument analysis, line search logic, the NEW command, and the line tokenization/crunching routines.
+
+### Work Summary
+- **Program Listing & Search**:
+  - Annotated the remaining part of line pointer renewal.
+  - Labeled and annotated `LSTPRM` (0x1B10) for `LIST` argument parsing.
+  - Labeled and annotated `FNDLIN` (0x1B2C) for program line searching.
+- **NEW Command**:
+  - Annotated the `NEW` command routine (0x1B49), including variable clearing and pointer reset logic.
+- **Tokenization (Crunching)**:
+  - Labeled and annotated `PROMPT` (0x1BB3) for the input prompt.
+  - Annotated `STOKEN` (0x1BC0) for line analysis.
+  - Labeled and annotated `CRUNCH` (0x1BF5) for BASIC keyword identification.
+- **Tricks & Disassembly**:
+  - Handled a Z80 trick at 0x1B1E (DASH token in LIST) using a `DIRECT_BYTE` segment to prevent instruction overlap (`ADC A, 0x11`).
+- **Symbols**:
+  - Added global symbols: `LSTPRM` (0x1B10), `NEW` (0x1B49), `PROMPT` (0x1BB3), `CRUNCH` (0x1BF5).
+- **Translation**:
+  - Translated all German block headers and inline comments into English.
+- **Verification**:
+  - `export.asm` assembles to a bit-perfect match of `VZ200.bin` (MD5: `42c8f9e6c2133ae0e953b89ccbbdb7e2`).
+  - `export.lst` verified for correct English inline comments across the 0x1B02-0x1C3C range.
+
+### Statistics
+- **Total Symbols:** 239 (Limit: 6000)
+- **Total Annotations:** 3377 (Limit: 100000)
+
+### Verification
+- `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
+- `export.lst` verified for presence of English inline comments for the range 0x1B02-0x1C3C.
 
 ## Session: May 14, 2026 (Part 2)
 
@@ -216,7 +344,6 @@ Annotate the byte range 0x14C9 to 0x15E2 based on Gerhard Wolf's Laser 310 Germa
 - `z88dk-z80asm -b export.asm` produced `export.bin` which matches `VZ200.bin`.
 - `export.lst` verified for presence of high-density inline comments and properly formatted constant tables in the target range.
 
-# VZ200 BASIC ROM Disassembly Progress
 
 ## Session: May 10, 2026
 
