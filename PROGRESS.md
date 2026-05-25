@@ -59,3 +59,12 @@
 - Stats:
   - Symbols: 292
   - Annotations: 4114
+
+## Update 2026-05-24: Range 0x22EA - 0x23EA
+- Annotated range 0x22EA - 0x23EA (Pages 152-156 of the German PDF).
+- Documented `NEXT` statement logic (incrementing loop variables, checking bounds, stack recovery).
+- Documented the beginning of the expression evaluation routine (`EVAL_EXPR_START`, operator parsing, stack management).
+- Fixed disassembly issues at 0x2336 and 0x23C3 using `DIRECT_BYTE` segments to handle RST 8 literals and "LD B,n" opcode tricks.
+- Cleaned up duplicate symbols in `symbols.sym`.
+- Current stats: 4351 Annotations, 307 Symbols.
+- Verification: Bit-perfect build matches `VZ200.bin` (MD5: 42c8f9e6c2133ae0e953b89ccbbdb7e2).

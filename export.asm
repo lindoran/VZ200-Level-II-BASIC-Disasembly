@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Sun May 24 22:11:18 2026
+; Generated: Sun May 24 22:42:13 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -4321,7 +4321,7 @@ MSG_BREAK_TEXT:
 
 ; Subroutine for FOR/NEXT and GOSUB/RETURN
 ; retrieves data back from the stack
-STACK_RECOVERY:
+; STACK_RECOVERY: (defined in symbols.sym)
               ld    hl,0x0004      ; Stack pointer + 4 into HL
               add   hl,sp          ; (bypass 2 return addresses)
               ld    a,(hl)         ; Load flag
@@ -4406,7 +4406,7 @@ SYNTAX_ERR_HANDLER:
 DIV_ZERO_ERR_HANDLER:
               ld    e,0x14         ; DIVISION BY ZERO
               DEFB  0x01           ; LD BC,001EH Dummy instruction
-; NEXT_WITHOUT_FOR_ERR_HANDLER: (defined in symbols.sym)
+NEXT_WITHOUT_FOR_ERR_HANDLER:
               ld    e,0x00         ; NEXT WITHOUT FOR
               DEFB  0x01           ; LD BC,241EH Dummy instruction
 RESUME_WITHOUT_ERR_HANDLER:
@@ -5931,7 +5931,7 @@ DATA_SEARCH_LOOP:
               call  nz,VARPTR_FIND_OR_CREATE ; further characters? yes - variable search, var. tab. address in
               ld    (0x78DF),hl    ; Store program pointer
               call  STACK_RECOVERY ; in stack next, or loop search with correct running variable
-              jp    nz,NEXT_WITHOUT_FOR_ERR_HANDLER ; not found, NEXT WITHOUT FOR
+              jp    nz,NEXT_WITHOUT_FOR_ERR ; not found, NEXT WITHOUT FOR
               ld    sp,hl          ; by stack correction all associated nested loops removed.
               ld    (0x78E8),hl    ; remove nested loops.
               push  de             ; Var. tab. adr of loop var on stack.
@@ -5942,7 +5942,7 @@ DATA_SEARCH_LOOP:
               ld    a,(hl)         ; Load type flag
               inc   hl             ; Stack pointer + 1
               or    a              ; = single precision?
-              jp    m,0x22EA       ; no! - jump
+              jp    m,NEXT_INTEGER_LOOP ; no! - jump
 
 ; Single precision loop variable
               call  MOVFM          ; Increment value in X
@@ -5956,161 +5956,181 @@ DATA_SEARCH_LOOP:
               push  hl             ; Stack pointer on stack
               call  FCOMP          ; Compare loop variable with end value
               jr    $+43           ; continue at 2313H
+NEXT_INTEGER_LOOP:
+              inc   hl             ; Skip 2 unused stack levels
               inc   hl
               inc   hl
               inc   hl
+              ld    c,(hl)         ; Increment value in BC
               inc   hl
-              ld    c,(hl)
+              ld    b,(hl)         ; (MSB)
               inc   hl
-              ld    b,(hl)
-              inc   hl
-              ex    (sp),hl
-              ld    e,(hl)
+              ex    (sp),hl        ; Load var. tab. address of the loop variable
+              ld    e,(hl)         ; Load value of the loop variable
               inc   hl
               ld    d,(hl)
-              push  hl
-              ld    l,c
+              push  hl             ; Var. tab. address + 1 on the stack
+              ld    l,c            ; Increment value in HL
               ld    h,b
-              call  IADD
-              ld    a,(VALTYP)
-              cp    0x04
-              jp    z,0x07B2
-              ex    de,hl
-              pop   hl
-              ld    (hl),d
+              call  IADD           ; Loop variable + increment value in HL and X
+              ld    a,(VALTYP)     ; Type in X = single precision?
+              cp    0x04           ; (Overflow)
+              jp    z,0x07B2       ; yes, OVERFLOW - Error
+              ex    de,hl          ; new loop variable in DE
+              pop   hl             ; load var. tab. address + 1
+              ld    (hl),d         ; and store new value
               dec   hl
               ld    (hl),e
-              pop   hl
-              push  de
-              ld    e,(hl)
+              pop   hl             ; load stack pointer
+              push  de             ; new value of loop variable on stack
+              ld    e,(hl)         ; load end value
               inc   hl
               ld    d,(hl)
               inc   hl
-              ex    (sp),hl
-              call  DCOMP
-              pop   hl
-              pop   bc
-              sub   b
-              call  MOVRM
-              jr    z,$+11
-              ex    de,hl
-              ld    (0x78A2),hl
-              ld    l,c
+              ex    (sp),hl        ; stack pointer on the stack
+NEXT_CHECK_END:
+              call  DCOMP          ; Compare loop variable with end value
+              pop   hl             ; load stack pointer
+              pop   bc             ; load increment flag
+              sub   b              ; Link comparison result with increment flag
+              call  MOVRM          ; Load line number and starting pointer into DE and BC
+              jr    z,$+11         ; Loop ended? yes - jump
+              ex    de,hl          ; Line number in HL
+              ld    (0x78A2),hl    ; Store as current line number
+              ld    l,c            ; Starting pointer of the line in HL
               ld    h,b
-              jp    0x1D1A
-              ld    sp,hl
-              ld    (0x78E8),hl
-              ld    hl,(0x78DF)
-              ld    a,(hl)
-              cp    0x2C
-              jp    nz,NEWSTT
-              rst   0x10
-              call  0x22B9
-              rst   8
-              jr    z,$+45
-              ld    d,0x00
-              push  de
-              ld    c,0x01
-              call  CHECK_FREE_MEMORY
-              call  0x249F
-              ld    (0x78F3),hl
-              ld    hl,(0x78F3)
-              pop   bc
-              ld    a,(hl)
-              ld    d,0x00
-              sub   0xD4
-              jr    c,$+21
-              cp    0x03
-              jr    nc,$+17
-              cp    0x01
-              rla   
-              xor   d
-              cp    d
-              ld    d,a
-              jp    c,SYNTAX_ERR_HANDLER
-              ld    (FMT_FLAG),hl
-              rst   0x10
-              jr    $-21
-              ld    a,d
-              or    a
-              jp    nz,0x23EC
-              ld    a,(hl)
-              ld    (FMT_FLAG),hl
-              sub   0xCD
-              ret   c
+              jp    0x1D1A         ; Repeat loop
+
+; Loop ended
+NEXT_LOOP_FINISHED:
+              ld    sp,hl          ; Remove loop from stack
+              ld    (0x78E8),hl    ; by stack correction
+              ld    hl,(0x78DF)    ; Load program pointer
+              ld    a,(hl)         ; Load character
+              cp    0x2C           ; follows a comma?
+              jp    nz,NEWSTT      ; no, next statement
+              rst   0x10           ; address next character
+              call  0x22B9         ; process next outer loop
+
+; Evaluate expression
+EVAL_EXPR_START:
+              DEFB  0xCF           ; Expression begins with a parenthesis?
+              DEFB  0x28           ; no - SYNTAX ERROR
+              dec   hl             ; Program pointer - 1
+              ld    d,0x00         ; Priority code of the last operand = 0
+              push  de             ; Priority code on the stack
+              ld    c,0x01         ; At least 2 bytes free?
+              call  CHECK_FREE_MEMORY ; no, OUT OF MEMORY - Error
+              call  EVAL_OPERAND   ; Analyze operands and in X
+              ld    (0x78F3),hl    ; Store program pointer
+              ld    hl,(0x78F3)    ; Load program pointer
+              pop   bc             ; Priority code in B load
+EVAL_EXPR_OP_LOOP:
+              ld    a,(hl)         ; Next character from program
+              ld    d,0x00         ; Set operator code = 0
+              sub   0xD4           ; Comparison operator? ( > = < )
+              jr    c,$+21         ; no!
+              cp    0x03           ; (Token D4, D5 and D6)
+              jr    nc,$+17        ; no!
+              cp    0x01           ; Set Carry for '>'
+              rla                  ; Shift 1 bit left ( > = 1, = = 2, < = 4 )
+              xor   d              ; Set corresponding bit in operator code
+              cp    d              ; was already set before?
+              ld    d,a            ; (i.e. the same operator twice)
+              jp    c,SYNTAX_ERR_HANDLER ; yes - SYNTAX ERROR
+              ld    (FMT_FLAG),hl  ; Store program pointer
+              rst   0x10           ; Load next character
+              jr    $-21           ; and investigate
+EVAL_EXPR_CHK_COMP:
+              ld    a,d            ; Operator code > 0 ?
+              or    a              ; (Comparison operator found)
+              jp    nz,0x23EC      ; yes!
+              ld    a,(hl)         ; Load character
+              ld    (FMT_FLAG),hl  ; Store program pointer
+              sub   0xCD           ; One of the other operators?
+              ret   c              ; + - * / ** AND OR ?
               cp    0x07
-              ret   nc
-              ld    e,a
-              ld    a,(VALTYP)
-              sub   0x03
-              or    e
-              jp    z,0x298F
-              ld    hl,0x189A
-              add   hl,de
-              ld    a,b
-              ld    d,(hl)
-              cp    d
-              ret   nc
+              ret   nc             ; no!
+              ld    e,a            ; Operator code in E
+              ld    a,(VALTYP)     ; is X a string?
+              sub   0x03           ; SUB 3
+              or    e              ; and '+' operator?
+              jp    z,STR_CONCAT   ; yes, string concatenation
+              ld    hl,0x189A      ; Address table of priority codes
+              add   hl,de          ; + operator code
+              ld    a,b            ; Last priority in A
+              ld    d,(hl)         ; New priority from table in D
+              cp    d              ; Last priority >= new priority?
+              ret   nc             ; yes, perform last operation
+              push  bc             ; no, last priority on stack
+              ld    bc,0x2346      ; Address for next operand on stack
               push  bc
-              ld    bc,0x2346
-              push  bc
-              ld    a,d
-              cp    0x7F
-              jp    z,0x23D4
-              cp    0x51
-              jp    c,0x23E1
-              ld    hl,FACLO
-              or    a
-              ld    a,(VALTYP)
+              ld    a,d            ; New priority in A
+              cp    0x7F           ; is = 7FH (Operator = **) ?
+              jp    z,EVAL_EXPR_POWER ; yes, continue at 23D4H
+              cp    0x51           ; Operator = AND or OR?
+              jp    c,EVAL_EXPR_LOGIC ; yes, continue at 23E1H
+
+; Operands for +, -, * and / on the stack
+              ld    hl,FACLO       ; X address in HL
+              or    a              ; Clear carry
+              ld    a,(VALTYP)     ; Load type code
+              dec   a              ; Type code - 3
+              dec   a              ; is = string ?
               dec   a
-              dec   a
-              dec   a
-              jp    z,TMERR
+              jp    z,TMERR        ; yes, TYPE MISMATCH - Error
+              ld    c,(hl)         ; X address in HL
+              inc   hl             ; X address + 1
+              ld    b,(hl)         ; in Byte
+              push  bc             ; and on stack
+              jp    m,0x23C5       ; if integer done!
+              inc   hl             ; otherwise load 2 more bytes
               ld    c,(hl)
               inc   hl
               ld    b,(hl)
-              push  bc
-              jp    m,0x23C5
-              inc   hl
-              ld    c,(hl)
-              inc   hl
-              ld    b,(hl)
-              push  bc
-              push  af
-              or    a
-              jp    po,0x23C4
-              pop   af
-              inc   hl
-              jr    c,$+5
-              ld    hl,0x791D
-              ld    c,(hl)
+              push  bc             ; and on the stack
+              push  af             ; Type flag on the stack
+              or    a              ; is single precision?
+              jp    po,0x23C4      ; yes, done!
+              pop   af             ; Reload type flag
+              inc   hl             ; X address + 1
+              jr    c,$+5          ; is on stack ? yes - jump
+              ld    hl,0x791D      ; Load LSB X address
+              ld    c,(hl)         ; Load 2 more bytes
               inc   hl
               ld    b,(hl)
               inc   hl
-              push  bc
-              ld    c,(hl)
+              push  bc             ; 2 bytes on the stack
+              ld    c,(hl)         ; and load 2 more bytes
               inc   hl
               ld    b,(hl)
-              push  bc
-              ld    b,0xF1
-              add   a,0x03
-              ld    c,e
-              ld    b,a
-              push  bc
-              ld    bc,0x2406
-              push  bc
-              ld    hl,(FMT_FLAG)
-              jp    0x233A
-              call  FRCSNG
-              call  PUSHF
-              ld    bc,0x13F2
-              ld    d,0x7F
+              push  bc             ; also on the stack
+              DEFB  0x06
+              pop   af             ; skips the POP / Load type flag (for single prec.)
+              add   a,0x03         ; Calculate type code
+              ld    c,e            ; Operator code in C
+              ld    b,a            ; Type code in B
+              push  bc             ; Put on the stack
+              ld    bc,0x2406      ; Address for performing
+              push  bc             ; operations on the stack
+              ld    hl,(FMT_FLAG)  ; Load program pointer
+              jp    0x233A         ; next operand
+
+; Operands for exponentiation on the stack
+EVAL_EXPR_POWER:
+              call  FRCSNG         ; Convert X to single precision
+              call  PUSHF          ; Transfer X to the stack
+              ld    bc,0x13F2      ; Address for power calculation
+              ld    d,0x7F         ; New priority code = 7FH
               jr    $-18
-              push  de
-              call  FRCINT
-              pop   de
-              push  hl
-              ld    bc,0x25E9
+
+; Operands for AND and OR on the stack
+EVAL_EXPR_LOGIC:
+              push  de             ; Operator on stack
+              call  FRCINT         ; Convert operand to integer
+              pop   de             ; Reload operator code
+              push  hl             ; Operand on stack
+              ld    bc,0x25E9      ; Address for AND and OR processing
               jr    $-29
               ld    a,b
               cp    0x64
@@ -6275,7 +6295,7 @@ DATA_SEARCH_LOOP:
               jp    z,0x7955
               sub   0xD7
               jp    nc,0x254E
-              call  0x2335
+              call  EVAL_EXPR_START
               rst   8
               add   hl,hl
               ret   
@@ -6302,7 +6322,7 @@ DATA_SEARCH_LOOP:
               ld    a,c
               cp    0x41
               jr    c,$+24
-              call  0x2335
+              call  EVAL_EXPR_START
               rst   8
               inc   l
               call  CHKSTR
@@ -7013,7 +7033,7 @@ DATA_SEARCH_LOOP:
               push  hl
               ld    hl,(FACLO)
               ex    (sp),hl
-              call  0x249F
+              call  EVAL_OPERAND
               ex    (sp),hl
               call  CHKSTR
               ld    a,(hl)

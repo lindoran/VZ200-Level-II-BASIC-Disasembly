@@ -5716,7 +5716,7 @@
 22B9  C40D26   ..&                 call  nz,VARPTR_FIND_OR_CREATE ; further characters? yes - variable search,
 22BC  22DF78   ".x                 ld    (0x78DF),hl    ; Store program pointer
 22BF  CD3619   .6.                 call  STACK_RECOVERY ; in stack next, or loop search with correct
-22C2  C29D19   ...                 jp    nz,NEXT_WITHOUT_FOR_ERR_HANDLER ; not found, NEXT WITHOUT FOR
+22C2  C29D19   ...                 jp    nz,NEXT_WITHOUT_FOR_ERR ; not found, NEXT WITHOUT FOR
 22C5  F9       .                   ld    sp,hl          ; by stack correction all associated nested 
 22C6  22E878   ".x                 ld    (0x78E8),hl    ; remove nested loops.
 22C9  D5       .                   push  de             ; Var. tab. adr of loop var on stack.
@@ -5727,7 +5727,7 @@
 22CE  7E       ~                   ld    a,(hl)         ; Load type flag
 22CF  23       #                   inc   hl             ; Stack pointer + 1
 22D0  B7       .                   or    a              ; = single precision?
-22D1  FAEA22   .."                 jp    m,0x22EA       ; no! - jump
+22D1  FAEA22   .."                 jp    m,NEXT_INTEGER_LOOP ; no! - jump
                      ; Single precision loop variable
 22D4  CDB109   ...                 call  MOVFM          ; Increment value in X
 22D7  E3       .                   ex    (sp),hl        ; Load var. tab. address, Stack pointer on s
@@ -5740,161 +5740,176 @@
 22E4  E5       .                   push  hl             ; Stack pointer on stack
 22E5  CD0C0A   ...                 call  FCOMP          ; Compare loop variable with end value
 22E8  1829     .)                  jr    $+43           ; continue at 2313H
-22EA  23       #                   inc   hl
+                     NEXT_INTEGER_LOOP:
+22EA  23       #                   inc   hl             ; Skip 2 unused stack levels
 22EB  23       #                   inc   hl
 22EC  23       #                   inc   hl
 22ED  23       #                   inc   hl
-22EE  4E       N                   ld    c,(hl)
+22EE  4E       N                   ld    c,(hl)         ; Increment value in BC
 22EF  23       #                   inc   hl
-22F0  46       F                   ld    b,(hl)
+22F0  46       F                   ld    b,(hl)         ; (MSB)
 22F1  23       #                   inc   hl
-22F2  E3       .                   ex    (sp),hl
-22F3  5E       ^                   ld    e,(hl)
+22F2  E3       .                   ex    (sp),hl        ; Load var. tab. address of the loop variabl
+22F3  5E       ^                   ld    e,(hl)         ; Load value of the loop variable
 22F4  23       #                   inc   hl
 22F5  56       V                   ld    d,(hl)
-22F6  E5       .                   push  hl
-22F7  69       i                   ld    l,c
+22F6  E5       .                   push  hl             ; Var. tab. address + 1 on the stack
+22F7  69       i                   ld    l,c            ; Increment value in HL
 22F8  60       `                   ld    h,b
-22F9  CDD20B   ...                 call  IADD
-22FC  3AAF78   :.x                 ld    a,(VALTYP)
-22FF  FE04     ..                  cp    0x04
-2301  CAB207   ...                 jp    z,0x07B2
-2304  EB       .                   ex    de,hl
-2305  E1       .                   pop   hl
-2306  72       r                   ld    (hl),d
+22F9  CDD20B   ...                 call  IADD           ; Loop variable + increment value in HL and 
+22FC  3AAF78   :.x                 ld    a,(VALTYP)     ; Type in X = single precision?
+22FF  FE04     ..                  cp    0x04           ; (Overflow)
+2301  CAB207   ...                 jp    z,0x07B2       ; yes, OVERFLOW - Error
+2304  EB       .                   ex    de,hl          ; new loop variable in DE
+2305  E1       .                   pop   hl             ; load var. tab. address + 1
+2306  72       r                   ld    (hl),d         ; and store new value
 2307  2B       +                   dec   hl
 2308  73       s                   ld    (hl),e
-2309  E1       .                   pop   hl
-230A  D5       .                   push  de
-230B  5E       ^                   ld    e,(hl)
+2309  E1       .                   pop   hl             ; load stack pointer
+230A  D5       .                   push  de             ; new value of loop variable on stack
+230B  5E       ^                   ld    e,(hl)         ; load end value
 230C  23       #                   inc   hl
 230D  56       V                   ld    d,(hl)
 230E  23       #                   inc   hl
-230F  E3       .                   ex    (sp),hl
-2310  CD390A   .9.                 call  DCOMP
-2313  E1       .                   pop   hl
-2314  C1       .                   pop   bc
-2315  90       .                   sub   b
-2316  CDC209   ...                 call  MOVRM
-2319  2809     (.                  jr    z,$+11
-231B  EB       .                   ex    de,hl
-231C  22A278   ".x                 ld    (0x78A2),hl
-231F  69       i                   ld    l,c
+230F  E3       .                   ex    (sp),hl        ; stack pointer on the stack
+                     NEXT_CHECK_END:
+2310  CD390A   .9.                 call  DCOMP          ; Compare loop variable with end value
+2313  E1       .                   pop   hl             ; load stack pointer
+2314  C1       .                   pop   bc             ; load increment flag
+2315  90       .                   sub   b              ; Link comparison result with increment flag
+2316  CDC209   ...                 call  MOVRM          ; Load line number and starting pointer into
+2319  2809     (.                  jr    z,$+11         ; Loop ended? yes - jump
+231B  EB       .                   ex    de,hl          ; Line number in HL
+231C  22A278   ".x                 ld    (0x78A2),hl    ; Store as current line number
+231F  69       i                   ld    l,c            ; Starting pointer of the line in HL
 2320  60       `                   ld    h,b
-2321  C31A1D   ...                 jp    0x1D1A
-2324  F9       .                   ld    sp,hl
-2325  22E878   ".x                 ld    (0x78E8),hl
-2328  2ADF78   *.x                 ld    hl,(0x78DF)
-232B  7E       ~                   ld    a,(hl)
-232C  FE2C     .,                  cp    0x2C
-232E  C21E1D   ...                 jp    nz,NEWSTT
-2331  D7       .                   rst   0x10
-2332  CDB922   .."                 call  0x22B9
-2335  CF       .                   rst   8
-2336  282B     (+                  jr    z,$+45
-2338  1600     ..                  ld    d,0x00
-233A  D5       .                   push  de
-233B  0E01     ..                  ld    c,0x01
-233D  CD6319   .c.                 call  CHECK_FREE_MEMORY
-2340  CD9F24   ..$                 call  0x249F
-2343  22F378   ".x                 ld    (0x78F3),hl
-2346  2AF378   *.x                 ld    hl,(0x78F3)
-2349  C1       .                   pop   bc
-234A  7E       ~                   ld    a,(hl)
-234B  1600     ..                  ld    d,0x00
-234D  D6D4     ..                  sub   0xD4
-234F  3813     8.                  jr    c,$+21
-2351  FE03     ..                  cp    0x03
-2353  300F     0.                  jr    nc,$+17
-2355  FE01     ..                  cp    0x01
-2357  17       .                   rla   
-2358  AA       .                   xor   d
-2359  BA       .                   cp    d
-235A  57       W                   ld    d,a
-235B  DA9719   ...                 jp    c,SYNTAX_ERR_HANDLER
-235E  22D878   ".x                 ld    (FMT_FLAG),hl
-2361  D7       .                   rst   0x10
-2362  18E9     ..                  jr    $-21
-2364  7A       z                   ld    a,d
-2365  B7       .                   or    a
-2366  C2EC23   ..#                 jp    nz,0x23EC
-2369  7E       ~                   ld    a,(hl)
-236A  22D878   ".x                 ld    (FMT_FLAG),hl
-236D  D6CD     ..                  sub   0xCD
-236F  D8       .                   ret   c
+2321  C31A1D   ...                 jp    0x1D1A         ; Repeat loop
+                     ; Loop ended
+                     NEXT_LOOP_FINISHED:
+2324  F9       .                   ld    sp,hl          ; Remove loop from stack
+2325  22E878   ".x                 ld    (0x78E8),hl    ; by stack correction
+2328  2ADF78   *.x                 ld    hl,(0x78DF)    ; Load program pointer
+232B  7E       ~                   ld    a,(hl)         ; Load character
+232C  FE2C     .,                  cp    0x2C           ; follows a comma?
+232E  C21E1D   ...                 jp    nz,NEWSTT      ; no, next statement
+2331  D7       .                   rst   0x10           ; address next character
+2332  CDB922   .."                 call  0x22B9         ; process next outer loop
+                     ; Evaluate expression
+                     EVAL_EXPR_START:
+2335  CF       .                   DEFB  0xCF           ; Expression begins with a parenthesis?
+2336  28       (                   DEFB  0x28           ; no - SYNTAX ERROR
+2337  2B       +                   dec   hl             ; Program pointer - 1
+2338  1600     ..                  ld    d,0x00         ; Priority code of the last operand = 0
+233A  D5       .                   push  de             ; Priority code on the stack
+233B  0E01     ..                  ld    c,0x01         ; At least 2 bytes free?
+233D  CD6319   .c.                 call  CHECK_FREE_MEMORY ; no, OUT OF MEMORY - Error
+2340  CD9F24   ..$                 call  EVAL_OPERAND   ; Analyze operands and in X
+2343  22F378   ".x                 ld    (0x78F3),hl    ; Store program pointer
+2346  2AF378   *.x                 ld    hl,(0x78F3)    ; Load program pointer
+2349  C1       .                   pop   bc             ; Priority code in B load
+                     EVAL_EXPR_OP_LOOP:
+234A  7E       ~                   ld    a,(hl)         ; Next character from program
+234B  1600     ..                  ld    d,0x00         ; Set operator code = 0
+234D  D6D4     ..                  sub   0xD4           ; Comparison operator? ( > = < )
+234F  3813     8.                  jr    c,$+21         ; no!
+2351  FE03     ..                  cp    0x03           ; (Token D4, D5 and D6)
+2353  300F     0.                  jr    nc,$+17        ; no!
+2355  FE01     ..                  cp    0x01           ; Set Carry for '>'
+2357  17       .                   rla                  ; Shift 1 bit left ( > = 1, = = 2, < = 4 )
+2358  AA       .                   xor   d              ; Set corresponding bit in operator code
+2359  BA       .                   cp    d              ; was already set before?
+235A  57       W                   ld    d,a            ; (i.e. the same operator twice)
+235B  DA9719   ...                 jp    c,SYNTAX_ERR_HANDLER ; yes - SYNTAX ERROR
+235E  22D878   ".x                 ld    (FMT_FLAG),hl  ; Store program pointer
+2361  D7       .                   rst   0x10           ; Load next character
+2362  18E9     ..                  jr    $-21           ; and investigate
+                     EVAL_EXPR_CHK_COMP:
+2364  7A       z                   ld    a,d            ; Operator code > 0 ?
+2365  B7       .                   or    a              ; (Comparison operator found)
+2366  C2EC23   ..#                 jp    nz,0x23EC      ; yes!
+2369  7E       ~                   ld    a,(hl)         ; Load character
+236A  22D878   ".x                 ld    (FMT_FLAG),hl  ; Store program pointer
+236D  D6CD     ..                  sub   0xCD           ; One of the other operators?
+236F  D8       .                   ret   c              ; + - * / ** AND OR ?
 2370  FE07     ..                  cp    0x07
-2372  D0       .                   ret   nc
-2373  5F       _                   ld    e,a
-2374  3AAF78   :.x                 ld    a,(VALTYP)
-2377  D603     ..                  sub   0x03
-2379  B3       .                   or    e
-237A  CA8F29   ..)                 jp    z,0x298F
-237D  219A18   !..                 ld    hl,0x189A
-2380  19       .                   add   hl,de
-2381  78       x                   ld    a,b
-2382  56       V                   ld    d,(hl)
-2383  BA       .                   cp    d
-2384  D0       .                   ret   nc
-2385  C5       .                   push  bc
-2386  014623   .F#                 ld    bc,0x2346
+2372  D0       .                   ret   nc             ; no!
+2373  5F       _                   ld    e,a            ; Operator code in E
+2374  3AAF78   :.x                 ld    a,(VALTYP)     ; is X a string?
+2377  D603     ..                  sub   0x03           ; SUB 3
+2379  B3       .                   or    e              ; and '+' operator?
+237A  CA8F29   ..)                 jp    z,STR_CONCAT   ; yes, string concatenation
+237D  219A18   !..                 ld    hl,0x189A      ; Address table of priority codes
+2380  19       .                   add   hl,de          ; + operator code
+2381  78       x                   ld    a,b            ; Last priority in A
+2382  56       V                   ld    d,(hl)         ; New priority from table in D
+2383  BA       .                   cp    d              ; Last priority >= new priority?
+2384  D0       .                   ret   nc             ; yes, perform last operation
+2385  C5       .                   push  bc             ; no, last priority on stack
+2386  014623   .F#                 ld    bc,0x2346      ; Address for next operand on stack
 2389  C5       .                   push  bc
-238A  7A       z                   ld    a,d
-238B  FE7F     ..                  cp    0x7F
-238D  CAD423   ..#                 jp    z,0x23D4
-2390  FE51     .Q                  cp    0x51
-2392  DAE123   ..#                 jp    c,0x23E1
-2395  212179   !!y                 ld    hl,FACLO
-2398  B7       .                   or    a
-2399  3AAF78   :.x                 ld    a,(VALTYP)
-239C  3D       =                   dec   a
-239D  3D       =                   dec   a
+238A  7A       z                   ld    a,d            ; New priority in A
+238B  FE7F     ..                  cp    0x7F           ; is = 7FH (Operator = **) ?
+238D  CAD423   ..#                 jp    z,EVAL_EXPR_POWER ; yes, continue at 23D4H
+2390  FE51     .Q                  cp    0x51           ; Operator = AND or OR?
+2392  DAE123   ..#                 jp    c,EVAL_EXPR_LOGIC ; yes, continue at 23E1H
+                     ; Operands for +, -, * and / on the stack
+2395  212179   !!y                 ld    hl,FACLO       ; X address in HL
+2398  B7       .                   or    a              ; Clear carry
+2399  3AAF78   :.x                 ld    a,(VALTYP)     ; Load type code
+239C  3D       =                   dec   a              ; Type code - 3
+239D  3D       =                   dec   a              ; is = string ?
 239E  3D       =                   dec   a
-239F  CAF60A   ...                 jp    z,TMERR
-23A2  4E       N                   ld    c,(hl)
-23A3  23       #                   inc   hl
-23A4  46       F                   ld    b,(hl)
-23A5  C5       .                   push  bc
-23A6  FAC523   ..#                 jp    m,0x23C5
-23A9  23       #                   inc   hl
+239F  CAF60A   ...                 jp    z,TMERR        ; yes, TYPE MISMATCH - Error
+23A2  4E       N                   ld    c,(hl)         ; X address in HL
+23A3  23       #                   inc   hl             ; X address + 1
+23A4  46       F                   ld    b,(hl)         ; in Byte
+23A5  C5       .                   push  bc             ; and on stack
+23A6  FAC523   ..#                 jp    m,0x23C5       ; if integer done!
+23A9  23       #                   inc   hl             ; otherwise load 2 more bytes
 23AA  4E       N                   ld    c,(hl)
 23AB  23       #                   inc   hl
 23AC  46       F                   ld    b,(hl)
-23AD  C5       .                   push  bc
-23AE  F5       .                   push  af
-23AF  B7       .                   or    a
-23B0  E2C423   ..#                 jp    po,0x23C4
-23B3  F1       .                   pop   af
-23B4  23       #                   inc   hl
-23B5  3803     8.                  jr    c,$+5
-23B7  211D79   !.y                 ld    hl,0x791D
-23BA  4E       N                   ld    c,(hl)
+23AD  C5       .                   push  bc             ; and on the stack
+23AE  F5       .                   push  af             ; Type flag on the stack
+23AF  B7       .                   or    a              ; is single precision?
+23B0  E2C423   ..#                 jp    po,0x23C4      ; yes, done!
+23B3  F1       .                   pop   af             ; Reload type flag
+23B4  23       #                   inc   hl             ; X address + 1
+23B5  3803     8.                  jr    c,$+5          ; is on stack ? yes - jump
+23B7  211D79   !.y                 ld    hl,0x791D      ; Load LSB X address
+23BA  4E       N                   ld    c,(hl)         ; Load 2 more bytes
 23BB  23       #                   inc   hl
 23BC  46       F                   ld    b,(hl)
 23BD  23       #                   inc   hl
-23BE  C5       .                   push  bc
-23BF  4E       N                   ld    c,(hl)
+23BE  C5       .                   push  bc             ; 2 bytes on the stack
+23BF  4E       N                   ld    c,(hl)         ; and load 2 more bytes
 23C0  23       #                   inc   hl
 23C1  46       F                   ld    b,(hl)
-23C2  C5       .                   push  bc
-23C3  06F1     ..                  ld    b,0xF1
-23C5  C603     ..                  add   a,0x03
-23C7  4B       K                   ld    c,e
-23C8  47       G                   ld    b,a
-23C9  C5       .                   push  bc
-23CA  010624   ..$                 ld    bc,0x2406
-23CD  C5       .                   push  bc
-23CE  2AD878   *.x                 ld    hl,(FMT_FLAG)
-23D1  C33A23   .:#                 jp    0x233A
-23D4  CDB10A   ...                 call  FRCSNG
-23D7  CDA409   ...                 call  PUSHF
-23DA  01F213   ...                 ld    bc,0x13F2
-23DD  167F     ..                  ld    d,0x7F
+23C2  C5       .                   push  bc             ; also on the stack
+23C3  06       .                   DEFB  0x06
+23C4  F1       .                   pop   af             ; skips the POP / Load type flag (for single
+23C5  C603     ..                  add   a,0x03         ; Calculate type code
+23C7  4B       K                   ld    c,e            ; Operator code in C
+23C8  47       G                   ld    b,a            ; Type code in B
+23C9  C5       .                   push  bc             ; Put on the stack
+23CA  010624   ..$                 ld    bc,0x2406      ; Address for performing
+23CD  C5       .                   push  bc             ; operations on the stack
+23CE  2AD878   *.x                 ld    hl,(FMT_FLAG)  ; Load program pointer
+23D1  C33A23   .:#                 jp    0x233A         ; next operand
+                     ; Operands for exponentiation on the stack
+                     EVAL_EXPR_POWER:
+23D4  CDB10A   ...                 call  FRCSNG         ; Convert X to single precision
+23D7  CDA409   ...                 call  PUSHF          ; Transfer X to the stack
+23DA  01F213   ...                 ld    bc,0x13F2      ; Address for power calculation
+23DD  167F     ..                  ld    d,0x7F         ; New priority code = 7FH
 23DF  18EC     ..                  jr    $-18
-23E1  D5       .                   push  de
-23E2  CD7F0A   ...                 call  FRCINT
-23E5  D1       .                   pop   de
-23E6  E5       .                   push  hl
-23E7  01E925   ..%                 ld    bc,0x25E9
+                     ; Operands for AND and OR on the stack
+                     EVAL_EXPR_LOGIC:
+23E1  D5       .                   push  de             ; Operator on stack
+23E2  CD7F0A   ...                 call  FRCINT         ; Convert operand to integer
+23E5  D1       .                   pop   de             ; Reload operator code
+23E6  E5       .                   push  hl             ; Operand on stack
+23E7  01E925   ..%                 ld    bc,0x25E9      ; Address for AND and OR processing
 23EA  18E1     ..                  jr    $-29
 23EC  78       x                   ld    a,b
 23ED  FE64     .d                  cp    0x64
@@ -6059,7 +6074,7 @@
 2524  CA5579   .Uy                 jp    z,0x7955
 2527  D6D7     ..                  sub   0xD7
 2529  D24E25   .N%                 jp    nc,0x254E
-252C  CD3523   .5#                 call  0x2335
+252C  CD3523   .5#                 call  EVAL_EXPR_START
 252F  CF       .                   rst   8
 2530  29       )                   add   hl,hl
 2531  C9       .                   ret   
@@ -6086,7 +6101,7 @@
 2554  79       y                   ld    a,c
 2555  FE41     .A                  cp    0x41
 2557  3816     8.                  jr    c,$+24
-2559  CD3523   .5#                 call  0x2335
+2559  CD3523   .5#                 call  EVAL_EXPR_START
 255C  CF       .                   rst   8
 255D  2C       ,                   inc   l
 255E  CDF40A   ...                 call  CHKSTR
@@ -6797,7 +6812,7 @@
 2990  E5       .                   push  hl
 2991  2A2179   *!y                 ld    hl,(FACLO)
 2994  E3       .                   ex    (sp),hl
-2995  CD9F24   ..$                 call  0x249F
+2995  CD9F24   ..$                 call  EVAL_OPERAND
 2998  E3       .                   ex    (sp),hl
 2999  CDF40A   ...                 call  CHKSTR
 299C  7E       ~                   ld    a,(hl)

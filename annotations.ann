@@ -1809,6 +1809,21 @@ offset = 8852
 end = 8853
 type = DATA_BYTE
 
+[region]
+offset = 9013
+end = 9013
+type = DATA_BYTE
+
+[region]
+offset = 9014
+end = 9014
+type = DATA_BYTE
+
+[region]
+offset = 9155
+end = 9155
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -3188,6 +3203,38 @@ name = DATA_FIND_STMT_END
 [label]
 offset = 8878
 name = DATA_SEARCH_LOOP
+
+[label]
+offset = 8938
+name = NEXT_INTEGER_LOOP
+
+[label]
+offset = 8976
+name = NEXT_CHECK_END
+
+[label]
+offset = 8996
+name = NEXT_LOOP_FINISHED
+
+[label]
+offset = 9013
+name = EVAL_EXPR_START
+
+[label]
+offset = 9034
+name = EVAL_EXPR_OP_LOOP
+
+[label]
+offset = 9060
+name = EVAL_EXPR_CHK_COMP
+
+[label]
+offset = 9172
+name = EVAL_EXPR_POWER
+
+[label]
+offset = 9185
+name = EVAL_EXPR_LOGIC
 
 [comment]
 offset = 0
@@ -20037,6 +20084,526 @@ text = Compare loop variable with end value
 offset = 8936
 text = continue at 2313H
 
+[comment]
+offset = 8938
+text = Skip 2 unused stack levels
+
+[comment]
+offset = 8942
+text = Increment value in BC
+
+[comment]
+offset = 8944
+text = (MSB)
+
+[comment]
+offset = 8946
+text = Load var. tab. address of the loop variable
+
+[comment]
+offset = 8947
+text = Load value of the loop variable
+
+[comment]
+offset = 8950
+text = Var. tab. address + 1 on the stack
+
+[comment]
+offset = 8951
+text = Increment value in HL
+
+[comment]
+offset = 8953
+text = Loop variable + increment value in HL and X
+
+[comment]
+offset = 8956
+text = Type in X = single precision?
+
+[comment]
+offset = 8959
+text = (Overflow)
+
+[comment]
+offset = 8961
+text = yes, OVERFLOW - Error
+
+[comment]
+offset = 8964
+text = new loop variable in DE
+
+[comment]
+offset = 8965
+text = load var. tab. address + 1
+
+[comment]
+offset = 8966
+text = and store new value
+
+[comment]
+offset = 8969
+text = load stack pointer
+
+[comment]
+offset = 8970
+text = new value of loop variable on stack
+
+[comment]
+offset = 8971
+text = load end value
+
+[comment]
+offset = 8975
+text = stack pointer on the stack
+
+[comment]
+offset = 8976
+text = Compare loop variable with end value
+
+[comment]
+offset = 8979
+text = load stack pointer
+
+[comment]
+offset = 8980
+text = load increment flag
+
+[comment]
+offset = 8981
+text = Link comparison result with increment flag
+
+[comment]
+offset = 8982
+text = Load line number and starting pointer into DE and BC
+
+[comment]
+offset = 8985
+text = Loop ended? yes - jump
+
+[comment]
+offset = 8987
+text = Line number in HL
+
+[comment]
+offset = 8988
+text = Store as current line number
+
+[comment]
+offset = 8991
+text = Starting pointer of the line in HL
+
+[comment]
+offset = 8993
+text = Repeat loop
+
+[comment]
+offset = 8996
+text = Remove loop from stack
+
+[comment]
+offset = 8997
+text = by stack correction
+
+[comment]
+offset = 9000
+text = Load program pointer
+
+[comment]
+offset = 9003
+text = Load character
+
+[comment]
+offset = 9004
+text = follows a comma?
+
+[comment]
+offset = 9006
+text = no, next statement
+
+[comment]
+offset = 9009
+text = address next character
+
+[comment]
+offset = 9010
+text = process next outer loop
+
+[comment]
+offset = 9013
+text = Expression begins with a parenthesis?
+
+[comment]
+offset = 9014
+text = no - SYNTAX ERROR
+
+[comment]
+offset = 9015
+text = Program pointer - 1
+
+[comment]
+offset = 9016
+text = Priority code of the last operand = 0
+
+[comment]
+offset = 9018
+text = Priority code on the stack
+
+[comment]
+offset = 9019
+text = At least 2 bytes free?
+
+[comment]
+offset = 9021
+text = no, OUT OF MEMORY - Error
+
+[comment]
+offset = 9024
+text = Analyze operands and in X
+
+[comment]
+offset = 9027
+text = Store program pointer
+
+[comment]
+offset = 9030
+text = Load program pointer
+
+[comment]
+offset = 9033
+text = Priority code in B load
+
+[comment]
+offset = 9034
+text = Next character from program
+
+[comment]
+offset = 9035
+text = Set operator code = 0
+
+[comment]
+offset = 9037
+text = Comparison operator? ( > = < )
+
+[comment]
+offset = 9039
+text = no!
+
+[comment]
+offset = 9041
+text = (Token D4, D5 and D6)
+
+[comment]
+offset = 9043
+text = no!
+
+[comment]
+offset = 9045
+text = Set Carry for '>'
+
+[comment]
+offset = 9047
+text = Shift 1 bit left ( > = 1, = = 2, < = 4 )
+
+[comment]
+offset = 9048
+text = Set corresponding bit in operator code
+
+[comment]
+offset = 9049
+text = was already set before?
+
+[comment]
+offset = 9050
+text = (i.e. the same operator twice)
+
+[comment]
+offset = 9051
+text = yes - SYNTAX ERROR
+
+[comment]
+offset = 9054
+text = Store program pointer
+
+[comment]
+offset = 9057
+text = Load next character
+
+[comment]
+offset = 9058
+text = and investigate
+
+[comment]
+offset = 9060
+text = Operator code > 0 ?
+
+[comment]
+offset = 9061
+text = (Comparison operator found)
+
+[comment]
+offset = 9062
+text = yes!
+
+[comment]
+offset = 9065
+text = Load character
+
+[comment]
+offset = 9066
+text = Store program pointer
+
+[comment]
+offset = 9069
+text = One of the other operators?
+
+[comment]
+offset = 9071
+text = + - * / ** AND OR ?
+
+[comment]
+offset = 9074
+text = no!
+
+[comment]
+offset = 9075
+text = Operator code in E
+
+[comment]
+offset = 9076
+text = is X a string?
+
+[comment]
+offset = 9079
+text = SUB 3
+
+[comment]
+offset = 9081
+text = and '+' operator?
+
+[comment]
+offset = 9082
+text = yes, string concatenation
+
+[comment]
+offset = 9085
+text = Address table of priority codes
+
+[comment]
+offset = 9088
+text = + operator code
+
+[comment]
+offset = 9089
+text = Last priority in A
+
+[comment]
+offset = 9090
+text = New priority from table in D
+
+[comment]
+offset = 9091
+text = Last priority >= new priority?
+
+[comment]
+offset = 9092
+text = yes, perform last operation
+
+[comment]
+offset = 9093
+text = no, last priority on stack
+
+[comment]
+offset = 9094
+text = Address for next operand on stack
+
+[comment]
+offset = 9098
+text = New priority in A
+
+[comment]
+offset = 9099
+text = is = 7FH (Operator = **) ?
+
+[comment]
+offset = 9101
+text = yes, continue at 23D4H
+
+[comment]
+offset = 9104
+text = Operator = AND or OR?
+
+[comment]
+offset = 9106
+text = yes, continue at 23E1H
+
+[comment]
+offset = 9109
+text = X address in HL
+
+[comment]
+offset = 9112
+text = Clear carry
+
+[comment]
+offset = 9113
+text = Load type code
+
+[comment]
+offset = 9116
+text = Type code - 3
+
+[comment]
+offset = 9117
+text = is = string ?
+
+[comment]
+offset = 9119
+text = yes, TYPE MISMATCH - Error
+
+[comment]
+offset = 9122
+text = X address in HL
+
+[comment]
+offset = 9123
+text = X address + 1
+
+[comment]
+offset = 9124
+text = in Byte
+
+[comment]
+offset = 9125
+text = and on stack
+
+[comment]
+offset = 9126
+text = if integer done!
+
+[comment]
+offset = 9129
+text = otherwise load 2 more bytes
+
+[comment]
+offset = 9133
+text = and on the stack
+
+[comment]
+offset = 9134
+text = Type flag on the stack
+
+[comment]
+offset = 9135
+text = is single precision?
+
+[comment]
+offset = 9136
+text = yes, done!
+
+[comment]
+offset = 9139
+text = Reload type flag
+
+[comment]
+offset = 9140
+text = X address + 1
+
+[comment]
+offset = 9141
+text = is on stack ? yes - jump
+
+[comment]
+offset = 9143
+text = Load LSB X address
+
+[comment]
+offset = 9146
+text = Load 2 more bytes
+
+[comment]
+offset = 9150
+text = 2 bytes on the stack
+
+[comment]
+offset = 9151
+text = and load 2 more bytes
+
+[comment]
+offset = 9154
+text = also on the stack
+
+[comment]
+offset = 9156
+text = skips the POP / Load type flag (for single prec.)
+
+[comment]
+offset = 9157
+text = Calculate type code
+
+[comment]
+offset = 9159
+text = Operator code in C
+
+[comment]
+offset = 9160
+text = Type code in B
+
+[comment]
+offset = 9161
+text = Put on the stack
+
+[comment]
+offset = 9162
+text = Address for performing
+
+[comment]
+offset = 9165
+text = operations on the stack
+
+[comment]
+offset = 9166
+text = Load program pointer
+
+[comment]
+offset = 9169
+text = next operand
+
+[comment]
+offset = 9172
+text = Convert X to single precision
+
+[comment]
+offset = 9175
+text = Transfer X to the stack
+
+[comment]
+offset = 9178
+text = Address for power calculation
+
+[comment]
+offset = 9181
+text = New priority code = 7FH
+
+[comment]
+offset = 9185
+text = Operator on stack
+
+[comment]
+offset = 9186
+text = Convert operand to integer
+
+[comment]
+offset = 9189
+text = Reload operator code
+
+[comment]
+offset = 9190
+text = Operand on stack
+
+[comment]
+offset = 9191
+text = Address for AND and OR processing
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -21483,4 +22050,24 @@ text = *****************************************************************
 [block]
 offset = 8916
 text = Single precision loop variable
+
+[block]
+offset = 8996
+text = Loop ended
+
+[block]
+offset = 9013
+text = Evaluate expression
+
+[block]
+offset = 9109
+text = Operands for +, -, * and / on the stack
+
+[block]
+offset = 9172
+text = Operands for exponentiation on the stack
+
+[block]
+offset = 9185
+text = Operands for AND and OR on the stack
 
