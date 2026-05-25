@@ -45,3 +45,17 @@
 - Stats:
   - Symbols: 280
   - Annotations: 3991
+
+## Session: 2026-05-24 (Part 2)
+### Range: 0x20FE - 0x21FC (Line 5444 in export.lst)
+- Translated and annotated implementation of:
+  - PRINT statement formatting (Carriage Return, Comma, TAB).
+  - INPUT statement logic (Cassette and Keyboard input).
+  - READ statement initialization.
+- Handled RST 8 tricks at 0x21D4, 0x21F3, and 0x21FC using DIRECT_BYTE segments.
+- Exposed hidden entry point at 0x21F4 (DATA_FLAG_CLEAR) by splitting the OR instruction at 0x21F3.
+- Added block headers and labels for major functions (e.g., CMD_INPUT, INPUT_CASSETTE, CMD_READ).
+- Verified bit-perfection: Build matches VZ200.bin (MD5: 42c8f9e6c2133ae0e953b89ccbbdb7e2).
+- Stats:
+  - Symbols: 292
+  - Annotations: 4114

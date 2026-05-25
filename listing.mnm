@@ -4633,13 +4633,8 @@
 8561	3	ld	(0x789C),a
 8564	3	call	0x79BE
 8567	1	ret	
-8568	1	ccf	
-8569	1	ld	d,d
-8570	1	ld	b,l
-8571	1	ld	b,h
-8572	1	ld	c,a
-8573	1	dec	c
-8574	1	nop	
+8568	5	DEFM	"?REDO"
+8573	2	DEFB	0x0D,0x00
 8575	3	ld	a,(0x78DE)
 8578	1	or	a
 8579	3	jp	nz,0x1991
@@ -4683,7 +4678,7 @@
 8655	1	ret	nz
 8656	3	call	0x2866
 8659	1	rst	8
-8660	1	dec	sp
+8660	1	DEFB	0x3B
 8661	1	push	hl
 8662	3	call	0x28AA
 8665	1	pop	hl
@@ -4702,12 +4697,13 @@
 8685	2	jr	$+7
 8687	1	push	hl
 8688	3	ld	hl,(0x78FF)
-8691	2	or	0xAF
+8691	1	DEFB	0xF6
+8692	1	xor	a
 8693	3	ld	(0x78DE),a
 8696	1	ex	(sp),hl
 8697	2	jr	$+4
 8699	1	rst	8
-8700	1	inc	l
+8700	1	DEFB	0x2C
 8701	3	call	0x260D
 8704	1	ex	(sp),hl
 8705	1	push	de
@@ -4786,21 +4782,8 @@
 8831	3	call	nz,0x28A7
 8834	1	pop	hl
 8835	3	jp	0x2169
-8838	1	ccf	
-8839	1	ld	b,l
-8840	1	ld	e,b
-8841	1	ld	d,h
-8842	1	ld	d,d
-8843	1	ld	b,c
-8844	2	jr	nz,$+75
-8846	1	ld	b,a
-8847	1	ld	c,(hl)
-8848	1	ld	c,a
-8849	1	ld	d,d
-8850	1	ld	b,l
-8851	1	ld	b,h
-8852	1	dec	c
-8853	1	nop	
+8838	14	DEFM	"?EXTRA IGNORED"
+8852	2	DEFB	0x0D,0x00
 8854	3	call	0x1F05
 8857	1	or	a
 8858	2	jr	nz,$+20

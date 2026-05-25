@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Sun May 24 16:34:17 2026
+; Generated: Sun May 24 22:11:18 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -2564,7 +2564,7 @@ DNORM_BIT_LOOP:
               rst   0x10           ; followed by a digit?
               jp    c,FINDIG       ; yes!
               cp    0x2E           ; '.'
-              jp    z,FINDP        ; yes!
+              jp    z,STR_TO_NUM_DP ; yes!
               cp    0x45           ; 'E'? (Exponent for single precision)
               jr    z,$+22         ; yes!
               cp    0x25           ; '%'? (Treat number as integer)
@@ -4398,7 +4398,7 @@ IMPLICIT_END:
               jr    nz,$+22        ; yes, to message output
               jp    0x1DC1         ; Jump to END
 SYNTAX_ERR_DATA:
-              ld    hl,(0x78DA)    ; last DATA line
+              ld    hl,(DATA_LINE_NUM) ; last DATA line
               ld    (0x78A2),hl    ; as current line number
 SYNTAX_ERR_HANDLER:
               ld    e,0x02         ; Error code in E
@@ -4406,7 +4406,7 @@ SYNTAX_ERR_HANDLER:
 DIV_ZERO_ERR_HANDLER:
               ld    e,0x14         ; DIVISION BY ZERO
               DEFB  0x01           ; LD BC,001EH Dummy instruction
-NEXT_WITHOUT_FOR_ERR_HANDLER:
+; NEXT_WITHOUT_FOR_ERR_HANDLER: (defined in symbols.sym)
               ld    e,0x00         ; NEXT WITHOUT FOR
               DEFB  0x01           ; LD BC,241EH Dummy instruction
 RESUME_WITHOUT_ERR_HANDLER:
@@ -4721,7 +4721,7 @@ ERROR_HANDLER:
               ld    hl,0x78B5      ; clear string buffer
               ld    (0x78B3),hl    ; (start address in pointer)
               call  OUTPUT_SCREEN_SELECT ; output flag to screen, CR on printer if necessary.
-              call  0x2169         ; end check
+              call  PRINT_FINAL    ; end check
               xor   a              ; A = 0
               ld    h,a            ; HL = 0
               ld    l,a
@@ -5347,7 +5347,7 @@ ELSE_LOOP:
               jr    $-17
 
 ; LET Statement
-              call  0x260D         ; Search for variable in table
+              call  VARPTR_FIND_OR_CREATE ; Search for variable in table
               rst   8              ; Followed by '=' character?
               DEFB  0xD5
               ex    de,hl          ; Address of variable table
@@ -5591,14 +5591,14 @@ PRINT_LOOP:
               dec   hl             ; program pointer - 1
               rst   0x10           ; next character. end of statement?
               call  z,PRINT_CR     ; yes, output CR
-              jp    z,0x2169       ; and done
+              jp    z,PRINT_FINAL  ; and done
               cp    0xBF           ; = USING token?
               jp    z,0x2CBD       ; yes, formatted output
               cp    0xBC           ; = TAB token?
-              jp    z,0x2137       ; yes!
+              jp    z,PRINT_TAB    ; yes!
               push  hl             ; program pointer on stack
               cp    0x2C           ; comma ?
-              jp    z,0x2108       ; yes, to next TAB position
+              jp    z,PRINT_COMMA  ; yes, to next TAB position
               cp    0x3B           ; semicolon ?
               jp    z,0x3B0C       ; wait until all characters output.
               pop   bc             ; load program pointer
@@ -5640,283 +5640,322 @@ PRINT_BOL_CHECK:
               ret   z              ; yes, back
 
 ; Output Carriage-Return
-              ld    a,0x0D
-              call  CHAR_OUTPUT_DISPATCH
-              call  0x79D0
-              xor   a
+              ld    a,0x0D         ; load CR code
+              call  CHAR_OUTPUT_DISPATCH ; and output
+              call  0x79D0         ; RAM expansion output
+              xor   a              ; reset A + flags
               ret   
-              call  0x79D3
-              ld    a,(0x789C)
-              or    a
-              jp    p,0x2119
-              ld    a,0x2C
-              call  CHAR_OUTPUT_DISPATCH
-              jr    $+77
-              jr    z,$+10
-              ld    a,(0x789B)
-              cp    0x70
-              jp    0x212B
-              ld    a,(0x789E)
-              ld    b,a
-              ld    a,(0x7AAE)
-              cp    b
-              call  nc,PRINT_CR
-              jr    nc,$+54
-              sub   0x10
+
+; evaluate ','
+              call  0x79D3         ; RAM expansion output
+              ld    a,(0x789C)     ; load output flag
+              or    a              ; and test
+              jp    p,0x2119       ; printer? ja!
+              ld    a,0x2C         ; record comma on cassette
+              call  CHAR_OUTPUT_DISPATCH ; and output
+              jr    $+77           ; continue at 2164H
+              jr    z,$+10         ; screen? ja - jump
+              ld    a,(0x789B)     ; print head position in line
+              cp    0x70           ; = 112?
+              jp    0x212B         ; continue at 212BH
+              ld    a,(0x789E)     ; load screen line length
+              ld    b,a            ; in B
+              ld    a,(0x7AAE)     ; load cursor position in line
+              cp    b              ; < last TAB position?
+              call  nc,PRINT_CR    ; no, output Carriage Return
+              jr    nc,$+54        ; and continue
+              sub   0x10           ; cursor position - 16 to < 0
               jr    nc,$-2
-              cpl   
-              jr    $+37
-              call  0x2B1B
-              and   0x3F
-              ld    e,a
-              rst   8
+              cpl                  ; one's complement
+              jr    $+37           ; = number of spaces - 1
+
+; evaluate TAB
+              call  0x2B1B         ; evaluate expression, integer
+              and   0x3F           ; clear bit 7 (max 127)
+              ld    e,a            ; in E
+              rst   8              ; follows a ')'?
               add   hl,hl
-              dec   hl
-              push  hl
-              call  0x79D3
-              ld    a,(0x789C)
-              or    a
-              jp    m,0x1E4A
-              jp    z,0x2153
-              ld    a,(0x789B)
-              jr    $+5
-              ld    a,(0x78A6)
-              cpl   
-              add   a,e
-              jr    nc,$+12
-              inc   a
-              ld    b,a
-              ld    a,0x20
-              call  CHAR_OUTPUT_DISPATCH
-              dec   b
-              jr    nz,$-4
-              pop   hl
-              rst   0x10
-              jp    0x20A0
-              ld    a,(0x789C)
+              dec   hl             ; program pointer - 1
+              push  hl             ; and on stack
+              call  0x79D3         ; RAM expansion output
+              ld    a,(0x789C)     ; load output flag
+              or    a              ; and test
+              jp    m,0x1E4A       ; cassette? FUNCTION CODE - Error
+              jp    z,0x2153       ; screen? ja-jump
+              ld    a,(0x789B)     ; load print head position
+              jr    $+5            ; continue at screen
+              ld    a,(0x78A6)     ; load cursor position
+              cpl                  ; one's complement
+              add   a,e            ; + TAB value
+              jr    nc,$+12        ; already reached or exceeded?
+              inc   a              ; + 1
+              ld    b,a            ; number of spaces to output
+              ld    a,0x20         ; load space code
+              call  CHAR_OUTPUT_DISPATCH ; and output
+              dec   b              ; counter - 1
+              jr    nz,$-4         ; != 0? no - next space
+
+; Next PRINT - sub-expression
+              pop   hl             ; load program pointer
+              rst   0x10           ; address next character
+              jp    0x20A0         ; and back
+
+; Final PRINT check
+              ld    a,(0x789C)     ; load output flag
+              nop                  ; 4 x NOP
               nop   
               nop   
               nop   
-              nop   
-              xor   a
-              ld    (0x789C),a
-              call  0x79BE
+              xor   a              ; reset output flag
+              ld    (0x789C),a     ; set to screen
+              call  0x79BE         ; RAM expansion output
               ret   
-              ccf   
-              ld    d,d
-              ld    b,l
-              ld    b,h
-              ld    c,a
-              dec   c
+
+; Text Definition
+              DEFM  "?REDO"        ; ?REDO
+              DEFB  0x0D,0x00      ; 0x0D, 0x00
+
+; Error during data input
+              ld    a,(0x78DE)     ; DATA flag set?
+              or    a              ; A
+              jp    nz,SYNTAX_ERR_DATA ; ja, SYNTAX ERROR in DATA instruction
+              ld    a,(0x78A9)     ; input from cassette?
+              or    a              ; A
+              ld    e,0x2A         ; error code in E
+              jp    z,ERROR_HANDLER ; ja, BAD FILE DATA - Error
+              pop   bc             ; keyboard input, load buffer pointer
+              ld    hl,REDO_TEXT   ; address text '?REDO'
+              call  OUTSTR         ; and output
+              ld    hl,(0x78E6)    ; current program pointer in HL
+              ret                  ; restart input
+
+; INPUT Statement
+              call  0x2828         ; direct command?
+              ld    a,(hl)         ; load character
+              call  0x79D6         ; RAM expansion output
+              sub   0x23           ; read from cassette?
+              ld    (0x78A9),a     ; difference as INPUT flag (0=cass)
+              ld    a,(hl)         ; load character
+              jr    nz,$+34        ; no cassette!
+
+; Read from Cassette
+              call  0x3B68         ; search file on cassette
+              push  hl             ; program pointer on stack
+              ld    b,0xFA         ; max. 250 characters
+              ld    hl,(0x78A7)    ; address I/O buffer
+              call  0x3B88         ; read one byte
+              ld    (hl),a         ; transfer to buffer
+              inc   hl             ; buffer pointer + 1
+              cp    0x0D           ; end of record?
+              jr    z,$+4          ; ja!
+              djnz  $-9            ; counter - 1 = 0?
+              dec   hl             ; ja, mark end of record with 00
+              ld    (hl),0x00      ; Load (HL),0
+              nop                  ; 3 x NOP
               nop   
-              ld    a,(0x78DE)
+              nop   
+              ld    hl,(0x78A7)    ; address buffer start
+              dec   hl             ; buffer pointer 1 byte before start
+              jr    $+36           ; continue at 21EBH
+
+; Read from Keyboard
+              ld    bc,0x21DB      ; set return address
+              push  bc             ; BC
+              cp    0x22           ; with previous text output?
+              ret   nz             ; no, continue at 21DBH
+              call  0x2866         ; text in buffer and X
+              rst   8              ; follows a semicolon?
+              DEFB  0x3B           ; DEFB ';'
+              push  hl             ; program pointer on stack
+              call  0x28AA         ; output text
+              pop   hl             ; load program pointer
+              ret                  ; continue at 21DBH
+              push  hl             ; program pointer on stack
+              call  PROMPT_RD      ; print '?' and read line into I/O buffer
+              pop   bc             ; program pointer in BC
+              jp    c,CMD_END_INPUT ; BREAK? ja - jump
+              inc   hl             ; buffer pointer to 1st character
+              ld    a,(hl)         ; load character
+              or    a              ; end of text?
+              dec   hl             ; A
+              push  bc             ; program pointer back to 1st character
+              jp    z,CMD_DATA_SKIP ; no text, skip INPUT instruction
+              ld    (hl),0x2C      ; set comma before first character
+              jr    $+7            ; continue at 21F4H
+
+; READ Statement
+              push  hl             ; program pointer on stack
+              ld    hl,(0x78FF)    ; DATA pointer in HL
+              DEFB  0xF6           ; set DATA flag
+
+; Clear DATA flag
+; DATA_FLAG_CLEAR: (defined in symbols.sym)
+              xor   a              ; clear DATA flag (Redefinition of 21F4H)
+              ld    (0x78DE),a     ; save DATA flag
+              ex    (sp),hl        ; buffer/DATA pointer on stack
+              jr    $+4            ; continue at 21FDH
+
+; Next Variable
+              rst   8              ; follows a comma?
+              DEFB  0x2C           ; DEFB ','
+INPUT_READ_LOOP:
+              call  VARPTR_FIND_OR_CREATE ; Search for variable in variable table
+              ex    (sp),hl        ; Program pointer on stack
+              push  de             ; Var. tab. address in DE
+              ld    a,(hl)         ; Load character from buffer
+              cp    0x2C           ; = comma ?
+              jr    z,$+40         ; yes, continue
+
+; Buffer empty (no ',')
+INPUT_EMPTY_BUFFER:
+              ld    a,(0x78DE)     ; DATA flag set ?
               or    a
-              jp    nz,SYNTAX_ERR_DATA
-              ld    a,(0x78A9)
+              jp    nz,DATA_FIND_STMT_END ; yes, search for next DATA statement
+              ld    a,(0x78A9)     ; Input from cassette ?
               or    a
-              ld    e,0x2A
-              jp    z,ERROR_HANDLER
-              pop   bc
-              ld    hl,0x2178
-              call  OUTSTR
-              ld    hl,(0x78E6)
-              ret   
-              call  0x2828
-              ld    a,(hl)
-              call  0x79D6
-              sub   0x23
-              ld    (0x78A9),a
-              ld    a,(hl)
-              jr    nz,$+34
-              call  0x3B68
-              push  hl
-              ld    b,0xFA
-              ld    hl,(0x78A7)
-              call  0x3B88
-              ld    (hl),a
-              inc   hl
-              cp    0x0D
-              jr    z,$+4
-              djnz  $-9
-              dec   hl
-              ld    (hl),0x00
-              nop   
-              nop   
-              nop   
-              ld    hl,(0x78A7)
-              dec   hl
-              jr    $+36
-              ld    bc,0x21DB
-              push  bc
-              cp    0x22
-              ret   nz
-              call  0x2866
-              rst   8
-              dec   sp
-              push  hl
-              call  0x28AA
-              pop   hl
-              ret   
-              push  hl
-              call  PROMPT_RD
-              pop   bc
-              jp    c,CMD_END_INPUT
-              inc   hl
-              ld    a,(hl)
-              or    a
-              dec   hl
-              push  bc
-              jp    z,0x1F04
-              ld    (hl),0x2C
-              jr    $+7
-              push  hl
-              ld    hl,(0x78FF)
-              or    0xAF
-              ld    (0x78DE),a
-              ex    (sp),hl
-              jr    $+4
-              rst   8
-              inc   l
-              call  0x260D
-              ex    (sp),hl
+              ld    e,0x06         ; Error code in E
+              jp    z,ERROR_HANDLER ; yes, OUT OF DATA - Error
+INPUT_PROMPT_AGAIN:
+              ld    a,0x3F         ; Keyboard: output '?'
+              call  CHAR_OUTPUT_DISPATCH ; Tastatur: '?' ausgeben
+              call  PROMPT_RD      ; Re-enter with '??'
+              pop   de             ; Load var. tab. address
+              pop   bc             ; Program pointer in BC
+              jp    c,CMD_END_INPUT ; BREAK? yes - jump
+              inc   hl             ; Buffer pointer to 1st character
+              ld    a,(hl)         ; Load character
+              or    a              ; End of line ?
+              dec   hl             ; Buffer pointer before 1st character
+              push  bc             ; Program pointer on stack
+              jp    z,CMD_DATA_SKIP ; yes, skip remaining input, without changing variable values
               push  de
-              ld    a,(hl)
-              cp    0x2C
-              jr    z,$+40
-              ld    a,(0x78DE)
-              or    a
-              jp    nz,0x2296
-              ld    a,(0x78A9)
-              or    a
-              ld    e,0x06
-              jp    z,ERROR_HANDLER
-              ld    a,0x3F
-              call  CHAR_OUTPUT_DISPATCH
-              call  PROMPT_RD
-              pop   de
-              pop   bc
-              jp    c,CMD_END_INPUT
-              inc   hl
-              ld    a,(hl)
-              or    a
-              dec   hl
-              push  bc
-              jp    z,0x1F04
-              push  de
-              call  0x79DC
-              rst   0x20
-              push  af
-              jr    nz,$+27
-              rst   0x10
-              ld    d,a
+
+; Decode input
+INPUT_VALUE_START:
+              call  HOOK_INPUT_VALUE ; RAM expansion output
+              rst   0x20           ; Test type of variable
+              push  af             ; Save type flag
+              jr    nz,$+27        ; numeric? yes, jump
+
+; Accept string
+INPUT_VALUE_STRING:
+              rst   0x10           ; Buffer pointer to next character
+              ld    d,a            ; as delimiter in D and B
               ld    b,a
-              cp    0x22
-              jr    z,$+7
-              ld    d,0x3A
+              cp    0x22           ; Quotation mark ?
+              jr    z,$+7          ; yes, use '\
+              ld    d,0x3A         ; no, ':' and ',' as delimiters
               ld    b,0x2C
-              dec   hl
-              call  0x2869
-              pop   af
-              ex    de,hl
-              ld    hl,0x225A
-              ex    (sp),hl
-              push  de
-              jp    0x1F33
-              rst   0x10
-              pop   af
-              push  af
-              ld    bc,0x2243
+              dec   hl             ; Buffer pointer back 1 byte
+INPUT_STRING_PROC:
+              call  STR_TO_FAC     ; String in temporary storage and X
+
+; Store new variable value
+              pop   af             ; Load type flag
+              ex    de,hl          ; Buffer pointer in DE
+              ld    hl,INPUT_VALUE_NEXT ; Return address in HL
+              ex    (sp),hl        ; swap with var. tab. adr. on stack
+              push  de             ; Buffer pointer on stack
+              jp    LET_ENTRY_2    ; Jump to LET and then 225AH
+
+; Take number into X
+INPUT_VALUE_NUMERIC:
+              rst   0x10           ; Address next character
+              pop   af             ; Load type flag
+              push  af             ; and back on stack
+              ld    bc,0x2243      ; Return address on stack
               push  bc
-              jp    c,FIN
-              jp    nc,STR_TO_DOUBLE
-              dec   hl
-              rst   0x10
-              jr    z,$+7
-              cp    0x2C
-              jp    nz,0x217F
-              ex    (sp),hl
-              dec   hl
-              rst   0x10
-              jp    nz,0x21FB
+              jp    c,STR_TO_NUM   ; Integer and single precision? yes, convert string, then 2243H
+              jp    nc,STR_TO_DOUBLE ; double precision? conv., then 2243H
+INPUT_VALUE_NEXT:
+              dec   hl             ; Buffer pointer - 1
+              rst   0x10           ; next character. 00 or ':' ?
+              jr    z,$+7          ; yes, end of line !
+              cp    0x2C           ; Comma ?
+              jp    nz,INPUT_REDO  ; no, error
+              ex    (sp),hl        ; Program pointer with buffer pointer exchange on stack
+              dec   hl             ; Program pointer - 1
+              rst   0x10           ; next character. = end of statement?
+              jp    nz,READ_NEXT_VAR ; no, continue with next variables
+
+; No further variables
+INPUT_EXTRA_CHECK:
               pop   de
               nop   
               nop   
               nop   
               nop   
               nop   
-              ld    a,(0x78DE)
-              or    a
-              ex    de,hl
-              jp    nz,0x1D96
-              push  de
-              call  0x79DF
+              ld    a,(0x78DE)     ; Load DATA flag
+              or    a              ; set ?
+              ex    de,hl          ; Buffer pointer-HL, prog pointer-DE
+              jp    nz,0x1D96      ; Store buffer pointer as DATA pointer, Program pointer in HL, do
+              push  de             ; Program pointer on stack
+              call  HOOK_READ_INPUT_LIST ; RAM expansion output
               or    (hl)
-              ld    hl,0x2286
-              call  nz,OUTSTR
-              pop   hl
-              jp    0x2169
-              ccf   
-              ld    b,l
-              ld    e,b
-              ld    d,h
-              ld    d,d
-              ld    b,c
-              jr    nz,$+75
-              ld    b,a
-              ld    c,(hl)
-              ld    c,a
-              ld    d,d
-              ld    b,l
-              ld    b,h
-              dec   c
-              nop   
-              call  CMD_DATA
-              or    a
-              jr    nz,$+20
-              inc   hl
-              ld    a,(hl)
+              ld    hl,EXTRA_IGNORED_TEXT ; Address text '?EXTRA IGNORED'
+              call  nz,OUTSTR      ; no, output text
+              pop   hl             ; Load program pointer
+              jp    PRINT_FINAL    ; Output flag to screen, done
+              DEFM  "?EXTRA IGNORED"
+              DEFB  0x0D,0x00
+
+; Search for next DATA statement
+DATA_FIND_STMT_END:
+              call  CMD_DATA       ; Search for end of statement
+              or    a              ; = end of line ?
+              jr    nz,$+20        ; no!
+              inc   hl             ; yes, end of program ?
+              ld    a,(hl)         ; (Line pointer = 0000)
               inc   hl
               or    (hl)
-              ld    e,0x06
-              jp    z,ERROR_HANDLER
-              inc   hl
+              ld    e,0x06         ; Error code in E
+              jp    z,ERROR_HANDLER ; yes, OUT OF DATA - Error
+              inc   hl             ; Load line number
               ld    e,(hl)
               inc   hl
               ld    d,(hl)
               ex    de,hl
-              ld    (0x78DA),hl
-              ex    de,hl
-              rst   0x10
-              cp    0x88
-              jr    nz,$-27
-              jp    0x222D
-              ld    de,START
-              call  nz,0x260D
-              ld    (0x78DF),hl
-              call  STACK_RECOVERY
-              jp    nz,NEXT_WITHOUT_FOR_ERR_HANDLER
-              ld    sp,hl
-              ld    (0x78E8),hl
-              push  de
-              ld    a,(hl)
-              inc   hl
-              push  af
-              push  de
-              ld    a,(hl)
-              inc   hl
-              or    a
-              jp    m,0x22EA
-              call  MOVFM
-              ex    (sp),hl
-              push  hl
-              call  0x070B
-              pop   hl
-              call  MOVMF
-              pop   hl
-              call  MOVRM
-              push  hl
-              call  FCOMP
-              jr    $+43
+              ld    (DATA_LINE_NUM),hl ; and store as DATA line number
+              ex    de,hl          ; Line number back in DE
+DATA_SEARCH_LOOP:
+              rst   0x10           ; Next character from program text
+              cp    0x88           ; = DATA token ?
+              jr    nz,$-27        ; no, continue searching
+              jp    INPUT_VALUE_START ; continue reading data
+
+; *****************************************************************
+; NEXT statement
+; Looping in FOR-NEXT loops
+              ld    de,START       ; Var. tab. address = 0 (for NEXT without variable)
+              call  nz,VARPTR_FIND_OR_CREATE ; further characters? yes - variable search, var. tab. address in
+              ld    (0x78DF),hl    ; Store program pointer
+              call  STACK_RECOVERY ; in stack next, or loop search with correct running variable
+              jp    nz,NEXT_WITHOUT_FOR_ERR_HANDLER ; not found, NEXT WITHOUT FOR
+              ld    sp,hl          ; by stack correction all associated nested loops removed.
+              ld    (0x78E8),hl    ; remove nested loops.
+              push  de             ; Var. tab. adr of loop var on stack.
+              ld    a,(hl)         ; Load increment flag
+              inc   hl             ; Stack pointer + 1
+              push  af             ; Increment flag on stack
+              push  de             ; Var. tab. address on stack
+              ld    a,(hl)         ; Load type flag
+              inc   hl             ; Stack pointer + 1
+              or    a              ; = single precision?
+              jp    m,0x22EA       ; no! - jump
+
+; Single precision loop variable
+              call  MOVFM          ; Increment value in X
+              ex    (sp),hl        ; Load var. tab. address, Stack pointer on stack
+              push  hl             ; Var. tab. address back on stack
+              call  0x070B         ; Loop variable + increment value
+              pop   hl             ; Load var. tab. address
+              call  MOVMF          ; Store new value of loop var.
+              pop   hl             ; Load stack pointer
+              call  MOVRM          ; Load end value into Y
+              push  hl             ; Stack pointer on stack
+              call  FCOMP          ; Compare loop variable with end value
+              jr    $+43           ; continue at 2313H
               inc   hl
               inc   hl
               inc   hl
@@ -6171,13 +6210,13 @@ PRINT_BOL_CHECK:
               rst   0x10
               ld    e,0x28
               jp    z,ERROR_HANDLER
-              jp    c,FIN
+              jp    c,STR_TO_NUM
               call  ISLET
               jp    nc,0x2540
               cp    0xCD
               jr    z,$-17
               cp    0x2E
-              jp    z,FIN
+              jp    z,STR_TO_NUM
               cp    0xCE
               jp    z,0x2532
               cp    0x22
@@ -6247,7 +6286,7 @@ PRINT_BOL_CHECK:
               call  VNEG
               pop   hl
               ret   
-              call  0x260D
+              call  VARPTR_FIND_OR_CREATE
               push  hl
               ex    de,hl
               ld    (FACLO),hl
@@ -7246,7 +7285,7 @@ PRINT_BOL_CHECK:
               ld    a,b
               or    c
               jp    z,MAIN_LOOP
-              call  0x79DF
+              call  HOOK_READ_INPUT_LIST
               call  ISCNTC
               push  bc
               ld    c,(hl)
@@ -7700,7 +7739,7 @@ PRINT_BOL_CHECK:
               ex    (sp),hl
               call  0x29DD
               pop   hl
-              jp    0x2169
+              jp    PRINT_FINAL
               ld    c,0x01
               ld    a,0xF1
               dec   b
@@ -9462,11 +9501,11 @@ PRINT_BOL_CHECK:
               jp    0x1DA0
               ld    a,(0x789C)
               or    a
-              jp    nz,0x2164
+              jp    nz,PRINT_NEXT
               ld    a,(0x7AAF)
               or    a
               jr    nz,$-4
-              jp    0x2164
+              jp    PRINT_NEXT
               ld    a,(0x7AAF)
               or    a
               ret   nz

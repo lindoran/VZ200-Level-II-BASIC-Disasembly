@@ -1774,6 +1774,41 @@ offset = 8334
 end = 8334
 type = DATA_BYTE
 
+[region]
+offset = 8568
+end = 8572
+type = DATA_STRING
+
+[region]
+offset = 8573
+end = 8574
+type = DATA_BYTE
+
+[region]
+offset = 8660
+end = 8660
+type = DATA_BYTE
+
+[region]
+offset = 8691
+end = 8691
+type = DATA_BYTE
+
+[region]
+offset = 8700
+end = 8700
+type = DATA_BYTE
+
+[region]
+offset = 8838
+end = 8851
+type = DATA_STRING
+
+[region]
+offset = 8852
+end = 8853
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -3105,6 +3140,54 @@ name = PRINT_VAL
 [label]
 offset = 8441
 name = PRINT_BOL_CHECK
+
+[label]
+offset = 8692
+name = DATA_FLAG_CLEAR
+
+[label]
+offset = 8701
+name = INPUT_READ_LOOP
+
+[label]
+offset = 8711
+name = INPUT_EMPTY_BUFFER
+
+[label]
+offset = 8727
+name = INPUT_PROMPT_AGAIN
+
+[label]
+offset = 8749
+name = INPUT_VALUE_START
+
+[label]
+offset = 8756
+name = INPUT_VALUE_STRING
+
+[label]
+offset = 8768
+name = INPUT_STRING_PROC
+
+[label]
+offset = 8781
+name = INPUT_VALUE_NUMERIC
+
+[label]
+offset = 8794
+name = INPUT_VALUE_NEXT
+
+[label]
+offset = 8809
+name = INPUT_EXTRA_CHECK
+
+[label]
+offset = 8854
+name = DATA_FIND_STMT_END
+
+[label]
+offset = 8878
+name = DATA_SEARCH_LOOP
 
 [comment]
 offset = 0
@@ -19034,6 +19117,926 @@ text = = 0 ?
 offset = 8445
 text = yes, back
 
+[comment]
+offset = 8446
+text = load CR code
+
+[comment]
+offset = 8448
+text = and output
+
+[comment]
+offset = 8451
+text = RAM expansion output
+
+[comment]
+offset = 8454
+text = reset A + flags
+
+[comment]
+offset = 8456
+text = RAM expansion output
+
+[comment]
+offset = 8459
+text = load output flag
+
+[comment]
+offset = 8462
+text = and test
+
+[comment]
+offset = 8463
+text = printer? ja!
+
+[comment]
+offset = 8466
+text = record comma on cassette
+
+[comment]
+offset = 8468
+text = and output
+
+[comment]
+offset = 8471
+text = continue at 2164H
+
+[comment]
+offset = 8473
+text = screen? ja - jump
+
+[comment]
+offset = 8475
+text = print head position in line
+
+[comment]
+offset = 8478
+text = = 112?
+
+[comment]
+offset = 8480
+text = continue at 212BH
+
+[comment]
+offset = 8483
+text = load screen line length
+
+[comment]
+offset = 8486
+text = in B
+
+[comment]
+offset = 8487
+text = load cursor position in line
+
+[comment]
+offset = 8490
+text = < last TAB position?
+
+[comment]
+offset = 8491
+text = no, output Carriage Return
+
+[comment]
+offset = 8494
+text = and continue
+
+[comment]
+offset = 8496
+text = cursor position - 16 to < 0
+
+[comment]
+offset = 8500
+text = one's complement
+
+[comment]
+offset = 8501
+text = = number of spaces - 1
+
+[comment]
+offset = 8503
+text = evaluate expression, integer
+
+[comment]
+offset = 8506
+text = clear bit 7 (max 127)
+
+[comment]
+offset = 8508
+text = in E
+
+[comment]
+offset = 8509
+text = follows a ')'?
+
+[comment]
+offset = 8511
+text = program pointer - 1
+
+[comment]
+offset = 8512
+text = and on stack
+
+[comment]
+offset = 8513
+text = RAM expansion output
+
+[comment]
+offset = 8516
+text = load output flag
+
+[comment]
+offset = 8519
+text = and test
+
+[comment]
+offset = 8520
+text = cassette? FUNCTION CODE - Error
+
+[comment]
+offset = 8523
+text = screen? ja-jump
+
+[comment]
+offset = 8526
+text = load print head position
+
+[comment]
+offset = 8529
+text = continue at screen
+
+[comment]
+offset = 8531
+text = load cursor position
+
+[comment]
+offset = 8534
+text = one's complement
+
+[comment]
+offset = 8535
+text = + TAB value
+
+[comment]
+offset = 8536
+text = already reached or exceeded?
+
+[comment]
+offset = 8538
+text = + 1
+
+[comment]
+offset = 8539
+text = number of spaces to output
+
+[comment]
+offset = 8540
+text = load space code
+
+[comment]
+offset = 8542
+text = and output
+
+[comment]
+offset = 8545
+text = counter - 1
+
+[comment]
+offset = 8546
+text = != 0? no - next space
+
+[comment]
+offset = 8548
+text = load program pointer
+
+[comment]
+offset = 8549
+text = address next character
+
+[comment]
+offset = 8550
+text = and back
+
+[comment]
+offset = 8553
+text = load output flag
+
+[comment]
+offset = 8556
+text = 4 x NOP
+
+[comment]
+offset = 8560
+text = reset output flag
+
+[comment]
+offset = 8561
+text = set to screen
+
+[comment]
+offset = 8564
+text = RAM expansion output
+
+[comment]
+offset = 8568
+text = ?REDO
+
+[comment]
+offset = 8573
+text = 0x0D, 0x00
+
+[comment]
+offset = 8575
+text = DATA flag set?
+
+[comment]
+offset = 8578
+text = A
+
+[comment]
+offset = 8579
+text = ja, SYNTAX ERROR in DATA instruction
+
+[comment]
+offset = 8582
+text = input from cassette?
+
+[comment]
+offset = 8585
+text = A
+
+[comment]
+offset = 8586
+text = error code in E
+
+[comment]
+offset = 8588
+text = ja, BAD FILE DATA - Error
+
+[comment]
+offset = 8591
+text = keyboard input, load buffer pointer
+
+[comment]
+offset = 8592
+text = address text '?REDO'
+
+[comment]
+offset = 8595
+text = and output
+
+[comment]
+offset = 8598
+text = current program pointer in HL
+
+[comment]
+offset = 8601
+text = restart input
+
+[comment]
+offset = 8602
+text = direct command?
+
+[comment]
+offset = 8605
+text = load character
+
+[comment]
+offset = 8606
+text = RAM expansion output
+
+[comment]
+offset = 8609
+text = read from cassette?
+
+[comment]
+offset = 8611
+text = difference as INPUT flag (0=cass)
+
+[comment]
+offset = 8614
+text = load character
+
+[comment]
+offset = 8615
+text = no cassette!
+
+[comment]
+offset = 8617
+text = search file on cassette
+
+[comment]
+offset = 8620
+text = program pointer on stack
+
+[comment]
+offset = 8621
+text = max. 250 characters
+
+[comment]
+offset = 8623
+text = address I/O buffer
+
+[comment]
+offset = 8626
+text = read one byte
+
+[comment]
+offset = 8629
+text = transfer to buffer
+
+[comment]
+offset = 8630
+text = buffer pointer + 1
+
+[comment]
+offset = 8631
+text = end of record?
+
+[comment]
+offset = 8633
+text = ja!
+
+[comment]
+offset = 8635
+text = counter - 1 = 0?
+
+[comment]
+offset = 8637
+text = ja, mark end of record with 00
+
+[comment]
+offset = 8638
+text = Load (HL),0
+
+[comment]
+offset = 8640
+text = 3 x NOP
+
+[comment]
+offset = 8643
+text = address buffer start
+
+[comment]
+offset = 8646
+text = buffer pointer 1 byte before start
+
+[comment]
+offset = 8647
+text = continue at 21EBH
+
+[comment]
+offset = 8649
+text = set return address
+
+[comment]
+offset = 8652
+text = BC
+
+[comment]
+offset = 8653
+text = with previous text output?
+
+[comment]
+offset = 8655
+text = no, continue at 21DBH
+
+[comment]
+offset = 8656
+text = text in buffer and X
+
+[comment]
+offset = 8659
+text = follows a semicolon?
+
+[comment]
+offset = 8660
+text = DEFB ';'
+
+[comment]
+offset = 8661
+text = program pointer on stack
+
+[comment]
+offset = 8662
+text = output text
+
+[comment]
+offset = 8665
+text = load program pointer
+
+[comment]
+offset = 8666
+text = continue at 21DBH
+
+[comment]
+offset = 8667
+text = program pointer on stack
+
+[comment]
+offset = 8668
+text = print '?' and read line into I/O buffer
+
+[comment]
+offset = 8671
+text = program pointer in BC
+
+[comment]
+offset = 8672
+text = BREAK? ja - jump
+
+[comment]
+offset = 8675
+text = buffer pointer to 1st character
+
+[comment]
+offset = 8676
+text = load character
+
+[comment]
+offset = 8677
+text = end of text?
+
+[comment]
+offset = 8678
+text = A
+
+[comment]
+offset = 8679
+text = program pointer back to 1st character
+
+[comment]
+offset = 8680
+text = no text, skip INPUT instruction
+
+[comment]
+offset = 8683
+text = set comma before first character
+
+[comment]
+offset = 8685
+text = continue at 21F4H
+
+[comment]
+offset = 8687
+text = program pointer on stack
+
+[comment]
+offset = 8688
+text = DATA pointer in HL
+
+[comment]
+offset = 8691
+text = set DATA flag
+
+[comment]
+offset = 8692
+text = clear DATA flag (Redefinition of 21F4H)
+
+[comment]
+offset = 8693
+text = save DATA flag
+
+[comment]
+offset = 8696
+text = buffer/DATA pointer on stack
+
+[comment]
+offset = 8697
+text = continue at 21FDH
+
+[comment]
+offset = 8699
+text = follows a comma?
+
+[comment]
+offset = 8700
+text = DEFB ','
+
+[comment]
+offset = 8701
+text = Search for variable in variable table
+
+[comment]
+offset = 8704
+text = Program pointer on stack
+
+[comment]
+offset = 8705
+text = Var. tab. address in DE
+
+[comment]
+offset = 8706
+text = Load character from buffer
+
+[comment]
+offset = 8707
+text = = comma ?
+
+[comment]
+offset = 8709
+text = yes, continue
+
+[comment]
+offset = 8711
+text = DATA flag set ?
+
+[comment]
+offset = 8715
+text = yes, search for next DATA statement
+
+[comment]
+offset = 8718
+text = Input from cassette ?
+
+[comment]
+offset = 8722
+text = Error code in E
+
+[comment]
+offset = 8724
+text = yes, OUT OF DATA - Error
+
+[comment]
+offset = 8727
+text = Keyboard: output '?'
+
+[comment]
+offset = 8729
+text = Tastatur: '?' ausgeben
+
+[comment]
+offset = 8732
+text = Re-enter with '??'
+
+[comment]
+offset = 8735
+text = Load var. tab. address
+
+[comment]
+offset = 8736
+text = Program pointer in BC
+
+[comment]
+offset = 8737
+text = BREAK? yes - jump
+
+[comment]
+offset = 8740
+text = Buffer pointer to 1st character
+
+[comment]
+offset = 8741
+text = Load character
+
+[comment]
+offset = 8742
+text = End of line ?
+
+[comment]
+offset = 8743
+text = Buffer pointer before 1st character
+
+[comment]
+offset = 8744
+text = Program pointer on stack
+
+[comment]
+offset = 8745
+text = yes, skip remaining input, without changing variable values
+
+[comment]
+offset = 8749
+text = RAM expansion output
+
+[comment]
+offset = 8752
+text = Test type of variable
+
+[comment]
+offset = 8753
+text = Save type flag
+
+[comment]
+offset = 8754
+text = numeric? yes, jump
+
+[comment]
+offset = 8756
+text = Buffer pointer to next character
+
+[comment]
+offset = 8757
+text = as delimiter in D and B
+
+[comment]
+offset = 8759
+text = Quotation mark ?
+
+[comment]
+offset = 8761
+text = yes, use '\
+
+[comment]
+offset = 8763
+text = no, ':' and ',' as delimiters
+
+[comment]
+offset = 8767
+text = Buffer pointer back 1 byte
+
+[comment]
+offset = 8768
+text = String in temporary storage and X
+
+[comment]
+offset = 8771
+text = Load type flag
+
+[comment]
+offset = 8772
+text = Buffer pointer in DE
+
+[comment]
+offset = 8773
+text = Return address in HL
+
+[comment]
+offset = 8776
+text = swap with var. tab. adr. on stack
+
+[comment]
+offset = 8777
+text = Buffer pointer on stack
+
+[comment]
+offset = 8778
+text = Jump to LET and then 225AH
+
+[comment]
+offset = 8781
+text = Address next character
+
+[comment]
+offset = 8782
+text = Load type flag
+
+[comment]
+offset = 8783
+text = and back on stack
+
+[comment]
+offset = 8784
+text = Return address on stack
+
+[comment]
+offset = 8788
+text = Integer and single precision? yes, convert string, then 2243H
+
+[comment]
+offset = 8791
+text = double precision? conv., then 2243H
+
+[comment]
+offset = 8794
+text = Buffer pointer - 1
+
+[comment]
+offset = 8795
+text = next character. 00 or ':' ?
+
+[comment]
+offset = 8796
+text = yes, end of line !
+
+[comment]
+offset = 8798
+text = Comma ?
+
+[comment]
+offset = 8800
+text = no, error
+
+[comment]
+offset = 8803
+text = Program pointer with buffer pointer exchange on stack
+
+[comment]
+offset = 8804
+text = Program pointer - 1
+
+[comment]
+offset = 8805
+text = next character. = end of statement?
+
+[comment]
+offset = 8806
+text = no, continue with next variables
+
+[comment]
+offset = 8815
+text = Load DATA flag
+
+[comment]
+offset = 8818
+text = set ?
+
+[comment]
+offset = 8819
+text = Buffer pointer-HL, prog pointer-DE
+
+[comment]
+offset = 8820
+text = Store buffer pointer as DATA pointer, Program pointer in HL, done
+
+[comment]
+offset = 8823
+text = Program pointer on stack
+
+[comment]
+offset = 8824
+text = RAM expansion output
+
+[comment]
+offset = 8828
+text = Address text '?EXTRA IGNORED'
+
+[comment]
+offset = 8831
+text = no, output text
+
+[comment]
+offset = 8834
+text = Load program pointer
+
+[comment]
+offset = 8835
+text = Output flag to screen, done
+
+[comment]
+offset = 8854
+text = Search for end of statement
+
+[comment]
+offset = 8857
+text = = end of line ?
+
+[comment]
+offset = 8858
+text = no!
+
+[comment]
+offset = 8860
+text = yes, end of program ?
+
+[comment]
+offset = 8861
+text = (Line pointer = 0000)
+
+[comment]
+offset = 8864
+text = Error code in E
+
+[comment]
+offset = 8866
+text = yes, OUT OF DATA - Error
+
+[comment]
+offset = 8869
+text = Load line number
+
+[comment]
+offset = 8874
+text = and store as DATA line number
+
+[comment]
+offset = 8877
+text = Line number back in DE
+
+[comment]
+offset = 8878
+text = Next character from program text
+
+[comment]
+offset = 8879
+text = = DATA token ?
+
+[comment]
+offset = 8881
+text = no, continue searching
+
+[comment]
+offset = 8883
+text = continue reading data
+
+[comment]
+offset = 8886
+text = Var. tab. address = 0 (for NEXT without variable)
+
+[comment]
+offset = 8889
+text = further characters? yes - variable search, var. tab. address in DE
+
+[comment]
+offset = 8892
+text = Store program pointer
+
+[comment]
+offset = 8895
+text = in stack next, or loop search with correct running variable
+
+[comment]
+offset = 8898
+text = not found, NEXT WITHOUT FOR
+
+[comment]
+offset = 8901
+text = by stack correction all associated nested loops removed.
+
+[comment]
+offset = 8902
+text = remove nested loops.
+
+[comment]
+offset = 8905
+text = Var. tab. adr of loop var on stack.
+
+[comment]
+offset = 8906
+text = Load increment flag
+
+[comment]
+offset = 8907
+text = Stack pointer + 1
+
+[comment]
+offset = 8908
+text = Increment flag on stack
+
+[comment]
+offset = 8909
+text = Var. tab. address on stack
+
+[comment]
+offset = 8910
+text = Load type flag
+
+[comment]
+offset = 8911
+text = Stack pointer + 1
+
+[comment]
+offset = 8912
+text = = single precision?
+
+[comment]
+offset = 8913
+text = no! - jump
+
+[comment]
+offset = 8916
+text = Increment value in X
+
+[comment]
+offset = 8919
+text = Load var. tab. address, Stack pointer on stack
+
+[comment]
+offset = 8920
+text = Var. tab. address back on stack
+
+[comment]
+offset = 8921
+text = Loop variable + increment value
+
+[comment]
+offset = 8924
+text = Load var. tab. address
+
+[comment]
+offset = 8925
+text = Store new value of loop var.
+
+[comment]
+offset = 8928
+text = Load stack pointer
+
+[comment]
+offset = 8929
+text = Load end value into Y
+
+[comment]
+offset = 8932
+text = Stack pointer on stack
+
+[comment]
+offset = 8933
+text = Compare loop variable with end value
+
+[comment]
+offset = 8936
+text = continue at 2313H
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -20394,4 +21397,90 @@ text = Check if cursor is at start of line
 [block]
 offset = 8446
 text = Output Carriage-Return
+
+[block]
+offset = 8456
+text = evaluate ','
+
+[block]
+offset = 8503
+text = evaluate TAB
+
+[block]
+offset = 8548
+text = Next PRINT - sub-expression
+
+[block]
+offset = 8553
+text = Final PRINT check
+
+[block]
+offset = 8568
+text = Text Definition
+
+[block]
+offset = 8575
+text = Error during data input
+
+[block]
+offset = 8602
+text = INPUT Statement
+
+[block]
+offset = 8617
+text = Read from Cassette
+
+[block]
+offset = 8649
+text = Read from Keyboard
+
+[block]
+offset = 8687
+text = READ Statement
+
+[block]
+offset = 8692
+text = Clear DATA flag
+
+[block]
+offset = 8699
+text = Next Variable
+
+[block]
+offset = 8711
+text = Buffer empty (no ',')
+
+[block]
+offset = 8749
+text = Decode input
+
+[block]
+offset = 8756
+text = Accept string
+
+[block]
+offset = 8771
+text = Store new variable value
+
+[block]
+offset = 8781
+text = Take number into X
+
+[block]
+offset = 8809
+text = No further variables
+
+[block]
+offset = 8854
+text = Search for next DATA statement
+
+[block]
+offset = 8886
+text = *****************************************************************
+              NEXT statement
+              Looping in FOR-NEXT loops
+
+[block]
+offset = 8916
+text = Single precision loop variable
 
