@@ -1729,6 +1729,51 @@ offset = 7688
 end = 7688
 type = DATA_BYTE
 
+[region]
+offset = 7939
+end = 7939
+type = DATA_BYTE
+
+[region]
+offset = 7941
+end = 7942
+type = DATA_BYTE
+
+[region]
+offset = 7973
+end = 7973
+type = DATA_BYTE
+
+[region]
+offset = 7973
+end = 7973
+type = DATA_BYTE
+
+[region]
+offset = 8025
+end = 8025
+type = DATA_BYTE
+
+[region]
+offset = 8050
+end = 8050
+type = DATA_BYTE
+
+[region]
+offset = 8095
+end = 8095
+type = DATA_BYTE
+
+[region]
+offset = 8215
+end = 8215
+type = DATA_BYTE
+
+[region]
+offset = 8334
+end = 8334
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -2984,6 +3029,82 @@ name = RESUME_WITHOUT_ERR_HANDLER
 [label]
 offset = 6562
 name = ERROR_HANDLER
+
+[label]
+offset = 7947
+name = ELSE_SWAP
+
+[label]
+offset = 7950
+name = ELSE_LOOP
+
+[label]
+offset = 7998
+name = LET_STRING
+
+[label]
+offset = 8026
+name = LET_STRING_MOVE
+
+[label]
+offset = 8034
+name = LET_STRING_EXIT
+
+[label]
+offset = 8038
+name = LET_EXIT
+
+[label]
+offset = 8048
+name = ON_ERROR
+
+[label]
+offset = 8067
+name = ON_ERROR_SET
+
+[label]
+offset = 8073
+name = ON_ERROR_CHECK
+
+[label]
+offset = 8085
+name = ON_GOTO_GOSUB
+
+[label]
+offset = 8098
+name = ON_LOOP
+
+[label]
+offset = 8141
+name = RESUME_NEXT
+
+[label]
+offset = 8271
+name = IF_THEN
+
+[label]
+offset = 8278
+name = IF_ELSE
+
+[label]
+offset = 8310
+name = PRINT_AT
+
+[label]
+offset = 8335
+name = PRINT_HASH
+
+[label]
+offset = 8347
+name = PRINT_LOOP
+
+[label]
+offset = 8434
+name = PRINT_VAL
+
+[label]
+offset = 8441
+name = PRINT_BOL_CHECK
 
 [comment]
 offset = 0
@@ -17861,6 +17982,1058 @@ text = program pointer before jump line
 offset = 7896
 text = line present? yes, continue there
 
+[comment]
+offset = 7897
+text = Error code in E
+
+[comment]
+offset = 7899
+text = Display error message
+
+[comment]
+offset = 7902
+text = Parameter? yes, error
+
+[comment]
+offset = 7903
+text = Get data back from stack
+
+[comment]
+offset = 7905
+text = (skip FOR data)
+
+[comment]
+offset = 7908
+text = Reinitialize stack
+
+[comment]
+offset = 7912
+text = Data from a GOSUB call?
+
+[comment]
+offset = 7914
+text = Code for RETURN WITHOUT GOSUB error
+
+[comment]
+offset = 7916
+text = no, display error message
+
+[comment]
+offset = 7919
+text = Load line number from stack
+
+[comment]
+offset = 7920
+text = store as current line number
+
+[comment]
+offset = 7923
+text = Direct mode?
+
+[comment]
+offset = 7926
+text = no!
+
+[comment]
+offset = 7928
+text = RESUME/RETURN flag set?
+
+[comment]
+offset = 7932
+text = yes, back to main loop
+
+[comment]
+offset = 7935
+text = Load program pointer
+
+[comment]
+offset = 7938
+text = Swap with program pointer
+
+[comment]
+offset = 7939
+text = LD A, 0E1H dummy instruction
+
+[comment]
+offset = 7940
+text = Load program pointer
+
+[comment]
+offset = 7941
+text = Delimiter 1 = ':' in C
+
+[comment]
+offset = 7943
+text = Delimiter 1 = 00 in C
+
+[comment]
+offset = 7945
+text = Delimiter 2 = 00 in B
+
+[comment]
+offset = 7947
+text = Swap delimiter 1 and 2
+
+[comment]
+offset = 7950
+text = Load character
+
+[comment]
+offset = 7951
+text = = end of line?
+
+[comment]
+offset = 7952
+text = yes, done
+
+[comment]
+offset = 7953
+text = = delimiter 2?
+
+[comment]
+offset = 7954
+text = yes, done
+
+[comment]
+offset = 7955
+text = Program pointer + 1
+
+[comment]
+offset = 7956
+text = = opening quote?
+
+[comment]
+offset = 7958
+text = yes, swap delimiters
+
+[comment]
+offset = 7960
+text = IF token?
+
+[comment]
+offset = 7962
+text = no, continue
+
+[comment]
+offset = 7964
+text = if not in string or after
+
+[comment]
+offset = 7965
+text = nesting counter + 1
+
+[comment]
+offset = 7969
+text = Search for variable in table
+
+[comment]
+offset = 7972
+text = Followed by '=' character?
+
+[comment]
+offset = 7974
+text = Address of variable table
+
+[comment]
+offset = 7975
+text = remember for variable
+
+[comment]
+offset = 7979
+text = and pack on the stack
+
+[comment]
+offset = 7980
+text = Test type
+
+[comment]
+offset = 7981
+text = Type flag on stack
+
+[comment]
+offset = 7982
+text = Evaluate expression
+
+[comment]
+offset = 7985
+text = Load type flag
+
+[comment]
+offset = 7986
+text = Program pointer on stack
+
+[comment]
+offset = 7987
+text = Calculate type code
+
+[comment]
+offset = 7989
+text = Convert result of expression to
+
+[comment]
+offset = 7992
+text = X address in DE
+
+[comment]
+offset = 7995
+text = Addr. of variable table on stack
+
+[comment]
+offset = 7996
+text = Jump if not string
+
+[comment]
+offset = 7998
+text = Load string pointer from X reg
+
+[comment]
+offset = 8001
+text = and on stack
+
+[comment]
+offset = 8002
+text = Load string address
+
+[comment]
+offset = 8003
+text = in DE
+
+[comment]
+offset = 8006
+text = String not in program text or
+
+[comment]
+offset = 8010
+text = yes, string in string space
+
+[comment]
+offset = 8012
+text = String in program text?
+
+[comment]
+offset = 8016
+text = Load string pointer
+
+[comment]
+offset = 8017
+text = yes, string not in string space!
+
+[comment]
+offset = 8019
+text = does string pointer point to var. tab.?
+
+[comment]
+offset = 8023
+text = no, string not in string space.
+
+[comment]
+offset = 8025
+text = LD A, 0D1H dummy instruction
+
+[comment]
+offset = 8026
+text = Load string pointer
+
+[comment]
+offset = 8027
+text = Delete string in intermediate storage
+
+[comment]
+offset = 8030
+text = String pointer in HL
+
+[comment]
+offset = 8031
+text = Transfer string to string space
+
+[comment]
+offset = 8034
+text = Delete string in intermediate storage
+
+[comment]
+offset = 8038
+text = Value of X in variable table
+
+[comment]
+offset = 8041
+text = clean up stack
+
+[comment]
+offset = 8042
+text = Load program pointer
+
+[comment]
+offset = 8044
+text = followed by an ERROR token?
+
+[comment]
+offset = 8046
+text = no!
+
+[comment]
+offset = 8048
+text = address next character
+
+[comment]
+offset = 8049
+text = is it a GOTO token?
+
+[comment]
+offset = 8051
+text = Decode line number
+
+[comment]
+offset = 8054
+text = = 0?
+
+[comment]
+offset = 8055
+text = (turn off error handling)
+
+[comment]
+offset = 8056
+text = yes!
+
+[comment]
+offset = 8058
+text = Search for line in program text
+
+[comment]
+offset = 8061
+text = Line address in DE
+
+[comment]
+offset = 8063
+text = Load program pointer
+
+[comment]
+offset = 8064
+text = Line not present!
+
+[comment]
+offset = 8067
+text = Address of error routine
+
+[comment]
+offset = 8068
+text = store
+
+[comment]
+offset = 8072
+text = Line number > 0, done!
+
+[comment]
+offset = 8073
+text = already an error occurred?
+
+[comment]
+offset = 8076
+text = and test
+
+[comment]
+offset = 8077
+text = no, done
+
+[comment]
+offset = 8078
+text = Error code in E
+
+[comment]
+offset = 8082
+text = to error handling
+
+[comment]
+offset = 8085
+text = Evaluate expression, integer
+
+[comment]
+offset = 8088
+text = Load character from program text
+
+[comment]
+offset = 8089
+text = in B
+
+[comment]
+offset = 8090
+text = = GOSUB token?
+
+[comment]
+offset = 8092
+text = yes!
+
+[comment]
+offset = 8094
+text = is it a GOTO token?
+
+[comment]
+offset = 8096
+text = Program pointer - 1
+
+[comment]
+offset = 8097
+text = jump variable in C
+
+[comment]
+offset = 8098
+text = variable - 1 = 0?
+
+[comment]
+offset = 8099
+text = Token in A for jump execution
+
+[comment]
+offset = 8100
+text = yes, execute jump with n-th line number
+
+[comment]
+offset = 8103
+text = Decode line number
+
+[comment]
+offset = 8106
+text = followed by a comma?
+
+[comment]
+offset = 8108
+text = no, continue program with the next
+
+[comment]
+offset = 8109
+text = next line number
+
+[comment]
+offset = 8111
+text = Address TRAP flag
+
+[comment]
+offset = 8114
+text = Error occurred?
+
+[comment]
+offset = 8116
+text = no, RESUME WITHOUT ERROR
+
+[comment]
+offset = 8119
+text = A = 0
+
+[comment]
+offset = 8120
+text = Clear error code
+
+[comment]
+offset = 8123
+text = Clear TRAP flag
+
+[comment]
+offset = 8124
+text = Load character
+
+[comment]
+offset = 8125
+text = = NEXT token?
+
+[comment]
+offset = 8127
+text = yes! RESUME NEXT
+
+[comment]
+offset = 8129
+text = Decode line number
+
+[comment]
+offset = 8132
+text = more characters? yes-error
+
+[comment]
+offset = 8133
+text = line number = 0?
+
+[comment]
+offset = 8135
+text = no, continue at GOTO
+
+[comment]
+offset = 8138
+text = A = 1
+
+[comment]
+offset = 8141
+text = next character in program text
+
+[comment]
+offset = 8142
+text = not end of line, error
+
+[comment]
+offset = 8143
+text = pointer to faulty line
+
+[comment]
+offset = 8146
+text = in DE
+
+[comment]
+offset = 8147
+text = load error line number
+
+[comment]
+offset = 8150
+text = as current line number entry
+
+[comment]
+offset = 8153
+text = pointer back in HL
+
+[comment]
+offset = 8154
+text = RESUME 0? yes-done
+
+[comment]
+offset = 8155
+text = end of line?
+
+[comment]
+offset = 8157
+text = no, next statement in line
+
+[comment]
+offset = 8159
+text = program pointer to 1. statement
+
+[comment]
+offset = 8160
+text = of the next line
+
+[comment]
+offset = 8161
+text = (behind pointer and line number)
+
+[comment]
+offset = 8164
+text = direct mode?
+
+[comment]
+offset = 8165
+text = (line number = FFFF)
+
+[comment]
+offset = 8167
+text = no, next statement, done
+
+[comment]
+offset = 8170
+text = RETURN/RESUME flag set?
+
+[comment]
+offset = 8174
+text = ja, terminate program execution.
+
+[comment]
+offset = 8177
+text = search next statement, done
+
+[comment]
+offset = 8180
+text = analyze error code
+
+[comment]
+offset = 8183
+text = more characters? yes-error
+
+[comment]
+offset = 8184
+text = error code = 0?
+
+[comment]
+offset = 8185
+text = yes, FUNCTION CODE - Error
+
+[comment]
+offset = 8188
+text = determine internal error code
+
+[comment]
+offset = 8190
+text = and store in E
+
+[comment]
+offset = 8191
+text = < 2D ?
+
+[comment]
+offset = 8193
+text = yes!
+
+[comment]
+offset = 8195
+text = error code in E
+
+[comment]
+offset = 8197
+text = to error routine
+
+[comment]
+offset = 8200
+text = starting and increment value = 10
+
+[comment]
+offset = 8203
+text = on stack
+
+[comment]
+offset = 8204
+text = no further characters entered!
+
+[comment]
+offset = 8206
+text = decode starting value
+
+[comment]
+offset = 8209
+text = starting value in HL, program pointer DE
+
+[comment]
+offset = 8210
+text = starting value on stack
+
+[comment]
+offset = 8211
+text = no further characters entered!
+
+[comment]
+offset = 8213
+text = program pointer in HL
+
+[comment]
+offset = 8214
+text = follows a comma?
+
+[comment]
+offset = 8216
+text = program pointer again in DE
+
+[comment]
+offset = 8217
+text = load old increment value
+
+[comment]
+offset = 8220
+text = program pointer in HL
+
+[comment]
+offset = 8221
+text = no further characters after comma!
+
+[comment]
+offset = 8223
+text = decode increment value
+
+[comment]
+offset = 8226
+text = end of line? no-SYNTAX ERROR
+
+[comment]
+offset = 8229
+text = increment value in HL
+
+[comment]
+offset = 8230
+text = = 0 ?
+
+[comment]
+offset = 8232
+text = yes, FUNCTION CODE - Error
+
+[comment]
+offset = 8235
+text = save increment value
+
+[comment]
+offset = 8238
+text = set AUTO flag
+
+[comment]
+offset = 8241
+text = load starting value
+
+[comment]
+offset = 8242
+text = and save
+
+[comment]
+offset = 8245
+text = reload return address from stack
+
+[comment]
+offset = 8246
+text = to main loop
+
+[comment]
+offset = 8249
+text = evaluate conditional expression
+
+[comment]
+offset = 8252
+text = load character
+
+[comment]
+offset = 8253
+text = = ',' ?
+
+[comment]
+offset = 8255
+text = yes, next character
+
+[comment]
+offset = 8258
+text = = THEN token?
+
+[comment]
+offset = 8260
+text = yes, next character
+
+[comment]
+offset = 8263
+text = program pointer - 1
+
+[comment]
+offset = 8264
+text = and on stack
+
+[comment]
+offset = 8265
+text = result = 0? (not fulfilled!)
+
+[comment]
+offset = 8268
+text = load program pointer
+
+[comment]
+offset = 8269
+text = yes, to ELSE execution
+
+[comment]
+offset = 8271
+text = next character
+
+[comment]
+offset = 8272
+text = digit? yes-execute jump
+
+[comment]
+offset = 8275
+text = no, execute next statement
+
+[comment]
+offset = 8278
+text = nesting counter = 1
+
+[comment]
+offset = 8280
+text = search next statement,
+
+[comment]
+offset = 8283
+text = end of line?
+
+[comment]
+offset = 8284
+text = done, no ELSE
+
+[comment]
+offset = 8285
+text = next character
+
+[comment]
+offset = 8286
+text = = ELSE token?
+
+[comment]
+offset = 8288
+text = no, continue searching
+
+[comment]
+offset = 8290
+text = correct ELSE?
+
+[comment]
+offset = 8291
+text = no, continue searching
+
+[comment]
+offset = 8293
+text = yes, continue like THEN
+
+[comment]
+offset = 8295
+text = output flag = printer
+
+[comment]
+offset = 8300
+text = continue at PRINT
+
+[comment]
+offset = 8303
+text = RAM expansion output
+
+[comment]
+offset = 8306
+text = PRINT @ ?
+
+[comment]
+offset = 8308
+text = no!
+
+[comment]
+offset = 8310
+text = evaluate position expression
+
+[comment]
+offset = 8313
+text = position > 511?
+
+[comment]
+offset = 8315
+text = yes, FUNCTION CODE - Error
+
+[comment]
+offset = 8318
+text = program pointer on stack
+
+[comment]
+offset = 8319
+text = load screen start address
+
+[comment]
+offset = 8322
+text = add position
+
+[comment]
+offset = 8323
+text = save as new cursor address
+
+[comment]
+offset = 8326
+text = determine cursor position in line
+
+[comment]
+offset = 8327
+text = = last 5 bits of cursor address
+
+[comment]
+offset = 8329
+text = save as new cursor position
+
+[comment]
+offset = 8332
+text = load program pointer
+
+[comment]
+offset = 8333
+text = follows a comma?
+
+[comment]
+offset = 8335
+text = cassette output?
+
+[comment]
+offset = 8337
+text = no, continue
+
+[comment]
+offset = 8339
+text = write lead-in to cassette
+
+[comment]
+offset = 8342
+text = output flag on cassette
+
+[comment]
+offset = 8347
+text = program pointer - 1
+
+[comment]
+offset = 8348
+text = next character. end of statement?
+
+[comment]
+offset = 8349
+text = yes, output CR
+
+[comment]
+offset = 8352
+text = and done
+
+[comment]
+offset = 8355
+text = = USING token?
+
+[comment]
+offset = 8357
+text = yes, formatted output
+
+[comment]
+offset = 8360
+text = = TAB token?
+
+[comment]
+offset = 8362
+text = yes!
+
+[comment]
+offset = 8365
+text = program pointer on stack
+
+[comment]
+offset = 8366
+text = comma ?
+
+[comment]
+offset = 8368
+text = yes, to next TAB position
+
+[comment]
+offset = 8371
+text = semicolon ?
+
+[comment]
+offset = 8373
+text = wait until all characters output.
+
+[comment]
+offset = 8376
+text = load program pointer
+
+[comment]
+offset = 8377
+text = evaluate expression
+
+[comment]
+offset = 8380
+text = program pointer on stack
+
+[comment]
+offset = 8381
+text = test data type
+
+[comment]
+offset = 8382
+text = string? yes, jump
+
+[comment]
+offset = 8384
+text = convert num. values to string
+
+[comment]
+offset = 8387
+text = string in intermediate storage and X
+
+[comment]
+offset = 8390
+text = RAM expansion output
+
+[comment]
+offset = 8393
+text = load string pointer from X reg
+
+[comment]
+offset = 8396
+text = load output flag
+
+[comment]
+offset = 8399
+text = and test
+
+[comment]
+offset = 8400
+text = cassette? yes-no formatting
+
+[comment]
+offset = 8403
+text = screen? yes-jump
+
+[comment]
+offset = 8405
+text = load print head position
+
+[comment]
+offset = 8408
+text = + string length
+
+[comment]
+offset = 8409
+text = > line length (132)?
+
+[comment]
+offset = 8411
+text = continue at 20E6H
+
+[comment]
+offset = 8413
+text = load screen line length
+
+[comment]
+offset = 8416
+text = in B
+
+[comment]
+offset = 8417
+text = load cursor position in line
+
+[comment]
+offset = 8420
+text = + string length
+
+[comment]
+offset = 8421
+text = > line length (64)?
+
+[comment]
+offset = 8422
+text = yes, output Carriage Return
+
+[comment]
+offset = 8425
+text = output string
+
+[comment]
+offset = 8428
+text = then a space
+
+[comment]
+offset = 8430
+text = output string
+
+[comment]
+offset = 8433
+text = Z=0, so next command is skipped.
+
+[comment]
+offset = 8434
+text = print string
+
+[comment]
+offset = 8437
+text = load program pointer
+
+[comment]
+offset = 8438
+text = continue!
+
+[comment]
+offset = 8441
+text = load cursor position
+
+[comment]
+offset = 8444
+text = = 0 ?
+
+[comment]
+offset = 8445
+text = yes, back
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -19161,4 +20334,64 @@ text = GOSUB statement
 offset = 7874
 text = GOTO - statement
               unconditional jump
+
+[block]
+offset = 7897
+text = UNDEFINED STATEMENT - Error
+
+[block]
+offset = 7902
+text = RETURN Statement
+
+[block]
+offset = 7941
+text = DATA Statement
+
+[block]
+offset = 7943
+text = ELSE Statement
+
+[block]
+offset = 7969
+text = LET Statement
+
+[block]
+offset = 8044
+text = ON Statement
+
+[block]
+offset = 8111
+text = RESUME Statement
+
+[block]
+offset = 8180
+text = ERROR Statement
+
+[block]
+offset = 8195
+text = UNPRINTABLE ERROR
+
+[block]
+offset = 8200
+text = AUTO Statement
+
+[block]
+offset = 8249
+text = IF Statement
+
+[block]
+offset = 8295
+text = LPRINT Statement
+
+[block]
+offset = 8303
+text = PRINT Statement
+
+[block]
+offset = 8441
+text = Check if cursor is at start of line
+
+[block]
+offset = 8446
+text = Output Carriage-Return
 
