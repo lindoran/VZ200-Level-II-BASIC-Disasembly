@@ -1,70 +1,59 @@
-# Project Progress - VZ200 English Documentation
+# VZ200 English Documentation Progress
 
-## Session: Sunday, May 24, 2026
+## Summary of Work (2026-05-27)
+- Translated and annotated memory range **0x26E9-0x27C8** (Matrix Management).
+- Sourced from German PDF `doc/book - Laser310-ROM-Listing-german.pdf` pages 169-173.
+- Identified and labeled key routines:
+  - `ARYMN` (0x26E9): Matrix Management entry.
+  - `ARYFND` (0x272F): Matrix Found logic.
+  - `ARYINI` (0x2742): Setup New Matrix logic.
+  - `ARYADR` (0x2795): Determine Address of Matrix Element.
+- Added missing system variable symbols:
+  - `DIMFLG` (0x78AE)
+  - `SAVP` (0x78F3)
+  - `ARYTAB` (0x78FB)
+  - `STREND` (0x78FD)
+- Split instructions at `0x270E`, `0x2726`, and `0x2799` using `segments.map` to handle entry points within "swallowing" instructions (Z80 tricks).
+- Verified bit-perfection by building `export.asm` and comparing against `VZ200.bin`.
 
-### Work Summary
-- **Target Range**: 0x1ED9 - 0x1FCB
-- **Work Done**:
-    - Translated and annotated the ROM in the range 0x1ED9 - 0x1FCB based on the German ROM listing (pages 136-140).
-    - Identified and handled several "Z80 tricks" where instructions jump into the middle of other instructions (e.g., `RETURN`, `DATA`, `LET` tricks).
-    - Added block headers for `UNDEFINED STATEMENT - Error`, `RETURN Statement`, `DATA Statement`, `ELSE Statement`, `LET Statement`, `ON Statement`, and `RESUME Statement`.
-    - Added several descriptive labels and symbols for jump targets (`ERR_UNDEFINED_STATEMENT`, `CMD_RETURN`, `CMD_DATA`, `CMD_ELSE`, `CMD_LET`, `CMD_ON`, `CMD_RESUME`, `EXEC_GOTO`, `GOTO_CONTINUE`, `ERROR_HANDLER_RESUME`).
-    - Fixed a duplicate `GOSUB` symbol at 0x1EB1.
-    - Verified the build: `export.asm` assembles to a bit-perfect match of `VZ200.bin`.
+## Summary of Work (2026-05-27 - Session 2)
+- Translated and annotated memory range **0x27C9-0x28D9** (Memory/String Functions).
+- Sourced from German PDF `doc/book - Laser310-ROM-Listing-german.pdf` pages 173-179.
+- Identified and labeled key routines:
+  - `MEM` (0x27C9): MEM Function.
+  - `FRE` (0x27D4): FRE Function.
+  - `POS` (0x27F5): POS Function.
+  - `USR` (0x27FE): USR Function.
+  - `CONVRT` (0x2819): Convert value to desired type.
+  - `DIRCHK` (0x2828): Check for DIRECT mode.
+  - `STRS` (0x2836): STR$ Function.
+  - `STRINI` (0x2857): Initialize string.
+  - `STRFDESC` (0x2865): Extract string from descriptor.
+  - `STCPERR` (0x28A1): STRING FORMULA TOO COMPLEX error.
+  - `STROUT` (0x28A6): Print string.
+  - `STR_RES_SPACE` (0x28BF): Reserve string space.
+- Added missing system variable symbols:
+  - `TTYPOS` (0x78A6)
+  - `STKTOP` (0x78A0)
+  - `VALTYP` (0x78AF)
+  - `MEMSIZ` (0x78B1)
+  - `TEMPPT` (0x78B3)
+  - `TEMPST` (0x78B5)
+  - `DSCTMP` (0x78D3)
+  - `FRETOP` (0x78D6)
+- Resolved Z80 "swallowing" tricks at `0x2887` and `0x28C0` using `segments.map`.
+- Verified bit-perfection: `42c8f9e6c2133ae0e953b89ccbbdb7e2`.
 
-### Statistics
-- **Total Annotations**: 3847 (Limit: 100,000)
-- **Total Symbols**: 273 (Limit: 6,000)
+## Prompt
+"Please read @GEMINI.md, and @Z80WORKBENCH_WORKFLOW.md and work on 0x27C9-0x28D9 This starts at line 6612 in @export.lst this is pages 173-179 in the pdf @doc/book - Laser310-ROM-Listing-german.pdf remember we are translating from the pdf the inline comments, and block comments from german to english."
 
-### Toolchain and Issues
-- Used `z80bench-cli` for all annotation and symbol updates.
-- Encountered "Z80 tricks" (hidden entry points) at 0x1F03, 0x1F05, 0x1F25, 0x1F59. These were handled by adding `DIRECT_BYTE` entries in `segments.map`.
-- Found a duplicate `GOSUB` symbol in `symbols.sym` which caused a build error; it was removed and re-added correctly.
-- Disassembly for `RST 8` operand was incorrectly shown as `ADC A,L` at 0x1F72 and 0x1F9F; these were corrected to `DEFB` using `DIRECT_BYTE` segments.
+## Statistics
+- **Annotations**: 5405 / 100,000 (5.4%)
+- **Symbols**: 327 / 6,000 (5.5%)
 
-### User Prompt
-"Please read @GEMINI.md, and @Z80WORKBENCH_WORKFLOW.md and work on: 0x1ED9 - 0x1FCB This starts at line 5111 in @export.lst this is pages 136-140 in the pdf @doc/book - Laser310-ROM-Listing-german.pdf remember we are translating from the pdf the inline comments, and block comments from german to english."
+## Toolchain Notes
+- Discovered that `batch` mode in `z80bench-cli` fails on blank lines; removed them before processing.
+- Verified `export.lst` contains correctly translated English headers and inline comments.
 
-### Verification
-- `md5sum export.bin VZ200.bin`: `42c8f9e6c2133ae0e953b89ccbbdb7e2` (Match)
-- Checked `export.lst` for inline comments: Present and verified.
-
-## Session: 2026-05-24
-### Range: 0x1FCD - 0x20FD (Line 5274 in export.lst)
-- Translated and annotated implementation of:
-  - RESUME NEXT
-  - ERROR statement
-  - AUTO statement
-  - IF statement
-  - LPRINT statement
-  - PRINT statement (including PRINT @ and PRINT #)
-- Added block headers and labels for internal entry points (e.g., IF_THEN, PRINT_LOOP).
-- Handled RST 8 tricks at 0x1F25, 0x2017, and 0x208E using DIRECT_BYTE segments to expose embedded tokens.
-- Added label CMD_END_INPUT at 0x1DBE for the BREAK in INPUT handler.
-- Verified bit-perfection: Build matches VZ200.bin (MD5: 42c8f9e6c2133ae0e953b89ccbbdb7e2).
-- Stats:
-  - Symbols: 280
-  - Annotations: 3991
-
-## Session: 2026-05-24 (Part 2)
-### Range: 0x20FE - 0x21FC (Line 5444 in export.lst)
-- Translated and annotated implementation of:
-  - PRINT statement formatting (Carriage Return, Comma, TAB).
-  - INPUT statement logic (Cassette and Keyboard input).
-  - READ statement initialization.
-- Handled RST 8 tricks at 0x21D4, 0x21F3, and 0x21FC using DIRECT_BYTE segments.
-- Exposed hidden entry point at 0x21F4 (DATA_FLAG_CLEAR) by splitting the OR instruction at 0x21F3.
-- Added block headers and labels for major functions (e.g., CMD_INPUT, INPUT_CASSETTE, CMD_READ).
-- Verified bit-perfection: Build matches VZ200.bin (MD5: 42c8f9e6c2133ae0e953b89ccbbdb7e2).
-- Stats:
-  - Symbols: 292
-  - Annotations: 4114
-
-## Update 2026-05-24: Range 0x22EA - 0x23EA
-- Annotated range 0x22EA - 0x23EA (Pages 152-156 of the German PDF).
-- Documented `NEXT` statement logic (incrementing loop variables, checking bounds, stack recovery).
-- Documented the beginning of the expression evaluation routine (`EVAL_EXPR_START`, operator parsing, stack management).
-- Fixed disassembly issues at 0x2336 and 0x23C3 using `DIRECT_BYTE` segments to handle RST 8 literals and "LD B,n" opcode tricks.
-- Cleaned up duplicate symbols in `symbols.sym`.
-- Current stats: 4351 Annotations, 307 Symbols.
-- Verification: Bit-perfect build matches `VZ200.bin` (MD5: 42c8f9e6c2133ae0e953b89ccbbdb7e2).
+## Issues Encountered
+- None.

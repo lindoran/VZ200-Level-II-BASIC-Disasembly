@@ -1824,6 +1824,51 @@ offset = 9155
 end = 9155
 type = DATA_BYTE
 
+[region]
+offset = 9453
+end = 9453
+type = DATA_BYTE
+
+[region]
+offset = 9458
+end = 9458
+type = DATA_BYTE
+
+[region]
+offset = 9740
+end = 9740
+type = DATA_BYTE
+
+[region]
+offset = 9861
+end = 9861
+type = DATA_BYTE
+
+[region]
+offset = 9998
+end = 9998
+type = DATA_BYTE
+
+[region]
+offset = 10022
+end = 10022
+type = DATA_BYTE
+
+[region]
+offset = 10137
+end = 10137
+type = DATA_BYTE
+
+[region]
+offset = 10375
+end = 10375
+type = DATA_BYTE
+
+[region]
+offset = 10432
+end = 10432
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -3235,6 +3280,122 @@ name = EVAL_EXPR_POWER
 [label]
 offset = 9185
 name = EVAL_EXPR_LOGIC
+
+[label]
+offset = 9196
+name = CHK_OP_PRIO
+
+[label]
+offset = 9222
+name = DO_OP
+
+[label]
+offset = 9256
+name = DO_INT_OP
+
+[label]
+offset = 9272
+name = OP1_DOUBLE
+
+[label]
+offset = 9312
+name = OP2_DOUBLE
+
+[label]
+offset = 9330
+name = OP1_SINGLE
+
+[label]
+offset = 9340
+name = OP2_SINGLE
+
+[label]
+offset = 9360
+name = INT_DIV
+
+[label]
+offset = 9423
+name = ERR_FUNC
+
+[label]
+offset = 9433
+name = ERL_FUNC
+
+[label]
+offset = 9447
+name = VARPTR_CHK
+
+[label]
+offset = 9451
+name = VARPTR_FUNC
+
+[label]
+offset = 9454
+name = GET_VAR_ADDR
+
+[label]
+offset = 9961
+name = ARYMN
+
+[label]
+offset = 10031
+name = ARYFND
+
+[label]
+offset = 10050
+name = ARYINI
+
+[label]
+offset = 10133
+name = ARYADR
+
+[label]
+offset = 10185
+name = MEM
+
+[label]
+offset = 10196
+name = FRE
+
+[label]
+offset = 10229
+name = POS
+
+[label]
+offset = 10238
+name = USR
+
+[label]
+offset = 10265
+name = CONVRT
+
+[label]
+offset = 10280
+name = DIRCHK
+
+[label]
+offset = 10294
+name = STRS
+
+[label]
+offset = 10327
+name = STRINI
+
+[label]
+offset = 10341
+name = STRFDESC
+
+[label]
+offset = 10401
+name = STCPERR
+
+[label]
+offset = 10406
+name = STROUT
+
+[label]
+offset = 10431
+name = STR_RES_SPACE
 
 [comment]
 offset = 0
@@ -20604,6 +20765,2744 @@ text = Operand on stack
 offset = 9191
 text = Address for AND and OR processing
 
+[comment]
+offset = 9196
+text = did last operator have higher
+
+[comment]
+offset = 9197
+text = or equal priority?
+
+[comment]
+offset = 9199
+text = yes, calculate last operation
+
+[comment]
+offset = 9200
+text = last priority on stack
+
+[comment]
+offset = 9201
+text = operator code on stack
+
+[comment]
+offset = 9202
+text = priority in D, comparison code in E
+
+[comment]
+offset = 9205
+text = address for processing the
+
+[comment]
+offset = 9208
+text = comparison result on stack
+
+[comment]
+offset = 9209
+text = test data type
+
+[comment]
+offset = 9210
+text = numeric? yes - operands on stack
+
+[comment]
+offset = 9213
+text = string! string pointer on stack
+
+[comment]
+offset = 9217
+text = load address for string comparison
+
+[comment]
+offset = 9220
+text = and on the stack
+
+[comment]
+offset = 9222
+text = load operator code and type
+
+[comment]
+offset = 9223
+text = save operator code
+
+[comment]
+offset = 9227
+text = type in A
+
+[comment]
+offset = 9228
+text = 1st operand double precision?
+
+[comment]
+offset = 9230
+text = yes!
+
+[comment]
+offset = 9232
+text = load type of 2nd operand
+
+[comment]
+offset = 9235
+text = is double precision?
+
+[comment]
+offset = 9237
+text = yes!
+
+[comment]
+offset = 9240
+text = type of 2nd operand in D
+
+[comment]
+offset = 9241
+text = type of 1st operand in A
+
+[comment]
+offset = 9242
+text = is single precision?
+
+[comment]
+offset = 9244
+text = yes!
+
+[comment]
+offset = 9247
+text = load type of 2nd operand
+
+[comment]
+offset = 9248
+text = and test
+
+[comment]
+offset = 9250
+text = string! - TYPE MISMATCH error
+
+[comment]
+offset = 9253
+text = single precision! - jump
+
+[comment]
+offset = 9256
+text = start of jump table 'Integer'
+
+[comment]
+offset = 9259
+text = add operator code twice
+
+[comment]
+offset = 9263
+text = load jump address
+
+[comment]
+offset = 9266
+text = get 1st operand from stack
+
+[comment]
+offset = 9267
+text = load 2nd operand from X
+
+[comment]
+offset = 9270
+text = jump address on stack
+
+[comment]
+offset = 9271
+text = jump to routine
+
+[comment]
+offset = 9272
+text = convert 2nd operand to double precision
+
+[comment]
+offset = 9275
+text = and transfer to Y
+
+[comment]
+offset = 9278
+text = 1st operand from stack in X
+
+[comment]
+offset = 9279
+text = first the 4 low-order bytes
+
+[comment]
+offset = 9286
+text = the next 3 bytes and the exponent
+
+[comment]
+offset = 9288
+text = also in X
+
+[comment]
+offset = 9291
+text = convert 1st operand to double precision
+
+[comment]
+offset = 9294
+text = load start of jump table
+
+[comment]
+offset = 9297
+text = load operator code
+
+[comment]
+offset = 9300
+text = * 2
+
+[comment]
+offset = 9301
+text = save BC
+
+[comment]
+offset = 9302
+text = operator code * 2 in BC
+
+[comment]
+offset = 9305
+text = add to start address of jump table
+
+[comment]
+offset = 9306
+text = restore BC
+
+[comment]
+offset = 9307
+text = load jump address
+
+[comment]
+offset = 9311
+text = jump to execution routine
+
+[comment]
+offset = 9313
+text = transfer 2nd operand to Y
+
+[comment]
+offset = 9316
+text = type of 1st operand
+
+[comment]
+offset = 9317
+text = in type byte
+
+[comment]
+offset = 9320
+text = is single precision?
+
+[comment]
+offset = 9322
+text = yes, continue at 2446H
+
+[comment]
+offset = 9324
+text = no, integer in HL
+
+[comment]
+offset = 9325
+text = and in X
+
+[comment]
+offset = 9328
+text = continue at 244BH
+
+[comment]
+offset = 9330
+text = convert 2nd operand to single precision
+
+[comment]
+offset = 9333
+text = 1st operand from stack in Y
+
+[comment]
+offset = 9335
+text = start address of jump table
+
+[comment]
+offset = 9338
+text = continue at 2451H
+
+[comment]
+offset = 9340
+text = 1st operand (integer) in HL
+
+[comment]
+offset = 9341
+text = 2nd operand on stack
+
+[comment]
+offset = 9344
+text = convert 1st operand to single precision
+
+[comment]
+offset = 9347
+text = and transfer to Y
+
+[comment]
+offset = 9350
+text = 2nd operand from stack in X
+
+[comment]
+offset = 9351
+text = (Exp. + MSB)
+
+[comment]
+offset = 9355
+text = (2 byte LSB)
+
+[comment]
+offset = 9358
+text = continue at 2477H
+
+[comment]
+offset = 9360
+text = input: DE = dividend, HL = divisor
+
+[comment]
+offset = 9361
+text = divisor on stack
+
+[comment]
+offset = 9362
+text = dividend in HL
+
+[comment]
+offset = 9365
+text = and with single precision in X
+
+[comment]
+offset = 9366
+text = load divisor
+
+[comment]
+offset = 9369
+text = dividend from X on stack
+
+[comment]
+offset = 9372
+text = divisor with single precision in X, for division with single precision
+
+[comment]
+offset = 9375
+text = address next character
+
+[comment]
+offset = 9376
+text = error code in E
+
+[comment]
+offset = 9378
+text = end of statement, MISSING OPERAND error
+
+[comment]
+offset = 9381
+text = digit! determine value and in X
+
+[comment]
+offset = 9384
+text = letter?
+
+[comment]
+offset = 9387
+text = yes, variable value in expression
+
+[comment]
+offset = 9390
+text = '+' sign?
+
+[comment]
+offset = 9392
+text = yes, ignore
+
+[comment]
+offset = 9394
+text = character = '.' ?
+
+[comment]
+offset = 9396
+text = yes, number to X, done
+
+[comment]
+offset = 9399
+text = '-' sign?
+
+[comment]
+offset = 9401
+text = yes, evaluate
+
+[comment]
+offset = 9404
+text = quotation marks?
+
+[comment]
+offset = 9406
+text = yes, string constant in X
+
+[comment]
+offset = 9409
+text = NOT token?
+
+[comment]
+offset = 9411
+text = yes, execute
+
+[comment]
+offset = 9414
+text = '&' ?
+
+[comment]
+offset = 9416
+text = yes, to RAM expansion output
+
+[comment]
+offset = 9419
+text = ERR token?
+
+[comment]
+offset = 9421
+text = no, continue
+
+[comment]
+offset = 9423
+text = results in the last error code
+
+[comment]
+offset = 9424
+text = load last error code
+
+[comment]
+offset = 9427
+text = program pointer on stack
+
+[comment]
+offset = 9428
+text = error code as integer in X
+
+[comment]
+offset = 9431
+text = load program pointer again
+
+[comment]
+offset = 9432
+text = done
+
+[comment]
+offset = 9433
+text = is ERL token?
+
+[comment]
+offset = 9435
+text = no, continue
+
+[comment]
+offset = 9437
+text = address next character
+
+[comment]
+offset = 9438
+text = program pointer on stack
+
+[comment]
+offset = 9439
+text = load last error line number
+
+[comment]
+offset = 9442
+text = convert to single precision and in X
+
+[comment]
+offset = 9445
+text = load program pointer again
+
+[comment]
+offset = 9446
+text = done
+
+[comment]
+offset = 9447
+text = is VARPTR token?
+
+[comment]
+offset = 9449
+text = no, continue
+
+[comment]
+offset = 9451
+text = address next character
+
+[comment]
+offset = 9452
+text = address next character
+
+[comment]
+offset = 9453
+text = follows a '(' ?
+
+[comment]
+offset = 9454
+text = determine address of variable
+
+[comment]
+offset = 9457
+text = closed with ')' ?
+
+[comment]
+offset = 9458
+text = DEFB ')'
+
+[comment]
+offset = 9459
+text = program pointer on stack
+
+[comment]
+offset = 9460
+text = variable table address in HL
+
+[comment]
+offset = 9461
+text = X = 0?
+
+[comment]
+offset = 9463
+text = (variable not in table) yes, FUNCTION CODE error
+
+[comment]
+offset = 9466
+text = variable table address as integer in X
+
+[comment]
+offset = 9469
+text = load program pointer again
+
+[comment]
+offset = 9470
+text = done
+
+[comment]
+offset = 9471
+text = = USR-Token ?
+
+[comment]
+offset = 9473
+text = yes!
+
+[comment]
+offset = 9476
+text = = INSTR$-Token ?
+
+[comment]
+offset = 9478
+text = yes, to RAM expansion exit
+
+[comment]
+offset = 9481
+text = = MEM-Token ?
+
+[comment]
+offset = 9483
+text = yes!
+
+[comment]
+offset = 9486
+text = = TIME$-Token ?
+
+[comment]
+offset = 9488
+text = yes, to RAM expansion exit
+
+[comment]
+offset = 9491
+text = = POINT-Token ?
+
+[comment]
+offset = 9493
+text = yes!
+
+[comment]
+offset = 9496
+text = = INKEY$-Token ?
+
+[comment]
+offset = 9498
+text = yes!
+
+[comment]
+offset = 9501
+text = = STRING$-Token ?
+
+[comment]
+offset = 9503
+text = yes!
+
+[comment]
+offset = 9506
+text = = FN-Token ?
+
+[comment]
+offset = 9508
+text = yes, to RAM expansion exit
+
+[comment]
+offset = 9511
+text = Function token ?
+
+[comment]
+offset = 9513
+text = yes!
+
+[comment]
+offset = 9516
+text = no, evaluate expression enclosed in parentheses
+
+[comment]
+offset = 9519
+text = evaluate expression
+
+[comment]
+offset = 9520
+text = closed with ')' ?
+
+[comment]
+offset = 9521
+text = done
+
+[comment]
+offset = 9522
+text = Priority for '-' sign
+
+[comment]
+offset = 9524
+text = Evaluate expression with priority in DE. If not
+
+[comment]
+offset = 9527
+text = load program pointer
+
+[comment]
+offset = 9530
+text = and on stack
+
+[comment]
+offset = 9531
+text = Result * (-1)
+
+[comment]
+offset = 9534
+text = reload program pointer
+
+[comment]
+offset = 9535
+text = done
+
+[comment]
+offset = 9536
+text = determine variable in variable table
+
+[comment]
+offset = 9539
+text = program pointer on stack
+
+[comment]
+offset = 9540
+text = Var.Tab.-Addr. in HL
+
+[comment]
+offset = 9541
+text = and in X as string pointer
+
+[comment]
+offset = 9544
+text = String variable ?
+
+[comment]
+offset = 9545
+text = no, variable value in X
+
+[comment]
+offset = 9548
+text = reload program pointer
+
+[comment]
+offset = 9549
+text = done
+
+[comment]
+offset = 9550
+text = B = 0
+
+[comment]
+offset = 9552
+text = A = (Token - D7H) * 2
+
+[comment]
+offset = 9553
+text = in BC as table offset
+
+[comment]
+offset = 9554
+text = save on stack
+
+[comment]
+offset = 9555
+text = address next character
+
+[comment]
+offset = 9556
+text = LSB Tab-Offset > 41H ?
+
+[comment]
+offset = 9557
+text = (MID$, RIGHT$ o. LEFT$)
+
+[comment]
+offset = 9559
+text = no!
+
+[comment]
+offset = 9561
+text = 1. evaluate argument
+
+[comment]
+offset = 9564
+text = follows a comma ?
+
+[comment]
+offset = 9566
+text = 1. argument not a string? TM-Error
+
+[comment]
+offset = 9569
+text = program pointer in DE
+
+[comment]
+offset = 9570
+text = load string pointer
+
+[comment]
+offset = 9573
+text = load Tab.Offset, string ptr on stk.
+
+[comment]
+offset = 9574
+text = load Tab.Offset also back on stack
+
+[comment]
+offset = 9575
+text = program pointer back in HL
+
+[comment]
+offset = 9576
+text = 2. argument analyze
+
+[comment]
+offset = 9579
+text = 2. Arg. in HL, program pointer in DE
+
+[comment]
+offset = 9580
+text = Tab.Offset load, 2.Arg. on stack
+
+[comment]
+offset = 9581
+text = continue at 2583H
+
+[comment]
+offset = 9583
+text = evaluate argument
+
+[comment]
+offset = 9586
+text = load Tab.Offset, prog ptr on stack
+
+[comment]
+offset = 9587
+text = LSB Tab.Offset < 0CH ?
+
+[comment]
+offset = 9588
+text = (SGN, INT, ABS, FRE, INP, POS)
+
+[comment]
+offset = 9590
+text = yes!
+
+[comment]
+offset = 9592
+text = LSB Tab.Offset < 1BH ?
+
+[comment]
+offset = 9594
+text = Tab.Offset on stack
+
+[comment]
+offset = 9595
+text = yes, argument in single precision
+
+[comment]
+offset = 9598
+text = reload Tab.Offset
+
+[comment]
+offset = 9599
+text = set return address
+
+[comment]
+offset = 9603
+text = starting address of the jump table
+
+[comment]
+offset = 9606
+text = + table offset
+
+[comment]
+offset = 9607
+text = load jump address
+
+[comment]
+offset = 9611
+text = jump to function routine
+
+[comment]
+offset = 9612
+text = 2. string from temporary storage
+
+[comment]
+offset = 9615
+text = length 2. string in A
+
+[comment]
+offset = 9617
+text = address 2. string in BC
+
+[comment]
+offset = 9621
+text = address 1. string in DE
+
+[comment]
+offset = 9622
+text = address 2. string on stack
+
+[comment]
+offset = 9623
+text = 1. string from temporary storage
+
+[comment]
+offset = 9626
+text = and remove string area
+
+[comment]
+offset = 9627
+text = length 2. string to D
+
+[comment]
+offset = 9630
+text = address 1. string in BC
+
+[comment]
+offset = 9632
+text = address 2. string in HL
+
+[comment]
+offset = 9633
+text = both strings empty?
+
+[comment]
+offset = 9635
+text = yes, back with A=0 (equal)
+
+[comment]
+offset = 9636
+text = length 2. string = 0?
+
+[comment]
+offset = 9639
+text = yes, back with A=FF, Cy=1, S=1 (string 1 > string 2)
+
+[comment]
+offset = 9640
+text = 2. string = empty?
+
+[comment]
+offset = 9643
+text = yes, back with A=1, Z=0, Cy=0 (string 1 < string 2)
+
+[comment]
+offset = 9644
+text = both string lengths - 1
+
+[comment]
+offset = 9646
+text = load character from 1. string
+
+[comment]
+offset = 9647
+text = compare with character from 2. string
+
+[comment]
+offset = 9648
+text = string pointer + 1
+
+[comment]
+offset = 9650
+text = both characters same, continue
+
+[comment]
+offset = 9652
+text = complement carry
+
+[comment]
+offset = 9653
+text = prepare flag, done
+
+[comment]
+offset = 9656
+text = comparison result + 1
+
+[comment]
+offset = 9657
+text = *2 + Carry
+
+[comment]
+offset = 9658
+text = load comparison operator code
+
+[comment]
+offset = 9659
+text = does one bit match?
+
+[comment]
+offset = 9660
+text = yes, Carry = 1
+
+[comment]
+offset = 9662
+text = and A=FF
+
+[comment]
+offset = 9663
+text = A as integer in X
+
+[comment]
+offset = 9666
+text = continue at 25D6H
+
+[comment]
+offset = 9668
+text = NOT priority in D
+
+[comment]
+offset = 9670
+text = Evaluate expression with priority
+
+[comment]
+offset = 9673
+text = convert result to integer
+
+[comment]
+offset = 9676
+text = and invert
+
+[comment]
+offset = 9677
+text = (LSB)
+
+[comment]
+offset = 9680
+text = (MSB)
+
+[comment]
+offset = 9682
+text = transfer to X
+
+[comment]
+offset = 9685
+text = reload last priority
+
+[comment]
+offset = 9686
+text = continue at 2346H
+
+[comment]
+offset = 9689
+text = load type code
+
+[comment]
+offset = 9692
+text = double precision?
+
+[comment]
+offset = 9694
+text = yes!
+
+[comment]
+offset = 9696
+text = Type code - 3
+
+[comment]
+offset = 9698
+text = set flags
+
+[comment]
+offset = 9699
+text = among others Carry=1
+
+[comment]
+offset = 9701
+text = Type code - 3
+
+[comment]
+offset = 9703
+text = set flags
+
+[comment]
+offset = 9705
+text = last priority on stack
+
+[comment]
+offset = 9706
+text = 2. convert operand to integer
+
+[comment]
+offset = 9709
+text = load priority in AF
+
+[comment]
+offset = 9710
+text = load 1. operand
+
+[comment]
+offset = 9711
+text = set return address
+
+[comment]
+offset = 9715
+text = AND ?
+
+[comment]
+offset = 9717
+text = yes!
+
+[comment]
+offset = 9719
+text = both operands OR-linked
+
+[comment]
+offset = 9720
+text = (LSB)
+
+[comment]
+offset = 9723
+text = (MSB)
+
+[comment]
+offset = 9725
+text = both operands AND-linked
+
+[comment]
+offset = 9726
+text = (LSB)
+
+[comment]
+offset = 9729
+text = (MSB)
+
+[comment]
+offset = 9731
+text = Program pointer - 1
+
+[comment]
+offset = 9732
+text = address next character
+
+[comment]
+offset = 9733
+text = end of statement? yes-return
+
+[comment]
+offset = 9734
+text = follows a comma ?
+
+[comment]
+offset = 9736
+text = return address for next argument
+
+[comment]
+offset = 9740
+text = set DIM flag
+
+[comment]
+offset = 9741
+text = clear DIM flag
+              ; Note: 260D redefined
+
+[comment]
+offset = 9742
+text = store DIM flag
+
+[comment]
+offset = 9745
+text = 1st character of variable name in B
+
+[comment]
+offset = 9746
+text = Letter ?
+
+[comment]
+offset = 9749
+text = no, SYNTAX ERROR
+
+[comment]
+offset = 9752
+text = clear (2nd character)
+
+[comment]
+offset = 9754
+text = load next character
+
+[comment]
+offset = 9755
+text = Digit ? yes-jump
+
+[comment]
+offset = 9757
+text = Letter?
+
+[comment]
+offset = 9760
+text = no, name only 1 letter
+
+[comment]
+offset = 9762
+text = 2nd character in C
+
+[comment]
+offset = 9763
+text = load next character
+
+[comment]
+offset = 9764
+text = Digit? yes-skip
+
+[comment]
+offset = 9766
+text = Letter?
+
+[comment]
+offset = 9769
+text = yes, skip
+
+[comment]
+offset = 9771
+text = set return address
+
+[comment]
+offset = 9775
+text = type code = Integer
+
+[comment]
+offset = 9777
+text = next character = '%' ?
+
+[comment]
+offset = 9779
+text = yes, done
+
+[comment]
+offset = 9780
+text = type code = String
+
+[comment]
+offset = 9781
+text = next character = '$' ?
+
+[comment]
+offset = 9783
+text = yes, done
+
+[comment]
+offset = 9784
+text = 9 x NOP
+
+[comment]
+offset = 9793
+text = Position of 1st letter in
+              ; alphabet
+
+[comment]
+offset = 9796
+text = clear bit 7
+
+[comment]
+offset = 9798
+text = as table offset in DE
+
+[comment]
+offset = 9801
+text = save program pointer
+
+[comment]
+offset = 9802
+text = beginning of type code table addr.
+
+[comment]
+offset = 9805
+text = + Offset
+
+[comment]
+offset = 9806
+text = load type code from table
+
+[comment]
+offset = 9807
+text = reload program pointer
+
+[comment]
+offset = 9808
+text = -1, as no explicit type specification
+
+[comment]
+offset = 9809
+text = continue at 2652H
+
+[comment]
+offset = 9810
+text = transfer type code to type byte
+
+[comment]
+offset = 9811
+text = (78AFH), A
+
+[comment]
+offset = 9814
+text = address next character
+
+[comment]
+offset = 9815
+text = Indexing locked ?
+
+[comment]
+offset = 9818
+text = (for loop variable)
+
+[comment]
+offset = 9819
+text = yes!
+
+[comment]
+offset = 9823
+text = = '(' ?
+
+[comment]
+offset = 9825
+text = yes, indexed variable
+
+[comment]
+offset = 9828
+text = unlock indexing
+
+[comment]
+offset = 9832
+text = program pointer on stack
+
+[comment]
+offset = 9833
+text = type code on stack
+
+[comment]
+offset = 9834
+text = load beginning of variable table
+
+[comment]
+offset = 9838
+text = load end of variable table
+
+[comment]
+offset = 9841
+text = Addresses equal?
+
+[comment]
+offset = 9842
+text = type code in H
+
+[comment]
+offset = 9843
+text = yes, variable not found
+
+[comment]
+offset = 9845
+text = load type from variable table
+
+[comment]
+offset = 9846
+text = = type of variable being sought ?
+
+[comment]
+offset = 9847
+text = no, next variable
+
+[comment]
+offset = 9849
+text = address Var.Table + 1
+
+[comment]
+offset = 9851
+text = load 2nd character from table
+
+[comment]
+offset = 9852
+text = = 2nd character of variable?
+
+[comment]
+offset = 9853
+text = no, next variable
+
+[comment]
+offset = 9855
+text = address Var.Table + 1
+
+[comment]
+offset = 9856
+text = load 1st character from table
+
+[comment]
+offset = 9857
+text = = 1st character of variable?
+
+[comment]
+offset = 9858
+text = yes, variable found!
+
+[comment]
+offset = 9861
+text = LD A, 0x13 dummy command
+
+[comment]
+offset = 9862
+text = address Var.Table at 1st character
+
+[comment]
+offset = 9863
+text = address Var.Table at value
+
+[comment]
+offset = 9864
+text = type of sought variable on stack
+
+[comment]
+offset = 9865
+text = address of Var.Table
+
+[comment]
+offset = 9867
+text = + length of type = next entry
+
+[comment]
+offset = 9868
+text = search further
+
+[comment]
+offset = 9870
+text = Typ in A
+
+[comment]
+offset = 9871
+text = load program pointer
+
+[comment]
+offset = 9872
+text = swap with return address
+
+[comment]
+offset = 9873
+text = type on stack
+
+[comment]
+offset = 9874
+text = end address of Var.Tab. on stack
+
+[comment]
+offset = 9875
+text = return address = 24F1H?
+
+[comment]
+offset = 9878
+text = (from VARPTR)
+
+[comment]
+offset = 9879
+text = yes, continue at 26CFH
+
+[comment]
+offset = 9881
+text = return address = 2543H?
+
+[comment]
+offset = 9884
+text = (from expression analysis)
+
+[comment]
+offset = 9885
+text = reload Var.Tab. end address
+
+[comment]
+offset = 9886
+text = yes, continue at 26D5H
+
+[comment]
+offset = 9888
+text = load type
+
+[comment]
+offset = 9889
+text = load program pointer
+
+[comment]
+offset = 9890
+text = program pointer on the stack
+
+[comment]
+offset = 9891
+text = variable name on the stack
+
+[comment]
+offset = 9892
+text = type in C
+
+[comment]
+offset = 9893
+text = B=0, i.e. BC contains length of value
+
+[comment]
+offset = 9895
+text = length on the stack
+
+[comment]
+offset = 9896
+text = + 3
+
+[comment]
+offset = 9898
+text = = total length of Var.Tab entry
+
+[comment]
+offset = 9899
+text = starting address of free memory
+
+[comment]
+offset = 9902
+text = on the stack
+
+[comment]
+offset = 9903
+text = + total length Var.Tab entry
+
+[comment]
+offset = 9904
+text = load value length
+
+[comment]
+offset = 9905
+text = new starting address free memory on stack
+
+[comment]
+offset = 9906
+text = move array table to make room for new variable
+
+[comment]
+offset = 9909
+text = reload starting address free memory
+
+[comment]
+offset = 9910
+text = and save
+
+[comment]
+offset = 9913
+text = new starting address array table in HL
+
+[comment]
+offset = 9915
+text = and save
+
+[comment]
+offset = 9918
+text = delete new Var.Tab entry
+
+[comment]
+offset = 9919
+text = (DE = Var.Tab-Adr of the variables)
+
+[comment]
+offset = 9921
+text = done ?
+
+[comment]
+offset = 9922
+text = no, next byte
+
+[comment]
+offset = 9924
+text = load type in E
+
+[comment]
+offset = 9925
+text = enter in variable table
+
+[comment]
+offset = 9926
+text = Tabellenadresse + 1
+
+[comment]
+offset = 9927
+text = get name from stack
+
+[comment]
+offset = 9928
+text = 2nd character in Var.Table
+
+[comment]
+offset = 9929
+text = Tabellenadresse + 1
+
+[comment]
+offset = 9930
+text = 1st character in Var.Table
+
+[comment]
+offset = 9931
+text = address Var.Table in DE
+
+[comment]
+offset = 9932
+text = + 1 = address for value entry
+
+[comment]
+offset = 9933
+text = load program pointer
+
+[comment]
+offset = 9934
+text = done
+
+[comment]
+offset = 9935
+text = Var.Tab address in DE = 0
+
+[comment]
+offset = 9937
+text = fix stack
+
+[comment]
+offset = 9939
+text = load program pointer
+
+[comment]
+offset = 9940
+text = back to VARPTR routine
+
+[comment]
+offset = 9941
+text = X = 0 for single and double precision
+
+[comment]
+offset = 9944
+text = fix stack
+
+[comment]
+offset = 9945
+text = HL = 0 for Integer
+
+[comment]
+offset = 9947
+text = and also enter in X
+
+[comment]
+offset = 9950
+text = determine type
+
+[comment]
+offset = 9951
+text = String? no-jump
+
+[comment]
+offset = 9953
+text = string pointer to empty string
+
+[comment]
+offset = 9956
+text = enter in X
+
+[comment]
+offset = 9959
+text = load program pointer
+
+[comment]
+offset = 9960
+text = back to expression analysis (2 stages)
+
+[comment]
+offset = 9961
+text = Save program pointer on stack
+
+[comment]
+offset = 9962
+text = Load DIM flag and type
+
+[comment]
+offset = 9965
+text = Swap with program pointer
+
+[comment]
+offset = 9966
+text = DIM counter = 0
+
+[comment]
+offset = 9967
+text = DIM counter on stack
+
+[comment]
+offset = 9968
+text = Variable name on stack
+
+[comment]
+offset = 9969
+text = Evaluate indexing
+
+[comment]
+offset = 9972
+text = Load variable name
+
+[comment]
+offset = 9973
+text = DIM counter in A
+
+[comment]
+offset = 9974
+text = Index value in HL
+
+[comment]
+offset = 9975
+text = Swap with DIM flag on stack
+
+[comment]
+offset = 9976
+text = DIM flag and type on stack
+
+[comment]
+offset = 9977
+text = Index pointer in HL
+
+[comment]
+offset = 9978
+text = DIM counter + 1
+
+[comment]
+offset = 9979
+text = and in D
+
+[comment]
+offset = 9980
+text = Load character
+
+[comment]
+offset = 9981
+text = Does a comma follow?
+
+[comment]
+offset = 9983
+text = Yes, next index value
+
+[comment]
+offset = 9985
+text = Does a ')' follow?
+
+[comment]
+offset = 9987
+text = Save program pointer
+
+[comment]
+offset = 9990
+text = Load DIM flag and type
+
+[comment]
+offset = 9991
+text = and save
+
+[comment]
+offset = 9994
+text = DIM counter on stack
+
+[comment]
+offset = 9995
+text = Address start of matrix table
+
+[comment]
+offset = 9998
+text = Dummy instruction
+
+[comment]
+offset = 9999
+text = Add matrix length to table pointer
+
+[comment]
+offset = 10000
+text = Address of matrix table in HL
+
+[comment]
+offset = 10001
+text = Load start address of free memory
+
+[comment]
+offset = 10004
+text = Swap addresses
+
+[comment]
+offset = 10005
+text = Addresses equal?
+
+[comment]
+offset = 10006
+text = Load type
+
+[comment]
+offset = 10009
+text = Yes, matrix not found!
+
+[comment]
+offset = 10011
+text = Type = with table entry?
+
+[comment]
+offset = 10012
+text = Table address + 1
+
+[comment]
+offset = 10013
+text = No, next table entry
+
+[comment]
+offset = 10015
+text = 2nd character of name from table
+
+[comment]
+offset = 10016
+text = = 2nd character of searched matrix?
+
+[comment]
+offset = 10017
+text = Table address + 1
+
+[comment]
+offset = 10018
+text = No, next table entry
+
+[comment]
+offset = 10020
+text = 1st character of name from table
+
+[comment]
+offset = 10021
+text = = 1st character of searched matrix?
+
+[comment]
+offset = 10022
+text = Dummy instruction
+
+[comment]
+offset = 10023
+text = Table address + 1
+
+[comment]
+offset = 10024
+text = Table address + 1
+
+[comment]
+offset = 10025
+text = Load matrix length
+
+[comment]
+offset = 10026
+text = Table address + 1
+
+[comment]
+offset = 10028
+text = Table address + 1
+
+[comment]
+offset = 10029
+text = Character unequal! Next table entry
+
+[comment]
+offset = 10031
+text = DIM flag set?
+
+[comment]
+offset = 10035
+text = Error code in E
+
+[comment]
+offset = 10037
+text = Yes, REDIMENSIONED ARRAY - Error
+
+[comment]
+offset = 10040
+text = Load DIM counter
+
+[comment]
+offset = 10041
+text = Number of dimensions in found matrix?
+
+[comment]
+offset = 10042
+text = Yes, continue at 2795H
+
+[comment]
+offset = 10045
+text = No, SUBSCRIPT OUT OF RANGE - Error
+
+[comment]
+offset = 10047
+text = To error output routine
+
+[comment]
+offset = 10050
+text = Save type
+
+[comment]
+offset = 10051
+text = Table address + 1
+
+[comment]
+offset = 10052
+text = Length of an element (=type) in DE
+
+[comment]
+offset = 10055
+text = Load DIM counter
+
+[comment]
+offset = 10056
+text = 2nd character matrix name in table
+
+[comment]
+offset = 10057
+text = Table address + 1
+
+[comment]
+offset = 10058
+text = 1st character matrix name in table
+
+[comment]
+offset = 10059
+text = Table pointer + 1
+
+[comment]
+offset = 10060
+text = DIM counter in C
+
+[comment]
+offset = 10061
+text = Still 2*DIM counter bytes free?
+
+[comment]
+offset = 10064
+text = Table address + 2
+
+[comment]
+offset = 10065
+text = Behind length entry
+
+[comment]
+offset = 10066
+text = Save table address
+
+[comment]
+offset = 10069
+text = DIM counter in table
+
+[comment]
+offset = 10070
+text = Table address + 1
+
+[comment]
+offset = 10071
+text = Shift DIM flag into Carry
+
+[comment]
+offset = 10075
+text = DIM counter in A
+
+[comment]
+offset = 10076
+text = Dimension = 11 (Standard)
+
+[comment]
+offset = 10079
+text = No DIM, jump
+
+[comment]
+offset = 10081
+text = Dimension from stack in BC
+
+[comment]
+offset = 10082
+text = + 1 for 0-index
+
+[comment]
+offset = 10083
+text = Enter in table
+
+[comment]
+offset = 10084
+text = Table address + 1
+
+[comment]
+offset = 10086
+text = Table address + 1
+
+[comment]
+offset = 10087
+text = DIM counter on stack
+
+[comment]
+offset = 10088
+text = Last matrix value length * dimension
+
+[comment]
+offset = 10091
+text = Load DIM counter
+
+[comment]
+offset = 10092
+text = - 1
+
+[comment]
+offset = 10093
+text = Further dimensions? Yes - jump
+
+[comment]
+offset = 10095
+text = DIM flag (Carry) on stack
+
+[comment]
+offset = 10096
+text = Matrix value length in BC
+
+[comment]
+offset = 10098
+text = To table address
+
+[comment]
+offset = 10099
+text = Add
+
+[comment]
+offset = 10100
+text = Overflow, SUBSCRIPT OUT OF RANGE
+
+[comment]
+offset = 10102
+text = Sufficient memory free?
+
+[comment]
+offset = 10105
+text = New start address 'free memory'
+
+[comment]
+offset = 10108
+text = Delete matrix values
+
+[comment]
+offset = 10109
+text = By writing 00
+
+[comment]
+offset = 10111
+text = Value start address reached?
+
+[comment]
+offset = 10112
+text = No, next byte
+
+[comment]
+offset = 10114
+text = Matrix value length +1 (for DIM counter)
+
+[comment]
+offset = 10115
+text = D = 0
+
+[comment]
+offset = 10116
+text = Load address of DIM counter
+
+[comment]
+offset = 10119
+text = DIM counter in E
+
+[comment]
+offset = 10120
+text = and in HL
+
+[comment]
+offset = 10121
+text = DIM counter * 2
+
+[comment]
+offset = 10122
+text = + matrix value length
+
+[comment]
+offset = 10123
+text = = Matrix length (in DE)
+
+[comment]
+offset = 10124
+text = Table address - 2
+
+[comment]
+offset = 10126
+text = = Pointer to length field
+
+[comment]
+offset = 10127
+text = Table address + 1
+
+[comment]
+offset = 10129
+text = Table address + 1
+
+[comment]
+offset = 10130
+text = Load DIM flag
+
+[comment]
+offset = 10131
+text = DIM? Yes - done
+
+[comment]
+offset = 10133
+text = Set matrix offset = 0
+
+[comment]
+offset = 10134
+text = in BC
+
+[comment]
+offset = 10135
+text = Number of dimensions in A
+
+[comment]
+offset = 10136
+text = Table pointer on 1st dimension
+
+[comment]
+offset = 10137
+text = Dummy instruction
+
+[comment]
+offset = 10138
+text = Load table address
+
+[comment]
+offset = 10139
+text = Load dimension
+
+[comment]
+offset = 10140
+text = Table pointer + 1
+
+[comment]
+offset = 10142
+text = Table pointer + 1
+
+[comment]
+offset = 10143
+text = Table pointer on the stack
+
+[comment]
+offset = 10144
+text = DIM counter on the stack
+
+[comment]
+offset = 10145
+text = Index >= Dimension?
+
+[comment]
+offset = 10146
+text = Yes, SUBSCRIPT OUT OF RANGE - Error
+
+[comment]
+offset = 10149
+text = Matrix offset * Dimension
+
+[comment]
+offset = 10152
+text = + Index = new matrix offset
+
+[comment]
+offset = 10154
+text = All dimensions processed?
+
+[comment]
+offset = 10155
+text = New matrix offset in BC
+
+[comment]
+offset = 10157
+text = Yet further dimensions, back
+
+[comment]
+offset = 10159
+text = Load type (= value length)
+
+[comment]
+offset = 10162
+text = New matrix offset in BC
+
+[comment]
+offset = 10164
+text = Matrix offset * 2
+
+[comment]
+offset = 10165
+text = String or Integer?
+
+[comment]
+offset = 10167
+text = Yes!
+
+[comment]
+offset = 10169
+text = Matrix offset * 4
+
+[comment]
+offset = 10170
+text = Single precision? Yes - jump
+
+[comment]
+offset = 10172
+text = Matrix offset * 8 (double precision)
+
+[comment]
+offset = 10173
+text = Integer or double precision?
+
+[comment]
+offset = 10174
+text = Yes!
+
+[comment]
+offset = 10177
+text = String, 3 * matrix offset in HL
+
+[comment]
+offset = 10178
+text = Load value start address
+
+[comment]
+offset = 10179
+text = Add matrix offset
+
+[comment]
+offset = 10180
+text = = element address, transfer in DE
+
+[comment]
+offset = 10181
+text = Load program pointer
+
+[comment]
+offset = 10184
+text = Done
+
+[comment]
+offset = 10185
+text = Type byte = 0 (no string!)
+
+[comment]
+offset = 10186
+text = Program pointer on stack
+
+[comment]
+offset = 10190
+text = Call FRE
+
+[comment]
+offset = 10193
+text = Load program pointer
+
+[comment]
+offset = 10194
+text = Address next character
+
+[comment]
+offset = 10195
+text = done
+
+[comment]
+offset = 10196
+text = Starting address of free memory
+
+[comment]
+offset = 10199
+text = in DE
+
+[comment]
+offset = 10200
+text = Stack pointer in HL
+
+[comment]
+offset = 10203
+text = Test type. String?
+
+[comment]
+offset = 10205
+text = no!
+
+[comment]
+offset = 10207
+text = Remove argument from temporary buffer and string space
+
+[comment]
+offset = 10210
+text = Reorder string space, remove redundant strings
+
+[comment]
+offset = 10213
+text = String space start - 1
+
+[comment]
+offset = 10216
+text = in DE
+
+[comment]
+offset = 10217
+text = Last free byte of the string space
+
+[comment]
+offset = 10220
+text = Difference between HL and DE
+
+[comment]
+offset = 10221
+text = = Size of free memory or free string space
+
+[comment]
+offset = 10223
+text = (MSB)
+
+[comment]
+offset = 10226
+text = HL with single precision in X, done
+
+[comment]
+offset = 10229
+text = Load cursor position
+
+[comment]
+offset = 10232
+text = Number in L
+
+[comment]
+offset = 10233
+text = A = 0
+
+[comment]
+offset = 10234
+text = H = 0
+
+[comment]
+offset = 10235
+text = HL as integer in X
+
+[comment]
+offset = 10238
+text = RAM expansion exit
+
+[comment]
+offset = 10241
+text = Next character in the program
+
+[comment]
+offset = 10242
+text = Evaluate argument (in X)
+
+[comment]
+offset = 10245
+text = Program pointer on the stack
+
+[comment]
+offset = 10246
+text = Return address on the stack
+
+[comment]
+offset = 10249
+text = Load type of argument
+
+[comment]
+offset = 10253
+text = on the stack
+
+[comment]
+offset = 10254
+text = is string?
+
+[comment]
+offset = 10256
+text = yes, remove last string from temporary buffer and string space
+
+[comment]
+offset = 10259
+text = Reload type
+
+[comment]
+offset = 10260
+text = String address in DE
+
+[comment]
+offset = 10261
+text = Start address of the machine language routine
+
+[comment]
+offset = 10264
+text = Jump to routine
+
+[comment]
+offset = 10265
+text = HL on the stack
+
+[comment]
+offset = 10266
+text = Type=double precision, 0 as table offset
+
+[comment]
+offset = 10268
+text = Jump table for type conversion
+
+[comment]
+offset = 10271
+text = Table offset (=type, except for double)
+
+[comment]
+offset = 10272
+text = in BC
+
+[comment]
+offset = 10274
+text = Add to jump table start
+
+[comment]
+offset = 10275
+text = Add again, load address and jump
+
+[comment]
+offset = 10278
+text = Restore HL
+
+[comment]
+offset = 10279
+text = done
+
+[comment]
+offset = 10280
+text = Program pointer on the stack
+
+[comment]
+offset = 10281
+text = Load current line number
+
+[comment]
+offset = 10284
+text = (FFFF = ?)
+
+[comment]
+offset = 10285
+text = (=Direct mode)
+
+[comment]
+offset = 10287
+text = Load program pointer
+
+[comment]
+offset = 10288
+text = no, return
+
+[comment]
+offset = 10289
+text = Error code in E
+
+[comment]
+offset = 10291
+text = Display ILLEGAL DIRECT OPERATION
+
+[comment]
+offset = 10294
+text = Convert number to string
+
+[comment]
+offset = 10297
+text = Take string into temporary buffer and X
+
+[comment]
+offset = 10300
+text = Remove string from temporary buffer
+
+[comment]
+offset = 10303
+text = Set return address
+
+[comment]
+offset = 10306
+text = BC
+
+[comment]
+offset = 10307
+text = String length in A
+
+[comment]
+offset = 10308
+text = HL
+
+[comment]
+offset = 10309
+text = String pointer on the stack
+
+[comment]
+offset = 10310
+text = Reserve space for string in string space
+
+[comment]
+offset = 10313
+text = Load string pointer
+
+[comment]
+offset = 10314
+text = Load string address
+
+[comment]
+offset = 10315
+text = (in BC)
+
+[comment]
+offset = 10316
+text = BC
+
+[comment]
+offset = 10317
+text = Transfer address in string space to temporary buffer
+
+[comment]
+offset = 10320
+text = Temporary buffer address on stack
+
+[comment]
+offset = 10321
+text = String length in L
+
+[comment]
+offset = 10322
+text = Transfer string to string space
+
+[comment]
+offset = 10325
+text = Load temporary buffer address
+
+[comment]
+offset = 10326
+text = Temporary buffer in X, done
+
+[comment]
+offset = 10327
+text = Reserve space in string space
+
+[comment]
+offset = 10330
+text = Addr. of the temporary buffer
+
+[comment]
+offset = 10333
+text = on the stack
+
+[comment]
+offset = 10334
+text = Enter string length
+
+[comment]
+offset = 10335
+text = Temporary buffer addr. + 1
+
+[comment]
+offset = 10336
+text = Enter string address
+
+[comment]
+offset = 10339
+text = Load address of temporary buffer
+
+[comment]
+offset = 10340
+text = done
+
+[comment]
+offset = 10341
+text = String pointer - 1
+
+[comment]
+offset = 10342
+text = Delimiter 1 = '\
+
+[comment]
+offset = 10344
+text = = Delimiter 2
+
+[comment]
+offset = 10345
+text = String pointer - 1 on stack
+
+[comment]
+offset = 10346
+text = Character counter = -1
+
+[comment]
+offset = 10348
+text = String pointer + 1
+
+[comment]
+offset = 10349
+text = Load character
+
+[comment]
+offset = 10350
+text = Character counter + 1
+
+[comment]
+offset = 10351
+text = End of line?
+
+[comment]
+offset = 10352
+text = yes, end of string
+
+[comment]
+offset = 10354
+text = = Delimiter 2?
+
+[comment]
+offset = 10355
+text = yes, end of string
+
+[comment]
+offset = 10357
+text = Delimiter 1?
+
+[comment]
+offset = 10358
+text = no, next character
+
+[comment]
+offset = 10360
+text = Last character '\
+
+[comment]
+offset = 10362
+text = yes, next character
+
+[comment]
+offset = 10365
+text = Load string pointer - 1, current string pointer on stack
+
+[comment]
+offset = 10366
+text = String pointer + 1
+
+[comment]
+offset = 10367
+text = in DE
+
+[comment]
+offset = 10368
+text = String length in A
+
+[comment]
+offset = 10369
+text = String in temporary buffer
+
+[comment]
+offset = 10372
+text = Addr. of the temporary buffer
+
+[comment]
+offset = 10375
+text = LD A, 0D5H dummy command
+
+[comment]
+offset = 10376
+text = Load string pointer in DE
+
+[comment]
+offset = 10377
+text = Load current temporary buffer address
+
+[comment]
+offset = 10380
+text = Enter in X
+
+[comment]
+offset = 10383
+text = Set type = String
+
+[comment]
+offset = 10388
+text = Transfer temporary buffer to next temporary buffer location
+
+[comment]
+offset = 10391
+text = Temporary buffer full?
+
+[comment]
+offset = 10394
+text = RST 18H
+
+[comment]
+offset = 10395
+text = Store next temporary buffer addr.
+
+[comment]
+offset = 10398
+text = Load program pointer
+
+[comment]
+offset = 10399
+text = Load next character
+
+[comment]
+offset = 10400
+text = Temp. buffer not full, done
+
+[comment]
+offset = 10401
+text = Error code in E
+
+[comment]
+offset = 10403
+text = Display error message
+
+[comment]
+offset = 10406
+text = String address + 1
+
+[comment]
+offset = 10407
+text = String in temporary buffer + X
+
+[comment]
+offset = 10410
+text = Remove string from temporary buffer
+
+[comment]
+offset = 10413
+text = String addr. in BC, length in D
+
+[comment]
+offset = 10416
+text = String length + 1
+
+[comment]
+offset = 10417
+text = All characters displayed?
+
+[comment]
+offset = 10418
+text = yes, done
+
+[comment]
+offset = 10419
+text = Load character
+
+[comment]
+offset = 10420
+text = and display
+
+[comment]
+offset = 10423
+text = Carriage Return?
+
+[comment]
+offset = 10425
+text = yes, back via RAM output 79D0H
+
+[comment]
+offset = 10428
+text = String address + 1
+
+[comment]
+offset = 10429
+text = Next character
+
+[comment]
+offset = 10431
+text = Clear PACK flag
+
+[comment]
+offset = 10432
+text = LD C, 0F1H dummy command
+
+[comment]
+offset = 10433
+text = Load PACK flag from stack
+
+[comment]
+offset = 10434
+text = on the stack
+
+[comment]
+offset = 10435
+text = Start of the string space - 1
+
+[comment]
+offset = 10438
+text = in DE
+
+[comment]
+offset = 10439
+text = Pointer to 1st free byte in string space
+
+[comment]
+offset = 10442
+text = Complement string length
+
+[comment]
+offset = 10443
+text = and in BC
+
+[comment]
+offset = 10444
+text = LD B, 0FFH
+
+[comment]
+offset = 10446
+text = String space pointer - length
+
+[comment]
+offset = 10447
+text = + 1 (result correction)
+
+[comment]
+offset = 10448
+text = Start of the string space - 1?
+
+[comment]
+offset = 10449
+text = yes, pack string space
+
+[comment]
+offset = 10451
+text = Store new string space pointer
+
+[comment]
+offset = 10457
+text = done
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -22070,4 +24969,260 @@ text = Operands for exponentiation on the stack
 [block]
 offset = 9185
 text = Operands for AND and OR on the stack
+
+[block]
+offset = 9196
+text = Process comparison operators
+
+[block]
+offset = 9222
+text = Execute operations
+
+[block]
+offset = 9256
+text = Execute integer operations
+
+[block]
+offset = 9272
+text = 1st operand double precision
+
+[block]
+offset = 9312
+text = 2nd operand double precision
+
+[block]
+offset = 9330
+text = 1st operand single precision
+
+[block]
+offset = 9340
+text = 2nd operand single precision
+
+[block]
+offset = 9360
+text = Integer - Division
+
+[block]
+offset = 9375
+text = Evaluate operands for expression analysis
+
+[block]
+offset = 9423
+text = ERR function
+
+[block]
+offset = 9433
+text = ERL function
+
+[block]
+offset = 9447
+text = VARPTR function
+
+[block]
+offset = 9451
+text = VARPTR function
+
+[block]
+offset = 9516
+text = Evaluate parenthetical expression
+
+[block]
+offset = 9522
+text = Evaluate '-' sign
+
+[block]
+offset = 9536
+text = Include variable value in expression
+              Determine variable in variable table
+              Var.Tab.-Addr. in DE. If not
+
+[block]
+offset = 9550
+text = Evaluate function arguments and jump to function routines
+
+[block]
+offset = 9576
+text = 2. argument analyze
+              integer value (< 256) in A
+
+[block]
+offset = 9592
+text = LSB Tab.Offset < 1BH ?
+              (SQR, RND, LOG, EXP, COS, SIN, TAN, ATN)
+
+[block]
+offset = 9612
+text = String comparison
+              2. string from temporary storage
+              and remove string area
+
+[block]
+offset = 9622
+text = address 2. string on stack
+              length 2. string on stack
+
+[block]
+offset = 9627
+text = length 2. string to D
+              length 1. string to E
+
+[block]
+offset = 9656
+text = Summarize result of the comparison with the comparison operator to the overall result
+
+[block]
+offset = 9668
+text = Execute NOT
+
+[block]
+offset = 9689
+text = Restart 20
+              tests the data type of the X-register
+
+[block]
+offset = 9705
+text = Execute AND and OR
+
+[block]
+offset = 9736
+text = DIM - Command / Set up arrays
+
+[block]
+offset = 9741
+text = Search for variable in table and set up if not present
+
+[block]
+offset = 9745
+text = Determine name
+
+[block]
+offset = 9771
+text = Determine type
+
+[block]
+offset = 9793
+text = Take type code from table
+
+[block]
+offset = 9814
+text = Search for variable in variable table
+
+[block]
+offset = 9870
+text = Variable not contained in variable table
+
+[block]
+offset = 9888
+text = Set up new variable
+
+[block]
+offset = 9889
+text = return address on stack
+              load program pointer
+
+[block]
+offset = 9935
+text = at VARPTR variable not in table
+
+[block]
+offset = 9939
+text = return address on stack
+              load program pointer
+
+[block]
+offset = 9941
+text = at expression analysis variable not in table
+
+[block]
+offset = 9961
+text = Matrix Management
+
+[block]
+offset = 9969
+text = result: Result (<32768) in DE
+
+[block]
+offset = 10031
+text = Matrix Found
+
+[block]
+offset = 10050
+text = Setup New Matrix
+
+[block]
+offset = 10098
+text = (now on 1st value byte)
+
+[block]
+offset = 10102
+text = no, OUT OF MEMORY - Error
+
+[block]
+offset = 10126
+text = matrix length enter in table
+
+[block]
+offset = 10133
+text = Determine Address of Matrix Element
+
+[block]
+offset = 10143
+text = Index load
+
+[block]
+offset = 10185
+text = MEM Function
+              Determine size of free memory
+
+[block]
+offset = 10196
+text = FRE Function
+              Determine size of free memory or free string space
+
+[block]
+offset = 10229
+text = POS Function
+              Determines the cursor position
+
+[block]
+offset = 10238
+text = USR Function
+              Call a machine language routine
+              The argument in X and the type in A are passed as parameters
+              and for strings, the address of the string is passed in DE.
+
+[block]
+offset = 10265
+text = Convert value to desired type
+
+[block]
+offset = 10280
+text = Check if execution is in DIRECT mode.
+              if so, ILLEGAL DIRECT OPERATION - Error
+
+[block]
+offset = 10294
+text = STR$ Function
+              Convert number to string
+
+[block]
+offset = 10327
+text = Determine address in string space and store in temporary buffer
+
+[block]
+offset = 10341
+text = Take string constant into temporary buffer and X
+
+[block]
+offset = 10401
+text = STRING FORMULA TOO COMPLEX - Error
+
+[block]
+offset = 10406
+text = Print string
+              String terminated by '\
+
+[block]
+offset = 10431
+text = Reserve space for a string in string space
 

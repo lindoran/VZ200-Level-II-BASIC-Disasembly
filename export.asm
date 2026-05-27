@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Sun May 24 22:42:13 2026
+; Generated: Wed May 27 15:06:15 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -215,9 +215,9 @@ MEM_SIZE_INPUT:
               rst   0x18           ; check free memory
               jp    c,ERROR_ENTRY  ; otherwise: OUT OF MEMORY error (197AH)
               ld    de,0xFFCE      ; DE = -50 (FFCE is 2s comp. -50)
-              ld    (0x78B1),hl    ; store end-of-memory address (@ 78B1H)
+              ld    (MEMSIZ),hl    ; store end-of-memory address (@ 78B1H)
               add   hl,de          ; HL = end of memory - 50
-              ld    (0x78A0),hl    ; = start of string space - 1
+              ld    (STKTOP),hl    ; = start of string space - 1
 INIT_VARS_2:
               call  0x1B4D         ; call the NEW routine (1B4DH)
               call  0x3484         ; initialize counters and pointers (3484H)
@@ -323,7 +323,7 @@ RESET:
               xor   a
               ld    (0x7899),a
               inc   a
-              call  0x2857         ; Call STRINI (2857H)
+              call  STRINI         ; Call STRINI (2857H)
               pop   af
               ld    hl,(0x78D4)    ; Get 78D4H
               ld    (hl),a
@@ -595,10 +595,10 @@ INPUT_LINE_READ:
               jr    z,$-2          ; Relative jump if z to $-2
 
 ; Determine starting address of input line
-              ld    a,(0x78A6)     ; load column in input line
+              ld    a,(TTYPOS)     ; load column in input line
               ld    c,a            ; in BC
               xor   a              ; Clear A
-              ld    (0x78A6),a     ; column counter = 0 (start of line)
+              ld    (TTYPOS),a     ; column counter = 0 (start of line)
               ld    b,a            ; Load b from a
               ld    hl,(0x7820)    ; load cursor address
               sbc   hl,bc          ; - column = start of line
@@ -786,7 +786,7 @@ INPUT_LINE_READ:
               ld    (hl),a         ; mark buffer end with X'00'.
               call  0x33A8         ; determine line status
               or    a              ; continuation line?
-              ld    a,(0x78A6)     ; load column counter
+              ld    a,(TTYPOS)     ; load column counter
               jr    nz,$+4         ; no continuation line!
               add   a,0x20         ; add one line for continuation line.
               ld    c,a            ; transfer column counter to BC
@@ -2775,7 +2775,7 @@ DNORM_BIT_LOOP:
               call  FOUINI         ; initialize buffer
               or    (hl)           ; X as integer without sign
               call  0x0FD9         ; convert to string
-              jp    0x28A6         ; output string
+              jp    STROUT         ; output string
               xor   a
 
 ; Convert number to formatted string
@@ -2945,7 +2945,7 @@ DNORM_BIT_LOOP:
               ld    (hl),0x00      ; Mark end of line with X'00'
               ld    hl,0x792F      ; Load address before buffer
               inc   hl             ; Buffer address + 1
-              ld    a,(0x78F3)     ; LSB '.'-position
+              ld    a,(SAVP)       ; LSB '.'-position
               sub   l              ; SUB L
               sub   d              ; - pre-decimal places = 0?
               ret   z              ; yes, done
@@ -3077,7 +3077,7 @@ DNORM_BIT_LOOP:
               pop   bc             ; Load length parameter from stack
               or    c              ; Fractional field length > 0?
               jr    nz,$+5         ; Yes!
-              ld    hl,(0x78F3)    ; Load '.' address
+              ld    hl,(SAVP)      ; Load '.' address
               add   a,e            ; Fractional field length - number of actually output fractional 
               dec   a              ; - 1 for '.'
               call  p,PUT_ZEROS    ; > 0? Output corresponding number of zeros
@@ -3252,7 +3252,7 @@ GET_FMT_PARAMS:
               dec   b              ; Decimal point position - 1
               jr    nz,$+10        ; Decimal point reached? No!
               ld    (hl),0x2E      ; '.' in buffer
-              ld    (0x78F3),hl    ; Remember address of '.'
+              ld    (SAVP),hl      ; Remember address of '.'
               inc   hl             ; Buffer pointer + 1
               ld    c,b            ; ',' = 0 (no more ',' to set)
               ret                  ; Done
@@ -4366,7 +4366,7 @@ MAKE_SPACE:
 ; if not, OUT OF MEMORY - Error
 CHECK_FREE_MEMORY:
               push  hl             ; HL onto stack
-              ld    hl,(0x78FD)    ; Starting address of free memory
+              ld    hl,(STREND)    ; Starting address of free memory
               ld    b,0x00         ; B=0
               add   hl,bc          ; Add BC to HL twice
               add   hl,bc
@@ -4703,23 +4703,23 @@ ERROR_HANDLER:
               ld    h,a
               ld    (0x78F0),hl    ; address of an error routine = 0
               ld    (0x78F7),hl    ; CONT address pointer = 0
-              ld    hl,(0x78B1)    ; load BASIC-RAM end address
-              ld    (0x78D6),hl    ; store as string area pointer; deletes all string variables
+              ld    hl,(MEMSIZ)    ; load BASIC-RAM end address
+              ld    (FRETOP),hl    ; store as string area pointer; deletes all string variables
               call  RESTORE        ; call RESTORE
               ld    hl,(0x78F9)    ; load program end address
-              ld    (0x78FB),hl    ; = end address of variable table
-              ld    (0x78FD),hl    ; = end address of matrix table
+              ld    (ARYTAB),hl    ; = end address of variable table
+              ld    (STREND),hl    ; = end address of matrix table
               call  0x79BB         ; RAM expansion output
               pop   bc             ; load return address
-              ld    hl,(0x78A0)    ; address of string area
+              ld    hl,(STKTOP)    ; address of string area
               dec   hl             ; - 2
               dec   hl
               ld    (0x78E8),hl    ; store as stack start address
               inc   hl             ; + 2
               inc   hl
               ld    sp,hl          ; transfer to stack pointer
-              ld    hl,0x78B5      ; clear string buffer
-              ld    (0x78B3),hl    ; (start address in pointer)
+              ld    hl,TEMPST      ; clear string buffer
+              ld    (TEMPPT),hl    ; (start address in pointer)
               call  OUTPUT_SCREEN_SELECT ; output flag to screen, CR on printer if necessary.
               call  PRINT_FINAL    ; end check
               xor   a              ; A = 0
@@ -5076,8 +5076,8 @@ ERROR_HANDLER:
               call  z,0x79BB       ; RAM expansion exit
               pop   af             ; END flag reload
               ld    (0x78E6),hl    ; save current program pointer
-              ld    hl,0x78B5      ; clear intermediate buffer for strings.
-              ld    (0x78B3),hl    ; (pointer to start)
+              ld    hl,TEMPST      ; clear intermediate buffer for strings.
+              ld    (TEMPPT),hl    ; (pointer to start)
               DEFB  0x21           ; LD HL,0FFF6H Dummy instruction
 
 ; Entry for BREAK in INPUT statement
@@ -5237,7 +5237,7 @@ ERROR_HANDLER:
               rst   0x10           ; address next character
               ret   nz             ; command end?
               push  hl             ; program pointer on stack
-              ld    hl,(0x78B1)    ; BASIC-RAM end address loaded
+              ld    hl,(MEMSIZ)    ; BASIC-RAM end address loaded
               ld    a,l            ; - argument of CLEAR statement
               sub   e              ; = start of string area - 1
               ld    e,a
@@ -5251,7 +5251,7 @@ ERROR_HANDLER:
               rst   0x18           ; < new string area address - 1?
               jp    nc,ERROR_ENTRY ; no, OUT OF MEMORY - error
               ex    de,hl          ; new string area start - 1
-              ld    (0x78A0),hl    ; save
+              ld    (STKTOP),hl    ; save
               pop   hl             ; reload program pointer
               jp    0x1B61         ; continue at NEW
 
@@ -5360,7 +5360,7 @@ ELSE_LOOP:
               pop   af             ; Load type flag
               ex    (sp),hl        ; Program pointer on stack
               add   a,0x03         ; Calculate type code
-              call  0x2819         ; Convert result of expression to
+              call  CONVRT         ; Convert result of expression to
               call  VDFACS         ; X address in DE
               push  hl             ; Addr. of variable table on stack
               jr    nz,$+42        ; Jump if not string
@@ -5374,7 +5374,7 @@ LET_STRING:
               ld    hl,(0x78A4)    ; String not in program text or
               rst   0x18
               jr    nc,$+16        ; yes, string in string space
-              ld    hl,(0x78A0)    ; String in program text?
+              ld    hl,(STKTOP)    ; String in program text?
               rst   0x18
               pop   de             ; Load string pointer
               jr    nc,$+17        ; yes, string not in string space!
@@ -5577,7 +5577,7 @@ PRINT_AT:
               ld    (0x7820),hl    ; save as new cursor address
               ld    a,e            ; determine cursor position in line
               and   0x1F           ; = last 5 bits of cursor address
-              ld    (0x78A6),a     ; save as new cursor position
+              ld    (TTYPOS),a     ; save as new cursor position
               pop   hl             ; load program pointer
               rst   8              ; follows a comma?
               DEFB  0x2C
@@ -5607,7 +5607,7 @@ PRINT_LOOP:
               rst   0x20           ; test data type
               jr    z,$+52         ; string? yes, jump
               call  PUSTR_UNFORM_INIT ; convert num. values to string
-              call  0x2865         ; string in intermediate storage and X
+              call  STRFDESC       ; string in intermediate storage and X
               call  0x79CD         ; RAM expansion output
               ld    hl,(FACLO)     ; load string pointer from X reg
               ld    a,(0x789C)     ; load output flag
@@ -5620,7 +5620,7 @@ PRINT_LOOP:
               jr    $+11           ; continue at 20E6H
               ld    a,(0x789D)     ; load screen line length
               ld    b,a            ; in B
-              ld    a,(0x78A6)     ; load cursor position in line
+              ld    a,(TTYPOS)     ; load cursor position in line
               add   a,(hl)         ; + string length
               cp    b              ; > line length (64)?
               call  nc,PRINT_CR    ; yes, output Carriage Return
@@ -5684,7 +5684,7 @@ PRINT_BOL_CHECK:
               jp    z,0x2153       ; screen? ja-jump
               ld    a,(0x789B)     ; load print head position
               jr    $+5            ; continue at screen
-              ld    a,(0x78A6)     ; load cursor position
+              ld    a,(TTYPOS)     ; load cursor position
               cpl                  ; one's complement
               add   a,e            ; + TAB value
               jr    nc,$+12        ; already reached or exceeded?
@@ -5730,7 +5730,7 @@ PRINT_BOL_CHECK:
               ret                  ; restart input
 
 ; INPUT Statement
-              call  0x2828         ; direct command?
+              call  DIRCHK         ; direct command?
               ld    a,(hl)         ; load character
               call  0x79D6         ; RAM expansion output
               sub   0x23           ; read from cassette?
@@ -6022,8 +6022,8 @@ EVAL_EXPR_START:
               ld    c,0x01         ; At least 2 bytes free?
               call  CHECK_FREE_MEMORY ; no, OUT OF MEMORY - Error
               call  EVAL_OPERAND   ; Analyze operands and in X
-              ld    (0x78F3),hl    ; Store program pointer
-              ld    hl,(0x78F3)    ; Load program pointer
+              ld    (SAVP),hl      ; Store program pointer
+              ld    hl,(SAVP)      ; Load program pointer
               pop   bc             ; Priority code in B load
 EVAL_EXPR_OP_LOOP:
               ld    a,(hl)         ; Next character from program
@@ -6044,7 +6044,7 @@ EVAL_EXPR_OP_LOOP:
 EVAL_EXPR_CHK_COMP:
               ld    a,d            ; Operator code > 0 ?
               or    a              ; (Comparison operator found)
-              jp    nz,0x23EC      ; yes!
+              jp    nz,CHK_OP_PRIO ; yes!
               ld    a,(hl)         ; Load character
               ld    (FMT_FLAG),hl  ; Store program pointer
               sub   0xCD           ; One of the other operators?
@@ -6111,7 +6111,7 @@ EVAL_EXPR_CHK_COMP:
               ld    c,e            ; Operator code in C
               ld    b,a            ; Type code in B
               push  bc             ; Put on the stack
-              ld    bc,0x2406      ; Address for performing
+              ld    bc,DO_OP       ; Address for performing
               push  bc             ; operations on the stack
               ld    hl,(FMT_FLAG)  ; Load program pointer
               jp    0x233A         ; next operand
@@ -6132,344 +6132,430 @@ EVAL_EXPR_LOGIC:
               push  hl             ; Operand on stack
               ld    bc,0x25E9      ; Address for AND and OR processing
               jr    $-29
-              ld    a,b
-              cp    0x64
-              ret   nc
-              push  bc
-              push  de
-              ld    de,0x6404
-              ld    hl,0x25B8
+
+; Process comparison operators
+CHK_OP_PRIO:
+              ld    a,b            ; did last operator have higher
+              cp    0x64           ; or equal priority?
+              ret   nc             ; yes, calculate last operation
+              push  bc             ; last priority on stack
+              push  de             ; operator code on stack
+              ld    de,0x6404      ; priority in D, comparison code in E
+              ld    hl,0x25B8      ; address for processing the
+              push  hl             ; comparison result on stack
+              rst   0x20           ; test data type
+              jp    nz,0x2395      ; numeric? yes - operands on stack
+              ld    hl,(FACLO)     ; string! string pointer on stack
               push  hl
-              rst   0x20
-              jp    nz,0x2395
-              ld    hl,(FACLO)
-              push  hl
-              ld    bc,0x258C
-              jr    $-55
-              pop   bc
-              ld    a,c
+              ld    bc,0x258C      ; load address for string comparison
+              jr    $-55           ; and on the stack
+
+; Execute operations
+DO_OP:
+              pop   bc             ; load operator code and type
+              ld    a,c            ; save operator code
               ld    (0x78B0),a
-              ld    a,b
-              cp    0x08
-              jr    z,$+42
-              ld    a,(VALTYP)
-              cp    0x08
-              jp    z,0x2460
-              ld    d,a
-              ld    a,b
-              cp    0x04
-              jp    z,0x2472
-              ld    a,d
-              cp    0x03
-              jp    z,TMERR
-              jp    nc,0x247C
-              ld    hl,0x18BF
-              ld    b,0x00
+              ld    a,b            ; type in A
+              cp    0x08           ; 1st operand double precision?
+              jr    z,$+42         ; yes!
+              ld    a,(VALTYP)     ; load type of 2nd operand
+              cp    0x08           ; is double precision?
+              jp    z,OP2_DOUBLE   ; yes!
+              ld    d,a            ; type of 2nd operand in D
+              ld    a,b            ; type of 1st operand in A
+              cp    0x04           ; is single precision?
+              jp    z,OP1_SINGLE   ; yes!
+              ld    a,d            ; load type of 2nd operand
+              cp    0x03           ; and test
+              jp    z,TMERR        ; string! - TYPE MISMATCH error
+              jp    nc,OP2_SINGLE  ; single precision! - jump
+
+; Execute integer operations
+DO_INT_OP:
+              ld    hl,0x18BF      ; start of jump table 'Integer'
+              ld    b,0x00         ; add operator code twice
               add   hl,bc
               add   hl,bc
-              ld    c,(hl)
+              ld    c,(hl)         ; load jump address
               inc   hl
               ld    b,(hl)
-              pop   de
-              ld    hl,(FACLO)
-              push  bc
-              ret   
-              call  FRCDBL
-              call  VMOVAF
-              pop   hl
-              ld    (0x791F),hl
+              pop   de             ; get 1st operand from stack
+              ld    hl,(FACLO)     ; load 2nd operand from X
+              push  bc             ; jump address on stack
+              ret                  ; jump to routine
+
+; 1st operand double precision
+OP1_DOUBLE:
+              call  FRCDBL         ; convert 2nd operand to double precision
+              call  VMOVAF         ; and transfer to Y
+              pop   hl             ; 1st operand from stack in X
+              ld    (0x791F),hl    ; first the 4 low-order bytes
               pop   hl
               ld    (0x791D),hl
-              pop   bc
+              pop   bc             ; the next 3 bytes and the exponent
               pop   de
-              call  MOVFR
-              call  FRCDBL
-              ld    hl,0x18AB
-              ld    a,(0x78B0)
-              rlca  
-              push  bc
-              ld    c,a
+              call  MOVFR          ; also in X
+              call  FRCDBL         ; convert 1st operand to double precision
+              ld    hl,0x18AB      ; load start of jump table
+              ld    a,(0x78B0)     ; load operator code
+              rlca                 ; * 2
+              push  bc             ; save BC
+              ld    c,a            ; operator code * 2 in BC
               ld    b,0x00
-              add   hl,bc
-              pop   bc
-              ld    a,(hl)
+              add   hl,bc          ; add to start address of jump table
+              pop   bc             ; restore BC
+              ld    a,(hl)         ; load jump address
               inc   hl
               ld    h,(hl)
               ld    l,a
-              jp    (hl)
+              jp    (hl)           ; jump to execution routine
+
+; 2nd operand double precision
+OP2_DOUBLE:
               push  bc
-              call  VMOVAF
-              pop   af
-              ld    (VALTYP),a
-              cp    0x04
-              jr    z,$-36
-              pop   hl
-              ld    (FACLO),hl
-              jr    $-37
-              call  FRCSNG
-              pop   bc
+              call  VMOVAF         ; transfer 2nd operand to Y
+              pop   af             ; type of 1st operand
+              ld    (VALTYP),a     ; in type byte
+              cp    0x04           ; is single precision?
+              jr    z,$-36         ; yes, continue at 2446H
+              pop   hl             ; no, integer in HL
+              ld    (FACLO),hl     ; and in X
+              jr    $-37           ; continue at 244BH
+
+; 1st operand single precision
+OP1_SINGLE:
+              call  FRCSNG         ; convert 2nd operand to single precision
+              pop   bc             ; 1st operand from stack in Y
               pop   de
-              ld    hl,0x18B5
-              jr    $-41
+              ld    hl,0x18B5      ; start address of jump table
+              jr    $-41           ; continue at 2451H
+
+; 2nd operand single precision
+OP2_SINGLE:
+              pop   hl             ; 1st operand (integer) in HL
+              call  PUSHF          ; 2nd operand on stack
+              call  0x0ACF         ; convert 1st operand to single precision
+              call  MOVRF          ; and transfer to Y
+              pop   hl             ; 2nd operand from stack in X
+              ld    (FAC_SIGN),hl  ; (Exp. + MSB)
               pop   hl
-              call  PUSHF
-              call  0x0ACF
-              call  MOVRF
-              pop   hl
-              ld    (FAC_SIGN),hl
-              pop   hl
-              ld    (FACLO),hl
-              jr    $-23
-              push  hl
-              ex    de,hl
-              call  0x0ACF
-              pop   hl
-              call  PUSHF
-              call  0x0ACF
-              jp    0x08A0
-              rst   0x10
-              ld    e,0x28
-              jp    z,ERROR_HANDLER
-              jp    c,STR_TO_NUM
-              call  ISLET
-              jp    nc,0x2540
-              cp    0xCD
-              jr    z,$-17
-              cp    0x2E
-              jp    z,STR_TO_NUM
-              cp    0xCE
-              jp    z,0x2532
-              cp    0x22
-              jp    z,0x2866
-              cp    0xCB
-              jp    z,0x25C4
-              cp    0x26
-              jp    z,0x7994
-              cp    0xC3
-              jr    nz,$+12
-              rst   0x10
-              ld    a,(0x789A)
-              push  hl
-              call  0x27F8
-              pop   hl
-              ret   
-              cp    0xC2
-              jr    nz,$+12
-              rst   0x10
-              push  hl
-              ld    hl,(0x78EA)
-              call  INEG_OVERFLOW
-              pop   hl
-              ret   
-              cp    0xC0
-              jr    nz,$+22
-              rst   0x10
-              rst   8
-              jr    z,$-49
-              dec   c
-              ld    h,0xCF
-              add   hl,hl
-              push  hl
-              ex    de,hl
-              ld    a,h
+              ld    (FACLO),hl     ; (2 byte LSB)
+              jr    $-23           ; continue at 2477H
+
+; Integer - Division
+INT_DIV:
+              push  hl             ; input: DE = dividend, HL = divisor
+              ex    de,hl          ; divisor on stack
+              call  0x0ACF         ; dividend in HL
+              pop   hl             ; and with single precision in X
+              call  PUSHF          ; load divisor
+              call  0x0ACF         ; dividend from X on stack
+              jp    0x08A0         ; divisor with single precision in X, for division with single pr
+
+; Evaluate operands for expression analysis
+              rst   0x10           ; address next character
+              ld    e,0x28         ; error code in E
+              jp    z,ERROR_HANDLER ; end of statement, MISSING OPERAND error
+              jp    c,STR_TO_NUM   ; digit! determine value and in X
+              call  ISLET          ; letter?
+              jp    nc,0x2540      ; yes, variable value in expression
+              cp    0xCD           ; '+' sign?
+              jr    z,$-17         ; yes, ignore
+              cp    0x2E           ; character = '.' ?
+              jp    z,STR_TO_NUM   ; yes, number to X, done
+              cp    0xCE           ; '-' sign?
+              jp    z,0x2532       ; yes, evaluate
+              cp    0x22           ; quotation marks?
+              jp    z,0x2866       ; yes, string constant in X
+              cp    0xCB           ; NOT token?
+              jp    z,0x25C4       ; yes, execute
+              cp    0x26           ; '&' ?
+              jp    z,0x7994       ; yes, to RAM expansion output
+              cp    0xC3           ; ERR token?
+              jr    nz,$+12        ; no, continue
+
+; ERR function
+ERR_FUNC:
+              rst   0x10           ; results in the last error code
+              ld    a,(0x789A)     ; load last error code
+              push  hl             ; program pointer on stack
+              call  0x27F8         ; error code as integer in X
+              pop   hl             ; load program pointer again
+              ret                  ; done
+
+; ERL function
+ERL_FUNC:
+              cp    0xC2           ; is ERL token?
+              jr    nz,$+12        ; no, continue
+              rst   0x10           ; address next character
+              push  hl             ; program pointer on stack
+              ld    hl,(0x78EA)    ; load last error line number
+              call  INEG_OVERFLOW  ; convert to single precision and in X
+              pop   hl             ; load program pointer again
+              ret                  ; done
+
+; VARPTR function
+VARPTR_CHK:
+              cp    0xC0           ; is VARPTR token?
+              jr    nz,$+22        ; no, continue
+
+; VARPTR function
+VARPTR_FUNC:
+              rst   0x10           ; address next character
+              rst   8              ; address next character
+              DEFB  0x28           ; follows a '(' ?
+GET_VAR_ADDR:
+              call  VARPTR_FIND_OR_CREATE ; determine address of variable
+              rst   8              ; closed with ')' ?
+              DEFB  0x29           ; DEFB ')'
+              push  hl             ; program pointer on stack
+              ex    de,hl          ; variable table address in HL
+              ld    a,h            ; X = 0?
               or    l
-              jp    z,0x1E4A
-              call  MAKINT
-              pop   hl
-              ret   
-              cp    0xC1
-              jp    z,0x27FE
-              cp    0xC5
-              jp    z,0x799D
-              cp    0xC8
-              jp    z,0x27C9
-              cp    0xC7
-              jp    z,0x7976
-              cp    0xC6
-              jp    z,POINT
-              cp    0xC9
-              jp    z,0x019D
-              cp    0xC4
-              jp    z,0x2A2F
-              cp    0xBE
-              jp    z,0x7955
-              sub   0xD7
-              jp    nc,0x254E
-              call  EVAL_EXPR_START
-              rst   8
-              add   hl,hl
-              ret   
-              ld    d,0x7D
-              call  0x233A
-              ld    hl,(0x78F3)
-              push  hl
-              call  VNEG
-              pop   hl
-              ret   
-              call  VARPTR_FIND_OR_CREATE
-              push  hl
-              ex    de,hl
-              ld    (FACLO),hl
-              rst   0x20
-              call  nz,VMOVFM
-              pop   hl
-              ret   
-              ld    b,0x00
-              rlca  
-              ld    c,a
-              push  bc
-              rst   0x10
-              ld    a,c
-              cp    0x41
-              jr    c,$+24
-              call  EVAL_EXPR_START
-              rst   8
+              jp    z,0x1E4A       ; (variable not in table) yes, FUNCTION CODE error
+              call  MAKINT         ; variable table address as integer in X
+              pop   hl             ; load program pointer again
+              ret                  ; done
+              cp    0xC1           ; = USR-Token ?
+              jp    z,USR          ; yes!
+              cp    0xC5           ; = INSTR$-Token ?
+              jp    z,0x799D       ; yes, to RAM expansion exit
+              cp    0xC8           ; = MEM-Token ?
+              jp    z,MEM          ; yes!
+              cp    0xC7           ; = TIME$-Token ?
+              jp    z,0x7976       ; yes, to RAM expansion exit
+              cp    0xC6           ; = POINT-Token ?
+              jp    z,POINT        ; yes!
+              cp    0xC9           ; = INKEY$-Token ?
+              jp    z,0x019D       ; yes!
+              cp    0xC4           ; = STRING$-Token ?
+              jp    z,0x2A2F       ; yes!
+              cp    0xBE           ; = FN-Token ?
+              jp    z,0x7955       ; yes, to RAM expansion exit
+              sub   0xD7           ; Function token ?
+              jp    nc,0x254E      ; yes!
+
+; Evaluate parenthetical expression
+              call  EVAL_EXPR_START ; no, evaluate expression enclosed in parentheses
+              rst   8              ; evaluate expression
+              add   hl,hl          ; closed with ')' ?
+              ret                  ; done
+
+; Evaluate '-' sign
+              ld    d,0x7D         ; Priority for '-' sign
+              call  0x233A         ; Evaluate expression with priority in DE. If not
+              ld    hl,(SAVP)      ; load program pointer
+              push  hl             ; and on stack
+              call  VNEG           ; Result * (-1)
+              pop   hl             ; reload program pointer
+              ret                  ; done
+
+; Include variable value in expression
+; Determine variable in variable table
+; Var.Tab.-Addr. in DE. If not
+              call  VARPTR_FIND_OR_CREATE ; determine variable in variable table
+              push  hl             ; program pointer on stack
+              ex    de,hl          ; Var.Tab.-Addr. in HL
+              ld    (FACLO),hl     ; and in X as string pointer
+              rst   0x20           ; String variable ?
+              call  nz,VMOVFM      ; no, variable value in X
+              pop   hl             ; reload program pointer
+              ret                  ; done
+
+; Evaluate function arguments and jump to function routines
+              ld    b,0x00         ; B = 0
+              rlca                 ; A = (Token - D7H) * 2
+              ld    c,a            ; in BC as table offset
+              push  bc             ; save on stack
+              rst   0x10           ; address next character
+              ld    a,c            ; LSB Tab-Offset > 41H ?
+              cp    0x41           ; (MID$, RIGHT$ o. LEFT$)
+              jr    c,$+24         ; no!
+              call  EVAL_EXPR_START ; 1. evaluate argument
+              rst   8              ; follows a comma ?
               inc   l
-              call  CHKSTR
-              ex    de,hl
-              ld    hl,(FACLO)
-              ex    (sp),hl
-              push  hl
-              ex    de,hl
-              call  0x2B1C
-              ex    de,hl
-              ex    (sp),hl
-              jr    $+22
-              call  0x252C
-              ex    (sp),hl
-              ld    a,l
-              cp    0x0C
-              jr    c,$+9
-              cp    0x1B
-              push  hl
-              call  c,FRCSNG
-              pop   hl
-              ld    de,0x253E
+              call  CHKSTR         ; 1. argument not a string? TM-Error
+              ex    de,hl          ; program pointer in DE
+              ld    hl,(FACLO)     ; load string pointer
+              ex    (sp),hl        ; load Tab.Offset, string ptr on stk.
+              push  hl             ; load Tab.Offset also back on stack
+              ex    de,hl          ; program pointer back in HL
+
+; 2. argument analyze
+; integer value (< 256) in A
+              call  0x2B1C         ; 2. argument analyze
+              ex    de,hl          ; 2. Arg. in HL, program pointer in DE
+              ex    (sp),hl        ; Tab.Offset load, 2.Arg. on stack
+              jr    $+22           ; continue at 2583H
+              call  0x252C         ; evaluate argument
+              ex    (sp),hl        ; load Tab.Offset, prog ptr on stack
+              ld    a,l            ; LSB Tab.Offset < 0CH ?
+              cp    0x0C           ; (SGN, INT, ABS, FRE, INP, POS)
+              jr    c,$+9          ; yes!
+
+; LSB Tab.Offset < 1BH ?
+; (SQR, RND, LOG, EXP, COS, SIN, TAN, ATN)
+              cp    0x1B           ; LSB Tab.Offset < 1BH ?
+              push  hl             ; Tab.Offset on stack
+              call  c,FRCSNG       ; yes, argument in single precision
+              pop   hl             ; reload Tab.Offset
+              ld    de,0x253E      ; set return address
               push  de
-              ld    bc,0x1608
-              add   hl,bc
-              ld    c,(hl)
+              ld    bc,0x1608      ; starting address of the jump table
+              add   hl,bc          ; + table offset
+              ld    c,(hl)         ; load jump address
               inc   hl
               ld    h,(hl)
               ld    l,c
-              jp    (hl)
-              call  0x29D7
-              ld    a,(hl)
+              jp    (hl)           ; jump to function routine
+
+; String comparison
+; 2. string from temporary storage
+; and remove string area
+              call  0x29D7         ; 2. string from temporary storage
+              ld    a,(hl)         ; length 2. string in A
               inc   hl
-              ld    c,(hl)
+              ld    c,(hl)         ; address 2. string in BC
               inc   hl
               ld    b,(hl)
               pop   de
-              push  bc
-              push  af
-              call  0x29DE
-              pop   de
-              ld    e,(hl)
+              push  bc             ; address 1. string in DE
+
+; address 2. string on stack
+; length 2. string on stack
+              push  af             ; address 2. string on stack
+              call  0x29DE         ; 1. string from temporary storage
+              pop   de             ; and remove string area
+
+; length 2. string to D
+; length 1. string to E
+              ld    e,(hl)         ; length 2. string to D
               inc   hl
               ld    c,(hl)
-              inc   hl
+              inc   hl             ; address 1. string in BC
               ld    b,(hl)
-              pop   hl
-              ld    a,e
+              pop   hl             ; address 2. string in HL
+              ld    a,e            ; both strings empty?
               or    d
-              ret   z
-              ld    a,d
+              ret   z              ; yes, back with A=0 (equal)
+              ld    a,d            ; length 2. string = 0?
               sub   0x01
-              ret   c
-              xor   a
+              ret   c              ; yes, back with A=FF, Cy=1, S=1 (string 1 > string 2)
+              xor   a              ; 2. string = empty?
               cp    e
               inc   a
-              ret   nc
-              dec   d
+              ret   nc             ; yes, back with A=1, Z=0, Cy=0 (string 1 < string 2)
+              dec   d              ; both string lengths - 1
               dec   e
-              ld    a,(bc)
-              cp    (hl)
-              inc   hl
+              ld    a,(bc)         ; load character from 1. string
+              cp    (hl)           ; compare with character from 2. string
+              inc   hl             ; string pointer + 1
               inc   bc
-              jr    z,$-17
-              ccf   
-              jp    SIGNS
-              inc   a
-              adc   a,a
-              pop   bc
-              and   b
-              add   a,0xFF
-              sbc   a,a
-              call  CONIA
-              jr    $+20
-              ld    d,0x5A
-              call  0x233A
-              call  FRCINT
-              ld    a,l
-              cpl   
+              jr    z,$-17         ; both characters same, continue
+              ccf                  ; complement carry
+              jp    SIGNS          ; prepare flag, done
+
+; Summarize result of the comparison with the comparison operator to the 
+; overall result
+              inc   a              ; comparison result + 1
+              adc   a,a            ; *2 + Carry
+              pop   bc             ; load comparison operator code
+              and   b              ; does one bit match?
+              add   a,0xFF         ; yes, Carry = 1
+              sbc   a,a            ; and A=FF
+              call  CONIA          ; A as integer in X
+              jr    $+20           ; continue at 25D6H
+
+; Execute NOT
+              ld    d,0x5A         ; NOT priority in D
+              call  0x233A         ; Evaluate expression with priority
+              call  FRCINT         ; convert result to integer
+              ld    a,l            ; and invert
+              cpl                  ; (LSB)
               ld    l,a
               ld    a,h
-              cpl   
+              cpl                  ; (MSB)
               ld    h,a
-              ld    (FACLO),hl
-              pop   bc
-              jp    0x2346
-              ld    a,(VALTYP)
-              cp    0x08
-              jr    nc,$+7
-              sub   0x03
-              or    a
-              scf   
+              ld    (FACLO),hl     ; transfer to X
+              pop   bc             ; reload last priority
+              jp    0x2346         ; continue at 2346H
+
+; Restart 20
+; tests the data type of the X-register
+              ld    a,(VALTYP)     ; load type code
+              cp    0x08           ; double precision?
+              jr    nc,$+7         ; yes!
+              sub   0x03           ; Type code - 3
+              or    a              ; set flags
+              scf                  ; among others Carry=1
               ret   
-              sub   0x03
-              or    a
+              sub   0x03           ; Type code - 3
+              or    a              ; set flags
               ret   
+
+; Execute AND and OR
+              push  bc             ; last priority on stack
+              call  FRCINT         ; 2. convert operand to integer
+              pop   af             ; load priority in AF
+              pop   de             ; load 1. operand
+              ld    bc,0x27FA      ; set return address
               push  bc
-              call  FRCINT
-              pop   af
-              pop   de
-              ld    bc,0x27FA
-              push  bc
-              cp    0x46
-              jr    nz,$+8
-              ld    a,e
-              or    l
+              cp    0x46           ; AND ?
+              jr    nz,$+8         ; yes!
+              ld    a,e            ; both operands OR-linked
+              or    l              ; (LSB)
               ld    l,a
               ld    a,h
-              or    d
+              or    d              ; (MSB)
               ret   
-              ld    a,e
-              and   l
+              ld    a,e            ; both operands AND-linked
+              and   l              ; (LSB)
               ld    l,a
               ld    a,h
-              and   d
+              and   d              ; (MSB)
               ret   
-              dec   hl
-              rst   0x10
-              ret   z
-              rst   8
+              dec   hl             ; Program pointer - 1
+              rst   0x10           ; address next character
+              ret   z              ; end of statement? yes-return
+              rst   8              ; follows a comma ?
               inc   l
-              ld    bc,0x2603
+
+; DIM - Command / Set up arrays
+              ld    bc,DIM_NEXT_ARG ; return address for next argument
               push  bc
-              or    0xAF
-              ld    (0x78AE),a
-              ld    b,(hl)
-              call  ISLET
-              jp    c,SYNTAX_ERR_HANDLER
-              xor   a
+              DEFB  0xF6           ; set DIM flag
+
+; Search for variable in table and set up if not present
+              xor   a              ; clear DIM flag
+; Note: 260D redefined
+              ld    (DIMFLG),a     ; store DIM flag
+
+; Determine name
+              ld    b,(hl)         ; 1st character of variable name in B
+              call  ISLET          ; Letter ?
+              jp    c,SYNTAX_ERR_HANDLER ; no, SYNTAX ERROR
+              xor   a              ; clear (2nd character)
               ld    c,a
-              rst   0x10
-              jr    c,$+7
-              call  ISLET
-              jr    c,$+11
-              ld    c,a
-              rst   0x10
-              jr    c,$-1
-              call  ISLET
-              jr    nc,$-6
-              ld    de,0x2652
+              rst   0x10           ; load next character
+              jr    c,$+7          ; Digit ? yes-jump
+              call  ISLET          ; Letter?
+              jr    c,$+11         ; no, name only 1 letter
+              ld    c,a            ; 2nd character in C
+              rst   0x10           ; load next character
+              jr    c,$-1          ; Digit? yes-skip
+              call  ISLET          ; Letter?
+              jr    nc,$-6         ; yes, skip
+
+; Determine type
+              ld    de,0x2652      ; set return address
               push  de
-              ld    d,0x02
-              cp    0x25
-              ret   z
-              inc   d
-              cp    0x24
-              ret   z
+              ld    d,0x02         ; type code = Integer
+              cp    0x25           ; next character = '%' ?
+              ret   z              ; yes, done
+              inc   d              ; type code = String
+              cp    0x24           ; next character = '$' ?
+              ret   z              ; yes, done
+              nop                  ; 9 x NOP
               nop   
               nop   
               nop   
@@ -6478,433 +6564,524 @@ EVAL_EXPR_LOGIC:
               nop   
               nop   
               nop   
-              nop   
-              ld    a,b
+
+; Take type code from table
+              ld    a,b            ; Position of 1st letter in
+; alphabet
               sub   0x41
-              and   0x7F
-              ld    e,a
+              and   0x7F           ; clear bit 7
+              ld    e,a            ; as table offset in DE
               ld    d,0x00
-              push  hl
-              ld    hl,0x7901
-              add   hl,de
-              ld    d,(hl)
-              pop   hl
-              dec   hl
-              ret   
-              ld    a,d
-              ld    (VALTYP),a
-              rst   0x10
-              ld    a,(0x78DC)
-              or    a
-              jp    nz,0x2664
+              push  hl             ; save program pointer
+              ld    hl,0x7901      ; beginning of type code table addr.
+              add   hl,de          ; + Offset
+              ld    d,(hl)         ; load type code from table
+              pop   hl             ; reload program pointer
+              dec   hl             ; -1, as no explicit type specification
+              ret                  ; continue at 2652H
+              ld    a,d            ; transfer type code to type byte
+              ld    (VALTYP),a     ; (78AFH), A
+
+; Search for variable in variable table
+              rst   0x10           ; address next character
+              ld    a,(0x78DC)     ; Indexing locked ?
+              or    a              ; (for loop variable)
+              jp    nz,0x2664      ; yes!
               ld    a,(hl)
-              sub   0x28
-              jp    z,0x26E9
-              xor   a
+              sub   0x28           ; = '(' ?
+              jp    z,ARYMN        ; yes, indexed variable
+              xor   a              ; unlock indexing
               ld    (0x78DC),a
-              push  hl
-              push  de
-              ld    hl,(0x78F9)
+              push  hl             ; program pointer on stack
+              push  de             ; type code on stack
+              ld    hl,(0x78F9)    ; load beginning of variable table
               ex    de,hl
-              ld    hl,(0x78FB)
-              rst   0x18
-              pop   hl
-              jr    z,$+27
-              ld    a,(de)
-              ld    l,a
-              cp    h
+              ld    hl,(ARYTAB)    ; load end of variable table
+              rst   0x18           ; Addresses equal?
+              pop   hl             ; type code in H
+              jr    z,$+27         ; yes, variable not found
+              ld    a,(de)         ; load type from variable table
+              ld    l,a            ; = type of variable being sought ?
+              cp    h              ; no, next variable
               inc   de
-              jr    nz,$+13
-              ld    a,(de)
-              cp    c
-              jr    nz,$+9
-              inc   de
-              ld    a,(de)
-              cp    b
-              jp    z,0x26CC
-              ld    a,0x13
-              inc   de
-              push  hl
-              ld    h,0x00
-              add   hl,de
-              jr    $-31
-              ld    a,h
-              pop   hl
-              ex    (sp),hl
-              push  af
-              push  de
-              ld    de,0x24F1
-              rst   0x18
-              jr    z,$+56
-              ld    de,0x2543
-              rst   0x18
-              pop   de
-              jr    z,$+55
-              pop   af
-              ex    (sp),hl
-              push  hl
-              push  bc
-              ld    c,a
-              ld    b,0x00
-              push  bc
+              jr    nz,$+13        ; address Var.Table + 1
+              ld    a,(de)         ; load 2nd character from table
+              cp    c              ; = 2nd character of variable?
+              jr    nz,$+9         ; no, next variable
+              inc   de             ; address Var.Table + 1
+              ld    a,(de)         ; load 1st character from table
+              cp    b              ; = 1st character of variable?
+              jp    z,0x26CC       ; yes, variable found!
+              DEFB  0x3E           ; LD A, 0x13 dummy command
+              inc   de             ; address Var.Table at 1st character
+              inc   de             ; address Var.Table at value
+              push  hl             ; type of sought variable on stack
+              ld    h,0x00         ; address of Var.Table
+              add   hl,de          ; + length of type = next entry
+              jr    $-31           ; search further
+
+; Variable not contained in variable table
+              ld    a,h            ; Typ in A
+              pop   hl             ; load program pointer
+              ex    (sp),hl        ; swap with return address
+              push  af             ; type on stack
+              push  de             ; end address of Var.Tab. on stack
+              ld    de,0x24F1      ; return address = 24F1H?
+              rst   0x18           ; (from VARPTR)
+              jr    z,$+56         ; yes, continue at 26CFH
+              ld    de,0x2543      ; return address = 2543H?
+              rst   0x18           ; (from expression analysis)
+              pop   de             ; reload Var.Tab. end address
+              jr    z,$+55         ; yes, continue at 26D5H
+
+; Set up new variable
+              pop   af             ; load type
+
+; return address on stack
+; load program pointer
+              ex    (sp),hl        ; load program pointer
+              push  hl             ; program pointer on the stack
+              push  bc             ; variable name on the stack
+              ld    c,a            ; type in C
+              ld    b,0x00         ; B=0, i.e. BC contains length of value
+              push  bc             ; length on the stack
+              inc   bc             ; + 3
               inc   bc
-              inc   bc
-              inc   bc
-              ld    hl,(0x78FD)
-              push  hl
-              add   hl,bc
-              pop   bc
-              push  hl
-              call  MAKE_SPACE
-              pop   hl
-              ld    (0x78FD),hl
-              ld    h,b
+              inc   bc             ; = total length of Var.Tab entry
+              ld    hl,(STREND)    ; starting address of free memory
+              push  hl             ; on the stack
+              add   hl,bc          ; + total length Var.Tab entry
+              pop   bc             ; load value length
+              push  hl             ; new starting address free memory on stack
+              call  MAKE_SPACE     ; move array table to make room for new variable
+              pop   hl             ; reload starting address free memory
+              ld    (STREND),hl    ; and save
+              ld    h,b            ; new starting address array table in HL
               ld    l,c
-              ld    (0x78FB),hl
-              dec   hl
-              ld    (hl),0x00
-              rst   0x18
-              jr    nz,$-4
-              pop   de
-              ld    (hl),e
-              inc   hl
-              pop   de
-              ld    (hl),e
-              inc   hl
-              ld    (hl),d
-              ex    de,hl
-              inc   de
-              pop   hl
-              ret   
-              ld    d,a
+              ld    (ARYTAB),hl    ; and save
+              dec   hl             ; delete new Var.Tab entry
+              ld    (hl),0x00      ; (DE = Var.Tab-Adr of the variables)
+              rst   0x18           ; done ?
+              jr    nz,$-4         ; no, next byte
+              pop   de             ; load type in E
+              ld    (hl),e         ; enter in variable table
+              inc   hl             ; Tabellenadresse + 1
+              pop   de             ; get name from stack
+              ld    (hl),e         ; 2nd character in Var.Table
+              inc   hl             ; Tabellenadresse + 1
+              ld    (hl),d         ; 1st character in Var.Table
+              ex    de,hl          ; address Var.Table in DE
+              inc   de             ; + 1 = address for value entry
+              pop   hl             ; load program pointer
+              ret                  ; done
+
+; at VARPTR variable not in table
+              ld    d,a            ; Var.Tab address in DE = 0
               ld    e,a
+              pop   af             ; fix stack
               pop   af
-              pop   af
-              ex    (sp),hl
-              ret   
-              ld    (FAC),a
-              pop   bc
-              ld    h,a
+
+; return address on stack
+; load program pointer
+              ex    (sp),hl        ; load program pointer
+              ret                  ; back to VARPTR routine
+
+; at expression analysis variable not in table
+              ld    (FAC),a        ; X = 0 for single and double precision
+              pop   bc             ; fix stack
+              ld    h,a            ; HL = 0 for Integer
               ld    l,a
-              ld    (FACLO),hl
-              rst   0x20
-              jr    nz,$+8
-              ld    hl,0x1928
-              ld    (FACLO),hl
-              pop   hl
-              ret   
-              push  hl
-              ld    hl,(0x78AE)
-              ex    (sp),hl
-              ld    d,a
-              push  de
-              push  bc
-              call  GETVAL
-              pop   bc
-              pop   af
-              ex    de,hl
-              ex    (sp),hl
-              push  hl
-              ex    de,hl
-              inc   a
-              ld    d,a
-              ld    a,(hl)
-              cp    0x2C
-              jr    z,$-16
-              rst   8
+              ld    (FACLO),hl     ; and also enter in X
+              rst   0x20           ; determine type
+              jr    nz,$+8         ; String? no-jump
+              ld    hl,0x1928      ; string pointer to empty string
+              ld    (FACLO),hl     ; enter in X
+              pop   hl             ; load program pointer
+              ret                  ; back to expression analysis (2 stages)
+
+; Matrix Management
+ARYMN:
+              push  hl             ; Save program pointer on stack
+              ld    hl,(DIMFLG)    ; Load DIM flag and type
+              ex    (sp),hl        ; Swap with program pointer
+              ld    d,a            ; DIM counter = 0
+              push  de             ; DIM counter on stack
+              push  bc             ; Variable name on stack
+
+; result: Result (<32768) in DE
+              call  GETVAL         ; Evaluate indexing
+              pop   bc             ; Load variable name
+              pop   af             ; DIM counter in A
+              ex    de,hl          ; Index value in HL
+              ex    (sp),hl        ; Swap with DIM flag on stack
+              push  hl             ; DIM flag and type on stack
+              ex    de,hl          ; Index pointer in HL
+              inc   a              ; DIM counter + 1
+              ld    d,a            ; and in D
+              ld    a,(hl)         ; Load character
+              cp    0x2C           ; Does a comma follow?
+              jr    z,$-16         ; Yes, next index value
+              rst   8              ; Does a ')' follow?
               add   hl,hl
-              ld    (0x78F3),hl
-              pop   hl
-              ld    (0x78AE),hl
-              push  de
-              ld    hl,(0x78FB)
-              ld    a,0x19
-              ex    de,hl
-              ld    hl,(0x78FD)
-              ex    de,hl
-              rst   0x18
-              ld    a,(VALTYP)
-              jr    z,$+41
-              cp    (hl)
-              inc   hl
-              jr    nz,$+10
-              ld    a,(hl)
-              cp    c
-              inc   hl
-              jr    nz,$+6
-              ld    a,(hl)
-              cp    b
-              ld    a,0x23
-              inc   hl
-              ld    e,(hl)
-              inc   hl
+              ld    (SAVP),hl      ; Save program pointer
+              pop   hl             ; Load DIM flag and type
+              ld    (DIMFLG),hl    ; and save
+              push  de             ; DIM counter on stack
+              ld    hl,(ARYTAB)    ; Address start of matrix table
+              DEFB  0x3E           ; Dummy instruction
+              add   hl,de          ; Add matrix length to table pointer
+              ex    de,hl          ; Address of matrix table in HL
+              ld    hl,(STREND)    ; Load start address of free memory
+              ex    de,hl          ; Swap addresses
+              rst   0x18           ; Addresses equal?
+              ld    a,(VALTYP)     ; Load type
+              jr    z,$+41         ; Yes, matrix not found!
+              cp    (hl)           ; Type = with table entry?
+              inc   hl             ; Table address + 1
+              jr    nz,$+10        ; No, next table entry
+              ld    a,(hl)         ; 2nd character of name from table
+              cp    c              ; = 2nd character of searched matrix?
+              inc   hl             ; Table address + 1
+              jr    nz,$+6         ; No, next table entry
+              ld    a,(hl)         ; 1st character of name from table
+              cp    b              ; = 1st character of searched matrix?
+              DEFB  0x3E           ; Dummy instruction
+              inc   hl             ; Table address + 1
+              inc   hl             ; Table address + 1
+              ld    e,(hl)         ; Load matrix length
+              inc   hl             ; Table address + 1
               ld    d,(hl)
-              inc   hl
-              jr    nz,$-30
-              ld    a,(0x78AE)
+              inc   hl             ; Table address + 1
+              jr    nz,$-30        ; Character unequal! Next table entry
+
+; Matrix Found
+ARYFND:
+              ld    a,(DIMFLG)     ; DIM flag set?
               or    a
-              ld    e,0x12
-              jp    nz,ERROR_HANDLER
-              pop   af
-              sub   (hl)
-              jp    z,0x2795
-              ld    e,0x10
-              jp    ERROR_HANDLER
-              ld    (hl),a
-              inc   hl
-              ld    e,a
+              ld    e,0x12         ; Error code in E
+              jp    nz,ERROR_HANDLER ; Yes, REDIMENSIONED ARRAY - Error
+              pop   af             ; Load DIM counter
+              sub   (hl)           ; Number of dimensions in found matrix?
+              jp    z,ARYADR       ; Yes, continue at 2795H
+              ld    e,0x10         ; No, SUBSCRIPT OUT OF RANGE - Error
+              jp    ERROR_HANDLER  ; To error output routine
+
+; Setup New Matrix
+ARYINI:
+              ld    (hl),a         ; Save type
+              inc   hl             ; Table address + 1
+              ld    e,a            ; Length of an element (=type) in DE
               ld    d,0x00
-              pop   af
-              ld    (hl),c
-              inc   hl
-              ld    (hl),b
-              inc   hl
-              ld    c,a
-              call  CHECK_FREE_MEMORY
-              inc   hl
-              inc   hl
-              ld    (FMT_FLAG),hl
-              ld    (hl),c
-              inc   hl
-              ld    a,(0x78AE)
+              pop   af             ; Load DIM counter
+              ld    (hl),c         ; 2nd character matrix name in table
+              inc   hl             ; Table address + 1
+              ld    (hl),b         ; 1st character matrix name in table
+              inc   hl             ; Table pointer + 1
+              ld    c,a            ; DIM counter in C
+              call  CHECK_FREE_MEMORY ; Still 2*DIM counter bytes free?
+              inc   hl             ; Table address + 2
+              inc   hl             ; Behind length entry
+              ld    (FMT_FLAG),hl  ; Save table address
+              ld    (hl),c         ; DIM counter in table
+              inc   hl             ; Table address + 1
+              ld    a,(DIMFLG)     ; Shift DIM flag into Carry
               rla   
-              ld    a,c
-              ld    bc,ROMRET
-              jr    nc,$+4
-              pop   bc
-              inc   bc
-              ld    (hl),c
-              inc   hl
+              ld    a,c            ; DIM counter in A
+              ld    bc,ROMRET      ; Dimension = 11 (Standard)
+              jr    nc,$+4         ; No DIM, jump
+              pop   bc             ; Dimension from stack in BC
+              inc   bc             ; + 1 for 0-index
+              ld    (hl),c         ; Enter in table
+              inc   hl             ; Table address + 1
               ld    (hl),b
-              inc   hl
-              push  af
-              call  UMULT
-              pop   af
-              dec   a
-              jr    nz,$-17
-              push  af
-              ld    b,d
+              inc   hl             ; Table address + 1
+              push  af             ; DIM counter on stack
+              call  UMULT          ; Last matrix value length * dimension
+              pop   af             ; Load DIM counter
+              dec   a              ; - 1
+              jr    nz,$-17        ; Further dimensions? Yes - jump
+              push  af             ; DIM flag (Carry) on stack
+              ld    b,d            ; Matrix value length in BC
               ld    c,e
-              ex    de,hl
-              add   hl,de
-              jr    c,$-55
-              call  0x196C
-              ld    (0x78FD),hl
+
+; (now on 1st value byte)
+              ex    de,hl          ; To table address
+              add   hl,de          ; Add
+              jr    c,$-55         ; Overflow, SUBSCRIPT OUT OF RANGE
+
+; no, OUT OF MEMORY - Error
+              call  0x196C         ; Sufficient memory free?
+              ld    (STREND),hl    ; New start address 'free memory'
+              dec   hl             ; Delete matrix values
+              ld    (hl),0x00      ; By writing 00
+              rst   0x18           ; Value start address reached?
+              jr    nz,$-4         ; No, next byte
+              inc   bc             ; Matrix value length +1 (for DIM counter)
+              ld    d,a            ; D = 0
+              ld    hl,(FMT_FLAG)  ; Load address of DIM counter
+              ld    e,(hl)         ; DIM counter in E
+              ex    de,hl          ; and in HL
+              add   hl,hl          ; DIM counter * 2
+              add   hl,bc          ; + matrix value length
+              ex    de,hl          ; = Matrix length (in DE)
+              dec   hl             ; Table address - 2
               dec   hl
-              ld    (hl),0x00
-              rst   0x18
-              jr    nz,$-4
-              inc   bc
-              ld    d,a
-              ld    hl,(FMT_FLAG)
-              ld    e,(hl)
-              ex    de,hl
-              add   hl,hl
-              add   hl,bc
-              ex    de,hl
-              dec   hl
-              dec   hl
-              ld    (hl),e
-              inc   hl
+
+; matrix length enter in table
+              ld    (hl),e         ; = Pointer to length field
+              inc   hl             ; Table address + 1
               ld    (hl),d
-              inc   hl
-              pop   af
-              jr    c,$+50
-              ld    b,a
-              ld    c,a
-              ld    a,(hl)
-              inc   hl
-              ld    d,0xE1
-              ld    e,(hl)
-              inc   hl
+              inc   hl             ; Table address + 1
+              pop   af             ; Load DIM flag
+              jr    c,$+50         ; DIM? Yes - done
+
+; Determine Address of Matrix Element
+ARYADR:
+              ld    b,a            ; Set matrix offset = 0
+              ld    c,a            ; in BC
+              ld    a,(hl)         ; Number of dimensions in A
+              inc   hl             ; Table pointer on 1st dimension
+              DEFB  0x16           ; Dummy instruction
+              pop   hl             ; Load table address
+              ld    e,(hl)         ; Load dimension
+              inc   hl             ; Table pointer + 1
               ld    d,(hl)
-              inc   hl
-              ex    (sp),hl
-              push  af
-              rst   0x18
-              jp    nc,0x273D
-              call  UMULT
-              add   hl,de
+              inc   hl             ; Table pointer + 1
+
+; Index load
+              ex    (sp),hl        ; Table pointer on the stack
+              push  af             ; DIM counter on the stack
+              rst   0x18           ; Index >= Dimension?
+              jp    nc,0x273D      ; Yes, SUBSCRIPT OUT OF RANGE - Error
+              call  UMULT          ; Matrix offset * Dimension
+              add   hl,de          ; + Index = new matrix offset
               pop   af
-              dec   a
-              ld    b,h
+              dec   a              ; All dimensions processed?
+              ld    b,h            ; New matrix offset in BC
               ld    c,l
-              jr    nz,$-19
-              ld    a,(VALTYP)
-              ld    b,h
+              jr    nz,$-19        ; Yet further dimensions, back
+              ld    a,(VALTYP)     ; Load type (= value length)
+              ld    b,h            ; New matrix offset in BC
               ld    c,l
-              add   hl,hl
-              sub   0x04
-              jr    c,$+6
-              add   hl,hl
-              jr    z,$+8
-              add   hl,hl
-              or    a
-              jp    po,0x27C2
-              add   hl,bc
-              pop   bc
-              add   hl,bc
-              ex    de,hl
-              ld    hl,(0x78F3)
-              ret   
-              xor   a
-              push  hl
+              add   hl,hl          ; Matrix offset * 2
+              sub   0x04           ; String or Integer?
+              jr    c,$+6          ; Yes!
+              add   hl,hl          ; Matrix offset * 4
+              jr    z,$+8          ; Single precision? Yes - jump
+              add   hl,hl          ; Matrix offset * 8 (double precision)
+              or    a              ; Integer or double precision?
+              jp    po,0x27C2      ; Yes!
+              add   hl,bc          ; String, 3 * matrix offset in HL
+              pop   bc             ; Load value start address
+              add   hl,bc          ; Add matrix offset
+              ex    de,hl          ; = element address, transfer in DE
+              ld    hl,(SAVP)      ; Load program pointer
+              ret                  ; Done
+
+; MEM Function
+; Determine size of free memory
+MEM:
+              xor   a              ; Type byte = 0 (no string!)
+              push  hl             ; Program pointer on stack
               ld    (VALTYP),a
-              call  0x27D4
-              pop   hl
-              rst   0x10
-              ret   
-              ld    hl,(0x78FD)
-              ex    de,hl
-              ld    hl,START
-              add   hl,sp
+              call  FRE            ; Call FRE
+              pop   hl             ; Load program pointer
+              rst   0x10           ; Address next character
+              ret                  ; done
+
+; FRE Function
+; Determine size of free memory or free string space
+FRE:
+              ld    hl,(STREND)    ; Starting address of free memory
+              ex    de,hl          ; in DE
+              ld    hl,START       ; Stack pointer in HL
+              add   hl,sp          ; Test type. String?
               rst   0x20
-              jr    nz,$+15
-              call  0x29DA
-              call  0x28E6
-              ld    hl,(0x78A0)
-              ex    de,hl
-              ld    hl,(0x78D6)
-              ld    a,l
-              sub   e
+              jr    nz,$+15        ; no!
+              call  0x29DA         ; Remove argument from temporary buffer and string space
+              call  0x28E6         ; Reorder string space, remove redundant strings
+              ld    hl,(STKTOP)    ; String space start - 1
+              ex    de,hl          ; in DE
+              ld    hl,(FRETOP)    ; Last free byte of the string space
+              ld    a,l            ; Difference between HL and DE
+              sub   e              ; = Size of free memory or free string space
               ld    l,a
-              ld    a,h
+              ld    a,h            ; (MSB)
               sbc   a,d
               ld    h,a
-              jp    INEG_OVERFLOW
-              ld    a,(0x78A6)
-              ld    l,a
-              xor   a
-              ld    h,a
-              jp    MAKINT
-              call  0x79A9
-              rst   0x10
-              call  0x252C
-              push  hl
-              ld    hl,0x0890
-              push  hl
+              jp    INEG_OVERFLOW  ; HL with single precision in X, done
+
+; POS Function
+; Determines the cursor position
+POS:
+              ld    a,(TTYPOS)     ; Load cursor position
+              ld    l,a            ; Number in L
+              xor   a              ; A = 0
+              ld    h,a            ; H = 0
+              jp    MAKINT         ; HL as integer in X
+
+; USR Function
+; Call a machine language routine
+; The argument in X and the type in A are passed as parameters
+; and for strings, the address of the string is passed in DE.
+USR:
+              call  0x79A9         ; RAM expansion exit
+              rst   0x10           ; Next character in the program
+              call  0x252C         ; Evaluate argument (in X)
+              push  hl             ; Program pointer on the stack
+              ld    hl,0x0890      ; Return address on the stack
+              push  hl             ; Load type of argument
               ld    a,(VALTYP)
-              push  af
-              cp    0x03
-              call  z,0x29DA
-              pop   af
-              ex    de,hl
-              ld    hl,(0x788E)
-              jp    (hl)
-              push  hl
-              and   0x07
-              ld    hl,0x18A1
-              ld    c,a
-              ld    b,0x00
-              add   hl,bc
-              call  0x2586
-              pop   hl
-              ret   
-              push  hl
-              ld    hl,(0x78A2)
-              inc   hl
-              ld    a,h
+              push  af             ; on the stack
+              cp    0x03           ; is string?
+              call  z,0x29DA       ; yes, remove last string from temporary buffer and string space
+              pop   af             ; Reload type
+              ex    de,hl          ; String address in DE
+              ld    hl,(0x788E)    ; Start address of the machine language routine
+              jp    (hl)           ; Jump to routine
+
+; Convert value to desired type
+CONVRT:
+              push  hl             ; HL on the stack
+              and   0x07           ; Type=double precision, 0 as table offset
+              ld    hl,0x18A1      ; Jump table for type conversion
+              ld    c,a            ; Table offset (=type, except for double)
+              ld    b,0x00         ; in BC
+              add   hl,bc          ; Add to jump table start
+              call  0x2586         ; Add again, load address and jump
+              pop   hl             ; Restore HL
+              ret                  ; done
+
+; Check if execution is in DIRECT mode.
+; if so, ILLEGAL DIRECT OPERATION - Error
+DIRCHK:
+              push  hl             ; Program pointer on the stack
+              ld    hl,(0x78A2)    ; Load current line number
+              inc   hl             ; (FFFF = ?)
+              ld    a,h            ; (=Direct mode)
               or    l
-              pop   hl
-              ret   nz
-              ld    e,0x16
-              jp    ERROR_HANDLER
-              call  PUSTR_UNFORM_INIT
-              call  0x2865
-              call  0x29DA
-              ld    bc,0x2A2B
-              push  bc
-              ld    a,(hl)
-              inc   hl
-              push  hl
-              call  0x28BF
-              pop   hl
-              ld    c,(hl)
-              inc   hl
-              ld    b,(hl)
-              call  0x285A
-              push  hl
-              ld    l,a
-              call  0x29CE
-              pop   de
-              ret   
-              call  0x28BF
-              ld    hl,0x78D3
-              push  hl
-              ld    (hl),a
-              inc   hl
-              ld    (hl),e
+              pop   hl             ; Load program pointer
+              ret   nz             ; no, return
+              ld    e,0x16         ; Error code in E
+              jp    ERROR_HANDLER  ; Display ILLEGAL DIRECT OPERATION
+
+; STR$ Function
+; Convert number to string
+STRS:
+              call  PUSTR_UNFORM_INIT ; Convert number to string
+              call  STRFDESC       ; Take string into temporary buffer and X
+              call  0x29DA         ; Remove string from temporary buffer
+              ld    bc,0x2A2B      ; Set return address
+              push  bc             ; BC
+              ld    a,(hl)         ; String length in A
+              inc   hl             ; HL
+              push  hl             ; String pointer on the stack
+              call  STR_RES_SPACE  ; Reserve space for string in string space
+              pop   hl             ; Load string pointer
+              ld    c,(hl)         ; Load string address
+              inc   hl             ; (in BC)
+              ld    b,(hl)         ; BC
+              call  0x285A         ; Transfer address in string space to temporary buffer
+              push  hl             ; Temporary buffer address on stack
+              ld    l,a            ; String length in L
+              call  0x29CE         ; Transfer string to string space
+              pop   de             ; Load temporary buffer address
+              ret                  ; Temporary buffer in X, done
+
+; Determine address in string space and store in temporary buffer
+STRINI:
+              call  STR_RES_SPACE  ; Reserve space in string space
+              ld    hl,DSCTMP      ; Addr. of the temporary buffer
+              push  hl             ; on the stack
+              ld    (hl),a         ; Enter string length
+              inc   hl             ; Temporary buffer addr. + 1
+              ld    (hl),e         ; Enter string address
               inc   hl
               ld    (hl),d
-              pop   hl
-              ret   
-              dec   hl
-              ld    b,0x22
-              ld    d,b
-              push  hl
-              ld    c,0xFF
-              inc   hl
-              ld    a,(hl)
-              inc   c
-              or    a
-              jr    z,$+8
-              cp    d
-              jr    z,$+5
-              cp    b
-              jr    nz,$-10
-              cp    0x22
-              call  z,CHRGTR
-              ex    (sp),hl
-              inc   hl
-              ex    de,hl
-              ld    a,c
-              call  0x285A
-              ld    de,0x78D3
-              ld    a,0xD5
-              ld    hl,(0x78B3)
-              ld    (FACLO),hl
-              ld    a,0x03
+              pop   hl             ; Load address of temporary buffer
+              ret                  ; done
+
+; Take string constant into temporary buffer and X
+STRFDESC:
+              dec   hl             ; String pointer - 1
+              ld    b,0x22         ; Delimiter 1 = '\
+              ld    d,b            ; = Delimiter 2
+              push  hl             ; String pointer - 1 on stack
+              ld    c,0xFF         ; Character counter = -1
+              inc   hl             ; String pointer + 1
+              ld    a,(hl)         ; Load character
+              inc   c              ; Character counter + 1
+              or    a              ; End of line?
+              jr    z,$+8          ; yes, end of string
+              cp    d              ; = Delimiter 2?
+              jr    z,$+5          ; yes, end of string
+              cp    b              ; Delimiter 1?
+              jr    nz,$-10        ; no, next character
+              cp    0x22           ; Last character '\
+              call  z,CHRGTR       ; yes, next character
+              ex    (sp),hl        ; Load string pointer - 1, current string pointer on stack
+              inc   hl             ; String pointer + 1
+              ex    de,hl          ; in DE
+              ld    a,c            ; String length in A
+              call  0x285A         ; String in temporary buffer
+              ld    de,DSCTMP      ; Addr. of the temporary buffer
+              DEFB  0x3E           ; LD A, 0D5H dummy command
+              push  de             ; Load string pointer in DE
+              ld    hl,(TEMPPT)    ; Load current temporary buffer address
+              ld    (FACLO),hl     ; Enter in X
+              ld    a,0x03         ; Set type = String
               ld    (VALTYP),a
-              call  VMOVE
-              ld    de,0x78D6
-              rst   0x18
-              ld    (0x78B3),hl
-              pop   hl
-              ld    a,(hl)
-              ret   nz
-              ld    e,0x1E
-              jp    ERROR_HANDLER
-              inc   hl
-              call  0x2865
-              call  0x29DA
-              call  GETBCD
-              inc   d
-              dec   d
-              ret   z
-              ld    a,(bc)
-              call  CHAR_OUTPUT_DISPATCH
-              cp    0x0D
-              call  z,0x2103
-              inc   bc
-              jr    $-12
-              or    a
-              ld    c,0xF1
-              push  af
-              ld    hl,(0x78A0)
-              ex    de,hl
-              ld    hl,(0x78D6)
-              cpl   
-              ld    c,a
-              ld    b,0xFF
-              add   hl,bc
-              inc   hl
-              rst   0x18
-              jr    c,$+9
-              ld    (0x78D6),hl
+              call  VMOVE          ; Transfer temporary buffer to next temporary buffer location
+              ld    de,FRETOP      ; Temporary buffer full?
+              rst   0x18           ; RST 18H
+              ld    (TEMPPT),hl    ; Store next temporary buffer addr.
+              pop   hl             ; Load program pointer
+              ld    a,(hl)         ; Load next character
+              ret   nz             ; Temp. buffer not full, done
+
+; STRING FORMULA TOO COMPLEX - Error
+STCPERR:
+              ld    e,0x1E         ; Error code in E
+              jp    ERROR_HANDLER  ; Display error message
+
+; Print string
+; String terminated by '\
+STROUT:
+              inc   hl             ; String address + 1
+              call  STRFDESC       ; String in temporary buffer + X
+              call  0x29DA         ; Remove string from temporary buffer
+              call  GETBCD         ; String addr. in BC, length in D
+              inc   d              ; String length + 1
+              dec   d              ; All characters displayed?
+              ret   z              ; yes, done
+              ld    a,(bc)         ; Load character
+              call  CHAR_OUTPUT_DISPATCH ; and display
+              cp    0x0D           ; Carriage Return?
+              call  z,0x2103       ; yes, back via RAM output 79D0H
+              inc   bc             ; String address + 1
+              jr    $-12           ; Next character
+
+; Reserve space for a string in string space
+STR_RES_SPACE:
+              or    a              ; Clear PACK flag
+              DEFB  0x0E           ; LD C, 0F1H dummy command
+              pop   af             ; Load PACK flag from stack
+              push  af             ; on the stack
+              ld    hl,(STKTOP)    ; Start of the string space - 1
+              ex    de,hl          ; in DE
+              ld    hl,(FRETOP)    ; Pointer to 1st free byte in string space
+              cpl                  ; Complement string length
+              ld    c,a            ; and in BC
+              ld    b,0xFF         ; LD B, 0FFH
+              add   hl,bc          ; String space pointer - length
+              inc   hl             ; + 1 (result correction)
+              rst   0x18           ; Start of the string space - 1?
+              jr    c,$+9          ; yes, pack string space
+              ld    (FRETOP),hl    ; Store new string space pointer
               inc   hl
               ex    de,hl
               pop   af
-              ret   
+              ret                  ; done
               pop   af
               ld    e,0x1A
               jp    z,ERROR_HANDLER
@@ -6912,22 +7089,22 @@ EVAL_EXPR_LOGIC:
               push  af
               ld    bc,0x28C1
               push  bc
-              ld    hl,(0x78B1)
-              ld    (0x78D6),hl
+              ld    hl,(MEMSIZ)
+              ld    (FRETOP),hl
               ld    hl,START
               push  hl
-              ld    hl,(0x78A0)
+              ld    hl,(STKTOP)
               push  hl
-              ld    hl,0x78B5
+              ld    hl,TEMPST
               ex    de,hl
-              ld    hl,(0x78B3)
+              ld    hl,(TEMPPT)
               ex    de,hl
               rst   0x18
               ld    bc,0x28F7
               jp    nz,0x294A
               ld    hl,(0x78F9)
               ex    de,hl
-              ld    hl,(0x78FB)
+              ld    hl,(ARYTAB)
               ex    de,hl
               rst   0x18
               jr    z,$+21
@@ -6945,7 +7122,7 @@ EVAL_EXPR_LOGIC:
               jr    $-24
               pop   bc
               ex    de,hl
-              ld    hl,(0x78FD)
+              ld    hl,(STREND)
               ex    de,hl
               rst   0x18
               jp    z,0x296B
@@ -6980,7 +7157,7 @@ EVAL_EXPR_LOGIC:
               ret   z
               ld    b,h
               ld    c,l
-              ld    hl,(0x78D6)
+              ld    hl,(FRETOP)
               rst   0x18
               ld    h,b
               ld    l,c
@@ -7019,7 +7196,7 @@ EVAL_EXPR_LOGIC:
               dec   hl
               ld    b,h
               ld    c,l
-              ld    hl,(0x78D6)
+              ld    hl,(FRETOP)
               call  0x1958
               pop   hl
               ld    (hl),c
@@ -7043,7 +7220,7 @@ EVAL_EXPR_LOGIC:
               add   a,(hl)
               ld    e,0x1C
               jp    c,ERROR_HANDLER
-              call  0x2857
+              call  STRINI
               pop   de
               call  0x29DE
               ex    (sp),hl
@@ -7084,15 +7261,15 @@ EVAL_EXPR_LOGIC:
               ld    e,c
               dec   de
               ld    c,(hl)
-              ld    hl,(0x78D6)
+              ld    hl,(FRETOP)
               rst   0x18
               jr    nz,$+7
               ld    b,a
               add   hl,bc
-              ld    (0x78D6),hl
+              ld    (FRETOP),hl
               pop   hl
               ret   
-              ld    hl,(0x78B3)
+              ld    hl,(TEMPPT)
               dec   hl
               ld    b,(hl)
               dec   hl
@@ -7100,7 +7277,7 @@ EVAL_EXPR_LOGIC:
               dec   hl
               rst   0x18
               ret   nz
-              ld    (0x78B3),hl
+              ld    (TEMPPT),hl
               ret   
               ld    bc,0x27F8
               push  bc
@@ -7121,7 +7298,7 @@ EVAL_EXPR_LOGIC:
               ld    a,(de)
               ret   
               ld    a,0x01
-              call  0x2857
+              call  STRINI
               call  0x2B1F
               ld    hl,(0x78D4)
               ld    (hl),e
@@ -7149,7 +7326,7 @@ EVAL_EXPR_LOGIC:
               push  af
               push  af
               ld    a,e
-              call  0x2857
+              call  STRINI
               ld    e,a
               pop   af
               inc   e
@@ -7173,7 +7350,7 @@ EVAL_EXPR_LOGIC:
               ld    a,b
               ld    de,0x000E
               push  bc
-              call  0x28BF
+              call  STR_RES_SPACE
               pop   bc
               pop   hl
               push  hl
@@ -8134,7 +8311,7 @@ EVAL_EXPR_LOGIC:
               ld    hl,0x7AAF
               inc   (hl)
               push  af
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               add   a,(hl)
               ld    (0x7AAE),a
               pop   af
@@ -8175,11 +8352,11 @@ EVAL_EXPR_LOGIC:
               jr    nz,$+76
               push  af
               ld    hl,(0x7820)
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               ld    c,a
               xor   a
               ld    b,a
-              ld    (0x78A6),a
+              ld    (TTYPOS),a
               sbc   hl,bc
               ld    bc,RST20_VEC
               add   hl,bc
@@ -8261,7 +8438,7 @@ EVAL_EXPR_LOGIC:
               call  0x31BF
               call  GET_CURSOR_CHAR
               ret   
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               inc   a
               cp    0x20
               jr    nz,$+45
@@ -8293,7 +8470,7 @@ EVAL_EXPR_LOGIC:
               ld    a,0x80
               ld    (hl),a
               xor   a
-              ld    (0x78A6),a
+              ld    (TTYPOS),a
               ld    hl,(0x7820)
               ld    bc,0x0001
               add   hl,bc
@@ -8320,14 +8497,14 @@ EVAL_EXPR_LOGIC:
               inc   a
               ld    (hl),a
               jp    0x31D9
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               dec   a
               jp    p,0x3235
               call  0x33A8
               or    a
               ret   nz
               ld    a,0x1F
-              ld    (0x78A6),a
+              ld    (TTYPOS),a
               ld    bc,0x0001
               ld    hl,(0x7820)
               xor   a
@@ -8339,7 +8516,7 @@ EVAL_EXPR_LOGIC:
               call  0x0053
               ret   
               xor   a
-              ld    (0x78A6),a
+              ld    (TTYPOS),a
               ret   
               ld    hl,0x7839
               bit   4,(hl)
@@ -8369,7 +8546,7 @@ EVAL_EXPR_LOGIC:
               ld    hl,0x7000
               ld    (0x7820),hl
               xor   a
-              ld    (0x78A6),a
+              ld    (TTYPOS),a
               ret   
               ld    hl,0x7000
               ld    (0x7820),hl
@@ -8381,7 +8558,7 @@ EVAL_EXPR_LOGIC:
               or    b
               jr    nz,$-7
               xor   a
-              ld    (0x78A6),a
+              ld    (TTYPOS),a
               ld    b,0x10
               ld    a,0x80
               ld    hl,0x7AD7
@@ -8390,18 +8567,18 @@ EVAL_EXPR_LOGIC:
               djnz  $-2
               ret   
               ld    hl,(0x7820)
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               ld    c,a
               xor   a
               ld    b,a
-              ld    (0x78A6),a
+              ld    (TTYPOS),a
               sbc   hl,bc
               ld    (0x7820),hl
               ret   
               call  0x33A8
               cp    0x81
               jr    z,$+51
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               cp    0x1F
               jr    z,$+39
               ld    c,a
@@ -8416,7 +8593,7 @@ EVAL_EXPR_LOGIC:
               push  hl
               pop   de
               dec   hl
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               ld    c,a
               ld    a,0x1F
               sub   c
@@ -8430,7 +8607,7 @@ EVAL_EXPR_LOGIC:
               ret   z
               cp    0x80
               jr    z,$+32
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               ld    c,a
               xor   a
               ld    b,a
@@ -8443,7 +8620,7 @@ EVAL_EXPR_LOGIC:
               push  hl
               pop   de
               dec   hl
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               ld    c,a
               ld    a,0x3F
               jr    $-48
@@ -8463,7 +8640,7 @@ EVAL_EXPR_LOGIC:
               ld    a,l
               cp    0xE0
               jp    c,0x335F
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               push  af
               ld    a,(0x7AD7)
               cp    0x81
@@ -8477,14 +8654,14 @@ EVAL_EXPR_LOGIC:
               pop   hl
               call  CURSOR_LINE_BACK
               pop   af
-              ld    (0x78A6),a
+              ld    (TTYPOS),a
               pop   de
               pop   hl
               dec   hl
               push  hl
               push  de
               ret   
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               ld    c,a
               xor   a
               ld    b,a
@@ -8528,7 +8705,7 @@ EVAL_EXPR_LOGIC:
               ret   nz
               ld    hl,(0x7820)
               jr    $-71
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               ld    c,a
               xor   a
               ld    b,a
@@ -8555,7 +8732,7 @@ EVAL_EXPR_LOGIC:
               push  hl
               pop   de
               inc   hl
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               ld    c,a
               jr    z,$+21
               cp    0x1F
@@ -8594,7 +8771,7 @@ EVAL_EXPR_LOGIC:
               ld    a,0x80
               ld    (de),a
               xor   a
-              ld    (0x78A6),a
+              ld    (TTYPOS),a
               ld    hl,0x71E0
               ret   
               ld    a,(0x7AD7)
@@ -8813,7 +8990,7 @@ EVAL_EXPR_LOGIC:
               ld    hl,0x71FF
               ld    (0x7820),hl
               ld    a,0x1F
-              ld    (0x78A6),a
+              ld    (TTYPOS),a
               ld    a,(0x7AE5)
               cp    0x81
               ret   nz
@@ -8965,7 +9142,7 @@ EVAL_EXPR_LOGIC:
               ld    hl,0x71FF
               ld    (0x7820),hl
               ld    a,0x1F
-              ld    (0x78A6),a
+              ld    (TTYPOS),a
               jp    0x3667
               push  hl
               ld    hl,0x7839
@@ -9529,7 +9706,7 @@ EVAL_EXPR_LOGIC:
               ld    a,(0x7AAF)
               or    a
               ret   nz
-              ld    a,(0x78A6)
+              ld    a,(TTYPOS)
               ret   
               ld    hl,0x68EF
               bit   4,(hl)
