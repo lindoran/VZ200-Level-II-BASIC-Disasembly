@@ -1869,6 +1869,76 @@ offset = 10432
 end = 10432
 type = DATA_BYTE
 
+[region]
+offset = 10801
+end = 10801
+type = DATA_BYTE
+
+[region]
+offset = 10807
+end = 10807
+type = DATA_BYTE
+
+[region]
+offset = 10812
+end = 10812
+type = DATA_BYTE
+
+[region]
+offset = 10855
+end = 10855
+type = DATA_BYTE
+
+[region]
+offset = 10863
+end = 10863
+type = DATA_BYTE
+
+[region]
+offset = 10924
+end = 10924
+type = DATA_BYTE
+
+[region]
+offset = 10929
+end = 10929
+type = DATA_BYTE
+
+[region]
+offset = 11032
+end = 11032
+type = DATA_BYTE
+
+[region]
+offset = 11265
+end = 11265
+type = DATA_BYTE
+
+[region]
+offset = 11446
+end = 11446
+type = DATA_BYTE
+
+[region]
+offset = 11460
+end = 11460
+type = DATA_BYTE
+
+[region]
+offset = 11588
+end = 11588
+type = DATA_BYTE
+
+[region]
+offset = 11670
+end = 11670
+type = DATA_BYTE
+
+[region]
+offset = 11798
+end = 11798
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -3396,6 +3466,142 @@ name = STROUT
 [label]
 offset = 10431
 name = STR_RES_SPACE
+
+[label]
+offset = 10458
+name = GARBAG
+
+[label]
+offset = 10528
+name = FIND_HI_STR_ARY
+
+[label]
+offset = 10570
+name = CHK_HI_STR
+
+[label]
+offset = 10571
+name = UPD_HI_STR
+
+[label]
+offset = 10603
+name = MOV_HI_STR
+
+[label]
+offset = 10639
+name = STR_CONCAT
+
+[label]
+offset = 10694
+name = MOV_STR_TO_AREA
+
+[label]
+offset = 10711
+name = REM_STR_TMP
+
+[label]
+offset = 10718
+name = REM_STR_TOP
+
+[label]
+offset = 10723
+name = REM_STR_AREA
+
+[label]
+offset = 10741
+name = REM_STR_TMP_ENTRY
+
+[label]
+offset = 10755
+name = FNLEN
+
+[label]
+offset = 10767
+name = FNASC
+
+[label]
+offset = 10783
+name = FNCHR
+
+[label]
+offset = 10799
+name = FNSTR_DOLLAR
+
+[label]
+offset = 10849
+name = FNLEFT
+
+[label]
+offset = 10897
+name = FNRIGHT
+
+[label]
+offset = 10906
+name = FNMID
+
+[label]
+offset = 10949
+name = FNVAL
+
+[label]
+offset = 10975
+name = L_R_M_SUB
+
+[label]
+offset = 10991
+name = FNINP
+
+[label]
+offset = 11003
+name = CMDOUT
+
+[label]
+offset = 11049
+name = CMDLLIST
+
+[label]
+offset = 11054
+name = CMDLIST
+
+[label]
+offset = 11125
+name = OUTSTR_00
+
+[label]
+offset = 11134
+name = DETOKEN
+
+[label]
+offset = 11206
+name = CMDDELETE
+
+[label]
+offset = 11253
+name = CMD_SOUND
+
+[label]
+offset = 11352
+name = SOUND_PAUSE
+
+[label]
+offset = 11379
+name = PRN_GFX_CHAR
+
+[label]
+offset = 11434
+name = PEEK
+
+[label]
+offset = 11441
+name = POKE
+
+[label]
+offset = 11453
+name = PRINUS
+
+[label]
+offset = 11495
+name = USING_FIELD_LEN
 
 [comment]
 offset = 0
@@ -23500,8 +23706,3060 @@ offset = 10451
 text = Store new string space pointer
 
 [comment]
+offset = 10454
+text = + 1 = string address in string area
+
+[comment]
+offset = 10455
+text = transfer to DE
+
+[comment]
+offset = 10456
+text = reload string length
+
+[comment]
 offset = 10457
 text = done
+
+[comment]
+offset = 10458
+text = Load PACK flag
+
+[comment]
+offset = 10459
+text = Error code in E
+
+[comment]
+offset = 10461
+text = already packed, OUT OF STRING SPACE
+
+[comment]
+offset = 10464
+text = Set PACK flag
+
+[comment]
+offset = 10465
+text = and push to stack
+
+[comment]
+offset = 10466
+text = Set return address
+
+[comment]
+offset = 10469
+text = try again after packing, if enough space available.
+
+[comment]
+offset = 10470
+text = String area pointer = RAM end address
+
+[comment]
+offset = 10476
+text = Highest string pointer = 0
+
+[comment]
+offset = 10479
+text = onto stack
+
+[comment]
+offset = 10480
+text = Highest string = Start of string area
+
+[comment]
+offset = 10483
+text = onto stack
+
+[comment]
+offset = 10484
+text = Start of temporary storage in HL
+
+[comment]
+offset = 10488
+text = Address of next free temporary
+
+[comment]
+offset = 10491
+text = storage space in DE
+
+[comment]
+offset = 10492
+text = Temporary storage processed?
+
+[comment]
+offset = 10493
+text = Return address for
+
+[comment]
+offset = 10496
+text = no, update highest string
+
+[comment]
+offset = 10499
+text = Starting address of variable table in HL
+
+[comment]
+offset = 10502
+text = End address of variable table in DE
+
+[comment]
+offset = 10507
+text = End of variable table?
+
+[comment]
+offset = 10508
+text = yes, investigate matrices
+
+[comment]
+offset = 10510
+text = Load type from variable table
+
+[comment]
+offset = 10511
+text = Var table address to value
+
+[comment]
+offset = 10518
+text = Update highest string
+
+[comment]
+offset = 10521
+text = A = 0, so that pointer is not incremented
+
+[comment]
+offset = 10522
+text = Transfer type to DE
+
+[comment]
+offset = 10525
+text = Var table address + type (length)
+
+[comment]
+offset = 10526
+text = Next entry
+
+[comment]
+offset = 10528
+text = Correct stack
+
+[comment]
+offset = 10530
+text = End address of matrix table in DE
+
+[comment]
+offset = 10534
+text = End reached?
+
+[comment]
+offset = 10535
+text = yes, highest string to next higher position in the string area
+
+[comment]
+offset = 10538
+text = Load matrix type
+
+[comment]
+offset = 10539
+text = Table address + 1
+
+[comment]
+offset = 10540
+text = Matrix length in BC
+
+[comment]
+offset = 10543
+text = Table address on stack
+
+[comment]
+offset = 10544
+text = + Matrix length = start of next matrix
+
+[comment]
+offset = 10545
+text = String matrix?
+
+[comment]
+offset = 10547
+text = no, next matrix
+
+[comment]
+offset = 10549
+text = Save address of next matrix
+
+[comment]
+offset = 10552
+text = Load DIM counter address
+
+[comment]
+offset = 10553
+text = Load DIM counter
+
+[comment]
+offset = 10556
+text = add to DIM counter address twice
+
+[comment]
+offset = 10558
+text = + 1 = Value address of the matrix
+
+[comment]
+offset = 10560
+text = Address of next matrix in DE
+
+[comment]
+offset = 10564
+text = Matrix fully processed?
+
+[comment]
+offset = 10565
+text = yes, next matrix
+
+[comment]
+offset = 10567
+text = no, load return address
+
+[comment]
+offset = 10570
+text = Return address on stack
+
+[comment]
+offset = 10571
+text = String length = 0?
+
+[comment]
+offset = 10573
+text = String pointer to string address
+
+[comment]
+offset = 10574
+text = Load string address
+
+[comment]
+offset = 10577
+text = String pointer + 1
+
+[comment]
+offset = 10578
+text = String length = 0, done!
+
+[comment]
+offset = 10579
+text = String pointer in BC
+
+[comment]
+offset = 10581
+text = String address > String area pointer?
+
+[comment]
+offset = 10584
+text = (String already re-sorted)
+
+[comment]
+offset = 10585
+text = String pointer back in HL
+
+[comment]
+offset = 10587
+text = yes, done!
+
+[comment]
+offset = 10588
+text = Return address in HL
+
+[comment]
+offset = 10589
+text = Load address of the highest string
+
+[comment]
+offset = 10590
+text = String under investigation higher than highest string?
+
+[comment]
+offset = 10591
+text = Address of the highest string onto stack, load return address
+
+[comment]
+offset = 10592
+text = Return address back on stack
+
+[comment]
+offset = 10593
+text = String pointer back in HL
+
+[comment]
+offset = 10595
+text = no, done!
+
+[comment]
+offset = 10596
+text = Return address in BC
+
+[comment]
+offset = 10597
+text = Get address and pointer of highest string from stack
+
+[comment]
+offset = 10599
+text = Pointer and address of the currently investigated string
+
+[comment]
+offset = 10600
+text = as new highest string onto stack
+
+[comment]
+offset = 10601
+text = Return address on stack
+
+[comment]
+offset = 10602
+text = done
+
+[comment]
+offset = 10603
+text = Load address of the highest string
+
+[comment]
+offset = 10604
+text = Pointer of the highest string in HL
+
+[comment]
+offset = 10605
+text = Pointer = 0?
+
+[comment]
+offset = 10606
+text = (all strings sorted)
+
+[comment]
+offset = 10607
+text = yes, done!
+
+[comment]
+offset = 10608
+text = String pointer to string address
+
+[comment]
+offset = 10609
+text = Load string address
+
+[comment]
+offset = 10612
+text = String pointer on the stack
+
+[comment]
+offset = 10613
+text = Load string length
+
+[comment]
+offset = 10614
+text = in HL
+
+[comment]
+offset = 10617
+text = + String address
+
+[comment]
+offset = 10618
+text = String address in DE
+
+[comment]
+offset = 10620
+text = HL = end of string
+
+[comment]
+offset = 10621
+text = in BC
+
+[comment]
+offset = 10623
+text = Load pointer to string area
+
+[comment]
+offset = 10626
+text = copy string below the string area pointer
+
+[comment]
+offset = 10629
+text = Load string pointer again
+
+[comment]
+offset = 10630
+text = Store new string address
+
+[comment]
+offset = 10635
+text = - 1 = new string area pointer
+
+[comment]
+offset = 10636
+text = Store and continue
+
+[comment]
+offset = 10639
+text = Last priority on stack
+
+[comment]
+offset = 10640
+text = Program pointer on stack
+
+[comment]
+offset = 10641
+text = 1st string pointer in HL
+
+[comment]
+offset = 10644
+text = Load program pointer, 1st string pointer on stack
+
+[comment]
+offset = 10645
+text = Determine 2nd operand
+
+[comment]
+offset = 10648
+text = Program pointer on stack, 1st string pointer load
+
+[comment]
+offset = 10649
+text = 2nd operand string? no - TM error
+
+[comment]
+offset = 10652
+text = Load 1st string length
+
+[comment]
+offset = 10653
+text = 1st string pointer on the stack
+
+[comment]
+offset = 10654
+text = Load 2nd string pointer
+
+[comment]
+offset = 10657
+text = and also on the stack
+
+[comment]
+offset = 10658
+text = Add string lengths
+
+[comment]
+offset = 10659
+text = Error code in E
+
+[comment]
+offset = 10661
+text = > 256? yes - STRING TOO LONG error
+
+[comment]
+offset = 10664
+text = Allocate space for linked string, enter in temp storage
+
+[comment]
+offset = 10667
+text = Load 2nd string pointer
+
+[comment]
+offset = 10668
+text = remove 2nd string from temp storage
+
+[comment]
+offset = 10671
+text = 1st string pointer on stack, load 1st string pointer
+
+[comment]
+offset = 10672
+text = remove 1st string from temp storage
+
+[comment]
+offset = 10675
+text = 1st string pointer on the stack
+
+[comment]
+offset = 10676
+text = String address from temp storage 1.
+
+[comment]
+offset = 10679
+text = in DE
+
+[comment]
+offset = 10680
+text = Transfer 1st string into string area
+
+[comment]
+offset = 10683
+text = Transfer 2nd string into string area
+
+[comment]
+offset = 10686
+text = Load return address
+
+[comment]
+offset = 10689
+text = Swap with program pointer
+
+[comment]
+offset = 10691
+text = Temp storage in X and transfer storage
+
+[comment]
+offset = 10694
+text = Load return address
+
+[comment]
+offset = 10695
+text = Load string pointer, return address on stack
+
+[comment]
+offset = 10696
+text = Load string length
+
+[comment]
+offset = 10697
+text = String pointer + 1
+
+[comment]
+offset = 10698
+text = Load string address
+
+[comment]
+offset = 10701
+text = String length in L
+
+[comment]
+offset = 10702
+text = + 1
+
+[comment]
+offset = 10703
+text = String length - 1, = 0?
+
+[comment]
+offset = 10704
+text = yes, done!
+
+[comment]
+offset = 10705
+text = One character in string area
+
+[comment]
+offset = 10707
+text = String pointer + 1
+
+[comment]
+offset = 10708
+text = String area address + 1
+
+[comment]
+offset = 10709
+text = next byte
+
+[comment]
+offset = 10711
+text = not a string in X? yes - TYPE MISMATCH
+
+[comment]
+offset = 10714
+text = Load string pointer from X
+
+[comment]
+offset = 10717
+text = in DE
+
+[comment]
+offset = 10718
+text = String at top of temp storage? yes - remove!
+
+[comment]
+offset = 10721
+text = String pointer in HL
+
+[comment]
+offset = 10722
+text = not removed? done!
+
+[comment]
+offset = 10723
+text = String pointer to stack
+
+[comment]
+offset = 10724
+text = String address in DE
+
+[comment]
+offset = 10726
+text = - 1
+
+[comment]
+offset = 10727
+text = String length in C
+
+[comment]
+offset = 10728
+text = String area pointer in HL
+
+[comment]
+offset = 10731
+text = = String address - 1 ?
+
+[comment]
+offset = 10732
+text = no, done!
+
+[comment]
+offset = 10734
+text = B = 0
+
+[comment]
+offset = 10735
+text = String area pointer + length
+
+[comment]
+offset = 10736
+text = = new string area pointer
+
+[comment]
+offset = 10739
+text = reload string pointer
+
+[comment]
+offset = 10741
+text = load next temporary storage address
+
+[comment]
+offset = 10744
+text = - 1
+
+[comment]
+offset = 10745
+text = load address of last string
+
+[comment]
+offset = 10747
+text = load string length in C
+
+[comment]
+offset = 10749
+text = = string pointer
+
+[comment]
+offset = 10750
+text = no!
+
+[comment]
+offset = 10751
+text = store new pointer
+
+[comment]
+offset = 10754
+text = last entry is deleted
+
+[comment]
+offset = 10755
+text = set return address
+
+[comment]
+offset = 10759
+text = remove argument string from temporary storage + string area
+
+[comment]
+offset = 10762
+text = D = 0
+
+[comment]
+offset = 10764
+text = load string length
+
+[comment]
+offset = 10765
+text = and test
+
+[comment]
+offset = 10766
+text = continue at 27FBH
+
+[comment]
+offset = 10767
+text = set return address
+
+[comment]
+offset = 10771
+text = string length = 0 ?
+
+[comment]
+offset = 10774
+text = yes, FUNCTION CODE - Error
+
+[comment]
+offset = 10777
+text = string pointer to string address
+
+[comment]
+offset = 10778
+text = load string address
+
+[comment]
+offset = 10781
+text = load 1st character
+
+[comment]
+offset = 10782
+text = continue at 27F8H
+
+[comment]
+offset = 10783
+text = string length = 1
+
+[comment]
+offset = 10785
+text = reserve space in string area and enter in temporary storage
+
+[comment]
+offset = 10788
+text = integer value of argument in E
+
+[comment]
+offset = 10791
+text = string address from temporary storage 1.
+
+[comment]
+offset = 10794
+text = store character there
+
+[comment]
+offset = 10795
+text = remove return address
+
+[comment]
+offset = 10796
+text = transfer temporary storage to X and into temporary storage
+
+[comment]
+offset = 10799
+text = next character
+
+[comment]
+offset = 10800
+text = followed by '(' ?
+
+[comment]
+offset = 10802
+text = evaluate string length and in E
+
+[comment]
+offset = 10805
+text = string length on stack
+
+[comment]
+offset = 10806
+text = followed by a comma ?
+
+[comment]
+offset = 10808
+text = evaluate character expression
+
+[comment]
+offset = 10811
+text = followed by ')' ?
+
+[comment]
+offset = 10813
+text = load string length in L, program pointer on stack
+
+[comment]
+offset = 10814
+text = string length back on stack
+
+[comment]
+offset = 10815
+text = character expression = string ?
+
+[comment]
+offset = 10816
+text = yes!
+
+[comment]
+offset = 10818
+text = no, integer value in A
+
+[comment]
+offset = 10821
+text = continue at 2A4AH
+
+[comment]
+offset = 10823
+text = 1st character of string in A
+
+[comment]
+offset = 10826
+text = string length in E
+
+[comment]
+offset = 10827
+text = character 2x on stack
+
+[comment]
+offset = 10829
+text = reserve space in string area
+
+[comment]
+offset = 10830
+text = string in temporary storage
+
+[comment]
+offset = 10833
+text = string length in E
+
+[comment]
+offset = 10834
+text = reload character
+
+[comment]
+offset = 10835
+text = string length = 0 ?
+
+[comment]
+offset = 10837
+text = yes, temporary storage in temporary storage + X
+
+[comment]
+offset = 10839
+text = load string address
+
+[comment]
+offset = 10842
+text = transfer character
+
+[comment]
+offset = 10843
+text = string area address + 1
+
+[comment]
+offset = 10844
+text = string length - 1, = 0 ?
+
+[comment]
+offset = 10845
+text = no, next character!
+
+[comment]
+offset = 10847
+text = temporary storage in temporary storage and X
+
+[comment]
+offset = 10849
+text = program pointer in HL, test ')', 2nd argument in B
+
+[comment]
+offset = 10852
+text = Left-Offset = 0 (for RIGHT$ and MID$)
+
+[comment]
+offset = 10853
+text = program pointer on stack, load string pointer
+
+[comment]
+offset = 10854
+text = Left-Offset in C
+
+[comment]
+offset = 10857
+text = string pointer on stack
+
+[comment]
+offset = 10858
+text = load string length
+
+[comment]
+offset = 10859
+text = < 2nd argument?
+
+[comment]
+offset = 10860
+text = yes, result string length = string length
+
+[comment]
+offset = 10862
+text = no, result string length = 2nd argument
+
+[comment]
+offset = 10864
+text = Left-Offset = 0
+
+[comment]
+offset = 10866
+text = Left-Offset on stack
+
+[comment]
+offset = 10867
+text = reserve space for result in string area.
+
+[comment]
+offset = 10870
+text = reload Left-Offset
+
+[comment]
+offset = 10871
+text = load string pointer
+
+[comment]
+offset = 10872
+text = and back on stack
+
+[comment]
+offset = 10873
+text = string length again on stack
+
+[comment]
+offset = 10874
+text = load string address in HL
+
+[comment]
+offset = 10878
+text = add Left-Offset to string address
+
+[comment]
+offset = 10881
+text = result string address in BC
+
+[comment]
+offset = 10883
+text = result string in temporary storage.
+
+[comment]
+offset = 10886
+text = result string length in L
+
+[comment]
+offset = 10887
+text = result string in string area
+
+[comment]
+offset = 10890
+text = string pointer in DE
+
+[comment]
+offset = 10891
+text = remove argument string from temporary storage and delete from string area
+
+[comment]
+offset = 10894
+text = temporary storage in temporary storage + X
+
+[comment]
+offset = 10897
+text = program pointer in HL, test ')', 2nd argument in B
+
+[comment]
+offset = 10900
+text = load string pointer
+
+[comment]
+offset = 10901
+text = and back on stack
+
+[comment]
+offset = 10902
+text = load string length
+
+[comment]
+offset = 10903
+text = -= 2nd argument = Left-Offset
+
+[comment]
+offset = 10904
+text = continue at LEFT$
+
+[comment]
+offset = 10906
+text = program pointer in HL
+
+[comment]
+offset = 10907
+text = load character
+
+[comment]
+offset = 10908
+text = 2nd argument in B
+
+[comment]
+offset = 10911
+text = 2nd argument = 0 ?
+
+[comment]
+offset = 10913
+text = yes, FUNCTION CODE - Error
+
+[comment]
+offset = 10916
+text = 2nd argument on the stack
+
+[comment]
+offset = 10917
+text = 3rd argument = 255 (default = rest string)
+
+[comment]
+offset = 10919
+text = ')' as conclusion of parameters?
+
+[comment]
+offset = 10921
+text = yes, only 2 arguments
+
+[comment]
+offset = 10923
+text = no, followed by a comma ?
+
+[comment]
+offset = 10925
+text = evaluate 3rd argument (in E)
+
+[comment]
+offset = 10928
+text = now ')' must follow
+
+[comment]
+offset = 10930
+text = load 2nd argument into A
+
+[comment]
+offset = 10931
+text = program pointer on stack, load string pointer
+
+[comment]
+offset = 10932
+text = set return address
+
+[comment]
+offset = 10935
+text = (jump to LEFT$)
+
+[comment]
+offset = 10936
+text = 2nd arg. - 1 = Left-Offset
+
+[comment]
+offset = 10937
+text = string length < 2nd argument ?
+
+[comment]
+offset = 10938
+text = result string length = 0
+
+[comment]
+offset = 10940
+text = yes, result string is empty
+
+[comment]
+offset = 10941
+text = Left-Offset in C
+
+[comment]
+offset = 10942
+text = load string length
+
+[comment]
+offset = 10943
+text = - Left-Offset
+
+[comment]
+offset = 10944
+text = < 3rd argument ?
+
+[comment]
+offset = 10945
+text = result string length = difference
+
+[comment]
+offset = 10946
+text = yes, total rest string = result string
+
+[comment]
+offset = 10947
+text = no, 3rd argument = result string length
+
+[comment]
+offset = 10948
+text = continue at LEFT$
+
+[comment]
+offset = 10949
+text = string length argument = 0 ?
+
+[comment]
+offset = 10952
+text = yes, 0 as integer in X, finished
+
+[comment]
+offset = 10955
+text = string length in E
+
+[comment]
+offset = 10956
+text = string pointer + 1
+
+[comment]
+offset = 10957
+text = string address in HL
+
+[comment]
+offset = 10961
+text = string address on the stack
+
+[comment]
+offset = 10962
+text = + string length
+
+[comment]
+offset = 10963
+text = save 1st character of next string
+
+[comment]
+offset = 10964
+text = replace with 00 (end of line)
+
+[comment]
+offset = 10965
+text = string address of next string on stack, load current string address
+
+[comment]
+offset = 10966
+text = save 1st character of next string
+
+[comment]
+offset = 10967
+text = load 1st character of string
+
+[comment]
+offset = 10968
+text = convert string to number (in X)
+
+[comment]
+offset = 10971
+text = load 1st character of next string
+
+[comment]
+offset = 10972
+text = load string address of next string
+
+[comment]
+offset = 10973
+text = put 1st character into next string back.
+
+[comment]
+offset = 10975
+text = entry LEFT$ and RIGHT$, program pointer in HL
+
+[comment]
+offset = 10976
+text = check if closed with ')'
+
+[comment]
+offset = 10978
+text = entry MID$, load return address
+
+[comment]
+offset = 10979
+text = load 2nd argument in E
+
+[comment]
+offset = 10980
+text = return address back on stack
+
+[comment]
+offset = 10981
+text = 2nd argument in B
+
+[comment]
+offset = 10983
+text = MID$ - Token
+
+[comment]
+offset = 10985
+text = no, SYNTAX ERROR
+
+[comment]
+offset = 10988
+text = yes, to RAM expansion output
+
+[comment]
+offset = 10991
+text = Integer value of argument in A
+
+[comment]
+offset = 10994
+text = in INP and OUT subprograms as PORT#
+
+[comment]
+offset = 10997
+text = Call RAM subprogram
+
+[comment]
+offset = 11000
+text = Content of A as result in FAC X
+
+[comment]
+offset = 11003
+text = Analyze both arguments and Port number in RAM subprogram
+
+[comment]
+offset = 11006
+text = Call RAM subprogram
+
+[comment]
+offset = 11009
+text = Address next character
+
+[comment]
+offset = 11010
+text = Evaluate expression
+
+[comment]
+offset = 11013
+text = Program pointer on stack
+
+[comment]
+offset = 11014
+text = Convert result to integer
+
+[comment]
+offset = 11017
+text = Result in DE
+
+[comment]
+offset = 11018
+text = Load program pointer
+
+[comment]
+offset = 11019
+text = Set flags
+
+[comment]
+offset = 11021
+text = done
+
+[comment]
+offset = 11022
+text = Accept port number (in A)
+
+[comment]
+offset = 11025
+text = in INP and OUT subprograms
+
+[comment]
+offset = 11031
+text = followed by a comma?
+
+[comment]
+offset = 11033
+text = Analyze value (<256) and into A
+
+[comment]
+offset = 11035
+text = Address next character
+
+[comment]
+offset = 11036
+text = Evaluate expression
+
+[comment]
+offset = 11039
+text = Convert result to integer (DE)
+
+[comment]
+offset = 11042
+text = > 256 = FUNCTION CODE error
+
+[comment]
+offset = 11045
+text = Program pointer - 1
+
+[comment]
+offset = 11046
+text = Address next character
+
+[comment]
+offset = 11047
+text = Result in A
+
+[comment]
+offset = 11048
+text = done
+
+[comment]
+offset = 11049
+text = Output flag to printer
+
+[comment]
+offset = 11054
+text = Return address from stack
+
+[comment]
+offset = 11055
+text = Analyze both arguments
+
+[comment]
+offset = 11058
+text = 1. line address on stack
+
+[comment]
+offset = 11059
+text = Interrupt/abort list?
+
+[comment]
+offset = 11062
+text = Set direct mode (line number = FFFF)
+
+[comment]
+offset = 11065
+text = 1. line address in HL
+
+[comment]
+offset = 11066
+text = 2. line number in DE
+
+[comment]
+offset = 11067
+text = Load line pointer
+
+[comment]
+offset = 11071
+text = Line address at line number
+
+[comment]
+offset = 11072
+text = End of program? (pointer = 0000)
+
+[comment]
+offset = 11073
+text = Yes, back to main loop
+
+[comment]
+offset = 11076
+text = RAM expansion output
+
+[comment]
+offset = 11079
+text = Examine key press
+
+[comment]
+offset = 11082
+text = Address of next line on stack
+
+[comment]
+offset = 11083
+text = Load line number
+
+[comment]
+offset = 11087
+text = Program pointer on line text
+
+[comment]
+offset = 11088
+text = Line number on stack
+
+[comment]
+offset = 11089
+text = End line number in HL, line number in DE
+
+[comment]
+offset = 11090
+text = Line number > end line number?
+
+[comment]
+offset = 11091
+text = Program pointer in BC
+
+[comment]
+offset = 11092
+text = Yes, done
+
+[comment]
+offset = 11095
+text = Load address of next line
+
+[comment]
+offset = 11096
+text = End line number on stack
+
+[comment]
+offset = 11097
+text = Program pointer on the stack
+
+[comment]
+offset = 11098
+text = Line number in HL
+
+[comment]
+offset = 11099
+text = Store as '.' line number
+
+[comment]
+offset = 11102
+text = Output line number
+
+[comment]
+offset = 11105
+text = Space after the line number
+
+[comment]
+offset = 11107
+text = Load program pointer
+
+[comment]
+offset = 11108
+text = Output space
+
+[comment]
+offset = 11111
+text = Generate readable text from intermediate code
+
+[comment]
+offset = 11114
+text = Address I/O buffer
+
+[comment]
+offset = 11117
+text = Output text of the line
+
+[comment]
+offset = 11120
+text = Output carriage return
+
+[comment]
+offset = 11123
+text = Next line
+
+[comment]
+offset = 11125
+text = Load character
+
+[comment]
+offset = 11126
+text = = End of text?
+
+[comment]
+offset = 11127
+text = Yes, finished!
+
+[comment]
+offset = 11128
+text = Output character
+
+[comment]
+offset = 11131
+text = Text address + 1
+
+[comment]
+offset = 11132
+text = Next character
+
+[comment]
+offset = 11134
+text = Program pointer on the stack
+
+[comment]
+offset = 11135
+text = Load buffer pointer into BC
+
+[comment]
+offset = 11140
+text = Load program pointer
+
+[comment]
+offset = 11141
+text = Max. characters = 255
+
+[comment]
+offset = 11145
+text = Buffer pointer + 1
+
+[comment]
+offset = 11146
+text = Character counter - 1
+
+[comment]
+offset = 11147
+text = Buffer full? Yes-finished
+
+[comment]
+offset = 11148
+text = Load character from program
+
+[comment]
+offset = 11149
+text = End of line?
+
+[comment]
+offset = 11150
+text = Program pointer + 1
+
+[comment]
+offset = 11151
+text = Transfer character into buffer
+
+[comment]
+offset = 11152
+text = End of line, finished!
+
+[comment]
+offset = 11153
+text = Continue at 2E9DH (Rucksack)
+
+[comment]
+offset = 11156
+text = Token ' (REM)?
+
+[comment]
+offset = 11158
+text = No!
+
+[comment]
+offset = 11160
+text = Delete 'REM' from buffer
+
+[comment]
+offset = 11164
+text = Character counter + 4
+
+[comment]
+offset = 11168
+text = Token 'ELSE'?
+
+[comment]
+offset = 11170
+text = Yes, remove ':' before it
+
+[comment]
+offset = 11173
+text = Token - 7F = index of keyword
+
+[comment]
+offset = 11175
+text = Program pointer on the stack
+
+[comment]
+offset = 11176
+text = Keyword number in E
+
+[comment]
+offset = 11177
+text = Address keyword table
+
+[comment]
+offset = 11180
+text = Load character from table
+
+[comment]
+offset = 11181
+text = Start of a new keyword?
+
+[comment]
+offset = 11182
+text = Table address + 1
+
+[comment]
+offset = 11183
+text = No, search further
+
+[comment]
+offset = 11186
+text = Yes, sought keyword?
+
+[comment]
+offset = 11187
+text = No, search next keyword
+
+[comment]
+offset = 11189
+text = Clear bit 7 of 1st character
+
+[comment]
+offset = 11191
+text = Transfer character into buffer
+
+[comment]
+offset = 11192
+text = Buffer pointer + 1
+
+[comment]
+offset = 11193
+text = Buffer full, finished
+
+[comment]
+offset = 11194
+text = transfer character to buffer
+
+[comment]
+offset = 11197
+text = Next keyword character
+
+[comment]
+offset = 11198
+text = Table address + 1
+
+[comment]
+offset = 11199
+text = New keyword?
+
+[comment]
+offset = 11200
+text = No, transfer
+
+[comment]
+offset = 11203
+text = Load program pointer again
+
+[comment]
+offset = 11204
+text = Next program character
+
+[comment]
+offset = 11206
+text = Analyze both arguments
+
+[comment]
+offset = 11209
+text = 2. line number in DE
+
+[comment]
+offset = 11210
+text = 1. line address on stack
+
+[comment]
+offset = 11211
+text = (2 times)
+
+[comment]
+offset = 11212
+text = Determine 2. line address
+
+[comment]
+offset = 11215
+text = Not found, FUNCTION CODE error
+
+[comment]
+offset = 11217
+text = 2. line address in DE
+
+[comment]
+offset = 11219
+text = 1. line address on stack
+
+[comment]
+offset = 11220
+text = 1. line address on stack
+
+[comment]
+offset = 11221
+text = 1. line address <= 2. line address
+
+[comment]
+offset = 11222
+text = No, FUNCTION CODE error
+
+[comment]
+offset = 11225
+text = Address text 'READY'
+
+[comment]
+offset = 11228
+text = And output
+
+[comment]
+offset = 11231
+text = Load 1. line address
+
+[comment]
+offset = 11232
+text = Load return address
+
+[comment]
+offset = 11235
+text = Swap with 2. line address
+
+[comment]
+offset = 11236
+text = 2. line address in DE
+
+[comment]
+offset = 11237
+text = Program text end in HL
+
+[comment]
+offset = 11240
+text = Load characters from the back of the program area
+
+[comment]
+offset = 11241
+text = And transfer forward
+
+[comment]
+offset = 11244
+text = End of program reached?
+
+[comment]
+offset = 11245
+text = No, next character
+
+[comment]
+offset = 11248
+text = Last target address = new program end
+
+[comment]
+offset = 11249
+text = Save
+
+[comment]
+offset = 11253
+text = Analyze 1st parameter (Note)
+
+[comment]
+offset = 11256
+text = Note > 31?
+
+[comment]
+offset = 11258
+text = yes, FUNCTION-CODE Error
+
+[comment]
+offset = 11261
+text = Save note value
+
+[comment]
+offset = 11264
+text = Followed by a comma?
+
+[comment]
+offset = 11266
+text = Analyze 2nd parameter (Length)
+
+[comment]
+offset = 11269
+text = Tone length = 0?
+
+[comment]
+offset = 11270
+text = yes, FUNCTION CODE - Error
+
+[comment]
+offset = 11273
+text = Tone length > 9?
+
+[comment]
+offset = 11275
+text = yes, FUNCTION CODE - Error
+
+[comment]
+offset = 11278
+text = Disable interrupts
+
+[comment]
+offset = 11279
+text = Push program pointer on stack
+
+[comment]
+offset = 11280
+text = Tone length - 1
+
+[comment]
+offset = 11281
+text = on stack
+
+[comment]
+offset = 11282
+text = Load note value
+
+[comment]
+offset = 11285
+text = = 0?
+
+[comment]
+offset = 11286
+text = yes, pause
+
+[comment]
+offset = 11288
+text = Note value - 1
+
+[comment]
+offset = 11289
+text = * 2
+
+[comment]
+offset = 11291
+text = in BC = offset for frequency table
+
+[comment]
+offset = 11294
+text = Load tone length
+
+[comment]
+offset = 11295
+text = Address frequency table
+
+[comment]
+offset = 11298
+text = + offset for note
+
+[comment]
+offset = 11299
+text = Load frequency value from table
+
+[comment]
+offset = 11302
+text = Frequency value on stack
+
+[comment]
+offset = 11303
+text = Address table of base time values
+
+[comment]
+offset = 11306
+text = Frequency offset / 2
+
+[comment]
+offset = 11308
+text = + table start address
+
+[comment]
+offset = 11309
+text = = base time value for 1/8 note (in E)
+
+[comment]
+offset = 11312
+text = Address table of multipliers for tone length
+
+[comment]
+offset = 11315
+text = Tone length - 1 in BC (= table offset)
+
+[comment]
+offset = 11316
+text = + table start address
+
+[comment]
+offset = 11317
+text = Load multiplier from table
+
+[comment]
+offset = 11318
+text = Multiply base time value by B+1
+
+[comment]
+offset = 11319
+text = Result in HL
+
+[comment]
+offset = 11323
+text = Transfer tone duration to BC
+
+[comment]
+offset = 11324
+text = as cycle counter
+
+[comment]
+offset = 11325
+text = Load frequency value
+
+[comment]
+offset = 11326
+text = BREAK key pressed?
+
+[comment]
+offset = 11329
+text = Load output latch byte
+
+[comment]
+offset = 11332
+text = in D
+
+[comment]
+offset = 11333
+text = Output tone
+
+[comment]
+offset = 11336
+text = Cycle counter - 1
+
+[comment]
+offset = 11337
+text = = 0?
+
+[comment]
+offset = 11339
+text = no, hold tone
+
+[comment]
+offset = 11341
+text = Load program pointer
+
+[comment]
+offset = 11342
+text = Enable interrupts
+
+[comment]
+offset = 11343
+text = Load character
+
+[comment]
+offset = 11344
+text = Program pointer + 1
+
+[comment]
+offset = 11345
+text = Followed by ';'?
+
+[comment]
+offset = 11347
+text = yes, play next note
+
+[comment]
+offset = 11350
+text = Program pointer - 1
+
+[comment]
+offset = 11351
+text = done
+
+[comment]
+offset = 11352
+text = Load tone length - 1
+
+[comment]
+offset = 11353
+text = in BC
+
+[comment]
+offset = 11356
+text = Address table of multipliers
+
+[comment]
+offset = 11359
+text = + tone length - 1
+
+[comment]
+offset = 11360
+text = Load multiplier from table
+
+[comment]
+offset = 11361
+text = Load base value for 93.75 ms
+
+[comment]
+offset = 11365
+text = Multiply base value by B+1
+
+[comment]
+offset = 11366
+text = = pause counter
+
+[comment]
+offset = 11369
+text = BREAK key pressed?
+
+[comment]
+offset = 11372
+text = Counter - 1
+
+[comment]
+offset = 11373
+text = = 0?
+
+[comment]
+offset = 11375
+text = no!
+
+[comment]
+offset = 11377
+text = yes, pause ended!
+
+[comment]
+offset = 11379
+text = Save BC on stack
+
+[comment]
+offset = 11380
+text = Character in B
+
+[comment]
+offset = 11381
+text = Switch printer to graphics mode
+
+[comment]
+offset = 11383
+text = by outputting X'08'
+
+[comment]
+offset = 11386
+text = Character back in A
+
+[comment]
+offset = 11387
+text = Clear high nibble
+
+[comment]
+offset = 11389
+text = Save HL on stack
+
+[comment]
+offset = 11390
+text = Character * 2
+
+[comment]
+offset = 11392
+text = as table offset in BC
+
+[comment]
+offset = 11395
+text = Address start of graphics table
+
+[comment]
+offset = 11398
+text = + character offset
+
+[comment]
+offset = 11399
+text = Load 1st table value in B
+
+[comment]
+offset = 11403
+text = Load 2nd table value in C
+
+[comment]
+offset = 11405
+text = Output value three times to printer
+
+[comment]
+offset = 11414
+text = 2nd table value in A
+
+[comment]
+offset = 11415
+text = Output value three times to printer
+
+[comment]
+offset = 11424
+text = Restore HL and BC
+
+[comment]
+offset = 11426
+text = Switch printer back to text mode
+
+[comment]
+offset = 11428
+text = by outputting X'0F'
+
+[comment]
+offset = 11431
+text = done
+
+[comment]
+offset = 11434
+text = Convert argument to integer (HL)
+
+[comment]
+offset = 11437
+text = Load content of memory location
+
+[comment]
+offset = 11438
+text = as result in X
+
+[comment]
+offset = 11441
+text = Evaluate address and in DE
+
+[comment]
+offset = 11444
+text = on stack
+
+[comment]
+offset = 11445
+text = Followed by a comma?
+
+[comment]
+offset = 11447
+text = Evaluate value (<256) and in A
+
+[comment]
+offset = 11450
+text = Load address
+
+[comment]
+offset = 11451
+text = Save value at this address
+
+[comment]
+offset = 11452
+text = done
+
+[comment]
+offset = 11453
+text = Evaluate format string
+
+[comment]
+offset = 11456
+text = Not a string? TYPE MISMATCH - Error
+
+[comment]
+offset = 11459
+text = Followed by a semicolon?
+
+[comment]
+offset = 11461
+text = Program pointer in DE
+
+[comment]
+offset = 11462
+text = Load pointer to format string
+
+[comment]
+offset = 11467
+text = Load next character
+
+[comment]
+offset = 11470
+text = = end of command?
+
+[comment]
+offset = 11471
+text = yes, FUNCTION CODE - Error
+
+[comment]
+offset = 11473
+text = Load format string pointer
+
+[comment]
+offset = 11474
+text = in HL
+
+[comment]
+offset = 11475
+text = Format string pointer on stack
+
+[comment]
+offset = 11476
+text = Clear last character
+
+[comment]
+offset = 11481
+text = Clear Z flag and set Carry flag.
+
+[comment]
+offset = 11482
+text = Result flags on stack
+
+[comment]
+offset = 11483
+text = Program pointer on stack
+
+[comment]
+offset = 11484
+text = Load string length
+
+[comment]
+offset = 11485
+text = if length=0, FUNCTION CODE - Error
+
+[comment]
+offset = 11488
+text = Format string pointer + 1
+
+[comment]
+offset = 11489
+text = String address in HL
+
+[comment]
+offset = 11495
+text = String length in E
+
+[comment]
+offset = 11496
+text = String pointer on stack
+
+[comment]
+offset = 11497
+text = Number of characters = 2 (for boundary)
+
+[comment]
+offset = 11499
+text = Load character
+
+[comment]
+offset = 11500
+text = String pointer + 1
+
+[comment]
+offset = 11501
+text = = %?
+
+[comment]
+offset = 11503
+text = yes, output formatted string
+
+[comment]
+offset = 11506
+text = Space?
+
+[comment]
+offset = 11508
+text = no, error!
+
+[comment]
+offset = 11510
+text = Number of characters + 1
+
+[comment]
+offset = 11511
+text = String length - 1 > 0? yes, back
+
+[comment]
+offset = 11513
+text = Reload string pointer
+
+[comment]
+offset = 11514
+text = String length back in B
+
+[comment]
+offset = 11515
+text = Output '%'
+
+[comment]
+offset = 11517
+text = '+' outside numeric field output.
+
+[comment]
+offset = 11520
+text = Output characters
+
+[comment]
+offset = 11523
+text = A = 0
+
+[comment]
+offset = 11524
+text = Field length = 0
+
+[comment]
+offset = 11525
+text = Format-Flag = 0
+
+[comment]
+offset = 11526
+text = '+' outside numeric field output.
+
+[comment]
+offset = 11529
+text = Format-Flag in D
+
+[comment]
+offset = 11530
+text = Load character from string
+
+[comment]
+offset = 11531
+text = String pointer + 1
+
+[comment]
+offset = 11532
+text = Numeric character?
+
+[comment]
+offset = 11534
+text = yes, print 1st character of strings
+
+[comment]
+offset = 11537
+text = Numeric character?
+
+[comment]
+offset = 11539
+text = yes, analyze numeric field
+
+[comment]
+offset = 11541
+text = String length - 1
+
+[comment]
+offset = 11542
+text = = 0? Yes, end of string!
+
+[comment]
+offset = 11545
+text = = '+' ?
+
+[comment]
+offset = 11547
+text = Format-Flag = 8
+
+[comment]
+offset = 11549
+text = yes, jump
+
+[comment]
+offset = 11551
+text = load character again
+
+[comment]
+offset = 11552
+text = Load character
+
+[comment]
+offset = 11553
+text = String pointer + 1
+
+[comment]
+offset = 11554
+text = Point?
+
+[comment]
+offset = 11556
+text = yes, determine decimal places
+
+[comment]
+offset = 11558
+text = = '%' ?
+
+[comment]
+offset = 11560
+text = yes, string formatting
+
+[comment]
+offset = 11562
+text = = next character?
+
+[comment]
+offset = 11563
+text = no, continue
+
+[comment]
+offset = 11565
+text = 2 Dollar signs?
+
+[comment]
+offset = 11567
+text = yes, set format flag
+
+[comment]
+offset = 11569
+text = 2 Stars?
+
+[comment]
+offset = 11571
+text = no, continue
+
+[comment]
+offset = 11573
+text = last character in format str.
+
+[comment]
+offset = 11574
+text = String length < 2?
+
+[comment]
+offset = 11576
+text = string pointer to next character
+
+[comment]
+offset = 11577
+text = no!
+
+[comment]
+offset = 11579
+text = load character
+
+[comment]
+offset = 11580
+text = Dollar signs?
+
+[comment]
+offset = 11582
+text = Bit 5 of format flag for '*' = 1
+
+[comment]
+offset = 11584
+text = no!
+
+[comment]
+offset = 11586
+text = String length - 1
+
+[comment]
+offset = 11587
+text = numeric field length + 1
+
+[comment]
+offset = 11588
+text = CP 0xAF Dummy-Instruction
+
+[comment]
+offset = 11589
+text = Clear Format-Flag
+
+[comment]
+offset = 11590
+text = Bit 4 of Format-Flags for '$' = 1
+
+[comment]
+offset = 11592
+text = string pointer + 1
+
+[comment]
+offset = 11593
+text = numeric field length + 1
+
+[comment]
+offset = 11594
+text = combine Format-Flag with last one
+
+[comment]
+offset = 11595
+text = and in D
+
+[comment]
+offset = 11596
+text = numeric field length + 1
+
+[comment]
+offset = 11597
+text = Number of decimal places = 0
+
+[comment]
+offset = 11599
+text = String length - 1
+
+[comment]
+offset = 11600
+text = = 0? Yes, format string evaluated
+
+[comment]
+offset = 11602
+text = Load character
+
+[comment]
+offset = 11603
+text = String pointer + 1
+
+[comment]
+offset = 11604
+text = Point?
+
+[comment]
+offset = 11606
+text = yes, determine number of decimal places
+
+[comment]
+offset = 11608
+text = Numeric character?
+
+[comment]
+offset = 11610
+text = yes, continue evaluating numeric field
+
+[comment]
+offset = 11612
+text = Comma?
+
+[comment]
+offset = 11614
+text = no, evaluate numeric field parameter
+
+[comment]
+offset = 11616
+text = Bit 6 of Format-Flags for ',' = 1
+
+[comment]
+offset = 11620
+text = continue at 2D4CH
+
+[comment]
+offset = 11622
+text = Load character
+
+[comment]
+offset = 11623
+text = Numeric character?
+
+[comment]
+offset = 11625
+text = output '.'
+
+[comment]
+offset = 11627
+text = no, output '.'
+
+[comment]
+offset = 11629
+text = Counter for decimal places = 1
+
+[comment]
+offset = 11631
+text = String pointer + 1
+
+[comment]
+offset = 11632
+text = Counter for decimal places + 1
+
+[comment]
+offset = 11633
+text = String length - 1
+
+[comment]
+offset = 11634
+text = = 0? Yes, end of string!
+
+[comment]
+offset = 11636
+text = Load character
+
+[comment]
+offset = 11637
+text = String pointer + 1
+
+[comment]
+offset = 11638
+text = Numeric character?
+
+[comment]
+offset = 11640
+text = yes!
+
+[comment]
+offset = 11642
+text = Format-Flag on stack
+
+[comment]
+offset = 11643
+text = set return address
+
+[comment]
+offset = 11647
+text = String pointer in DE
+
+[comment]
+offset = 11649
+text = Last character = '^' (up arrow)?
+
+[comment]
+offset = 11651
+text = no, continue at 2D97H
+
+[comment]
+offset = 11652
+text = also next 3 characters?
+
+[comment]
+offset = 11653
+text = no!
+
+[comment]
+offset = 11654
+text = String pointer + 1
+
+[comment]
+offset = 11655
+text = next character?
+
+[comment]
+offset = 11656
+text = no!
+
+[comment]
+offset = 11657
+text = String pointer + 1
+
+[comment]
+offset = 11658
+text = next character?
+
+[comment]
+offset = 11659
+text = no!
+
+[comment]
+offset = 11660
+text = String pointer + 1
+
+[comment]
+offset = 11661
+text = String length < 4?
+
+[comment]
+offset = 11662
+text = ignore the 4 arrows
+
+[comment]
+offset = 11664
+text = yes, ignore the 4 arrows
+
+[comment]
+offset = 11665
+text = Remove return address from stack
+
+[comment]
+offset = 11666
+text = Reload Format-Flag
+
+[comment]
+offset = 11667
+text = String length - 4
+
+[comment]
+offset = 11668
+text = Bit 1 of Format-Flags for exponent output set
+
+[comment]
+offset = 11669
+text = String pointer + 1
+
+[comment]
+offset = 11670
+text = JP Z,0D1EB Dummy-Instruction
+
+[comment]
+offset = 11671
+text = String pointer back in HL
+
+[comment]
+offset = 11672
+text = Reload Format-Flag
+
+[comment]
+offset = 11673
+text = Format-Flag in A
+
+[comment]
+offset = 11674
+text = String pointer - 1
+
+[comment]
+offset = 11675
+text = Numeric field length + 1
+
+[comment]
+offset = 11676
+text = '+' bit set?
+
+[comment]
+offset = 11678
+text = yes!
+
+[comment]
+offset = 11680
+text = Numeric field length - 1
+
+[comment]
+offset = 11681
+text = String length = 0?
+
+[comment]
+offset = 11683
+text = yes, format string evaluated
+
+[comment]
+offset = 11685
+text = Load character
+
+[comment]
+offset = 11686
+text = Minus sign?
+
+[comment]
+offset = 11688
+text = yes!
+
+[comment]
+offset = 11690
+text = Plus sign?
+
+[comment]
+offset = 11692
+text = no, output!
+
+[comment]
+offset = 11694
+text = Bit 3 of Format-Flags for '+' = 1
+
+[comment]
+offset = 11696
+text = Bit 2 of Format-Flags for sign behind number = 1
+
+[comment]
+offset = 11698
+text = Combine with total Format-Flag
+
+[comment]
+offset = 11699
+text = and in D
+
+[comment]
+offset = 11700
+text = String length - 1
+
+[comment]
+offset = 11701
+text = Reload program pointer
+
+[comment]
+offset = 11702
+text = Reload Flags
+
+[comment]
+offset = 11703
+text = Application? yes, done!
+
+[comment]
+offset = 11705
+text = String length + decimal places on stack
+
+[comment]
+offset = 11706
+text = Format-Flag + numeric field length on stack
+
+[comment]
+offset = 11707
+text = Evaluate expression (to formatted number)
+
+[comment]
+offset = 11710
+text = Reload Format-Flag + numeric field length
+
+[comment]
+offset = 11711
+text = String length + decimal places loaded
+
+[comment]
+offset = 11712
+text = and back on stack
+
+[comment]
+offset = 11713
+text = Program pointer on stack
+
+[comment]
+offset = 11714
+text = Numeric field length in B
+
+[comment]
+offset = 11715
+text = + decimal places
+
+[comment]
+offset = 11716
+text = Combine into A
+
+[comment]
+offset = 11717
+text = Total field length >= 25?
+
+[comment]
+offset = 11719
+text = yes, FUNCTION CODE - Error
+
+[comment]
+offset = 11722
+text = Format-Flag in A
+
+[comment]
+offset = 11723
+text = Bit 7 set (Formatting!)
+
+[comment]
+offset = 11725
+text = Convert number to formatted string
+
+[comment]
+offset = 11728
+text = and output it
+
+[comment]
+offset = 11731
+text = Reload program pointer
+
+[comment]
+offset = 11732
+text = Program pointer - 1
+
+[comment]
+offset = 11733
+text = address next character
+
+[comment]
+offset = 11734
+text = set Carry (for CR)
+
+[comment]
+offset = 11735
+text = Instruction end? yes, jump
+
+[comment]
+offset = 11737
+text = store character
+
+[comment]
+offset = 11740
+text = Semicolon?
+
+[comment]
+offset = 11742
+text = yes!
+
+[comment]
+offset = 11744
+text = Comma?
+
+[comment]
+offset = 11746
+text = no, SYNTAX ERROR
+
+[comment]
+offset = 11749
+text = next character
+
+[comment]
+offset = 11750
+text = load character counter
+
+[comment]
+offset = 11751
+text = program pointer in DE
+
+[comment]
+offset = 11752
+text = load string pointer
+
+[comment]
+offset = 11753
+text = and back on stack
+
+[comment]
+offset = 11754
+text = Flags on stack
+
+[comment]
+offset = 11755
+text = Program pointer on stack
+
+[comment]
+offset = 11756
+text = original string length in A
+
+[comment]
+offset = 11757
+text = -String length = number of processed characters
+
+[comment]
+offset = 11758
+text = string pointer + 1
+
+[comment]
+offset = 11759
+text = string address in HL
+
+[comment]
+offset = 11763
+text = number of processed characters
+
+[comment]
+offset = 11765
+text = in DE
+
+[comment]
+offset = 11766
+text = +String address = address of the rest of the string
+
+[comment]
+offset = 11767
+text = remaining string length > 0?
+
+[comment]
+offset = 11769
+text = yes, continue
+
+[comment]
+offset = 11772
+text = continue at 2E04H
+
+[comment]
+offset = 11774
+text = '+' outside numeric field output.
+
+[comment]
+offset = 11777
+text = Output characters
+
+[comment]
+offset = 11780
+text = reload program pointer
+
+[comment]
+offset = 11781
+text = reload Flags
+
+[comment]
+offset = 11782
+text = Load next number with same format?
+
+[comment]
+offset = 11785
+text = Carry set? yes, output CR
+
+[comment]
+offset = 11788
+text = program pointer on stack
+
+[comment]
+offset = 11789
+text = Remove format string from string area
+
+[comment]
+offset = 11792
+text = reload program pointer
+
+[comment]
+offset = 11793
+text = Output flag on screen, done!
+
+[comment]
+offset = 11796
+text = Entry point '!', number of characters = 1
+
+[comment]
+offset = 11798
+text = LD A,F1 Dummy-Instruction
+
+[comment]
+offset = 11799
+text = Entry point '%', stack correction
+
+[comment]
+offset = 11800
+text = string length - 1
+
+[comment]
+offset = 11801
+text = '+' outside numeric field output.
+
+[comment]
+offset = 11804
+text = reload program pointer
+
+[comment]
+offset = 11805
+text = reload flag laden
+
+[comment]
+offset = 11806
+text = Application? yes, done!
+
+[comment]
+offset = 11808
+text = String length on stack
+
+[comment]
+offset = 11809
+text = evaluate expression
+
+[comment]
+offset = 11812
+text = Result not string? TM-Error
+
+[comment]
+offset = 11815
+text = string length laden
+
+[comment]
+offset = 11816
+text = and back on stack
+
+[comment]
+offset = 11817
+text = program pointer on stack
+
+[comment]
+offset = 11818
+text = string pointer of the string to be formatted
+
+[comment]
+offset = 11821
+text = number of characters as 2nd argument for LEFT$ in B
+
+[comment]
+offset = 11822
+text = Left-Offset = 0
+
+[comment]
+offset = 11824
+text = both parameters on stack
+
+[comment]
+offset = 11825
+text = Format string. The 1st '!' or the first '%' split off
+
+[comment]
+offset = 11828
+text = Output formatted string
+
+[comment]
+offset = 11831
+text = String pointer in HL
+
+[comment]
+offset = 11834
+text = number of characters in A
+
+[comment]
+offset = 11835
+text = length of formatted string
+
+[comment]
+offset = 11836
+text = -string length = processed characters
+
+[comment]
+offset = 11837
+text = Space characters load
+
+[comment]
+offset = 11839
+text = difference = 0?
+
+[comment]
+offset = 11841
+text = yes, continue
+
+[comment]
+offset = 11844
+text = output spaces
+
+[comment]
+offset = 11847
+text = continue at 2E40H
+
+[comment]
+offset = 11849
+text = save AF
+
+[comment]
+offset = 11850
+text = is bit set in format flag?
+
+[comment]
+offset = 11851
+text = (can only be '+' bit)
+
+[comment]
+offset = 11852
+text = load '+'
+
+[comment]
+offset = 11854
+text = yes, output
+
+[comment]
+offset = 11857
+text = reload AF
 
 [block]
 offset = 0
@@ -25225,4 +28483,194 @@ text = Print string
 [block]
 offset = 10431
 text = Reserve space for a string in string space
+
+[block]
+offset = 10458
+text = Pack string area
+
+[block]
+offset = 10484
+text = Search for highest string in temporary storage
+
+[block]
+offset = 10499
+text = Search for highest string in simple variables
+
+[block]
+offset = 10528
+text = Search for highest string in matrix table
+
+[block]
+offset = 10570
+text = Compare string with the highest string so far, and replace if higher in string space.
+
+[block]
+offset = 10603
+text = Sort the highest string
+
+[block]
+offset = 10639
+text = String concatenation
+
+[block]
+offset = 10694
+text = Transfer string to string area
+
+[block]
+offset = 10711
+text = Remove string from temporary storage and string area
+
+[block]
+offset = 10723
+text = Remove string from string area
+
+[block]
+offset = 10741
+text = Remove string from temporary storage
+
+[block]
+offset = 10755
+text = LEN function - determines the length of a string
+
+[block]
+offset = 10767
+text = ASC function - determines ASCII code of 1st character of a string
+
+[block]
+offset = 10783
+text = CHR$ function - Creates a 1-byte string from the argument (ASCII-Code)
+
+[block]
+offset = 10799
+text = STRING$ function - creates a string from n same characters
+
+[block]
+offset = 10849
+text = LEFT$ function - separates left part of a string
+
+[block]
+offset = 10897
+text = RIGHT$ function - separates right part of a string
+
+[block]
+offset = 10906
+text = MID$ function - separates middle part of a string
+
+[block]
+offset = 10949
+text = VAL function - convert string into number
+
+[block]
+offset = 10975
+text = Subroutine for LEFT$, RIGHT$ and MID$
+
+[block]
+offset = 10983
+text = *********************************
+              Function token on the left side of an assignment
+
+[block]
+offset = 10991
+text = INP function
+              Read data from input port
+
+[block]
+offset = 11003
+text = OUT statement
+              Output data to output port
+
+[block]
+offset = 11009
+text = *********************************
+              Evaluate expression and convert result to integer
+
+[block]
+offset = 11022
+text = *********************************
+              Analyze 2 arguments for OUT
+
+[block]
+offset = 11035
+text = *********************************
+              Evaluate expression, convert result to integer (<256)
+
+[block]
+offset = 11049
+text = *********************************
+              LLIST statement
+              List program on printer
+
+[block]
+offset = 11054
+text = *********************************
+              LIST statement
+              List program on screen
+
+[block]
+offset = 11125
+text = *********************************
+              Output text string (terminated with 00)
+
+[block]
+offset = 11134
+text = *********************************
+              Generate readable text from intermediate code
+              Transferred from the program line into the I/O buffer.
+
+[block]
+offset = 11206
+text = *********************************
+              DELETE command
+              Delete program lines
+
+[block]
+offset = 11253
+text = SOUND command
+
+[block]
+offset = 11379
+text = Output graphic characters to a printer
+
+[block]
+offset = 11434
+text = PEEK function
+              Load content of a memory location
+
+[block]
+offset = 11441
+text = POKE command
+              Write value to memory location
+
+[block]
+offset = 11453
+text = USING command
+              Formatted output
+
+[block]
+offset = 11495
+text = % - Determine field length
+
+[block]
+offset = 11517
+text = Search for start of a string or numeric field
+
+[block]
+offset = 11622
+text = Determine number of decimal places
+
+[block]
+offset = 11642
+text = Evaluate numeric field end parameter
+
+[block]
+offset = 11774
+text = Format string end
+
+[block]
+offset = 11796
+text = String formatting
+
+[block]
+offset = 11849
+text = Subroutine for USING
 
