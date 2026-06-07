@@ -49,12 +49,12 @@
 0033  111D78   ..x                 ld    de,0x781D      ; Load DCB address
 0036  18E3     ..                  jr    $-27           ; continue at 1BH
                      ; Restart 38 - Interrupt vector for IM1
-0038  C3B82E   ...                 jp    0x2EB8         ; to Interrupt Service Routine
+0038  C3B82E   ...                 jp    ISR_TIMER      ; to Interrupt Service Routine
                      ; Printer output via Device Control Block (DCB)
                      ; Reg. A must contain the character to be output
 003B  112578   .%x                 ld    de,0x7825      ; Load DCB address
 003E  18DB     ..                  jr    $-35           ; continue at 1BH
-0040  C3FD2E   ...                 jp    0x2EFD         ; to keyboard read routine
+0040  C3FD2E   ...                 jp    KBD_SCAN_ONCE  ; to keyboard read routine
 0043  C9       .                   ret                  ; not used
 0044  0000     ..                  DEFB  0x00,0x00      ; unused
 0046  C3C203   ...                 jp    DCB_DISPATCH   ; Jump to DCB call routine
@@ -100,7 +100,7 @@
 0087  23       #                   inc   hl             ; Increment HL
 0088  362C     6,                  ld    (hl),0x2C      ; Store ',' character
 008A  23       #                   inc   hl             ; Increment HL
-008B  22A778   ".x                 ld    (0x78A7),hl    ; Save I/O buffer pointer to 78A7H
+008B  22A778   ".x                 ld    (IO_BUF_PTR),hl ; Save I/O buffer pointer to 78A7H
                      ; Initialisation of the DOS error hooks (RAM: 7952H)
                      INIT_DOS_HOOKS:
 008E  112D01   .-.                 ld    de,ERROR_L3    ; Address of L3 error handler (012DH)
@@ -232,7 +232,7 @@
 0145  F5       .                   push  af             ; Save X
 0146  CF       .                   rst   8              ; Expect ',' (RST 08H)
 0147  2C       ,                   inc   l              ; INC L
-0148  CD1C2B   ..+                 call  0x2B1C         ; Call GETBYT (2B1CH?)
+0148  CD1C2B   ..+                 call  GETBYT         ; Call GETBYT (2B1CH?)
 014B  FE40     .@                  cp    0x40           ; Y < 64?
 014D  D24A1E   .J.                 jp    nc,0x1E4A      ; JP NC, FCERR (1E4AH)
 0150  5F       _                   ld    e,a            ; E = Y
@@ -4357,7 +4357,7 @@
 1A4B  D1       .                   pop   de             ; line number in DE
 1A4C  D5       .                   push  de             ; and back on stack
 1A4D  CD2C1B   .,.                 call  FNDLIN         ; search for line in program text
-1A50  DC532E   .S.                 call  c,0x2E53       ; exists! output line
+1A50  DC532E   .S.                 call  c,AUTO_LINE_OUT ; exists! output line
 1A53  00       .                   nop   
 1A54  CDE303   ...                 call  RDLINE         ; read line from keyboard
 1A57  D1       .                   pop   de             ; load AUTO line number
@@ -4439,7 +4439,7 @@
 1AD8  72       r                   ld    (hl),d
 1AD9  23       #                   inc   hl             ; line pointer to first text byte
 1ADA  EB       .                   ex    de,hl
-1ADB  2AA778   *.x                 ld    hl,(0x78A7)    ; I/O buffer start address
+1ADB  2AA778   *.x                 ld    hl,(IO_BUF_PTR) ; I/O buffer start address
 1ADE  EB       .                   ex    de,hl          ; in DE
 1ADF  1B       .                   dec   de             ; - 2 = start of intermediate code
 1AE0  1B       .                   dec   de
@@ -4586,7 +4586,7 @@
 1BC1  32B078   2.x                 ld    (0x78B0),a
 1BC4  4F       O                   ld    c,a            ; character counter = 0
 1BC5  EB       .                   ex    de,hl
-1BC6  2AA778   *.x                 ld    hl,(0x78A7)    ; address of I/O buffer
+1BC6  2AA778   *.x                 ld    hl,(IO_BUF_PTR) ; address of I/O buffer
 1BC9  2B       +                   dec   hl             ; - 2
 1BCA  2B       +                   dec   hl
 1BCB  EB       .                   ex    de,hl          ; in DE
@@ -4710,7 +4710,7 @@
 1C81  09       .                   add   hl,bc          ; character counter + 5
 1C82  44       D                   ld    b,h            ; in BC
 1C83  4D       M                   ld    c,l
-1C84  2AA778   *.x                 ld    hl,(0x78A7)    ; start address of I/O buffer - 3
+1C84  2AA778   *.x                 ld    hl,(IO_BUF_PTR) ; start address of I/O buffer - 3
 1C87  2B       +                   dec   hl
 1C88  2B       +                   dec   hl             ; pointer to byte before intermediate code
 1C89  2B       +                   dec   hl
@@ -5235,7 +5235,7 @@
 1F91  5F       _                   ld    e,a
 1F92  C3AB19   ...                 jp    ERROR_HANDLER_RESUME ; to error handling
                      ON_GOTO_GOSUB:
-1F95  CD1C2B   ..+                 call  0x2B1C         ; Evaluate expression, integer
+1F95  CD1C2B   ..+                 call  GETBYT         ; Evaluate expression, integer
 1F98  7E       ~                   ld    a,(hl)         ; Load character from program text
 1F99  47       G                   ld    b,a            ; in B
 1F9A  FE91     ..                  cp    0x91           ; = GOSUB token?
@@ -5296,7 +5296,7 @@
 1FEE  CABE1D   ...                 jp    z,CMD_END_INPUT ; ja, terminate program execution.
 1FF1  C3051F   ...                 jp    CMD_DATA       ; search next statement, done
                      ; ERROR Statement
-1FF4  CD1C2B   ..+                 call  0x2B1C         ; analyze error code
+1FF4  CD1C2B   ..+                 call  GETBYT         ; analyze error code
 1FF7  C0       .                   ret   nz             ; more characters? yes-error
 1FF8  B7       .                   or    a              ; error code = 0?
 1FF9  CA4A1E   .J.                 jp    z,0x1E4A       ; yes, FUNCTION CODE - Error
@@ -5536,7 +5536,7 @@
 21A9  CD683B   .h;                 call  0x3B68         ; search file on cassette
 21AC  E5       .                   push  hl             ; program pointer on stack
 21AD  06FA     ..                  ld    b,0xFA         ; max. 250 characters
-21AF  2AA778   *.x                 ld    hl,(0x78A7)    ; address I/O buffer
+21AF  2AA778   *.x                 ld    hl,(IO_BUF_PTR) ; address I/O buffer
 21B2  CD883B   ..;                 call  0x3B88         ; read one byte
 21B5  77       w                   ld    (hl),a         ; transfer to buffer
 21B6  23       #                   inc   hl             ; buffer pointer + 1
@@ -5548,7 +5548,7 @@
 21C0  00       .                   nop                  ; 3 x NOP
 21C1  00       .                   nop   
 21C2  00       .                   nop   
-21C3  2AA778   *.x                 ld    hl,(0x78A7)    ; address buffer start
+21C3  2AA778   *.x                 ld    hl,(IO_BUF_PTR) ; address buffer start
 21C6  2B       +                   dec   hl             ; buffer pointer 1 byte before start
 21C7  1822     ."                  jr    $+36           ; continue at 21EBH
                      ; Read from Keyboard
@@ -6144,7 +6144,7 @@
 2567  EB       .                   ex    de,hl          ; program pointer back in HL
                      ; 2. argument analyze
                      ; integer value (< 256) in A
-2568  CD1C2B   ..+                 call  0x2B1C         ; 2. argument analyze
+2568  CD1C2B   ..+                 call  GETBYT         ; 2. argument analyze
 256B  EB       .                   ex    de,hl          ; 2. Arg. in HL, program pointer in DE
 256C  E3       .                   ex    (sp),hl        ; Tab.Offset load, 2.Arg. on stack
 256D  1814     ..                  jr    $+22           ; continue at 2583H
@@ -7058,7 +7058,7 @@
 2A2F  D7       .                   rst   0x10           ; next character
 2A30  CF       .                   rst   8              ; followed by '(' ?
 2A31  28       (                   DEFB  0x28
-2A32  CD1C2B   ..+                 call  0x2B1C         ; evaluate string length and in E
+2A32  CD1C2B   ..+                 call  GETBYT         ; evaluate string length and in E
 2A35  D5       .                   push  de             ; string length on stack
 2A36  CF       .                   rst   8              ; followed by a comma ?
 2A37  2C       ,                   DEFB  0x2C
@@ -7145,7 +7145,7 @@
 2AA9  2805     (.                  jr    z,$+7          ; yes, only 2 arguments
 2AAB  CF       .                   rst   8              ; no, followed by a comma ?
 2AAC  2C       ,                   DEFB  0x2C
-2AAD  CD1C2B   ..+                 call  0x2B1C         ; evaluate 3rd argument (in E)
+2AAD  CD1C2B   ..+                 call  GETBYT         ; evaluate 3rd argument (in E)
 2AB0  CF       .                   rst   8              ; now ')' must follow
 2AB1  29       )                   DEFB  0x29
 2AB2  F1       .                   pop   af             ; load 2nd argument into A
@@ -7226,7 +7226,7 @@
 2B0D  C9       .                   ret                  ; done
                      ; *********************************
                      ; Analyze 2 arguments for OUT
-2B0E  CD1C2B   ..+                 call  0x2B1C         ; Accept port number (in A)
+2B0E  CD1C2B   ..+                 call  GETBYT         ; Accept port number (in A)
 2B11  329478   2.x                 ld    (0x7894),a     ; in INP and OUT subprograms
 2B14  329778   2.x                 ld    (0x7897),a
 2B17  CF       .                   rst   8              ; followed by a comma?
@@ -7289,7 +7289,7 @@
 2B63  E1       .                   pop   hl             ; Load program pointer
 2B64  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH ; Output space
 2B67  CD7E2B   .~+                 call  DETOKEN        ; Generate readable text from intermediate c
-2B6A  2AA778   *.x                 ld    hl,(0x78A7)    ; Address I/O buffer
+2B6A  2AA778   *.x                 ld    hl,(IO_BUF_PTR) ; Address I/O buffer
 2B6D  CD752B   .u+                 call  OUTSTR_00      ; Output text of the line
 2B70  CDFE20   ..                  call  PRINT_CR       ; Output carriage return
 2B73  18BE     ..                  jr    $-64           ; Next line
@@ -7307,7 +7307,7 @@
                      ; Transferred from the program line into the I/O buffer.
                      DETOKEN:
 2B7E  E5       .                   push  hl             ; Program pointer on the stack
-2B7F  2AA778   *.x                 ld    hl,(0x78A7)    ; Load buffer pointer into BC
+2B7F  2AA778   *.x                 ld    hl,(IO_BUF_PTR) ; Load buffer pointer into BC
 2B82  44       D                   ld    b,h
 2B83  4D       M                   ld    c,l
 2B84  E1       .                   pop   hl             ; Load program pointer
@@ -7321,7 +7321,7 @@
 2B8E  23       #                   inc   hl             ; Program pointer + 1
 2B8F  02       .                   ld    (bc),a         ; Transfer character into buffer
 2B90  C8       .                   ret   z              ; End of line, finished!
-2B91  C39D2E   ...                 jp    0x2E9D         ; Continue at 2E9DH (Rucksack)
+2B91  C39D2E   ...                 jp    LIST_STRING_OUT ; Continue at 2E9DH (Rucksack)
 2B94  FEFB     ..                  cp    0xFB           ; Token ' (REM)?
 2B96  2008      .                  jr    nz,$+10        ; No!
 2B98  0B       .                   dec   bc             ; Delete 'REM' from buffer
@@ -7390,13 +7390,13 @@
 2BF4  C9       .                   ret   
                      ; SOUND command
                      CMD_SOUND:
-2BF5  CD1C2B   ..+                 call  0x2B1C         ; Analyze 1st parameter (Note)
+2BF5  CD1C2B   ..+                 call  GETBYT         ; Analyze 1st parameter (Note)
 2BF8  FE20     .                   cp    0x20           ; Note > 31?
 2BFA  D24A1E   .J.                 jp    nc,0x1E4A      ; yes, FUNCTION-CODE Error
 2BFD  32D27A   2.z                 ld    (SOUND_NOTE_VALUE),a ; Save note value
 2C00  CF       .                   rst   8              ; Followed by a comma?
 2C01  2C       ,                   DEFB  0x2C
-2C02  CD1C2B   ..+                 call  0x2B1C         ; Analyze 2nd parameter (Length)
+2C02  CD1C2B   ..+                 call  GETBYT         ; Analyze 2nd parameter (Length)
 2C05  B7       .                   or    a              ; Tone length = 0?
 2C06  CA4A1E   .J.                 jp    z,0x1E4A       ; yes, FUNCTION CODE - Error
 2C09  FE0A     ..                  cp    0x0A           ; Tone length > 9?
@@ -7518,7 +7518,7 @@
 2CB4  D5       .                   push  de             ; on stack
 2CB5  CF       .                   rst   8              ; Followed by a comma?
 2CB6  2C       ,                   DEFB  0x2C
-2CB7  CD1C2B   ..+                 call  0x2B1C         ; Evaluate value (<256) and in A
+2CB7  CD1C2B   ..+                 call  GETBYT         ; Evaluate value (<256) and in A
 2CBA  D1       .                   pop   de             ; Load address
 2CBB  12       .                   ld    (de),a         ; Save value at this address
 2CBC  C9       .                   ret                  ; done
@@ -7793,150 +7793,173 @@
 2E4C  3E2B     >+                  ld    a,0x2B         ; load '+'
 2E4E  C42A03   .*.                 call  nz,CHAR_OUTPUT_DISPATCH ; yes, output
 2E51  F1       .                   pop   af             ; reload AF
-2E52  C9       .                   ret   
-2E53  60       `                   ld    h,b
+2E52  C9       .                   ret                  ; done
+                     ; ****************************************************************
+                     ; Output an existing line during AUTO input
+2E53  60       `                   ld    h,b            ; Line address in HL
 2E54  69       i                   ld    l,c
-2E55  23       #                   inc   hl
+2E55  23       #                   inc   hl             ; Line address after line number
 2E56  23       #                   inc   hl
 2E57  23       #                   inc   hl
 2E58  23       #                   inc   hl
-2E59  CD7E2B   .~+                 call  DETOKEN
-2E5C  2AA778   *.x                 ld    hl,(0x78A7)
-2E5F  CD752B   .u+                 call  OUTSTR_00
+2E59  CD7E2B   .~+                 call  DETOKEN        ; Prepare line and put in I/O buffer
+2E5C  2AA778   *.x                 ld    hl,(IO_BUF_PTR) ; Load buffer address
+2E5F  CD752B   .u+                 call  OUTSTR_00      ; Output line
 2E62  C9       .                   ret   
-2E63  CF       .                   rst   8
-2E64  28CD     (.                  jr    z,$-49
-2E66  1C       .                   inc   e
-2E67  2B       +                   dec   hl
-2E68  B7       .                   or    a
-2E69  2812     (.                  jr    z,$+20
-2E6B  3D       =                   dec   a
-2E6C  2803     (.                  jr    z,$+5
-2E6E  C34A1E   .J.                 jp    0x1E4A
-2E71  1600     ..                  ld    d,0x00
-2E73  3A3B78   :;x                 ld    a,(OUT_LATCH)
-2E76  F608     ..                  or    0x08
-2E78  323B78   2;x                 ld    (OUT_LATCH),a
-2E7B  180A     ..                  jr    $+12
-2E7D  1620     .                   ld    d,0x20
-2E7F  3A3B78   :;x                 ld    a,(OUT_LATCH)
-2E82  E6F7     ..                  and   0xF7
-2E84  323B78   2;x                 ld    (OUT_LATCH),a
-2E87  320068   2.h                 ld    (0x6800),a
-2E8A  E5       .                   push  hl
-2E8B  210070   !.p                 ld    hl,0x7000
-2E8E  010008   ...                 ld    bc,0x0800
-2E91  7A       z                   ld    a,d
-2E92  77       w                   ld    (hl),a
-2E93  23       #                   inc   hl
-2E94  0B       .                   dec   bc
-2E95  78       x                   ld    a,b
+                     ; ****************************************************************
+                     ; Execute MODE statement
+2E63  CF       .                   rst   8              ; followed by a '(' ?
+2E64  28       (                   DEFB  0x28
+2E65  CD1C2B   ..+                 call  GETBYT         ; Evaluate operand in parentheses
+2E68  B7       .                   or    a              ; MODE (0) ?
+2E69  2812     (.                  jr    z,$+20         ; yes, jump
+2E6B  3D       =                   dec   a              ; - 1
+2E6C  2803     (.                  jr    z,$+5          ; = 0? yes, MODE (1)!
+2E6E  C34A1E   .J.                 jp    0x1E4A         ; no, FUNCTION CODE - Error
+                     ; Set MODE (1)
+2E71  1600     ..                  ld    d,0x00         ; Clear character = X'00'
+2E73  3A3B78   :;x                 ld    a,(OUT_LATCH)  ; Load output latch byte
+2E76  F608     ..                  or    0x08           ; Set bit 3
+2E78  323B78   2;x                 ld    (OUT_LATCH),a  ; and save back
+2E7B  180A     ..                  jr    $+12           ; continue at 2E87H
+                     ; Set MODE (0)
+2E7D  1620     .                   ld    d,0x20         ; Clear character = blank
+2E7F  3A3B78   :;x                 ld    a,(OUT_LATCH)  ; Load output latch byte
+2E82  E6F7     ..                  and   0xF7           ; Clear bit 3
+2E84  323B78   2;x                 ld    (OUT_LATCH),a  ; and save back
+2E87  320068   2.h                 ld    (0x6800),a     ; Output latch byte
+2E8A  E5       .                   push  hl             ; Program pointer on stack
+2E8B  210070   !.p                 ld    hl,0x7000      ; Load screen start address
+2E8E  010008   ...                 ld    bc,0x0800      ; Counter = 2K byte
+2E91  7A       z                   ld    a,d            ; Fill screen memory with clear character
+2E92  77       w                   ld    (hl),a         ; fill
+2E93  23       #                   inc   hl             ; Screen address + 1
+2E94  0B       .                   dec   bc             ; Counter - 1
+2E95  78       x                   ld    a,b            ; 0?
 2E96  B1       .                   or    c
-2E97  20F8      .                  jr    nz,$-6
-2E99  E1       .                   pop   hl
-2E9A  CF       .                   rst   8
-2E9B  29       )                   add   hl,hl
+2E97  20F8      .                  jr    nz,$-6         ; no, continue
+2E99  E1       .                   pop   hl             ; Load program pointer
+2E9A  CF       .                   rst   8              ; Termination with ')' ?
+2E9B  29       )                   DEFB  0x29
 2E9C  C9       .                   ret   
-2E9D  FE22     ."                  cp    0x22
-2E9F  CAB32E   ...                 jp    z,0x2EB3
-2EA2  B7       .                   or    a
-2EA3  F2892B   ..+                 jp    p,0x2B89
-2EA6  C3942B   ..+                 jp    0x2B94
-2EA9  7E       ~                   ld    a,(hl)
-2EAA  B7       .                   or    a
-2EAB  23       #                   inc   hl
-2EAC  02       .                   ld    (bc),a
-2EAD  C8       .                   ret   z
-2EAE  FE22     ."                  cp    0x22
-2EB0  CA892B   ..+                 jp    z,0x2B89
-2EB3  03       .                   inc   bc
-2EB4  15       .                   dec   d
-2EB5  C8       .                   ret   z
-2EB6  18F1     ..                  jr    $-13
-2EB8  F5       .                   push  af
+                     ; ****************************************************************
+                     ; Additional routine for LIST
+                     ; (Output of strings)
+2E9D  FE22     ."                  cp    0x22           ; String start?
+2E9F  CAB32E   ...                 jp    z,0x2EB3       ; yes, continue at 2EB3H
+2EA2  B7       .                   or    a              ; is it a token?
+2EA3  F2892B   ..+                 jp    p,0x2B89       ; no, next character
+2EA6  C3942B   ..+                 jp    0x2B94         ; yes, continue at 2B94H
+2EA9  7E       ~                   ld    a,(hl)         ; Load character
+2EAA  B7       .                   or    a              ; Test for end of line
+2EAB  23       #                   inc   hl             ; Program pointer + 1
+2EAC  02       .                   ld    (bc),a         ; Transfer character to buffer
+2EAD  C8       .                   ret   z              ; End of line, done
+2EAE  FE22     ."                  cp    0x22           ; String end?
+2EB0  CA892B   ..+                 jp    z,0x2B89       ; yes, continue at 2B89H
+2EB3  03       .                   inc   bc             ; Buffer pointer + 1
+2EB4  15       .                   dec   d              ; Buffer full?
+2EB5  C8       .                   ret   z              ; yes, stop
+2EB6  18F1     ..                  jr    $-13           ; next character in string
+                     ; ****************************************************************
+                     ; Interrupt Service Routine
+                     ; (triggered every 20 ms by the video controller)
+2EB8  F5       .                   push  af             ; Save register contents
 2EB9  C5       .                   push  bc
 2EBA  D5       .                   push  de
 2EBB  E5       .                   push  hl
-2EBC  CD7D78   .}x                 call  0x787D
-2EBF  CD7B3F   .{?                 call  0x3F7B
-2EC2  CDDC2E   ...                 call  0x2EDC
-2EC5  CDFD2E   ...                 call  0x2EFD
-2EC8  F5       .                   push  af
-2EC9  213978   !9x                 ld    hl,0x7839
-2ECC  CB46     .F                  bit   0,(hl)
-2ECE  CC1B30   ..0                 call  z,0x301B
-2ED1  F1       .                   pop   af
-2ED2  CD3034   .04                 call  0x3430
-2ED5  E1       .                   pop   hl
+2EBC  CD7D78   .}x                 call  0x787D         ; RAM expansion output
+2EBF  CD7B3F   .{?                 call  0x3F7B         ; Invert screen if necessary
+2EC2  CDDC2E   ...                 call  CURSOR_BLINK   ; Output/blink cursor
+2EC5  CDFD2E   ...                 call  KBD_SCAN_ONCE  ; Query keyboard
+2EC8  F5       .                   push  af             ; Save read character
+2EC9  213978   !9x                 ld    hl,0x7839      ; Address flag 2
+2ECC  CB46     .F                  bit   0,(hl)         ; Carriage return flag set?
+2ECE  CC1B30   ..0                 call  z,0x301B       ; no, output character (echo)
+2ED1  F1       .                   pop   af             ; Reload character
+2ED2  CD3034   .04                 call  0x3430         ; Sound buzzer
+2ED5  E1       .                   pop   hl             ; Restore register contents
 2ED6  D1       .                   pop   de
 2ED7  C1       .                   pop   bc
 2ED8  F1       .                   pop   af
-2ED9  FB       .                   ei    
-2EDA  ED4D     .M                  reti  
-2EDC  3A3978   :9x                 ld    a,(0x7839)
-2EDF  CB47     .G                  bit   0,a
-2EE1  C0       .                   ret   nz
-2EE2  214178   !Ax                 ld    hl,0x7841
-2EE5  35       5                   dec   (hl)
-2EE6  C0       .                   ret   nz
-2EE7  3E10     >.                  ld    a,0x10
-2EE9  324178   2Ax                 ld    (0x7841),a
-2EEC  2A2078   * x                 ld    hl,(0x7820)
-2EEF  3E40     >@                  ld    a,0x40
-2EF1  AE       .                   xor   (hl)
+2ED9  FB       .                   ei                   ; Re-enable interrupts
+2EDA  ED4D     .M                  reti                 ; RETURN from interrupt
+                     ; ****************************************************************
+                     ; Output / blink cursor
+2EDC  3A3978   :9x                 ld    a,(0x7839)     ; Load flag 2
+2EDF  CB47     .G                  bit   0,a            ; Carriage return flag set?
+2EE1  C0       .                   ret   nz             ; yes, done
+2EE2  214178   !Ax                 ld    hl,0x7841      ; Address blink counter
+2EE5  35       5                   dec   (hl)           ; - 1
+2EE6  C0       .                   ret   nz             ; not zero, done!
+2EE7  3E10     >.                  ld    a,0x10         ; Reset blink counter
+2EE9  324178   2Ax                 ld    (0x7841),a     ; save back
+2EEC  2A2078   * x                 ld    hl,(0x7820)    ; Load cursor address
+2EEF  3E40     >@                  ld    a,0x40         ; Set inverse bit in A
+2EF1  AE       .                   xor   (hl)           ; Invert character at cursor position
 2EF2  77       w                   ld    (hl),a
 2EF3  C9       .                   ret   
-2EF4  CDFD2E   ...                 call  0x2EFD
-2EF7  F5       .                   push  af
-2EF8  CD0E2F   ../                 call  0x2F0E
-2EFB  F1       .                   pop   af
+                     ; ****************************************************************
+                     ; Read a character from the keyboard
+                     ; (Called via keyboard DCB)
+2EF4  CDFD2E   ...                 call  KBD_SCAN_ONCE  ; Evaluate keyboard
+2EF7  F5       .                   push  af             ; Save character
+2EF8  CD0E2F   ../                 call  KBD_FLAGS_RESET ; Reset flags
+2EFB  F1       .                   pop   af             ; Reload character
 2EFC  C9       .                   ret   
-2EFD  3A0068   :.h                 ld    a,(0x6800)
-2F00  F6C0     ..                  or    0xC0
-2F02  2F       /                   cpl   
-2F03  FE00     ..                  cp    0x00
-2F05  2807     (.                  jr    z,$+9
-2F07  CD282F   .(/                 call  0x2F28
-2F0A  B7       .                   or    a
-2F0B  C2D705   ...                 jp    nz,KBD_ROLLOVER
-2F0E  213878   !8x                 ld    hl,0x7838
-2F11  CB56     .V                  bit   2,(hl)
-2F13  2808     (.                  jr    z,$+10
-2F15  3A3A78   ::x                 ld    a,(0x783A)
-2F18  B7       .                   or    a
-2F19  2802     (.                  jr    z,$+4
-2F1B  CB96     ..                  res   2,(hl)
-2F1D  7E       ~                   ld    a,(hl)
-2F1E  E606     ..                  and   0x06
-2F20  323878   28x                 ld    (0x7838),a
-2F23  AF       .                   xor   a
+                     ; ****************************************************************
+                     ; Evaluate keyboard once
+2EFD  3A0068   :.h                 ld    a,(0x6800)     ; read all rows of the keyboard matrix
+2F00  F6C0     ..                  or    0xC0           ; mask out columns 6 and 7
+2F02  2F       /                   cpl                  ; invert A register
+2F03  FE00     ..                  cp    0x00           ; if = 0, no key pressed
+2F05  2807     (.                  jr    z,$+9          ; yes! then clear all flags
+2F07  CD282F   .(/                 call  KBD_SCAN_ROWS  ; evaluate matrix rows individually
+2F0A  B7       .                   or    a              ; no ASCII character?
+2F0B  C2D705   ...                 jp    nz,KBD_ROLLOVER ; yes, check for multiple presses
+                     ; ****************************************************************
+                     ; Reset flag bits
+2F0E  213878   !8x                 ld    hl,0x7838      ; Address flag 1
+2F11  CB56     .V                  bit   2,(hl)         ; Function flag set?
+2F13  2808     (.                  jr    z,$+10         ; no!
+2F15  3A3A78   ::x                 ld    a,(0x783A)     ; Load time counter
+2F18  B7       .                   or    a              ; 0?
+2F19  2802     (.                  jr    z,$+4          ; yes, do not clear function flag
+2F1B  CB96     ..                  res   2,(hl)         ; Clear function flag
+2F1D  7E       ~                   ld    a,(hl)         ; Load flag 1
+2F1E  E606     ..                  and   0x06           ; clear all except function + inverse flag
+2F20  323878   28x                 ld    (0x7838),a     ; and save back
+2F23  AF       .                   xor   a              ; Clear character buffer B1
 2F24  323678   26x                 ld    (0x7836),a
 2F27  C9       .                   ret   
-2F28  21FE68   !.h                 ld    hl,0x68FE
-2F2B  0E08     ..                  ld    c,0x08
-2F2D  0606     ..                  ld    b,0x06
-2F2F  7E       ~                   ld    a,(hl)
-2F30  F604     ..                  or    0x04
-2F32  1F       .                   rra   
-2F33  302D     0-                  jr    nc,$+47
-2F35  10FB     ..                  djnz  $-3
-2F37  CB05     ..                  rlc   l
-2F39  0D       .                   dec   c
-2F3A  20F1      .                  jr    nz,$-13
-2F3C  0604     ..                  ld    b,0x04
-2F3E  21DF68   !.h                 ld    hl,0x68DF
-2F41  7E       ~                   ld    a,(hl)
-2F42  CB57     .W                  bit   2,a
-2F44  2810     (.                  jr    z,$+18
-2F46  CB05     ..                  rlc   l
-2F48  7E       ~                   ld    a,(hl)
-2F49  CB57     .W                  bit   2,a
-2F4B  280D     (.                  jr    z,$+15
-2F4D  CB05     ..                  rlc   l
-2F4F  7E       ~                   ld    a,(hl)
-2F50  CB57     .W                  bit   2,a
-2F52  280A     (.                  jr    z,$+12
-2F54  AF       .                   xor   a
+                     ; ****************************************************************
+                     ; Evaluate keyboard row by row
+                     ; Out: A = key code or zero
+2F28  21FE68   !.h                 ld    hl,0x68FE      ; Address keyboard row 1
+2F2B  0E08     ..                  ld    c,0x08         ; Row counter = 8
+2F2D  0606     ..                  ld    b,0x06         ; Column counter = 6
+2F2F  7E       ~                   ld    a,(hl)         ; Load row content
+2F30  F604     ..                  or    0x04           ; mask out column 2 (special function)
+2F32  1F       .                   rra                  ; least significant bit into carry
+2F33  302D     0-                  jr    nc,$+47        ; key found
+2F35  10FB     ..                  djnz  $-3            ; next bit (8x)
+2F37  CB05     ..                  rlc   l              ; address next row
+2F39  0D       .                   dec   c              ; row counter - 1
+2F3A  20F1      .                  jr    nz,$-13        ; > 0 ? yes, next row
+2F3C  0604     ..                  ld    b,0x04         ; column counter = 4 (column 2)
+2F3E  21DF68   !.h                 ld    hl,0x68DF      ; Address keyboard row 6
+2F41  7E       ~                   ld    a,(hl)         ; Load row content
+2F42  CB57     .W                  bit   2,a            ; '-' key pressed?
+2F44  2810     (.                  jr    z,$+18         ; yes!
+2F46  CB05     ..                  rlc   l              ; Address keyboard row 7
+2F48  7E       ~                   ld    a,(hl)         ; Load row content
+2F49  CB57     .W                  bit   2,a            ; RETURN key?
+2F4B  280D     (.                  jr    z,$+15         ; yes!
+2F4D  CB05     ..                  rlc   l              ; Address keyboard row 8
+2F4F  7E       ~                   ld    a,(hl)         ; Load row content
+2F50  CB57     .W                  bit   2,a            ; ':' key pressed?
+2F52  280A     (.                  jr    z,$+12         ; yes!
+2F54  AF       .                   xor   a              ; return with A = 0
 2F55  C9       .                   ret   
 2F56  0E03     ..                  ld    c,0x03
 2F58  1806     ..                  jr    $+8
@@ -9186,7 +9209,7 @@
 389D  7E       ~                   ld    a,(hl)
 389E  FE2C     .,                  cp    0x2C
 38A0  2820     (                   jr    z,$+34
-38A2  CD1C2B   ..+                 call  0x2B1C
+38A2  CD1C2B   ..+                 call  GETBYT
 38A5  B7       .                   or    a
 38A6  CA4A1E   .J.                 jp    z,0x1E4A
 38A9  FE09     ..                  cp    0x09
@@ -9205,7 +9228,7 @@
 38C1  C8       .                   ret   z
 38C2  CF       .                   rst   8
 38C3  2C       ,                   inc   l
-38C4  CD1C2B   ..+                 call  0x2B1C
+38C4  CD1C2B   ..+                 call  GETBYT
 38C7  B7       .                   or    a
 38C8  200C      .                  jr    nz,$+14
 38CA  3A3B78   :;x                 ld    a,(OUT_LATCH)

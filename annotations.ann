@@ -1939,6 +1939,16 @@ offset = 11798
 end = 11798
 type = DATA_BYTE
 
+[region]
+offset = 11876
+end = 11876
+type = DATA_BYTE
+
+[region]
+offset = 11931
+end = 11931
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -26761,6 +26771,498 @@ text = yes, output
 offset = 11857
 text = reload AF
 
+[comment]
+offset = 11858
+text = done
+
+[comment]
+offset = 11859
+text = Line address in HL
+
+[comment]
+offset = 11861
+text = Line address after line number
+
+[comment]
+offset = 11865
+text = Prepare line and put in I/O buffer
+
+[comment]
+offset = 11868
+text = Load buffer address
+
+[comment]
+offset = 11871
+text = Output line
+
+[comment]
+offset = 11875
+text = followed by a '(' ?
+
+[comment]
+offset = 11877
+text = Evaluate operand in parentheses
+
+[comment]
+offset = 11880
+text = MODE (0) ?
+
+[comment]
+offset = 11881
+text = yes, jump
+
+[comment]
+offset = 11883
+text = - 1
+
+[comment]
+offset = 11884
+text = = 0? yes, MODE (1)!
+
+[comment]
+offset = 11886
+text = no, FUNCTION CODE - Error
+
+[comment]
+offset = 11889
+text = Clear character = X'00'
+
+[comment]
+offset = 11891
+text = Load output latch byte
+
+[comment]
+offset = 11894
+text = Set bit 3
+
+[comment]
+offset = 11896
+text = and save back
+
+[comment]
+offset = 11899
+text = continue at 2E87H
+
+[comment]
+offset = 11901
+text = Clear character = blank
+
+[comment]
+offset = 11903
+text = Load output latch byte
+
+[comment]
+offset = 11906
+text = Clear bit 3
+
+[comment]
+offset = 11908
+text = and save back
+
+[comment]
+offset = 11911
+text = Output latch byte
+
+[comment]
+offset = 11914
+text = Program pointer on stack
+
+[comment]
+offset = 11915
+text = Load screen start address
+
+[comment]
+offset = 11918
+text = Counter = 2K byte
+
+[comment]
+offset = 11921
+text = Fill screen memory with clear character
+
+[comment]
+offset = 11922
+text = fill
+
+[comment]
+offset = 11923
+text = Screen address + 1
+
+[comment]
+offset = 11924
+text = Counter - 1
+
+[comment]
+offset = 11925
+text = 0?
+
+[comment]
+offset = 11927
+text = no, continue
+
+[comment]
+offset = 11929
+text = Load program pointer
+
+[comment]
+offset = 11930
+text = Termination with ')' ?
+
+[comment]
+offset = 11933
+text = String start?
+
+[comment]
+offset = 11935
+text = yes, continue at 2EB3H
+
+[comment]
+offset = 11938
+text = is it a token?
+
+[comment]
+offset = 11939
+text = no, next character
+
+[comment]
+offset = 11942
+text = yes, continue at 2B94H
+
+[comment]
+offset = 11945
+text = Load character
+
+[comment]
+offset = 11946
+text = Test for end of line
+
+[comment]
+offset = 11947
+text = Program pointer + 1
+
+[comment]
+offset = 11948
+text = Transfer character to buffer
+
+[comment]
+offset = 11949
+text = End of line, done
+
+[comment]
+offset = 11950
+text = String end?
+
+[comment]
+offset = 11952
+text = yes, continue at 2B89H
+
+[comment]
+offset = 11955
+text = Buffer pointer + 1
+
+[comment]
+offset = 11956
+text = Buffer full?
+
+[comment]
+offset = 11957
+text = yes, stop
+
+[comment]
+offset = 11958
+text = next character in string
+
+[comment]
+offset = 11960
+text = Save register contents
+
+[comment]
+offset = 11964
+text = RAM expansion output
+
+[comment]
+offset = 11967
+text = Invert screen if necessary
+
+[comment]
+offset = 11970
+text = Output/blink cursor
+
+[comment]
+offset = 11973
+text = Query keyboard
+
+[comment]
+offset = 11976
+text = Save read character
+
+[comment]
+offset = 11977
+text = Address flag 2
+
+[comment]
+offset = 11980
+text = Carriage return flag set?
+
+[comment]
+offset = 11982
+text = no, output character (echo)
+
+[comment]
+offset = 11985
+text = Reload character
+
+[comment]
+offset = 11986
+text = Sound buzzer
+
+[comment]
+offset = 11989
+text = Restore register contents
+
+[comment]
+offset = 11993
+text = Re-enable interrupts
+
+[comment]
+offset = 11994
+text = RETURN from interrupt
+
+[comment]
+offset = 11996
+text = Load flag 2
+
+[comment]
+offset = 11999
+text = Carriage return flag set?
+
+[comment]
+offset = 12001
+text = yes, done
+
+[comment]
+offset = 12002
+text = Address blink counter
+
+[comment]
+offset = 12005
+text = - 1
+
+[comment]
+offset = 12006
+text = not zero, done!
+
+[comment]
+offset = 12007
+text = Reset blink counter
+
+[comment]
+offset = 12009
+text = save back
+
+[comment]
+offset = 12012
+text = Load cursor address
+
+[comment]
+offset = 12015
+text = Set inverse bit in A
+
+[comment]
+offset = 12017
+text = Invert character at cursor position
+
+[comment]
+offset = 12020
+text = Evaluate keyboard
+
+[comment]
+offset = 12023
+text = Save character
+
+[comment]
+offset = 12024
+text = Reset flags
+
+[comment]
+offset = 12027
+text = Reload character
+
+[comment]
+offset = 12029
+text = read all rows of the keyboard matrix
+
+[comment]
+offset = 12032
+text = mask out columns 6 and 7
+
+[comment]
+offset = 12034
+text = invert A register
+
+[comment]
+offset = 12035
+text = if = 0, no key pressed
+
+[comment]
+offset = 12037
+text = yes! then clear all flags
+
+[comment]
+offset = 12039
+text = evaluate matrix rows individually
+
+[comment]
+offset = 12042
+text = no ASCII character?
+
+[comment]
+offset = 12043
+text = yes, check for multiple presses
+
+[comment]
+offset = 12046
+text = Address flag 1
+
+[comment]
+offset = 12049
+text = Function flag set?
+
+[comment]
+offset = 12051
+text = no!
+
+[comment]
+offset = 12053
+text = Load time counter
+
+[comment]
+offset = 12056
+text = 0?
+
+[comment]
+offset = 12057
+text = yes, do not clear function flag
+
+[comment]
+offset = 12059
+text = Clear function flag
+
+[comment]
+offset = 12061
+text = Load flag 1
+
+[comment]
+offset = 12062
+text = clear all except function + inverse flag
+
+[comment]
+offset = 12064
+text = and save back
+
+[comment]
+offset = 12067
+text = Clear character buffer B1
+
+[comment]
+offset = 12072
+text = Address keyboard row 1
+
+[comment]
+offset = 12075
+text = Row counter = 8
+
+[comment]
+offset = 12077
+text = Column counter = 6
+
+[comment]
+offset = 12079
+text = Load row content
+
+[comment]
+offset = 12080
+text = mask out column 2 (special function)
+
+[comment]
+offset = 12082
+text = least significant bit into carry
+
+[comment]
+offset = 12083
+text = key found
+
+[comment]
+offset = 12085
+text = next bit (8x)
+
+[comment]
+offset = 12087
+text = address next row
+
+[comment]
+offset = 12089
+text = row counter - 1
+
+[comment]
+offset = 12090
+text = > 0 ? yes, next row
+
+[comment]
+offset = 12092
+text = column counter = 4 (column 2)
+
+[comment]
+offset = 12094
+text = Address keyboard row 6
+
+[comment]
+offset = 12097
+text = Load row content
+
+[comment]
+offset = 12098
+text = '-' key pressed?
+
+[comment]
+offset = 12100
+text = yes!
+
+[comment]
+offset = 12102
+text = Address keyboard row 7
+
+[comment]
+offset = 12104
+text = Load row content
+
+[comment]
+offset = 12105
+text = RETURN key?
+
+[comment]
+offset = 12107
+text = yes!
+
+[comment]
+offset = 12109
+text = Address keyboard row 8
+
+[comment]
+offset = 12111
+text = Load row content
+
+[comment]
+offset = 12112
+text = ':' key pressed?
+
+[comment]
+offset = 12114
+text = yes!
+
+[comment]
+offset = 12116
+text = return with A = 0
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -28673,4 +29175,61 @@ text = String formatting
 [block]
 offset = 11849
 text = Subroutine for USING
+
+[block]
+offset = 11859
+text = ****************************************************************
+              Output an existing line during AUTO input
+
+[block]
+offset = 11875
+text = ****************************************************************
+              Execute MODE statement
+
+[block]
+offset = 11889
+text = Set MODE (1)
+
+[block]
+offset = 11901
+text = Set MODE (0)
+
+[block]
+offset = 11933
+text = ****************************************************************
+              Additional routine for LIST
+              (Output of strings)
+
+[block]
+offset = 11960
+text = ****************************************************************
+              Interrupt Service Routine
+              (triggered every 20 ms by the video controller)
+
+[block]
+offset = 11996
+text = ****************************************************************
+              Output / blink cursor
+
+[block]
+offset = 12020
+text = ****************************************************************
+              Read a character from the keyboard
+              (Called via keyboard DCB)
+
+[block]
+offset = 12029
+text = ****************************************************************
+              Evaluate keyboard once
+              Out: A = read ASCII character
+              A = 0 if no key pressed
+
+[block]
+offset = 12046
+text = ****************************************************************
+              Reset flag bits
+
+[block]
+offset = 12072
+text = ****************************************************************\nEvaluate keyboard row by row\nOut: A = key code or zero
 
