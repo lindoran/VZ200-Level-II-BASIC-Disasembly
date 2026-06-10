@@ -1,33 +1,53 @@
-# Progress Report - June 7, 2026
+# Progress Report - June 8, 2026 (Re-work)
 
 ## Target Memory Range
-0x2E52 - 0x2F55 (Pages 205-209 of German PDF)
+0x2F55 - 0x307B (Pages 209-213 of German PDF)
 
 ## Work Summary
-- Translated and annotated the following routines:
-  - `AUTO_LINE_OUT` (0x2E53): Outputting existing lines during AUTO mode.
-  - `MODE_CMD` (0x2E63): Implementation of the VZ-specific `MODE` command.
-  - `MODE_SCREEN_CLEAR` (0x2E87): Clearing the screen for the selected mode.
-  - `LIST_STRING_OUT` (0x2E9D): Additional routine for LISTing strings.
-  - `ISR_TIMER` (0x2EB8): Main Interrupt Service Routine (20ms).
-  - `CURSOR_BLINK` (0x2EDC): Cursor blinking and display.
-  - `KBD_READ_CHAR` (0x2EF4): Reading characters from the keyboard.
-  - `KBD_SCAN_ONCE` (0x2EFD): Single-pass keyboard scanning.
-  - `KBD_FLAGS_RESET` (0x2F0E): Resetting keyboard flags.
-  - `KBD_SCAN_ROWS` (0x2F28): Row-by-row keyboard scanning.
-- Correctly handled `RST 8` data byte arguments in `segments.map`.
-- Added missing symbols `GETBYT` and `IO_BUF_PTR`.
+- Re-worked the translation and annotation of the following routines to ensure all German terms (like 'ja', 'nein', 'fertig', 'zurück') are idiomatic English:
+  - `KBD_SCAN_BIT_LOOP` (0x2F56): Keyboard bit-by-bit scan.
+  - `KBD_CALC_OFFSET` (0x2F63): Calculating offset for keyboard tables.
+  - `KBD_LOAD_TABLE` (0x2F76): Loading keyboard translation tables.
+  - `KBD_REPEAT` (0x2FD7): Keyboard repeat logic and timing.
+  - `ECHO_CHAR` (0x301B): Character display routine.
+  - `DIRECT_OUT_CHAR_TOKEN` (0x3039): Outputting keywords and characters.
+  - `CHECK_APPEND_PAREN` (0x305E): Automatic '(' insertion logic.
+  - `DEF_SPECIAL_PROC` (0x3069): Special case for 'DEF FN'.
+- Fixed several instances where 'ja' was left untranslated or translated as 'no' by mistake.
+- Verified all inline and block comments against the German source PDF (pages 209-213).
+- Added labels and comments to document the code structure and logic clearly in English.
 - Verified bit-perfection against `VZ200.bin`.
 
 ## Statistics
-- Total Symbols: 356
-- Total Annotations: 5922
-- No limits reached.
+- Total Symbols: 364
+- Total Annotations: 6053
+- Limits: Well within project maximums.
 
 ## Verification
 - Build successful and bit-perfect.
 - `export.lst` checked for English annotations and inline comments.
-- No German keywords remaining in the target range.
+- Grep search confirmed no remaining German keywords ('ja', 'nein', 'fertig', 'zurück') in the target range.
 
 ## Issues/Notes
-- The `RST 8` instructions in the `MODE` command were followed by data bytes that the disassembler initially tried to interpret as instructions. This was corrected using `segments.map`.
+- Corrected a previous error where some 'ja!' comments were missed or mis-translated.
+- Final listing now uses consistent English terminology for branch results and completion status.
+
+## Iteration: 2026-06-09
+- **Target Range**: 0x307C-0x31BE
+- **Summary**: Translated and applied annotations for character output control, buffered output, and cursor management. Added descriptive symbols for key entry points.
+- **Toolchain**: Used `z80bench-cli` for annotation management and `z88dk-z80asm` for verification.
+- **Issues**: OCR misread 0x3106 as 0x3186 on page 215. Verified correct address in disassembly.
+- **Statistics**:
+  - Total Annotations: ~7075 (Blocks: 452, Comments: 6196, Labels: 427)
+  - Total Symbols: 375
+- **Verification**: Built `export.asm` and confirmed MD5 match with `VZ200.bin`.
+
+## Iteration: 2026-06-09 (Part 2)
+- **Target Range**: 0x31BE-0x32C5
+- **Summary**: Translated and applied annotations for cursor movement (inc/dec/up/down/home/SOL) and screen clearing. Added relevant RAM symbols and jump labels.
+- **Toolchain**: Used `z80bench-cli` for annotation management and `z88dk-z80asm` for verification.
+- **Issues**: None.
+- **Statistics**:
+  - Total Annotations: ~7193 (Blocks: 459, Comments: 6307, Labels: 427)
+  - Total Symbols: 386
+- **Verification**: Built `export.asm` and confirmed MD5 match with `VZ200.bin`.

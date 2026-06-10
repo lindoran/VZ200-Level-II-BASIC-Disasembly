@@ -3613,6 +3613,50 @@ name = PRINUS
 offset = 11495
 name = USING_FIELD_LEN
 
+[label]
+offset = 12412
+name = OUT_APPEND_PAREN
+
+[label]
+offset = 12418
+name = OUT_PREP_CHAR
+
+[label]
+offset = 12427
+name = OUT_BUF_CHAR
+
+[label]
+offset = 12472
+name = OUT_WAIT_BUF
+
+[label]
+offset = 12520
+name = OUT_BUF_FLUSH
+
+[label]
+offset = 12550
+name = OUT_CHAR_CONTROL
+
+[label]
+offset = 12613
+name = OUT_CHAR_PROCESS
+
+[label]
+offset = 12631
+name = OUT_CHAR_RESTORE_2
+
+[label]
+offset = 12634
+name = OUT_CHAR_BIT7_CHECK
+
+[label]
+offset = 12726
+name = OUT_SCREEN_RAW
+
+[label]
+offset = 12735
+name = OUT_CURSOR_ADVANCE
+
 [comment]
 offset = 0
 text = Test Start
@@ -27263,6 +27307,1586 @@ text = yes!
 offset = 12116
 text = return with A = 0
 
+[comment]
+offset = 12118
+text = Row counter = 3 (for '-')
+
+[comment]
+offset = 12120
+text = continue at 2F60H
+
+[comment]
+offset = 12122
+text = Row counter = 2 (for RETURN)
+
+[comment]
+offset = 12124
+text = continue at 2F60H
+
+[comment]
+offset = 12126
+text = Row counter = 1 (for ':')
+
+[comment]
+offset = 12128
+text = hide column 2 again
+
+[comment]
+offset = 12130
+text = remember row content in E !!!
+
+[comment]
+offset = 12131
+text = Calculate offset for the keyboard tables
+
+[comment]
+offset = 12134
+text = A = 8 * ( 6 - B ) + 8 - C
+
+[comment]
+offset = 12143
+text = remember row and column counters
+
+[comment]
+offset = 12147
+text = remember row address
+
+[comment]
+offset = 12150
+text = keyboard table 1 (without SHIFT) addr.
+
+[comment]
+offset = 12153
+text = table offset in BC
+
+[comment]
+offset = 12156
+text = load keyboard row 3
+
+[comment]
+offset = 12159
+text = SHIFT key pressed?
+
+[comment]
+offset = 12161
+text = no!
+
+[comment]
+offset = 12163
+text = address Flag 1
+
+[comment]
+offset = 12166
+text = set SHIFT-Flag
+
+[comment]
+offset = 12168
+text = keyboard table 2 (with SHIFT) addr.
+
+[comment]
+offset = 12171
+text = read code from table
+
+[comment]
+offset = 12173
+text = load keyboard row 2
+
+[comment]
+offset = 12176
+text = CTRL key pressed?
+
+[comment]
+offset = 12178
+text = no!
+
+[comment]
+offset = 12180
+text = load keyboard row 8
+
+[comment]
+offset = 12183
+text = ';' - Key pressed? (INVERSE)
+
+[comment]
+offset = 12185
+text = no!
+
+[comment]
+offset = 12187
+text = address Flag 1
+
+[comment]
+offset = 12190
+text = WAIT flag set?
+
+[comment]
+offset = 12192
+text = yes, ignore key press
+
+[comment]
+offset = 12194
+text = load Flag 1
+
+[comment]
+offset = 12195
+text = invert INVERSE flag, set WAIT flag
+
+[comment]
+offset = 12197
+text = save Flag 1
+
+[comment]
+offset = 12198
+text = A = 0
+
+[comment]
+offset = 12199
+text = remove return address
+
+[comment]
+offset = 12200
+text = two levels back
+
+[comment]
+offset = 12201
+text = address Flag 1
+
+[comment]
+offset = 12204
+text = set CONTROL flag
+
+[comment]
+offset = 12206
+text = FUNCTION flag set?
+
+[comment]
+offset = 12208
+text = no!
+
+[comment]
+offset = 12210
+text = keyboard table 4 (Functions) addr.
+
+[comment]
+offset = 12213
+text = read code from table
+
+[comment]
+offset = 12215
+text = load keyboard row 7
+
+[comment]
+offset = 12218
+text = RETURN pressed?
+
+[comment]
+offset = 12220
+text = no!
+
+[comment]
+offset = 12222
+text = set FUNCTION flag
+
+[comment]
+offset = 12224
+text = reset timer
+
+[comment]
+offset = 12229
+text = clear FUNCTION flag
+
+[comment]
+offset = 12231
+text = keyboard table 3 (Keywords) addr.
+
+[comment]
+offset = 12234
+text = Table addr. + Offset
+
+[comment]
+offset = 12235
+text = read code from table
+
+[comment]
+offset = 12236
+text = back
+
+[comment]
+offset = 12237
+text = load Flag 1
+
+[comment]
+offset = 12240
+text = SHIFT or CTRL flag set?
+
+[comment]
+offset = 12242
+text = no, determine code
+
+[comment]
+offset = 12244
+text = ignore key
+
+[comment]
+offset = 12245
+text = remove return address
+
+[comment]
+offset = 12246
+text = two levels back
+
+[comment]
+offset = 12247
+text = address Flag 1
+
+[comment]
+offset = 12250
+text = WAIT flag set?
+
+[comment]
+offset = 12252
+text = no!
+
+[comment]
+offset = 12254
+text = timer + 1
+
+[comment]
+offset = 12261
+text = 0.84 seconds?
+
+[comment]
+offset = 12263
+text = yes!
+
+[comment]
+offset = 12265
+text = back with A = 0
+
+[comment]
+offset = 12267
+text = load Flag 1
+
+[comment]
+offset = 12268
+text = clear WAIT flag
+
+[comment]
+offset = 12270
+text = set REPEAT flag
+
+[comment]
+offset = 12272
+text = save Flag 1
+
+[comment]
+offset = 12275
+text = reset timer
+
+[comment]
+offset = 12279
+text = 2 keys pressed?
+
+[comment]
+offset = 12281
+text = yes!
+
+[comment]
+offset = 12283
+text = load key code from character buffer
+
+[comment]
+offset = 12287
+text = load code for 2nd key
+
+[comment]
+offset = 12291
+text = REPEAT flag set?
+
+[comment]
+offset = 12293
+text = yes!
+
+[comment]
+offset = 12295
+text = set WAIT flag
+
+[comment]
+offset = 12297
+text = reset timer
+
+[comment]
+offset = 12301
+text = back with A = 0
+
+[comment]
+offset = 12302
+text = timer + 1
+
+[comment]
+offset = 12309
+text = 0.12 seconds?
+
+[comment]
+offset = 12311
+text = yes!
+
+[comment]
+offset = 12313
+text = back with A = 0
+
+[comment]
+offset = 12314
+text = back
+
+[comment]
+offset = 12315
+text = A = 0? (no character)
+
+[comment]
+offset = 12316
+text = yes, finished
+
+[comment]
+offset = 12317
+text = save character
+
+[comment]
+offset = 12318
+text = output character
+
+[comment]
+offset = 12321
+text = reload character
+
+[comment]
+offset = 12322
+text = was it a Carriage Return?
+
+[comment]
+offset = 12324
+text = yes, finished
+
+[comment]
+offset = 12325
+text = or BREAK?
+
+[comment]
+offset = 12327
+text = yes, also finished
+
+[comment]
+offset = 12328
+text = load Flag 2
+
+[comment]
+offset = 12331
+text = CR flag set?
+
+[comment]
+offset = 12333
+text = yes, finished
+
+[comment]
+offset = 12334
+text = wait for double value (pause)
+
+[comment]
+offset = 12339
+text = load cursor address
+
+[comment]
+offset = 12342
+text = output character inverted
+
+[comment]
+offset = 12345
+text = address Flag 1
+
+[comment]
+offset = 12348
+text = CONTROL flag set?
+
+[comment]
+offset = 12350
+text = no, output character
+
+[comment]
+offset = 12353
+text = is it a token?
+
+[comment]
+offset = 12354
+text = no, output character
+
+[comment]
+offset = 12357
+text = save character
+
+[comment]
+offset = 12358
+text = clear bit 7
+
+[comment]
+offset = 12360
+text = + 1 as word counter
+
+[comment]
+offset = 12362
+text = address of keyword table - 1
+
+[comment]
+offset = 12365
+text = address pointer + 1
+
+[comment]
+offset = 12366
+text = start of a new word?
+
+[comment]
+offset = 12368
+text = no, continue
+
+[comment]
+offset = 12370
+text = word counter - 1 = 0?
+
+[comment]
+offset = 12372
+text = yes, searched keyword
+
+[comment]
+offset = 12373
+text = output character from table
+
+[comment]
+offset = 12376
+text = next character
+
+[comment]
+offset = 12377
+text = new keyword?
+
+[comment]
+offset = 12379
+text = no, output character
+
+[comment]
+offset = 12381
+text = reload character from stack
+
+[comment]
+offset = 12382
+text = Number of table elements
+
+[comment]
+offset = 12384
+text = Starting address of the table
+
+[comment]
+offset = 12387
+text = Token = table entry?
+
+[comment]
+offset = 12388
+text = yes, jump
+
+[comment]
+offset = 12390
+text = address pointer + 1
+
+[comment]
+offset = 12391
+text = next table entry
+
+[comment]
+offset = 12393
+text = DEF token?
+
+[comment]
+offset = 12395
+text = no, done!
+
+[comment]
+offset = 12396
+text = yes, append ' '
+
+[comment]
+offset = 12401
+text = output 'F'
+
+[comment]
+offset = 12403
+text = output character
+
+[comment]
+offset = 12406
+text = output 'N'
+
+[comment]
+offset = 12408
+text = output character
+
+[comment]
+offset = 12411
+text = done!
+
+[comment]
+offset = 12412
+text = yes, append '('
+
+[comment]
+offset = 12418
+text = clear bit 7
+
+[comment]
+offset = 12420
+text = string pointer on stack
+
+[comment]
+offset = 12421
+text = output character
+
+[comment]
+offset = 12424
+text = load string pointer
+
+[comment]
+offset = 12425
+text = string pointer + 1
+
+[comment]
+offset = 12427
+text = save character
+
+[comment]
+offset = 12428
+text = load I/O latch byte
+
+[comment]
+offset = 12431
+text = system in graphics mode?
+
+[comment]
+offset = 12433
+text = no!
+
+[comment]
+offset = 12435
+text = clear bit 3
+
+[comment]
+offset = 12437
+text = save I/O latch byte
+
+[comment]
+offset = 12440
+text = switch to text mode
+
+[comment]
+offset = 12443
+text = video memory for text mode
+
+[comment]
+offset = 12446
+text = clear (512 bytes)
+
+[comment]
+offset = 12449
+text = clear characters
+
+[comment]
+offset = 12452
+text = next address
+
+[comment]
+offset = 12453
+text = counter - 1
+
+[comment]
+offset = 12454
+text = = 0? (done)
+
+[comment]
+offset = 12456
+text = no, next character
+
+[comment]
+offset = 12458
+text = load character to be output
+
+[comment]
+offset = 12459
+text = address Flag 2
+
+[comment]
+offset = 12462
+text = initialization flag set?
+
+[comment]
+offset = 12464
+text = no, direct output of character
+
+[comment]
+offset = 12467
+text = is it a control character?
+
+[comment]
+offset = 12469
+text = no!
+
+[comment]
+offset = 12472
+text = save character
+
+[comment]
+offset = 12473
+text = load buffer counter
+
+[comment]
+offset = 12476
+text = = 0?
+
+[comment]
+offset = 12477
+text = no, wait!
+
+[comment]
+offset = 12479
+text = reload character
+
+[comment]
+offset = 12480
+text = disable interrupts
+
+[comment]
+offset = 12481
+text = load buffer pointer
+
+[comment]
+offset = 12484
+text = transfer character to buffer
+
+[comment]
+offset = 12485
+text = buffer pointer + 1
+
+[comment]
+offset = 12486
+text = and save back
+
+[comment]
+offset = 12489
+text = address buffer counter
+
+[comment]
+offset = 12492
+text = + 1
+
+[comment]
+offset = 12493
+text = save character
+
+[comment]
+offset = 12494
+text = pointer to screen output column
+
+[comment]
+offset = 12497
+text = + number of characters in buffer
+
+[comment]
+offset = 12498
+text = position pointer in line
+
+[comment]
+offset = 12501
+text = reload character
+
+[comment]
+offset = 12502
+text = enable interrupts again
+
+[comment]
+offset = 12503
+text = was it a control character?
+
+[comment]
+offset = 12505
+text = yes!
+
+[comment]
+offset = 12508
+text = maximum 20 characters in print buffer
+
+[comment]
+offset = 12510
+text = limit exceeded
+
+[comment]
+offset = 12511
+text = yes, wait until buffer is emptier
+
+[comment]
+offset = 12515
+text = wait until buffer is empty
+
+[comment]
+offset = 12519
+text = done
+
+[comment]
+offset = 12520
+text = load buffer counter
+
+[comment]
+offset = 12523
+text = buffer empty?
+
+[comment]
+offset = 12524
+text = yes, done
+
+[comment]
+offset = 12525
+text = in B as loop counter
+
+[comment]
+offset = 12526
+text = load buffer start address
+
+[comment]
+offset = 12529
+text = and on the stack
+
+[comment]
+offset = 12530
+text = load character from buffer
+
+[comment]
+offset = 12531
+text = buffer address + 1
+
+[comment]
+offset = 12532
+text = buffer address on stack
+
+[comment]
+offset = 12533
+text = character counter on stack
+
+[comment]
+offset = 12534
+text = output character
+
+[comment]
+offset = 12537
+text = load character counter
+
+[comment]
+offset = 12538
+text = load buffer address
+
+[comment]
+offset = 12539
+text = buffer empty?
+
+[comment]
+offset = 12541
+text = yes, load buffer start address
+
+[comment]
+offset = 12542
+text = save as new buffer pointer
+
+[comment]
+offset = 12545
+text = buffer counter = 0
+
+[comment]
+offset = 12550
+text = restore character at cursor position
+
+[comment]
+offset = 12553
+text = character to be output = 0?
+
+[comment]
+offset = 12554
+text = yes, CR from RDLINE!
+
+[comment]
+offset = 12556
+text = is it a Carriage Return?
+
+[comment]
+offset = 12558
+text = no, output character
+
+[comment]
+offset = 12560
+text = save character
+
+[comment]
+offset = 12561
+text = load cursor address
+
+[comment]
+offset = 12564
+text = load column pointer
+
+[comment]
+offset = 12567
+text = transfer to BC
+
+[comment]
+offset = 12570
+text = column pointer to column 0
+
+[comment]
+offset = 12573
+text = cursor address to start of line
+
+[comment]
+offset = 12575
+text = + 1 line (32 characters)
+
+[comment]
+offset = 12579
+text = address outside of the screen?
+
+[comment]
+offset = 12582
+text = yes, scroll screen up 1 line
+
+[comment]
+offset = 12585
+text = save new cursor address
+
+[comment]
+offset = 12588
+text = save character from cursor position
+
+[comment]
+offset = 12591
+text = load character to be output
+
+[comment]
+offset = 12592
+text = CR from RDLINE (03E3H)?
+
+[comment]
+offset = 12593
+text = yes, done
+
+[comment]
+offset = 12594
+text = determine status of the line
+
+[comment]
+offset = 12597
+text = single line?
+
+[comment]
+offset = 12599
+text = yes, done
+
+[comment]
+offset = 12600
+text = first of a double line?
+
+[comment]
+offset = 12602
+text = no, continuation line
+
+[comment]
+offset = 12604
+text = both lines to single lines
+
+[comment]
+offset = 12605
+text = convert
+
+[comment]
+offset = 12608
+text = done
+
+[comment]
+offset = 12609
+text = continuation line in single line
+
+[comment]
+offset = 12611
+text = convert
+
+[comment]
+offset = 12612
+text = done
+
+[comment]
+offset = 12613
+text = inverted alphanumeric character?
+
+[comment]
+offset = 12615
+text = no, block graphics!
+
+[comment]
+offset = 12617
+text = inverted representation depending
+
+[comment]
+offset = 12620
+text = on background
+
+[comment]
+offset = 12621
+text = clear bits 4, 5, 6
+
+[comment]
+offset = 12623
+text = graphics character in B
+
+[comment]
+offset = 12624
+text = load color code
+
+[comment]
+offset = 12627
+text = combine with graphics character
+
+[comment]
+offset = 12628
+text = character in B
+
+[comment]
+offset = 12629
+text = and output
+
+[comment]
+offset = 12631
+text = restore character at cursor position
+
+[comment]
+offset = 12634
+text = bit 7 of the character to be output = 1?
+
+[comment]
+offset = 12635
+text = yes, jump
+
+[comment]
+offset = 12638
+text = Carriage Return?
+
+[comment]
+offset = 12640
+text = yes, done!
+
+[comment]
+offset = 12641
+text = BACKSPACE?
+
+[comment]
+offset = 12643
+text = yes!
+
+[comment]
+offset = 12646
+text = cursor up?
+
+[comment]
+offset = 12648
+text = yes!
+
+[comment]
+offset = 12651
+text = cursor down?
+
+[comment]
+offset = 12653
+text = yes!
+
+[comment]
+offset = 12656
+text = cursor left?
+
+[comment]
+offset = 12658
+text = yes!
+
+[comment]
+offset = 12661
+text = cursor right?
+
+[comment]
+offset = 12663
+text = yes!
+
+[comment]
+offset = 12666
+text = BREAK?
+
+[comment]
+offset = 12668
+text = yes, done!
+
+[comment]
+offset = 12669
+text = RUBOUT?
+
+[comment]
+offset = 12671
+text = yes!
+
+[comment]
+offset = 12674
+text = INSERT?
+
+[comment]
+offset = 12676
+text = yes!
+
+[comment]
+offset = 12679
+text = arrow left?
+
+[comment]
+offset = 12681
+text = yes!
+
+[comment]
+offset = 12684
+text = arrow right?
+
+[comment]
+offset = 12686
+text = yes!
+
+[comment]
+offset = 12689
+text = arrow up?
+
+[comment]
+offset = 12691
+text = yes!
+
+[comment]
+offset = 12694
+text = cursor to start of screen?
+
+[comment]
+offset = 12696
+text = yes!
+
+[comment]
+offset = 12699
+text = cursor to start of line?
+
+[comment]
+offset = 12701
+text = yes!
+
+[comment]
+offset = 12704
+text = clear screen?
+
+[comment]
+offset = 12706
+text = yes!
+
+[comment]
+offset = 12709
+text = ignore remaining control characters
+
+[comment]
+offset = 12712
+text = continue at 3ECA (supplement)
+
+[comment]
+offset = 12715
+text = address Flag 1
+
+[comment]
+offset = 12718
+text = INVERSE flag set?
+
+[comment]
+offset = 12720
+text = clean up stack
+
+[comment]
+offset = 12721
+text = no!
+
+[comment]
+offset = 12723
+text = yes, invert character
+
+[comment]
+offset = 12725
+text = character in B
+
+[comment]
+offset = 12726
+text = transfer character to A
+
+[comment]
+offset = 12727
+text = output on screen
+
+[comment]
+offset = 12728
+text = advance cursor one position
+
+[comment]
+offset = 12731
+text = save character at cursor position
+
+[comment]
+offset = 12735
+text = load column pointer
+
+[comment]
+offset = 12738
+text = + 1
+
+[comment]
+offset = 12739
+text = at the beginning of the next line?
+
+[comment]
+offset = 12741
+text = no!
+
+[comment]
+offset = 12743
+text = determine line status
+
+[comment]
+offset = 12746
+text = first of a double line?
+
+[comment]
+offset = 12748
+text = yes!
+
+[comment]
+offset = 12750
+text = second of a double line?
+
+[comment]
+offset = 12751
+text = no!
+
+[comment]
+offset = 12753
+text = status in B
+
+[comment]
+offset = 12754
+text = load Flag 2
+
+[comment]
+offset = 12757
+text = CR flag set?
+
+[comment]
+offset = 12759
+text = status back in A
+
+[comment]
+offset = 12760
+text = yes, maximum two lines!
+
+[comment]
+offset = 12761
+text = next line = continuation line
+
+[comment]
+offset = 12763
+text = (= 00)
+
+[comment]
+offset = 12764
+text = HL to status of the next line
+
+[comment]
+offset = 12765
+text = and remember
+
+[comment]
+offset = 12766
+text = is this the last line?
+
+[comment]
+offset = 12770
+text = (this routine collides)
+
+[comment]
+offset = 12771
+text = (with programs that do not)
+
+[comment]
+offset = 12772
+text = (begin by default)
+
+[comment]
+offset = 12776
+text = yes, last line
+
+[comment]
+offset = 12778
+text = load status of the line
+
+[comment]
+offset = 12779
+text = line status = 00?
+
+[comment]
+offset = 12780
+text = if so, continuation line
+
+[comment]
+offset = 12782
+text = no!
+
+[comment]
+offset = 12784
+text = mark line as single line
+
+[comment]
+offset = 12786
+text = column pointer = 0
+
+[comment]
+offset = 12789
+text = load cursor address
+
+[comment]
+offset = 12792
+text = + 1
+
+[comment]
+offset = 12796
+text = outside of the screen?
+
+[comment]
+offset = 12799
+text = yes, scroll up one line
+
+[comment]
+offset = 12802
+text = save cursor address
+
+[comment]
+offset = 12805
+text = done
+
+[comment]
+offset = 12806
+text = remember status
+
+[comment]
+offset = 12807
+text = load cursor address
+
+[comment]
+offset = 12811
+text = + 1
+
+[comment]
+offset = 12812
+text = outside of the screen?
+
+[comment]
+offset = 12815
+text = yes!
+
+[comment]
+offset = 12817
+text = status address on stack
+
+[comment]
+offset = 12818
+text = address Flag 2
+
+[comment]
+offset = 12821
+text = CR flag set?
+
+[comment]
+offset = 12823
+text = yes!
+
+[comment]
+offset = 12825
+text = INPUT flag set?
+
+[comment]
+offset = 12827
+text = yes!
+
+[comment]
+offset = 12829
+text = scroll back one line
+
+[comment]
+offset = 12832
+text = load status address
+
+[comment]
+offset = 12833
+text = load line status
+
+[comment]
+offset = 12834
+text = set status = 81
+
+[comment]
+offset = 12835
+text = = double-line!
+
+[comment]
+offset = 12839
+text = load column pointer
+
+[comment]
+offset = 12842
+text = - 1
+
+[comment]
+offset = 12843
+text = still same line!
+
+[comment]
+offset = 12846
+text = determine line status
+
+[comment]
+offset = 12849
+text = is this a continuation line?
+
+[comment]
+offset = 12850
+text = no, cannot go further back
+
+[comment]
+offset = 12851
+text = column pointer to last column
+
+[comment]
+offset = 12853
+text = and save
+
+[comment]
+offset = 12856
+text = cursor address - 1
+
+[comment]
+offset = 12865
+text = outside of the screen?
+
+[comment]
+offset = 12868
+text = yes!
+
+[comment]
+offset = 12871
+text = new cursor address back
+
+[comment]
+offset = 12874
+text = save character at cursor position
+
+[comment]
+offset = 12878
+text = column pointer = 0 (1st column)
+
+[comment]
+offset = 12883
+text = address Flag 2
+
+[comment]
+offset = 12886
+text = INPUT flag set?
+
+[comment]
+offset = 12888
+text = yes, illegal!
+
+[comment]
+offset = 12889
+text = length of a line
+
+[comment]
+offset = 12892
+text = load cursor address
+
+[comment]
+offset = 12895
+text = clear carry flag
+
+[comment]
+offset = 12896
+text = cursor address - 1 line
+
+[comment]
+offset = 12898
+text = outside of the screen?
+
+[comment]
+offset = 12901
+text = yes, does not work!
+
+[comment]
+offset = 12902
+text = save cursor address
+
+[comment]
+offset = 12905
+text = save character at cursor position
+
+[comment]
+offset = 12909
+text = address Flag 2
+
+[comment]
+offset = 12912
+text = INPUT flag set?
+
+[comment]
+offset = 12914
+text = yes, not allowed!
+
+[comment]
+offset = 12915
+text = load length of a line
+
+[comment]
+offset = 12918
+text = load cursor address
+
+[comment]
+offset = 12921
+text = + one line
+
+[comment]
+offset = 12922
+text = outside of the screen?
+
+[comment]
+offset = 12925
+text = yes, scroll up one line
+
+[comment]
+offset = 12928
+text = save cursor address
+
+[comment]
+offset = 12931
+text = save character at cursor position
+
+[comment]
+offset = 12935
+text = load start of screen address
+
+[comment]
+offset = 12938
+text = in cursor address
+
+[comment]
+offset = 12941
+text = column pointer = 0
+
+[comment]
+offset = 12946
+text = load start of screen address
+
+[comment]
+offset = 12949
+text = in cursor address
+
+[comment]
+offset = 12952
+text = length of text memory
+
+[comment]
+offset = 12955
+text = delete one character
+
+[comment]
+offset = 12958
+text = screen address + 1
+
+[comment]
+offset = 12959
+text = length - 1
+
+[comment]
+offset = 12960
+text = at end of screen?
+
+[comment]
+offset = 12962
+text = no, next character
+
+[comment]
+offset = 12964
+text = column pointer = 0
+
+[comment]
+offset = 12968
+text = counter = 16 (number of lines)
+
+[comment]
+offset = 12970
+text = load single-line status
+
+[comment]
+offset = 12972
+text = address status byte of 1st line
+
+[comment]
+offset = 12975
+text = (HL),A = single-line
+
+[comment]
+offset = 12976
+text = status byte of next line
+
+[comment]
+offset = 12977
+text = all lines processed?
+
+[comment]
+offset = 12979
+text = yes, done!
+
+[comment]
+offset = 12980
+text = load cursor address
+
+[comment]
+offset = 12983
+text = load column pointer
+
+[comment]
+offset = 12986
+text = transfer to BC
+
+[comment]
+offset = 12989
+text = column pointer = 0
+
+[comment]
+offset = 12992
+text = cursor address - column pointer
+
+[comment]
+offset = 12994
+text = save new cursor address
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -29221,8 +30845,6 @@ text = ****************************************************************
 offset = 12029
 text = ****************************************************************
               Evaluate keyboard once
-              Out: A = read ASCII character
-              A = 0 if no key pressed
 
 [block]
 offset = 12046
@@ -29231,5 +30853,84 @@ text = ****************************************************************
 
 [block]
 offset = 12072
-text = ****************************************************************\nEvaluate keyboard row by row\nOut: A = key code or zero
+text = ****************************************************************
+              Evaluate keyboard row by row
+
+[block]
+offset = 12118
+text = Keyboard query bit by bit
+
+[block]
+offset = 12247
+text = Key repeat
+
+[block]
+offset = 12315
+text = Display entered character on screen
+              (ECHO function)
+
+[block]
+offset = 12345
+text = Direct output of a character or keyword
+
+[block]
+offset = 12382
+text = Check if the token should have a '(' appended.
+
+[block]
+offset = 12393
+text = not in table, special handling 'DEF'
+
+[block]
+offset = 12418
+text = prepare a character for output
+
+[block]
+offset = 12427
+text = Buffered output of characters
+
+[block]
+offset = 12472
+text = Wait until print buffer is completely output
+
+[block]
+offset = 12520
+text = Output print buffer after an interrupt
+
+[block]
+offset = 12550
+text = Control of the output of a character
+
+[block]
+offset = 12613
+text = Output character or execute control functions
+              Entry point is 3157 or 315A
+
+[block]
+offset = 12735
+text = Advance cursor one character position
+
+[block]
+offset = 12839
+text = Move cursor one character to the left
+
+[block]
+offset = 12883
+text = Move cursor one line up
+
+[block]
+offset = 12909
+text = Move cursor one line down
+
+[block]
+offset = 12935
+text = Move cursor to start of screen
+
+[block]
+offset = 12946
+text = Clear screen
+
+[block]
+offset = 12980
+text = Move cursor to start of line
 

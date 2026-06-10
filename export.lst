@@ -66,7 +66,7 @@
 004D  C0       .                   ret   nz             ; Yes, return
 004E  18F9     ..                  jr    $-5            ; no, wait
                      ; Save character from cursor position
-0050  2A2078   * x                 ld    hl,(0x7820)    ; Load cursor address
+0050  2A2078   * x                 ld    hl,(CURS_ADDR) ; Load cursor address
 0053  7E       ~                   ld    a,(hl)         ; Load character
 0054  323C78   2<x                 ld    (0x783C),a     ; save to 783CH
 0057  C9       .                   ret   
@@ -271,7 +271,7 @@
 017E  10FA     ..                  djnz  $-4            ; DJNZ hBc2 (Shift bit into position)
 0180  C30339   ..9                 jp    0x3903         ; JP to rest of SET/RESET (3903H)
                      ; Set cursor to 7839H and reset bit 3
-0183  213978   !9x                 ld    hl,0x7839      ; Load 7839H (Cursor flags?)
+0183  213978   !9x                 ld    hl,FLAG2       ; Load 7839H (Cursor flags?)
 0186  CB9E     ..                  res   3,(hl)         ; Reset bit 3
 0188  218403   !..                 ld    hl,0x0384      ; Load address of 'ERROR' message
 018B  CDA728   ..(                 call  OUTSTR         ; Print string (OUTSTR)
@@ -426,7 +426,7 @@
                      CURSOR_CHAR_RESTORE:
 030D  47       G                   ld    b,a            ; Output character in B
 030E  3A3C78   :<x                 ld    a,(0x783C)     ; Load character at cursor position
-0311  2A2078   * x                 ld    hl,(0x7820)    ; Load cursor address
+0311  2A2078   * x                 ld    hl,(CURS_ADDR) ; Load cursor address
 0314  77       w                   ld    (hl),a         ; Write character
 0315  78       x                   ld    a,b            ; Restore output character in A
 0316  C9       .                   ret                  ; Return
@@ -436,7 +436,7 @@
 0317  012000   . .                 ld    bc,RST20_VEC   ; Line length
 031A  B7       .                   or    a              ; Clear carry
 031B  ED42     .B                  sbc   hl,bc          ; Cursor address minus one line
-031D  222078   " x                 ld    (0x7820),hl    ; Store in cursor pointer
+031D  222078   " x                 ld    (CURS_ADDR),hl ; Store in cursor pointer
 0320  C9       .                   ret                  ; Return
                      ; *******************************
                      ; SOUND duration multipliers
@@ -462,7 +462,7 @@
 033B  F5       .                   push  af             ; Push af
 033C  C5       .                   push  bc             ; Push bc
 033D  E5       .                   push  hl             ; Push hl
-033E  CD8B30   ..0                 call  0x308B         ; call output routine
+033E  CD8B30   ..0                 call  OUT_BUF_CHAR   ; call output routine
 0341  E1       .                   pop   hl             ; restore registers
 0342  C1       .                   pop   bc             ; Pop bc
 0343  00       .                   nop                  ; No operation
@@ -475,7 +475,7 @@
                      CURSOR_COL_GET:
 0348  3A3D78   :=x                 ld    a,(0x783D)     ; Load a from (0x783D)
 034B  E608     ..                  and   0x08           ; AND A with 0x08
-034D  3A2078   : x                 ld    a,(0x7820)     ; Load a from (0x7820)
+034D  3A2078   : x                 ld    a,(CURS_ADDR)  ; Load a from (0x7820)
 0350  2803     (.                  jr    z,$+5          ; Relative jump if z to $+5
 0352  0F       .                   rrca                 ; Rotate A right
 0353  E61F     ..                  and   0x1F           ; AND A with 0x1F
@@ -570,9 +570,9 @@
                      ; The line is read until the RETURN or BREAK key is pressed, displayed on the 
                      ; screen and then transferred to the I/O buffer.
                      INPUT_LINE_READ:
-03E3  213978   !9x                 ld    hl,0x7839      ; initialization flag for
+03E3  213978   !9x                 ld    hl,FLAG2       ; initialization flag for
 03E6  CBEE     ..                  set   5,(hl)         ; set buffered output.
-03E8  2A2078   * x                 ld    hl,(0x7820)    ; load cursor address
+03E8  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor address
 03EB  CD5300   .S.                 call  0x0053         ; save character at cursor position
 03EE  7C       |                   ld    a,h            ; cursor at the beginning of the last line?
 03EF  FE71     .q                  cp    0x71           ; Compare A with 0x71
@@ -580,14 +580,14 @@
 03F3  7D       }                   ld    a,l            ; Load a from l
 03F4  FEE0     ..                  cp    0xE0           ; Compare A with 0xE0
 03F6  200B      .                  jr    nz,$+13        ; no
-03F8  3AD77A   :.z                 ld    a,(0x7AD7)     ; check status of 1st line
+03F8  3AD77A   :.z                 ld    a,(LINE_STATUS) ; check status of 1st line
 03FB  B7       .                   or    a              ; = continuation line?
 03FC  2005      .                  jr    nz,$+7         ; no!
 03FE  3E0D     >.                  ld    a,0x0D         ; scroll image up one line
-0400  CD8B30   ..0                 call  0x308B         ; Call 0x308B
+0400  CD8B30   ..0                 call  OUT_BUF_CHAR   ; Call 0x308B
 0403  41       A                   ld    b,c            ; length of leading text in B
 0404  C5       .                   push  bc             ; on stack (B=C)
-0405  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+0405  213978   !9x                 ld    hl,FLAG2       ; address Flag 2
 0408  CB86     ..                  res   0,(hl)         ; reset CR flag
 040A  CB96     ..                  res   2,(hl)         ; reset BREAK flag
 040C  CB46     .F                  bit   0,(hl)         ; wait until CR flag is set
@@ -598,15 +598,15 @@
 0414  AF       .                   xor   a              ; Clear A
 0415  32A678   2.x                 ld    (TTYPOS),a     ; column counter = 0 (start of line)
 0418  47       G                   ld    b,a            ; Load b from a
-0419  2A2078   * x                 ld    hl,(0x7820)    ; load cursor address
+0419  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor address
 041C  ED42     .B                  sbc   hl,bc          ; - column = start of line
-041E  222078   " x                 ld    (0x7820),hl    ; back to cursor pointer
+041E  222078   " x                 ld    (CURS_ADDR),hl ; back to cursor pointer
                      ; Load buffer and line address
 0421  11E879   ..y                 ld    de,0x79E8      ; starting address of I/O buffer
 0424  C1       .                   pop   bc             ; character counter of leading text
-0425  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+0425  213978   !9x                 ld    hl,FLAG2       ; address Flag 2
 0428  CB66     .f                  bit   4,(hl)         ; is this an INPUT command?
-042A  2A2078   * x                 ld    hl,(0x7820)    ; load starting address of line
+042A  2A2078   * x                 ld    hl,(CURS_ADDR) ; load starting address of line
 042D  2842     (B                  jr    z,$+68         ; no INPUT cmd, continue at 471H
                      ; For INPUT set text pointer after given text
 042F  C5       .                   push  bc             ; save registers
@@ -648,7 +648,7 @@
 0463  D5       .                   push  de             ; Push de
 0464  1805     ..                  jr    $+7            ; take 2 lines
 0466  0620     .                   ld    b,0x20         ; take 1 line
-0468  2A2078   * x                 ld    hl,(0x7820)    ; load text start address
+0468  2A2078   * x                 ld    hl,(CURS_ADDR) ; load text start address
 046B  11E879   ..y                 ld    de,0x79E8      ; I/O buffer address
 046E  C3A83E   ..>                 jp    0x3EA8         ; check background color
                      ; Determine text starting address and max length, if not INPUT command
@@ -701,7 +701,7 @@
 04C9  FE22     ."                  cp    0x22           ; string delimiter '\
 04CB  2009      .                  jr    nz,$+11        ; no!
 04CD  E5       .                   push  hl             ; save HL
-04CE  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+04CE  213978   !9x                 ld    hl,FLAG2       ; address Flag 2
 04D1  CB66     .f                  bit   4,(hl)         ; INPUT command?
 04D3  E1       .                   pop   hl             ; reload HL
 04D4  280D     (.                  jr    z,$+15         ; no - from now on graphics and inverse not 
@@ -736,18 +736,18 @@
 0501  12       .                   ld    (de),a         ; Load (de) from a
                      ; Output one or two blank lines by line status
 0502  CDA833   ..3                 call  0x33A8         ; determine line status
-0505  2A2078   * x                 ld    hl,(0x7820)    ; load cursor pointer
+0505  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor pointer
 0508  FE81     ..                  cp    0x81           ; 2 lines?
 050A  CD5300   .S.                 call  0x0053         ; save character from cursor position.
 050D  2004      .                  jr    nz,$+6         ; single line
 050F  AF       .                   xor   a              ; 1 blank line output
-0510  CD8B30   ..0                 call  0x308B         ; Call 0x308B
+0510  CD8B30   ..0                 call  OUT_BUF_CHAR   ; Call 0x308B
 0513  AF       .                   xor   a              ; 1 blank line output
-0514  CD8B30   ..0                 call  0x308B         ; Call 0x308B
+0514  CD8B30   ..0                 call  OUT_BUF_CHAR   ; Call 0x308B
 0517  3A3878   :8x                 ld    a,(0x7838)     ; load Flag 1
 051A  E6FD     ..                  and   0xFD           ; reset INVERSE flag
 051C  323878   28x                 ld    (0x7838),a     ; Flag 1 back
-051F  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+051F  213978   !9x                 ld    hl,FLAG2       ; address Flag 2
 0522  CB56     .V                  bit   2,(hl)         ; BREAK flag set?
 0524  2805     (.                  jr    z,$+7          ; no!
 0526  3E01     >.                  ld    a,0x01         ; BREAK, A=1
@@ -755,7 +755,7 @@
 0529  1801     ..                  jr    $+3            ; Relative jump to $+3
 052B  AF       .                   xor   a              ; no BREAK, A=0
                      ; Reset input command flag and continue
-052C  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+052C  213978   !9x                 ld    hl,FLAG2       ; address Flag 2
 052F  CBA6     ..                  res   4,(hl)         ; reset INPUT-Cmd flag
 0531  21E879   !.y                 ld    hl,0x79E8      ; address I/O buffer
 0534  C1       .                   pop   bc             ; to start of input
@@ -782,13 +782,13 @@
 0558  4F       O                   ld    c,a            ; transfer column counter to BC
 0559  AF       .                   xor   a              ; set B = 0
 055A  47       G                   ld    b,a            ; Load b from a
-055B  2A2078   * x                 ld    hl,(0x7820)    ; load cursor pointer
+055B  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor pointer
 055E  ED42     .B                  sbc   hl,bc          ; - column = start of line
 0560  11E879   ..y                 ld    de,0x79E8      ; load I/O buffer address
 0563  C5       .                   push  bc             ; remember column counter
 0564  EDB0     ..                  ldir                 ; existing text from line to buffer
 0566  C1       .                   pop   bc             ; reload column counter
-0567  213978   !9x                 ld    hl,0x7839      ; address Flag 2
+0567  213978   !9x                 ld    hl,FLAG2       ; address Flag 2
 056A  CBE6     ..                  set   4,(hl)         ; set INPUT-Cmd flag
 056C  CDE303   ...                 call  RDLINE         ; read line
 056F  C9       .                   ret                  ; Return
@@ -897,9 +897,9 @@
 0618  7B       {                   ld    a,e            ; content of matrix row
 0619  CD352F   .5/                 call  0x2F35         ; check remaining keys
 061C  BA       .                   cp    d              ; same as before?
-061D  CAD72F   ../                 jp    z,0x2FD7       ; yes, for key repeat
+061D  CAD72F   ../                 jp    z,KBD_REPEAT   ; yes, for key repeat
 0620  FE00     ..                  cp    0x00           ; no further one?
-0622  CAD72F   ../                 jp    z,0x2FD7       ; yes, for key repeat
+0622  CAD72F   ../                 jp    z,KBD_REPEAT   ; yes, for key repeat
 0625  213878   !8x                 ld    hl,0x7838      ; address Flag 1
 0628  CBDE     ..                  set   3,(hl)         ; set both status bits 3+4
 062A  CBE6     ..                  set   4,(hl)         ; Set bit 4 of (hl)
@@ -924,7 +924,7 @@
 064E  BA       .                   cp    d              ; same key?
 064F  2805     (.                  jr    z,$+7          ; yes!
 0651  FE00     ..                  cp    0x00           ; no further key?
-0653  C2D72F   ../                 jp    nz,0x2FD7      ; yes - for key repeat
+0653  C2D72F   ../                 jp    nz,KBD_REPEAT  ; yes - for key repeat
 0656  213878   !8x                 ld    hl,0x7838      ; address Flag 1
 0659  CBDE     ..                  set   3,(hl)         ; set status flag for B1
 065B  CBA6     ..                  res   4,(hl)         ; clear status flag for B2
@@ -4456,7 +4456,7 @@
 1AF2  CDB879   ..y                 call  0x79B8         ; RAM expansion output
 1AF5  C3331A   .3.                 jp    MAIN_LOOP_READY ; to main loop start
                      ; Renew line pointers in entire program text
-1AF8  2AA478   *.x                 ld    hl,(0x78A4)    ; program text start in DE
+1AF8  2AA478   *.x                 ld    hl,(PRGEND)    ; program text start in DE
 1AFB  EB       .                   ex    de,hl
                      ; Renew line pointers partially
 1AFC  62       b                   ld    h,d            ; line start address in HL
@@ -4495,7 +4495,7 @@
 1B2A  E3       .                   ex    (sp),hl        ; 2nd line number on stack with swap return 
 1B2B  E5       .                   push  hl             ; return address back on stack
                      ; Search for line in program text
-1B2C  2AA478   *.x                 ld    hl,(0x78A4)    ; load program start address
+1B2C  2AA478   *.x                 ld    hl,(PRGEND)    ; load program start address
 1B2F  44       D                   ld    b,h            ; line address in BC
 1B30  4D       M                   ld    c,l
 1B31  7E       ~                   ld    a,(hl)         ; program end ?
@@ -4526,7 +4526,7 @@
                      ; (the string area definition is preserved)
 1B49  C0       .                   ret   nz             ; Parameter? yes-SYNTAX ERROR
 1B4A  CDC901   ...                 call  CLRSCR         ; clear screen
-1B4D  2AA478   *.x                 ld    hl,(0x78A4)    ; program text start in HL
+1B4D  2AA478   *.x                 ld    hl,(PRGEND)    ; program text start in HL
 1B50  CDF81D   ...                 call  TROFF          ; call TROFF
 1B53  32E178   2.x                 ld    (0x78E1),a     ; delete AUTO mode
 1B56  77       w                   ld    (hl),a         ; line pointer = 0000 at program text start 
@@ -4534,7 +4534,7 @@
 1B58  77       w                   ld    (hl),a
 1B59  23       #                   inc   hl             ; pointer behind 0000
 1B5A  22F978   ".x                 ld    (0x78F9),hl    ; save as program end address
-1B5D  2AA478   *.x                 ld    hl,(0x78A4)    ; load program start address
+1B5D  2AA478   *.x                 ld    hl,(PRGEND)    ; load program start address
 1B60  2B       +                   dec   hl             ; - 1
 1B61  22DF78   ".x                 ld    (0x78DF),hl    ; as pointer for program continuation
 1B64  061A     ..                  ld    b,0x1A         ; counter = 26
@@ -4882,7 +4882,7 @@
                      ; RESTORE statement
                      ; Resetting the DATA pointer
 1D91  EB       .                   ex    de,hl          ; program pointer in DE
-1D92  2AA478   *.x                 ld    hl,(0x78A4)    ; program start address
+1D92  2AA478   *.x                 ld    hl,(PRGEND)    ; program start address
 1D95  2B       +                   dec   hl             ; - 1
 1D96  22FF78   ".x                 ld    (0x78FF),hl    ; store as DATA pointer
 1D99  EB       .                   ex    de,hl          ; reload program pointer
@@ -5182,7 +5182,7 @@
 1F43  5E       ^                   ld    e,(hl)         ; in DE
 1F44  23       #                   inc   hl
 1F45  56       V                   ld    d,(hl)
-1F46  2AA478   *.x                 ld    hl,(0x78A4)    ; String not in program text or
+1F46  2AA478   *.x                 ld    hl,(PRGEND)    ; String not in program text or
 1F49  DF       .                   rst   0x18
 1F4A  300E     0.                  jr    nc,$+16        ; yes, string in string space
 1F4C  2AA078   *.x                 ld    hl,(STKTOP)    ; String in program text?
@@ -5377,7 +5377,7 @@
 207E  E5       .                   push  hl             ; program pointer on stack
 207F  210070   !.p                 ld    hl,0x7000      ; load screen start address
 2082  19       .                   add   hl,de          ; add position
-2083  222078   " x                 ld    (0x7820),hl    ; save as new cursor address
+2083  222078   " x                 ld    (CURS_ADDR),hl ; save as new cursor address
 2086  7B       {                   ld    a,e            ; determine cursor position in line
 2087  E61F     ..                  and   0x1F           ; = last 5 bits of cursor address
 2089  32A678   2.x                 ld    (TTYPOS),a     ; save as new cursor position
@@ -7873,9 +7873,9 @@
 2EC2  CDDC2E   ...                 call  CURSOR_BLINK   ; Output/blink cursor
 2EC5  CDFD2E   ...                 call  KBD_SCAN_ONCE  ; Query keyboard
 2EC8  F5       .                   push  af             ; Save read character
-2EC9  213978   !9x                 ld    hl,0x7839      ; Address flag 2
+2EC9  213978   !9x                 ld    hl,FLAG2       ; Address flag 2
 2ECC  CB46     .F                  bit   0,(hl)         ; Carriage return flag set?
-2ECE  CC1B30   ..0                 call  z,0x301B       ; no, output character (echo)
+2ECE  CC1B30   ..0                 call  z,ECHO_CHAR    ; no, output character (echo)
 2ED1  F1       .                   pop   af             ; Reload character
 2ED2  CD3034   .04                 call  0x3430         ; Sound buzzer
 2ED5  E1       .                   pop   hl             ; Restore register contents
@@ -7886,7 +7886,7 @@
 2EDA  ED4D     .M                  reti                 ; RETURN from interrupt
                      ; ****************************************************************
                      ; Output / blink cursor
-2EDC  3A3978   :9x                 ld    a,(0x7839)     ; Load flag 2
+2EDC  3A3978   :9x                 ld    a,(FLAG2)      ; Load flag 2
 2EDF  CB47     .G                  bit   0,a            ; Carriage return flag set?
 2EE1  C0       .                   ret   nz             ; yes, done
 2EE2  214178   !Ax                 ld    hl,0x7841      ; Address blink counter
@@ -7894,7 +7894,7 @@
 2EE6  C0       .                   ret   nz             ; not zero, done!
 2EE7  3E10     >.                  ld    a,0x10         ; Reset blink counter
 2EE9  324178   2Ax                 ld    (0x7841),a     ; save back
-2EEC  2A2078   * x                 ld    hl,(0x7820)    ; Load cursor address
+2EEC  2A2078   * x                 ld    hl,(CURS_ADDR) ; Load cursor address
 2EEF  3E40     >@                  ld    a,0x40         ; Set inverse bit in A
 2EF1  AE       .                   xor   (hl)           ; Invert character at cursor position
 2EF2  77       w                   ld    (hl),a
@@ -7934,7 +7934,6 @@
 2F27  C9       .                   ret   
                      ; ****************************************************************
                      ; Evaluate keyboard row by row
-                     ; Out: A = key code or zero
 2F28  21FE68   !.h                 ld    hl,0x68FE      ; Address keyboard row 1
 2F2B  0E08     ..                  ld    c,0x08         ; Row counter = 8
 2F2D  0606     ..                  ld    b,0x06         ; Column counter = 6
@@ -7961,463 +7960,495 @@
 2F52  280A     (.                  jr    z,$+12         ; yes!
 2F54  AF       .                   xor   a              ; return with A = 0
 2F55  C9       .                   ret   
-2F56  0E03     ..                  ld    c,0x03
-2F58  1806     ..                  jr    $+8
-2F5A  0E02     ..                  ld    c,0x02
-2F5C  1802     ..                  jr    $+4
-2F5E  0E01     ..                  ld    c,0x01
-2F60  F604     ..                  or    0x04
-2F62  5F       _                   ld    e,a
-2F63  3E06     >.                  ld    a,0x06
+                     ; Keyboard query bit by bit
+2F56  0E03     ..                  ld    c,0x03         ; Row counter = 3 (for '-')
+2F58  1806     ..                  jr    $+8            ; continue at 2F60H
+2F5A  0E02     ..                  ld    c,0x02         ; Row counter = 2 (for RETURN)
+2F5C  1802     ..                  jr    $+4            ; continue at 2F60H
+2F5E  0E01     ..                  ld    c,0x01         ; Row counter = 1 (for ':')
+2F60  F604     ..                  or    0x04           ; hide column 2 again
+2F62  5F       _                   ld    e,a            ; remember row content in E !!!
+2F63  3E06     >.                  ld    a,0x06         ; Calculate offset for the keyboard tables
 2F65  90       .                   sub   b
-2F66  CB27     .'                  sla   a
+2F66  CB27     .'                  sla   a              ; A = 8 * ( 6 - B ) + 8 - C
 2F68  CB27     .'                  sla   a
 2F6A  CB27     .'                  sla   a
 2F6C  C608     ..                  add   a,0x08
 2F6E  91       .                   sub   c
-2F6F  ED434278 .CBx                ld    (0x7842),bc
-2F73  224478   "Dx                 ld    (0x7844),hl
-2F76  21D901   !..                 ld    hl,KEYBOARD_CODES_NORMAL
-2F79  4F       O                   ld    c,a
+2F6F  ED434278 .CBx                ld    (0x7842),bc    ; remember row and column counters
+2F73  224478   "Dx                 ld    (0x7844),hl    ; remember row address
+2F76  21D901   !..                 ld    hl,KEYBOARD_CODES_NORMAL ; keyboard table 1 (without SHIFT) addr.
+2F79  4F       O                   ld    c,a            ; table offset in BC
 2F7A  0600     ..                  ld    b,0x00
-2F7C  3AFB68   :.h                 ld    a,(0x68FB)
-2F7F  CB57     .W                  bit   2,a
-2F81  200A      .                  jr    nz,$+12
-2F83  213878   !8x                 ld    hl,0x7838
-2F86  CBC6     ..                  set   0,(hl)
-2F88  210902   !..                 ld    hl,KEYBOARD_CODES_SHIFT
-2F8B  183D     .=                  jr    $+63
-2F8D  3AFD68   :.h                 ld    a,(0x68FD)
-2F90  CB57     .W                  bit   2,a
-2F92  2039      9                  jr    nz,$+59
-2F94  3A7F68   :.h                 ld    a,(0x687F)
-2F97  CB57     .W                  bit   2,a
-2F99  200E      .                  jr    nz,$+16
-2F9B  213878   !8x                 ld    hl,0x7838
-2F9E  CB6E     .n                  bit   5,(hl)
-2FA0  2004      .                  jr    nz,$+6
-2FA2  7E       ~                   ld    a,(hl)
-2FA3  EE22     ."                  xor   0x22
-2FA5  77       w                   ld    (hl),a
-2FA6  AF       .                   xor   a
-2FA7  C1       .                   pop   bc
-2FA8  C9       .                   ret   
-2FA9  213878   !8x                 ld    hl,0x7838
-2FAC  CBFE     ..                  set   7,(hl)
-2FAE  CB56     .V                  bit   2,(hl)
-2FB0  2805     (.                  jr    z,$+7
-2FB2  216902   !i.                 ld    hl,KEYBOARD_CODES_FUNCTION
-2FB5  1813     ..                  jr    $+21
-2FB7  3ABF68   :.h                 ld    a,(0x68BF)
-2FBA  CB57     .W                  bit   2,a
-2FBC  2007      .                  jr    nz,$+9
-2FBE  CBD6     ..                  set   2,(hl)
-2FC0  AF       .                   xor   a
+2F7C  3AFB68   :.h                 ld    a,(0x68FB)     ; load keyboard row 3
+2F7F  CB57     .W                  bit   2,a            ; SHIFT key pressed?
+2F81  200A      .                  jr    nz,$+12        ; no!
+2F83  213878   !8x                 ld    hl,0x7838      ; address Flag 1
+2F86  CBC6     ..                  set   0,(hl)         ; set SHIFT-Flag
+2F88  210902   !..                 ld    hl,KEYBOARD_CODES_SHIFT ; keyboard table 2 (with SHIFT) addr.
+2F8B  183D     .=                  jr    $+63           ; read code from table
+2F8D  3AFD68   :.h                 ld    a,(0x68FD)     ; load keyboard row 2
+2F90  CB57     .W                  bit   2,a            ; CTRL key pressed?
+2F92  2039      9                  jr    nz,$+59        ; no!
+2F94  3A7F68   :.h                 ld    a,(0x687F)     ; load keyboard row 8
+2F97  CB57     .W                  bit   2,a            ; ';' - Key pressed? (INVERSE)
+2F99  200E      .                  jr    nz,$+16        ; no!
+2F9B  213878   !8x                 ld    hl,0x7838      ; address Flag 1
+2F9E  CB6E     .n                  bit   5,(hl)         ; WAIT flag set?
+2FA0  2004      .                  jr    nz,$+6         ; yes, ignore key press
+2FA2  7E       ~                   ld    a,(hl)         ; load Flag 1
+2FA3  EE22     ."                  xor   0x22           ; invert INVERSE flag, set WAIT flag
+2FA5  77       w                   ld    (hl),a         ; save Flag 1
+2FA6  AF       .                   xor   a              ; A = 0
+2FA7  C1       .                   pop   bc             ; remove return address
+2FA8  C9       .                   ret                  ; two levels back
+2FA9  213878   !8x                 ld    hl,0x7838      ; address Flag 1
+2FAC  CBFE     ..                  set   7,(hl)         ; set CONTROL flag
+2FAE  CB56     .V                  bit   2,(hl)         ; FUNCTION flag set?
+2FB0  2805     (.                  jr    z,$+7          ; no!
+2FB2  216902   !i.                 ld    hl,KEYBOARD_CODES_FUNCTION ; keyboard table 4 (Functions) addr.
+2FB5  1813     ..                  jr    $+21           ; read code from table
+2FB7  3ABF68   :.h                 ld    a,(0x68BF)     ; load keyboard row 7
+2FBA  CB57     .W                  bit   2,a            ; RETURN pressed?
+2FBC  2007      .                  jr    nz,$+9         ; no!
+2FBE  CBD6     ..                  set   2,(hl)         ; set FUNCTION flag
+2FC0  AF       .                   xor   a              ; reset timer
 2FC1  323A78   2:x                 ld    (0x783A),a
 2FC4  C9       .                   ret   
-2FC5  CB96     ..                  res   2,(hl)
-2FC7  213902   !9.                 ld    hl,KEYBOARD_CODES_CTRL
-2FCA  09       .                   add   hl,bc
-2FCB  7E       ~                   ld    a,(hl)
-2FCC  C9       .                   ret   
-2FCD  3A3878   :8x                 ld    a,(0x7838)
-2FD0  E681     ..                  and   0x81
-2FD2  28F6     (.                  jr    z,$-8
-2FD4  AF       .                   xor   a
-2FD5  E1       .                   pop   hl
-2FD6  C9       .                   ret   
-2FD7  213878   !8x                 ld    hl,0x7838
-2FDA  CB6E     .n                  bit   5,(hl)
-2FDC  2825     (%                  jr    z,$+39
-2FDE  3A3A78   ::x                 ld    a,(0x783A)
+2FC5  CB96     ..                  res   2,(hl)         ; clear FUNCTION flag
+2FC7  213902   !9.                 ld    hl,KEYBOARD_CODES_CTRL ; keyboard table 3 (Keywords) addr.
+2FCA  09       .                   add   hl,bc          ; Table addr. + Offset
+2FCB  7E       ~                   ld    a,(hl)         ; read code from table
+2FCC  C9       .                   ret                  ; back
+2FCD  3A3878   :8x                 ld    a,(0x7838)     ; load Flag 1
+2FD0  E681     ..                  and   0x81           ; SHIFT or CTRL flag set?
+2FD2  28F6     (.                  jr    z,$-8          ; no, determine code
+2FD4  AF       .                   xor   a              ; ignore key
+2FD5  E1       .                   pop   hl             ; remove return address
+2FD6  C9       .                   ret                  ; two levels back
+                     ; Key repeat
+2FD7  213878   !8x                 ld    hl,0x7838      ; address Flag 1
+2FDA  CB6E     .n                  bit   5,(hl)         ; WAIT flag set?
+2FDC  2825     (%                  jr    z,$+39         ; no!
+2FDE  3A3A78   ::x                 ld    a,(0x783A)     ; timer + 1
 2FE1  3C       <                   inc   a
 2FE2  323A78   2:x                 ld    (0x783A),a
-2FE5  FE2A     .*                  cp    0x2A
-2FE7  2802     (.                  jr    z,$+4
-2FE9  AF       .                   xor   a
+2FE5  FE2A     .*                  cp    0x2A           ; 0.84 seconds?
+2FE7  2802     (.                  jr    z,$+4          ; yes!
+2FE9  AF       .                   xor   a              ; back with A = 0
 2FEA  C9       .                   ret   
-2FEB  7E       ~                   ld    a,(hl)
-2FEC  E6DF     ..                  and   0xDF
-2FEE  F640     .@                  or    0x40
-2FF0  323878   28x                 ld    (0x7838),a
-2FF3  AF       .                   xor   a
+2FEB  7E       ~                   ld    a,(hl)         ; load Flag 1
+2FEC  E6DF     ..                  and   0xDF           ; clear WAIT flag
+2FEE  F640     .@                  or    0x40           ; set REPEAT flag
+2FF0  323878   28x                 ld    (0x7838),a     ; save Flag 1
+2FF3  AF       .                   xor   a              ; reset timer
 2FF4  323A78   2:x                 ld    (0x783A),a
-2FF7  CB66     .f                  bit   4,(hl)
-2FF9  2004      .                  jr    nz,$+6
-2FFB  3A3678   :6x                 ld    a,(0x7836)
+2FF7  CB66     .f                  bit   4,(hl)         ; 2 keys pressed?
+2FF9  2004      .                  jr    nz,$+6         ; yes!
+2FFB  3A3678   :6x                 ld    a,(0x7836)     ; load key code from character buffer
 2FFE  C9       .                   ret   
-2FFF  3A3778   :7x                 ld    a,(0x7837)
+2FFF  3A3778   :7x                 ld    a,(0x7837)     ; load code for 2nd key
 3002  C9       .                   ret   
-3003  CB76     .v                  bit   6,(hl)
-3005  2007      .                  jr    nz,$+9
-3007  CBEE     ..                  set   5,(hl)
-3009  AF       .                   xor   a
+3003  CB76     .v                  bit   6,(hl)         ; REPEAT flag set?
+3005  2007      .                  jr    nz,$+9         ; yes!
+3007  CBEE     ..                  set   5,(hl)         ; set WAIT flag
+3009  AF       .                   xor   a              ; reset timer
 300A  323A78   2:x                 ld    (0x783A),a
-300D  C9       .                   ret   
-300E  3A3A78   ::x                 ld    a,(0x783A)
+300D  C9       .                   ret                  ; back with A = 0
+300E  3A3A78   ::x                 ld    a,(0x783A)     ; timer + 1
 3011  3C       <                   inc   a
 3012  323A78   2:x                 ld    (0x783A),a
-3015  FE06     ..                  cp    0x06
-3017  28DA     (.                  jr    z,$-36
-3019  AF       .                   xor   a
-301A  C9       .                   ret   
-301B  B7       .                   or    a
-301C  C8       .                   ret   z
-301D  F5       .                   push  af
-301E  CD3930   .90                 call  0x3039
-3021  F1       .                   pop   af
-3022  FE0D     ..                  cp    0x0D
-3024  C8       .                   ret   z
-3025  FE01     ..                  cp    0x01
-3027  C8       .                   ret   z
-3028  3A3978   :9x                 ld    a,(0x7839)
-302B  CB47     .G                  bit   0,a
-302D  C0       .                   ret   nz
-302E  3E20     >                   ld    a,0x20
+3015  FE06     ..                  cp    0x06           ; 0.12 seconds?
+3017  28DA     (.                  jr    z,$-36         ; yes!
+3019  AF       .                   xor   a              ; back with A = 0
+301A  C9       .                   ret                  ; back
+                     ; Display entered character on screen
+                     ; (ECHO function)
+301B  B7       .                   or    a              ; A = 0? (no character)
+301C  C8       .                   ret   z              ; yes, finished
+301D  F5       .                   push  af             ; save character
+301E  CD3930   .90                 call  DIRECT_OUT_CHAR_TOKEN ; output character
+3021  F1       .                   pop   af             ; reload character
+3022  FE0D     ..                  cp    0x0D           ; was it a Carriage Return?
+3024  C8       .                   ret   z              ; yes, finished
+3025  FE01     ..                  cp    0x01           ; or BREAK?
+3027  C8       .                   ret   z              ; yes, also finished
+3028  3A3978   :9x                 ld    a,(FLAG2)      ; load Flag 2
+302B  CB47     .G                  bit   0,a            ; CR flag set?
+302D  C0       .                   ret   nz             ; yes, finished
+302E  3E20     >                   ld    a,0x20         ; wait for double value (pause)
 3030  324178   2Ax                 ld    (0x7841),a
-3033  2A2078   * x                 ld    hl,(0x7820)
-3036  C3B23E   ..>                 jp    0x3EB2
-3039  213878   !8x                 ld    hl,0x7838
-303C  CB7E     .~                  bit   7,(hl)
-303E  CA5731   .W1                 jp    z,0x3157
-3041  B7       .                   or    a
-3042  F25731   .W1                 jp    p,0x3157
-3045  F5       .                   push  af
-3046  D680     ..                  sub   0x80
-3048  3C       <                   inc   a
+3033  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor address
+3036  C3B23E   ..>                 jp    0x3EB2         ; output character inverted
+                     ; Direct output of a character or keyword
+3039  213878   !8x                 ld    hl,0x7838      ; address Flag 1
+303C  CB7E     .~                  bit   7,(hl)         ; CONTROL flag set?
+303E  CA5731   .W1                 jp    z,OUT_CHAR_RESTORE_2 ; no, output character
+3041  B7       .                   or    a              ; is it a token?
+3042  F25731   .W1                 jp    p,OUT_CHAR_RESTORE_2 ; no, output character
+3045  F5       .                   push  af             ; save character
+3046  D680     ..                  sub   0x80           ; clear bit 7
+3048  3C       <                   inc   a              ; + 1 as word counter
 3049  47       G                   ld    b,a
-304A  214F16   !O.                 ld    hl,0x164F
-304D  23       #                   inc   hl
-304E  CB7E     .~                  bit   7,(hl)
-3050  28FB     (.                  jr    z,$-3
-3052  10F9     ..                  djnz  $-5
-3054  7E       ~                   ld    a,(hl)
-3055  CD8230   ..0                 call  0x3082
-3058  7E       ~                   ld    a,(hl)
-3059  CB7F     ..                  bit   7,a
-305B  28F8     (.                  jr    z,$-6
-305D  F1       .                   pop   af
-305E  0616     ..                  ld    b,0x16
-3060  219902   !..                 ld    hl,TOKEN_APPEND_PAREN
-3063  BE       .                   cp    (hl)
-3064  2816     (.                  jr    z,$+24
-3066  23       #                   inc   hl
-3067  10FA     ..                  djnz  $-4
-3069  FEB0     ..                  cp    0xB0
-306B  C0       .                   ret   nz
-306C  3E20     >                   ld    a,0x20
-306E  CD8230   ..0                 call  0x3082
-3071  3E46     >F                  ld    a,0x46
-3073  CD8230   ..0                 call  0x3082
-3076  3E4E     >N                  ld    a,0x4E
-3078  CD8230   ..0                 call  0x3082
-307B  C9       .                   ret   
-307C  3E28     >(                  ld    a,0x28
-307E  CD8230   ..0                 call  0x3082
+304A  214F16   !O.                 ld    hl,0x164F      ; address of keyword table - 1
+304D  23       #                   inc   hl             ; address pointer + 1
+304E  CB7E     .~                  bit   7,(hl)         ; start of a new word?
+3050  28FB     (.                  jr    z,$-3          ; no, continue
+3052  10F9     ..                  djnz  $-5            ; word counter - 1 = 0?
+3054  7E       ~                   ld    a,(hl)         ; yes, searched keyword
+3055  CD8230   ..0                 call  OUT_PREP_CHAR  ; output character from table
+3058  7E       ~                   ld    a,(hl)         ; next character
+3059  CB7F     ..                  bit   7,a            ; new keyword?
+305B  28F8     (.                  jr    z,$-6          ; no, output character
+305D  F1       .                   pop   af             ; reload character from stack
+                     ; Check if the token should have a '(' appended.
+305E  0616     ..                  ld    b,0x16         ; Number of table elements
+3060  219902   !..                 ld    hl,TOKEN_APPEND_PAREN ; Starting address of the table
+3063  BE       .                   cp    (hl)           ; Token = table entry?
+3064  2816     (.                  jr    z,$+24         ; yes, jump
+3066  23       #                   inc   hl             ; address pointer + 1
+3067  10FA     ..                  djnz  $-4            ; next table entry
+                     ; not in table, special handling 'DEF'
+3069  FEB0     ..                  cp    0xB0           ; DEF token?
+306B  C0       .                   ret   nz             ; no, done!
+306C  3E20     >                   ld    a,0x20         ; yes, append ' '
+306E  CD8230   ..0                 call  OUT_PREP_CHAR
+3071  3E46     >F                  ld    a,0x46         ; output 'F'
+3073  CD8230   ..0                 call  OUT_PREP_CHAR  ; output character
+3076  3E4E     >N                  ld    a,0x4E         ; output 'N'
+3078  CD8230   ..0                 call  OUT_PREP_CHAR  ; output character
+307B  C9       .                   ret                  ; done!
+                     OUT_APPEND_PAREN:
+307C  3E28     >(                  ld    a,0x28         ; yes, append '('
+307E  CD8230   ..0                 call  OUT_PREP_CHAR
 3081  C9       .                   ret   
-3082  E67F     ..                  and   0x7F
-3084  E5       .                   push  hl
-3085  CD5731   .W1                 call  0x3157
-3088  E1       .                   pop   hl
-3089  23       #                   inc   hl
+                     ; prepare a character for output
+                     OUT_PREP_CHAR:
+3082  E67F     ..                  and   0x7F           ; clear bit 7
+3084  E5       .                   push  hl             ; string pointer on stack
+3085  CD5731   .W1                 call  OUT_CHAR_RESTORE_2 ; output character
+3088  E1       .                   pop   hl             ; load string pointer
+3089  23       #                   inc   hl             ; string pointer + 1
 308A  C9       .                   ret   
-308B  F5       .                   push  af
-308C  3A3B78   :;x                 ld    a,(OUT_LATCH)
-308F  CB5F     ._                  bit   3,a
-3091  2817     (.                  jr    z,$+25
-3093  E6F7     ..                  and   0xF7
-3095  323B78   2;x                 ld    (OUT_LATCH),a
-3098  320068   2.h                 ld    (0x6800),a
-309B  010002   ...                 ld    bc,0x0200
-309E  210070   !.p                 ld    hl,0x7000
-30A1  CDBE3E   ..>                 call  0x3EBE
-30A4  23       #                   inc   hl
-30A5  0B       .                   dec   bc
-30A6  79       y                   ld    a,c
+                     ; Buffered output of characters
+                     OUT_BUF_CHAR:
+308B  F5       .                   push  af             ; save character
+308C  3A3B78   :;x                 ld    a,(OUT_LATCH)  ; load I/O latch byte
+308F  CB5F     ._                  bit   3,a            ; system in graphics mode?
+3091  2817     (.                  jr    z,$+25         ; no!
+3093  E6F7     ..                  and   0xF7           ; clear bit 3
+3095  323B78   2;x                 ld    (OUT_LATCH),a  ; save I/O latch byte
+3098  320068   2.h                 ld    (0x6800),a     ; switch to text mode
+309B  010002   ...                 ld    bc,0x0200      ; video memory for text mode
+309E  210070   !.p                 ld    hl,0x7000      ; clear (512 bytes)
+30A1  CDBE3E   ..>                 call  0x3EBE         ; clear characters
+30A4  23       #                   inc   hl             ; next address
+30A5  0B       .                   dec   bc             ; counter - 1
+30A6  79       y                   ld    a,c            ; = 0? (done)
 30A7  B0       .                   or    b
-30A8  20F7      .                  jr    nz,$-7
-30AA  F1       .                   pop   af
-30AB  213978   !9x                 ld    hl,0x7839
-30AE  CB6E     .n                  bit   5,(hl)
-30B0  CA0631   ..1                 jp    z,0x3106
-30B3  FE20     .                   cp    0x20
-30B5  D2C030   ..0                 jp    nc,0x30C0
-30B8  F5       .                   push  af
-30B9  3AAF7A   :.z                 ld    a,(0x7AAF)
-30BC  B7       .                   or    a
-30BD  20FA      .                  jr    nz,$-4
-30BF  F1       .                   pop   af
-30C0  F3       .                   di    
-30C1  2AB07A   *.z                 ld    hl,(0x7AB0)
-30C4  77       w                   ld    (hl),a
-30C5  23       #                   inc   hl
-30C6  22B07A   ".z                 ld    (0x7AB0),hl
-30C9  21AF7A   !.z                 ld    hl,0x7AAF
-30CC  34       4                   inc   (hl)
-30CD  F5       .                   push  af
-30CE  3AA678   :.x                 ld    a,(TTYPOS)
-30D1  86       .                   add   a,(hl)
-30D2  32AE7A   2.z                 ld    (0x7AAE),a
-30D5  F1       .                   pop   af
-30D6  FB       .                   ei    
-30D7  FE20     .                   cp    0x20
-30D9  DAE330   ..0                 jp    c,0x30E3
-30DC  3E14     >.                  ld    a,0x14
-30DE  BE       .                   cp    (hl)
-30DF  DADE30   ..0                 jp    c,0x30DE
+30A8  20F7      .                  jr    nz,$-7         ; no, next character
+30AA  F1       .                   pop   af             ; load character to be output
+30AB  213978   !9x                 ld    hl,FLAG2       ; address Flag 2
+30AE  CB6E     .n                  bit   5,(hl)         ; initialization flag set?
+30B0  CA0631   ..1                 jp    z,OUT_CHAR_CONTROL ; no, direct output of character
+30B3  FE20     .                   cp    0x20           ; is it a control character?
+30B5  D2C030   ..0                 jp    nc,0x30C0      ; no!
+                     ; Wait until print buffer is completely output
+                     OUT_WAIT_BUF:
+30B8  F5       .                   push  af             ; save character
+30B9  3AAF7A   :.z                 ld    a,(0x7AAF)     ; load buffer counter
+30BC  B7       .                   or    a              ; = 0?
+30BD  20FA      .                  jr    nz,$-4         ; no, wait!
+30BF  F1       .                   pop   af             ; reload character
+30C0  F3       .                   di                   ; disable interrupts
+30C1  2AB07A   *.z                 ld    hl,(0x7AB0)    ; load buffer pointer
+30C4  77       w                   ld    (hl),a         ; transfer character to buffer
+30C5  23       #                   inc   hl             ; buffer pointer + 1
+30C6  22B07A   ".z                 ld    (0x7AB0),hl    ; and save back
+30C9  21AF7A   !.z                 ld    hl,0x7AAF      ; address buffer counter
+30CC  34       4                   inc   (hl)           ; + 1
+30CD  F5       .                   push  af             ; save character
+30CE  3AA678   :.x                 ld    a,(TTYPOS)     ; pointer to screen output column
+30D1  86       .                   add   a,(hl)         ; + number of characters in buffer
+30D2  32AE7A   2.z                 ld    (0x7AAE),a     ; position pointer in line
+30D5  F1       .                   pop   af             ; reload character
+30D6  FB       .                   ei                   ; enable interrupts again
+30D7  FE20     .                   cp    0x20           ; was it a control character?
+30D9  DAE330   ..0                 jp    c,0x30E3       ; yes!
+30DC  3E14     >.                  ld    a,0x14         ; maximum 20 characters in print buffer
+30DE  BE       .                   cp    (hl)           ; limit exceeded
+30DF  DADE30   ..0                 jp    c,0x30DE       ; yes, wait until buffer is emptier
 30E2  C9       .                   ret   
-30E3  AF       .                   xor   a
+30E3  AF       .                   xor   a              ; wait until buffer is empty
 30E4  BE       .                   cp    (hl)
 30E5  20FD      .                  jr    nz,$-1
-30E7  C9       .                   ret   
-30E8  3AAF7A   :.z                 ld    a,(0x7AAF)
-30EB  B7       .                   or    a
-30EC  C8       .                   ret   z
-30ED  47       G                   ld    b,a
-30EE  21B27A   !.z                 ld    hl,0x7AB2
-30F1  E5       .                   push  hl
-30F2  7E       ~                   ld    a,(hl)
-30F3  23       #                   inc   hl
-30F4  E5       .                   push  hl
-30F5  C5       .                   push  bc
-30F6  CD0631   ..1                 call  0x3106
-30F9  C1       .                   pop   bc
-30FA  E1       .                   pop   hl
-30FB  10F5     ..                  djnz  $-9
-30FD  E1       .                   pop   hl
-30FE  22B07A   ".z                 ld    (0x7AB0),hl
-3101  AF       .                   xor   a
+30E7  C9       .                   ret                  ; done
+                     ; Output print buffer after an interrupt
+                     OUT_BUF_FLUSH:
+30E8  3AAF7A   :.z                 ld    a,(0x7AAF)     ; load buffer counter
+30EB  B7       .                   or    a              ; buffer empty?
+30EC  C8       .                   ret   z              ; yes, done
+30ED  47       G                   ld    b,a            ; in B as loop counter
+30EE  21B27A   !.z                 ld    hl,0x7AB2      ; load buffer start address
+30F1  E5       .                   push  hl             ; and on the stack
+30F2  7E       ~                   ld    a,(hl)         ; load character from buffer
+30F3  23       #                   inc   hl             ; buffer address + 1
+30F4  E5       .                   push  hl             ; buffer address on stack
+30F5  C5       .                   push  bc             ; character counter on stack
+30F6  CD0631   ..1                 call  OUT_CHAR_CONTROL ; output character
+30F9  C1       .                   pop   bc             ; load character counter
+30FA  E1       .                   pop   hl             ; load buffer address
+30FB  10F5     ..                  djnz  $-9            ; buffer empty?
+30FD  E1       .                   pop   hl             ; yes, load buffer start address
+30FE  22B07A   ".z                 ld    (0x7AB0),hl    ; save as new buffer pointer
+3101  AF       .                   xor   a              ; buffer counter = 0
 3102  32AF7A   2.z                 ld    (0x7AAF),a
 3105  C9       .                   ret   
-3106  CD0D03   ...                 call  CURSOR_CHAR_RESTORE
-3109  B7       .                   or    a
-310A  2804     (.                  jr    z,$+6
-310C  FE0D     ..                  cp    0x0D
-310E  204A      J                  jr    nz,$+76
-3110  F5       .                   push  af
-3111  2A2078   * x                 ld    hl,(0x7820)
-3114  3AA678   :.x                 ld    a,(TTYPOS)
-3117  4F       O                   ld    c,a
+                     ; Control of the output of a character
+                     OUT_CHAR_CONTROL:
+3106  CD0D03   ...                 call  CURSOR_CHAR_RESTORE ; restore character at cursor position
+3109  B7       .                   or    a              ; character to be output = 0?
+310A  2804     (.                  jr    z,$+6          ; yes, CR from RDLINE!
+310C  FE0D     ..                  cp    0x0D           ; is it a Carriage Return?
+310E  204A      J                  jr    nz,$+76        ; no, output character
+3110  F5       .                   push  af             ; save character
+3111  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor address
+3114  3AA678   :.x                 ld    a,(TTYPOS)     ; load column pointer
+3117  4F       O                   ld    c,a            ; transfer to BC
 3118  AF       .                   xor   a
 3119  47       G                   ld    b,a
-311A  32A678   2.x                 ld    (TTYPOS),a
-311D  ED42     .B                  sbc   hl,bc
-311F  012000   . .                 ld    bc,RST20_VEC
+311A  32A678   2.x                 ld    (TTYPOS),a     ; column pointer to column 0
+311D  ED42     .B                  sbc   hl,bc          ; cursor address to start of line
+311F  012000   . .                 ld    bc,RST20_VEC   ; + 1 line (32 characters)
 3122  09       .                   add   hl,bc
-3123  7C       |                   ld    a,h
+3123  7C       |                   ld    a,h            ; address outside of the screen?
 3124  FE72     .r                  cp    0x72
-3126  F4F333   ..3                 call  p,0x33F3
-3129  222078   " x                 ld    (0x7820),hl
-312C  CD5300   .S.                 call  0x0053
-312F  F1       .                   pop   af
-3130  B7       .                   or    a
-3131  C8       .                   ret   z
-3132  CDA833   ..3                 call  0x33A8
-3135  FE80     ..                  cp    0x80
-3137  C8       .                   ret   z
-3138  FE81     ..                  cp    0x81
-313A  2005      .                  jr    nz,$+7
-313C  3D       =                   dec   a
-313D  77       w                   ld    (hl),a
+3126  F4F333   ..3                 call  p,0x33F3       ; yes, scroll screen up 1 line
+3129  222078   " x                 ld    (CURS_ADDR),hl ; save new cursor address
+312C  CD5300   .S.                 call  0x0053         ; save character from cursor position
+312F  F1       .                   pop   af             ; load character to be output
+3130  B7       .                   or    a              ; CR from RDLINE (03E3H)?
+3131  C8       .                   ret   z              ; yes, done
+3132  CDA833   ..3                 call  0x33A8         ; determine status of the line
+3135  FE80     ..                  cp    0x80           ; single line?
+3137  C8       .                   ret   z              ; yes, done
+3138  FE81     ..                  cp    0x81           ; first of a double line?
+313A  2005      .                  jr    nz,$+7         ; no, continuation line
+313C  3D       =                   dec   a              ; both lines to single lines
+313D  77       w                   ld    (hl),a         ; convert
 313E  23       #                   inc   hl
 313F  77       w                   ld    (hl),a
-3140  C9       .                   ret   
-3141  3E80     >.                  ld    a,0x80
-3143  77       w                   ld    (hl),a
-3144  C9       .                   ret   
-3145  CB77     .w                  bit   6,a
-3147  2804     (.                  jr    z,$+6
-3149  C3603F   .`?                 jp    0x3F60
-314C  00       .                   nop   
-314D  E68F     ..                  and   0x8F
-314F  47       G                   ld    b,a
-3150  3A4678   :Fx                 ld    a,(0x7846)
-3153  B0       .                   or    b
-3154  47       G                   ld    b,a
-3155  185F     ._                  jr    $+97
-3157  CD0D03   ...                 call  CURSOR_CHAR_RESTORE
-315A  B7       .                   or    a
-315B  FA4531   .E1                 jp    m,0x3145
-315E  FE0D     ..                  cp    0x0D
-3160  C8       .                   ret   z
-3161  FE08     ..                  cp    0x08
-3163  CA2732   .'2                 jp    z,0x3227
-3166  FE1B     ..                  cp    0x1B
-3168  CA5332   .S2                 jp    z,0x3253
-316B  FE0A     ..                  cp    0x0A
-316D  CA6D32   .m2                 jp    z,0x326D
-3170  FE08     ..                  cp    0x08
-3172  CA2732   .'2                 jp    z,0x3227
-3175  FE09     ..                  cp    0x09
-3177  CAB831   ..1                 jp    z,0x31B8
-317A  FE01     ..                  cp    0x01
-317C  C8       .                   ret   z
-317D  FE7F     ..                  cp    0x7F
-317F  CACB33   ..3                 jp    z,0x33CB
-3182  FE15     ..                  cp    0x15
-3184  CAC632   ..2                 jp    z,0x32C6
-3187  FE18     ..                  cp    0x18
-3189  CA2732   .'2                 jp    z,0x3227
-318C  FE19     ..                  cp    0x19
-318E  CAB831   ..1                 jp    z,0x31B8
-3191  FE1B     ..                  cp    0x1B
-3193  CA5332   .S2                 jp    z,0x3253
-3196  FE1C     ..                  cp    0x1C
-3198  CA8732   ..2                 jp    z,0x3287
-319B  FE1D     ..                  cp    0x1D
-319D  CAB432   ..2                 jp    z,0x32B4
-31A0  FE1F     ..                  cp    0x1F
-31A2  CA9232   ..2                 jp    z,0x3292
-31A5  FE20     .                   cp    0x20
+3140  C9       .                   ret                  ; done
+3141  3E80     >.                  ld    a,0x80         ; continuation line in single line
+3143  77       w                   ld    (hl),a         ; convert
+3144  C9       .                   ret                  ; done
+                     ; Output character or execute control functions
+                     ; Entry point is 3157 or 315A
+                     OUT_CHAR_PROCESS:
+3145  CB77     .w                  bit   6,a            ; inverted alphanumeric character?
+3147  2804     (.                  jr    z,$+6          ; no, block graphics!
+3149  C3603F   .`?                 jp    0x3F60         ; inverted representation depending
+314C  00       .                   nop                  ; on background
+314D  E68F     ..                  and   0x8F           ; clear bits 4, 5, 6
+314F  47       G                   ld    b,a            ; graphics character in B
+3150  3A4678   :Fx                 ld    a,(0x7846)     ; load color code
+3153  B0       .                   or    b              ; combine with graphics character
+3154  47       G                   ld    b,a            ; character in B
+3155  185F     ._                  jr    $+97           ; and output
+                     OUT_CHAR_RESTORE_2:
+3157  CD0D03   ...                 call  CURSOR_CHAR_RESTORE ; restore character at cursor position
+                     OUT_CHAR_BIT7_CHECK:
+315A  B7       .                   or    a              ; bit 7 of the character to be output = 1?
+315B  FA4531   .E1                 jp    m,OUT_CHAR_PROCESS ; yes, jump
+315E  FE0D     ..                  cp    0x0D           ; Carriage Return?
+3160  C8       .                   ret   z              ; yes, done!
+3161  FE08     ..                  cp    0x08           ; BACKSPACE?
+3163  CA2732   .'2                 jp    z,OUT_CURSOR_DEC ; yes!
+3166  FE1B     ..                  cp    0x1B           ; cursor up?
+3168  CA5332   .S2                 jp    z,OUT_CURSOR_UP ; yes!
+316B  FE0A     ..                  cp    0x0A           ; cursor down?
+316D  CA6D32   .m2                 jp    z,OUT_CURSOR_DOWN ; yes!
+3170  FE08     ..                  cp    0x08           ; cursor left?
+3172  CA2732   .'2                 jp    z,OUT_CURSOR_DEC ; yes!
+3175  FE09     ..                  cp    0x09           ; cursor right?
+3177  CAB831   ..1                 jp    z,0x31B8       ; yes!
+317A  FE01     ..                  cp    0x01           ; BREAK?
+317C  C8       .                   ret   z              ; yes, done!
+317D  FE7F     ..                  cp    0x7F           ; RUBOUT?
+317F  CACB33   ..3                 jp    z,0x33CB       ; yes!
+3182  FE15     ..                  cp    0x15           ; INSERT?
+3184  CAC632   ..2                 jp    z,0x32C6       ; yes!
+3187  FE18     ..                  cp    0x18           ; arrow left?
+3189  CA2732   .'2                 jp    z,OUT_CURSOR_DEC ; yes!
+318C  FE19     ..                  cp    0x19           ; arrow right?
+318E  CAB831   ..1                 jp    z,0x31B8       ; yes!
+3191  FE1B     ..                  cp    0x1B           ; arrow up?
+3193  CA5332   .S2                 jp    z,OUT_CURSOR_UP ; yes!
+3196  FE1C     ..                  cp    0x1C           ; cursor to start of screen?
+3198  CA8732   ..2                 jp    z,OUT_CURSOR_HOME ; yes!
+319B  FE1D     ..                  cp    0x1D           ; cursor to start of line?
+319D  CAB432   ..2                 jp    z,OUT_CURSOR_SOL ; yes!
+31A0  FE1F     ..                  cp    0x1F           ; clear screen?
+31A2  CA9232   ..2                 jp    z,OUT_SCREEN_CLS ; yes!
+31A5  FE20     .                   cp    0x20           ; ignore remaining control characters
 31A7  F8       .                   ret   m
-31A8  C3CA3E   ..>                 jp    0x3ECA
-31AB  213878   !8x                 ld    hl,0x7838
-31AE  CB4E     .N                  bit   1,(hl)
-31B0  E1       .                   pop   hl
-31B1  2802     (.                  jr    z,$+4
-31B3  F640     .@                  or    0x40
-31B5  47       G                   ld    b,a
-31B6  78       x                   ld    a,b
-31B7  77       w                   ld    (hl),a
-31B8  CDBF31   ..1                 call  0x31BF
-31BB  CD5000   .P.                 call  GET_CURSOR_CHAR
+31A8  C3CA3E   ..>                 jp    0x3ECA         ; continue at 3ECA (supplement)
+31AB  213878   !8x                 ld    hl,0x7838      ; address Flag 1
+31AE  CB4E     .N                  bit   1,(hl)         ; INVERSE flag set?
+31B0  E1       .                   pop   hl             ; clean up stack
+31B1  2802     (.                  jr    z,$+4          ; no!
+31B3  F640     .@                  or    0x40           ; yes, invert character
+31B5  47       G                   ld    b,a            ; character in B
+                     OUT_SCREEN_RAW:
+31B6  78       x                   ld    a,b            ; transfer character to A
+31B7  77       w                   ld    (hl),a         ; output on screen
+31B8  CDBF31   ..1                 call  OUT_CURSOR_ADVANCE ; advance cursor one position
+31BB  CD5000   .P.                 call  GET_CURSOR_CHAR ; save character at cursor position
 31BE  C9       .                   ret   
-31BF  3AA678   :.x                 ld    a,(TTYPOS)
-31C2  3C       <                   inc   a
-31C3  FE20     .                   cp    0x20
-31C5  202B      +                  jr    nz,$+45
-31C7  CDA833   ..3                 call  0x33A8
-31CA  FE81     ..                  cp    0x81
-31CC  2823     (#                  jr    z,$+37
-31CE  B7       .                   or    a
-31CF  2035      5                  jr    nz,$+55
-31D1  47       G                   ld    b,a
-31D2  3A3978   :9x                 ld    a,(0x7839)
-31D5  CB47     .G                  bit   0,a
-31D7  78       x                   ld    a,b
-31D8  C8       .                   ret   z
-31D9  AF       .                   xor   a
+                     ; Advance cursor one character position
+                     OUT_CURSOR_ADVANCE:
+31BF  3AA678   :.x                 ld    a,(TTYPOS)     ; load column pointer
+31C2  3C       <                   inc   a              ; + 1
+31C3  FE20     .                   cp    0x20           ; at the beginning of the next line?
+31C5  202B      +                  jr    nz,$+45        ; no!
+31C7  CDA833   ..3                 call  0x33A8         ; determine line status
+31CA  FE81     ..                  cp    0x81           ; first of a double line?
+31CC  2823     (#                  jr    z,$+37         ; yes!
+31CE  B7       .                   or    a              ; second of a double line?
+31CF  2035      5                  jr    nz,$+55        ; no!
+31D1  47       G                   ld    b,a            ; status in B
+31D2  3A3978   :9x                 ld    a,(FLAG2)      ; load Flag 2
+31D5  CB47     .G                  bit   0,a            ; CR flag set?
+31D7  78       x                   ld    a,b            ; status back in A
+31D8  C8       .                   ret   z              ; yes, maximum two lines!
+31D9  AF       .                   xor   a              ; next line = continuation line
 31DA  23       #                   inc   hl
-31DB  77       w                   ld    (hl),a
-31DC  23       #                   inc   hl
-31DD  E5       .                   push  hl
-31DE  ED4BA478 .K.x                ld    bc,(0x78A4)
-31E2  0B       .                   dec   bc
-31E3  0B       .                   dec   bc
-31E4  B7       .                   or    a
+31DB  77       w                   ld    (hl),a         ; (= 00)
+31DC  23       #                   inc   hl             ; HL to status of the next line
+31DD  E5       .                   push  hl             ; and remember
+31DE  ED4BA478 .K.x                ld    bc,(PRGEND)    ; is this the last line?
+31E2  0B       .                   dec   bc             ; (this routine collides)
+31E3  0B       .                   dec   bc             ; (with programs that do not)
+31E4  B7       .                   or    a              ; (begin by default)
 31E5  ED42     .B                  sbc   hl,bc
 31E7  E1       .                   pop   hl
-31E8  3007     0.                  jr    nc,$+9
-31EA  7E       ~                   ld    a,(hl)
-31EB  B7       .                   or    a
-31EC  2003      .                  jr    nz,$+5
-31EE  3E80     >.                  ld    a,0x80
-31F0  77       w                   ld    (hl),a
+31E8  3007     0.                  jr    nc,$+9         ; yes, last line
+31EA  7E       ~                   ld    a,(hl)         ; load status of the line
+31EB  B7       .                   or    a              ; line status = 00?
+31EC  2003      .                  jr    nz,$+5         ; if so, continuation line
+31EE  3E80     >.                  ld    a,0x80         ; no!
+31F0  77       w                   ld    (hl),a         ; mark line as single line
 31F1  AF       .                   xor   a
-31F2  32A678   2.x                 ld    (TTYPOS),a
-31F5  2A2078   * x                 ld    hl,(0x7820)
-31F8  010100   ...                 ld    bc,0x0001
+31F2  32A678   2.x                 ld    (TTYPOS),a     ; column pointer = 0
+31F5  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor address
+31F8  010100   ...                 ld    bc,0x0001      ; + 1
 31FB  09       .                   add   hl,bc
-31FC  7C       |                   ld    a,h
+31FC  7C       |                   ld    a,h            ; outside of the screen?
 31FD  FE72     .r                  cp    0x72
-31FF  F4F333   ..3                 call  p,0x33F3
-3202  222078   " x                 ld    (0x7820),hl
-3205  C9       .                   ret   
-3206  F5       .                   push  af
-3207  ED5B2078 .[ x                ld    de,(0x7820)
-320B  13       .                   inc   de
-320C  7A       z                   ld    a,d
+31FF  F4F333   ..3                 call  p,0x33F3       ; yes, scroll up one line
+3202  222078   " x                 ld    (CURS_ADDR),hl ; save cursor address
+3205  C9       .                   ret                  ; done
+3206  F5       .                   push  af             ; remember status
+3207  ED5B2078 .[ x                ld    de,(CURS_ADDR) ; load cursor address
+320B  13       .                   inc   de             ; + 1
+320C  7A       z                   ld    a,d            ; outside of the screen?
 320D  FE72     .r                  cp    0x72
-320F  2810     (.                  jr    z,$+18
-3211  E5       .                   push  hl
-3212  213978   !9x                 ld    hl,0x7839
-3215  CB46     .F                  bit   0,(hl)
-3217  2007      .                  jr    nz,$+9
-3219  CB66     .f                  bit   4,(hl)
-321B  2003      .                  jr    nz,$+5
-321D  CD2C33   .,3                 call  0x332C
-3220  E1       .                   pop   hl
-3221  F1       .                   pop   af
-3222  3C       <                   inc   a
-3223  77       w                   ld    (hl),a
+320F  2810     (.                  jr    z,$+18         ; yes!
+3211  E5       .                   push  hl             ; status address on stack
+3212  213978   !9x                 ld    hl,FLAG2       ; address Flag 2
+3215  CB46     .F                  bit   0,(hl)         ; CR flag set?
+3217  2007      .                  jr    nz,$+9         ; yes!
+3219  CB66     .f                  bit   4,(hl)         ; INPUT flag set?
+321B  2003      .                  jr    nz,$+5         ; yes!
+321D  CD2C33   .,3                 call  0x332C         ; scroll back one line
+3220  E1       .                   pop   hl             ; load status address
+3221  F1       .                   pop   af             ; load line status
+3222  3C       <                   inc   a              ; set status = 81
+3223  77       w                   ld    (hl),a         ; = double-line!
 3224  C3D931   ..1                 jp    0x31D9
-3227  3AA678   :.x                 ld    a,(TTYPOS)
-322A  3D       =                   dec   a
-322B  F23532   .52                 jp    p,0x3235
-322E  CDA833   ..3                 call  0x33A8
-3231  B7       .                   or    a
-3232  C0       .                   ret   nz
-3233  3E1F     >.                  ld    a,0x1F
-3235  32A678   2.x                 ld    (TTYPOS),a
-3238  010100   ...                 ld    bc,0x0001
-323B  2A2078   * x                 ld    hl,(0x7820)
+                     ; Move cursor one character to the left
+3227  3AA678   :.x                 ld    a,(TTYPOS)     ; load column pointer
+322A  3D       =                   dec   a              ; - 1
+322B  F23532   .52                 jp    p,0x3235       ; still same line!
+322E  CDA833   ..3                 call  0x33A8         ; determine line status
+3231  B7       .                   or    a              ; is this a continuation line?
+3232  C0       .                   ret   nz             ; no, cannot go further back
+3233  3E1F     >.                  ld    a,0x1F         ; column pointer to last column
+3235  32A678   2.x                 ld    (TTYPOS),a     ; and save
+3238  010100   ...                 ld    bc,0x0001      ; cursor address - 1
+323B  2A2078   * x                 ld    hl,(CURS_ADDR)
 323E  AF       .                   xor   a
 323F  ED42     .B                  sbc   hl,bc
-3241  7C       |                   ld    a,h
+3241  7C       |                   ld    a,h            ; outside of the screen?
 3242  FE70     .p                  cp    0x70
-3244  DA4E32   .N2                 jp    c,0x324E
-3247  222078   " x                 ld    (0x7820),hl
-324A  CD5300   .S.                 call  0x0053
+3244  DA4E32   .N2                 jp    c,0x324E       ; yes!
+3247  222078   " x                 ld    (CURS_ADDR),hl ; new cursor address back
+324A  CD5300   .S.                 call  0x0053         ; save character at cursor position
 324D  C9       .                   ret   
-324E  AF       .                   xor   a
+324E  AF       .                   xor   a              ; column pointer = 0 (1st column)
 324F  32A678   2.x                 ld    (TTYPOS),a
 3252  C9       .                   ret   
-3253  213978   !9x                 ld    hl,0x7839
-3256  CB66     .f                  bit   4,(hl)
-3258  C0       .                   ret   nz
-3259  012000   . .                 ld    bc,RST20_VEC
-325C  2A2078   * x                 ld    hl,(0x7820)
-325F  AF       .                   xor   a
-3260  ED42     .B                  sbc   hl,bc
-3262  7C       |                   ld    a,h
+                     ; Move cursor one line up
+3253  213978   !9x                 ld    hl,FLAG2       ; address Flag 2
+3256  CB66     .f                  bit   4,(hl)         ; INPUT flag set?
+3258  C0       .                   ret   nz             ; yes, illegal!
+3259  012000   . .                 ld    bc,RST20_VEC   ; length of a line
+325C  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor address
+325F  AF       .                   xor   a              ; clear carry flag
+3260  ED42     .B                  sbc   hl,bc          ; cursor address - 1 line
+3262  7C       |                   ld    a,h            ; outside of the screen?
 3263  FE70     .p                  cp    0x70
-3265  F8       .                   ret   m
-3266  222078   " x                 ld    (0x7820),hl
-3269  CD5300   .S.                 call  0x0053
+3265  F8       .                   ret   m              ; yes, does not work!
+3266  222078   " x                 ld    (CURS_ADDR),hl ; save cursor address
+3269  CD5300   .S.                 call  0x0053         ; save character at cursor position
 326C  C9       .                   ret   
-326D  213978   !9x                 ld    hl,0x7839
-3270  CB66     .f                  bit   4,(hl)
-3272  C0       .                   ret   nz
-3273  012000   . .                 ld    bc,RST20_VEC
-3276  2A2078   * x                 ld    hl,(0x7820)
-3279  09       .                   add   hl,bc
-327A  7C       |                   ld    a,h
+                     ; Move cursor one line down
+326D  213978   !9x                 ld    hl,FLAG2       ; address Flag 2
+3270  CB66     .f                  bit   4,(hl)         ; INPUT flag set?
+3272  C0       .                   ret   nz             ; yes, not allowed!
+3273  012000   . .                 ld    bc,RST20_VEC   ; load length of a line
+3276  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor address
+3279  09       .                   add   hl,bc          ; + one line
+327A  7C       |                   ld    a,h            ; outside of the screen?
 327B  FE72     .r                  cp    0x72
-327D  F42434   .$4                 call  p,0x3424
-3280  222078   " x                 ld    (0x7820),hl
-3283  CD5300   .S.                 call  0x0053
+327D  F42434   .$4                 call  p,0x3424       ; yes, scroll up one line
+3280  222078   " x                 ld    (CURS_ADDR),hl ; save cursor address
+3283  CD5300   .S.                 call  0x0053         ; save character at cursor position
 3286  C9       .                   ret   
-3287  210070   !.p                 ld    hl,0x7000
-328A  222078   " x                 ld    (0x7820),hl
-328D  AF       .                   xor   a
+                     ; Move cursor to start of screen
+3287  210070   !.p                 ld    hl,0x7000      ; load start of screen address
+328A  222078   " x                 ld    (CURS_ADDR),hl ; in cursor address
+328D  AF       .                   xor   a              ; column pointer = 0
 328E  32A678   2.x                 ld    (TTYPOS),a
 3291  C9       .                   ret   
-3292  210070   !.p                 ld    hl,0x7000
-3295  222078   " x                 ld    (0x7820),hl
-3298  010002   ...                 ld    bc,0x0200
-329B  CDBE3E   ..>                 call  0x3EBE
-329E  23       #                   inc   hl
-329F  0B       .                   dec   bc
-32A0  79       y                   ld    a,c
+                     ; Clear screen
+3292  210070   !.p                 ld    hl,0x7000      ; load start of screen address
+3295  222078   " x                 ld    (CURS_ADDR),hl ; in cursor address
+3298  010002   ...                 ld    bc,0x0200      ; length of text memory
+329B  CDBE3E   ..>                 call  0x3EBE         ; delete one character
+329E  23       #                   inc   hl             ; screen address + 1
+329F  0B       .                   dec   bc             ; length - 1
+32A0  79       y                   ld    a,c            ; at end of screen?
 32A1  B0       .                   or    b
-32A2  20F7      .                  jr    nz,$-7
-32A4  AF       .                   xor   a
+32A2  20F7      .                  jr    nz,$-7         ; no, next character
+32A4  AF       .                   xor   a              ; column pointer = 0
 32A5  32A678   2.x                 ld    (TTYPOS),a
-32A8  0610     ..                  ld    b,0x10
-32AA  3E80     >.                  ld    a,0x80
-32AC  21D77A   !.z                 ld    hl,0x7AD7
-32AF  77       w                   ld    (hl),a
-32B0  23       #                   inc   hl
-32B1  10FC     ..                  djnz  $-2
-32B3  C9       .                   ret   
-32B4  2A2078   * x                 ld    hl,(0x7820)
-32B7  3AA678   :.x                 ld    a,(TTYPOS)
-32BA  4F       O                   ld    c,a
+32A8  0610     ..                  ld    b,0x10         ; counter = 16 (number of lines)
+32AA  3E80     >.                  ld    a,0x80         ; load single-line status
+32AC  21D77A   !.z                 ld    hl,LINE_STATUS ; address status byte of 1st line
+32AF  77       w                   ld    (hl),a         ; (HL),A = single-line
+32B0  23       #                   inc   hl             ; status byte of next line
+32B1  10FC     ..                  djnz  $-2            ; all lines processed?
+32B3  C9       .                   ret                  ; yes, done!
+                     ; Move cursor to start of line
+32B4  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor address
+32B7  3AA678   :.x                 ld    a,(TTYPOS)     ; load column pointer
+32BA  4F       O                   ld    c,a            ; transfer to BC
 32BB  AF       .                   xor   a
 32BC  47       G                   ld    b,a
-32BD  32A678   2.x                 ld    (TTYPOS),a
-32C0  ED42     .B                  sbc   hl,bc
-32C2  222078   " x                 ld    (0x7820),hl
+32BD  32A678   2.x                 ld    (TTYPOS),a     ; column pointer = 0
+32C0  ED42     .B                  sbc   hl,bc          ; cursor address - column pointer
+32C2  222078   " x                 ld    (CURS_ADDR),hl ; save new cursor address
 32C5  C9       .                   ret   
 32C6  CDA833   ..3                 call  0x33A8
 32C9  FE81     ..                  cp    0x81
@@ -8428,7 +8459,7 @@
 32D4  4F       O                   ld    c,a
 32D5  AF       .                   xor   a
 32D6  47       G                   ld    b,a
-32D7  2A2078   * x                 ld    hl,(0x7820)
+32D7  2A2078   * x                 ld    hl,(CURS_ADDR)
 32DA  ED42     .B                  sbc   hl,bc
 32DC  011F00   ...                 ld    bc,0x001F
 32DF  09       .                   add   hl,bc
@@ -8455,7 +8486,7 @@
 3305  4F       O                   ld    c,a
 3306  AF       .                   xor   a
 3307  47       G                   ld    b,a
-3308  2A2078   * x                 ld    hl,(0x7820)
+3308  2A2078   * x                 ld    hl,(CURS_ADDR)
 330B  ED42     .B                  sbc   hl,bc
 330D  013F00   .?.                 ld    bc,0x003F
 3310  09       .                   add   hl,bc
@@ -8477,7 +8508,7 @@
 3329  AF       .                   xor   a
 332A  77       w                   ld    (hl),a
 332B  C9       .                   ret   
-332C  2A2078   * x                 ld    hl,(0x7820)
+332C  2A2078   * x                 ld    hl,(CURS_ADDR)
 332F  7C       |                   ld    a,h
 3330  FE71     .q                  cp    0x71
 3332  202B      +                  jr    nz,$+45
@@ -8486,7 +8517,7 @@
 3337  DA5F33   ._3                 jp    c,0x335F
 333A  3AA678   :.x                 ld    a,(TTYPOS)
 333D  F5       .                   push  af
-333E  3AD77A   :.z                 ld    a,(0x7AD7)
+333E  3AD77A   :.z                 ld    a,(LINE_STATUS)
 3341  FE81     ..                  cp    0x81
 3343  2008      .                  jr    nz,$+10
 3345  E5       .                   push  hl
@@ -8547,13 +8578,13 @@
 339D  3AE67A   :.z                 ld    a,(0x7AE6)
 33A0  FE81     ..                  cp    0x81
 33A2  C0       .                   ret   nz
-33A3  2A2078   * x                 ld    hl,(0x7820)
+33A3  2A2078   * x                 ld    hl,(CURS_ADDR)
 33A6  18B7     ..                  jr    $-71
 33A8  3AA678   :.x                 ld    a,(TTYPOS)
 33AB  4F       O                   ld    c,a
 33AC  AF       .                   xor   a
 33AD  47       G                   ld    b,a
-33AE  2A2078   * x                 ld    hl,(0x7820)
+33AE  2A2078   * x                 ld    hl,(CURS_ADDR)
 33B1  ED42     .B                  sbc   hl,bc
 33B3  E5       .                   push  hl
 33B4  C1       .                   pop   bc
@@ -8566,13 +8597,13 @@
 33BF  CB39     .9                  srl   c
 33C1  CB39     .9                  srl   c
 33C3  CB39     .9                  srl   c
-33C5  21D77A   !.z                 ld    hl,0x7AD7
+33C5  21D77A   !.z                 ld    hl,LINE_STATUS
 33C8  09       .                   add   hl,bc
 33C9  7E       ~                   ld    a,(hl)
 33CA  C9       .                   ret   
 33CB  CDA833   ..3                 call  0x33A8
 33CE  FE81     ..                  cp    0x81
-33D0  2A2078   * x                 ld    hl,(0x7820)
+33D0  2A2078   * x                 ld    hl,(CURS_ADDR)
 33D3  E5       .                   push  hl
 33D4  D1       .                   pop   de
 33D5  23       #                   inc   hl
@@ -8601,7 +8632,7 @@
 3402  12       .                   ld    (de),a
 3403  13       .                   inc   de
 3404  10FC     ..                  djnz  $-2
-3406  21D77A   !.z                 ld    hl,0x7AD7
+3406  21D77A   !.z                 ld    hl,LINE_STATUS
 3409  E5       .                   push  hl
 340A  D1       .                   pop   de
 340B  23       #                   inc   hl
@@ -8618,12 +8649,12 @@
 341D  32A678   2.x                 ld    (TTYPOS),a
 3420  21E071   !.q                 ld    hl,0x71E0
 3423  C9       .                   ret   
-3424  3AD77A   :.z                 ld    a,(0x7AD7)
+3424  3AD77A   :.z                 ld    a,(LINE_STATUS)
 3427  FE81     ..                  cp    0x81
 3429  CCF333   ..3                 call  z,0x33F3
 342C  CDF333   ..3                 call  0x33F3
 342F  C9       .                   ret   
-3430  213978   !9x                 ld    hl,0x7839
+3430  213978   !9x                 ld    hl,FLAG2
 3433  B7       .                   or    a
 3434  200B      .                  jr    nz,$+13
 3436  CBCE     ..                  set   1,(hl)
@@ -8702,7 +8733,7 @@
 34B9  20FB      .                  jr    nz,$-3
 34BB  CDF83A   ..:                 call  0x3AF8
 34BE  DD212378 .!#x                ld    ix,0x7823
-34C2  2AA478   *.x                 ld    hl,(0x78A4)
+34C2  2AA478   *.x                 ld    hl,(PRGEND)
 34C5  7D       }                   ld    a,l
 34C6  CD1135   ..5                 call  0x3511
 34C9  DD7700   .w.                 ld    (ix+0x00),a
@@ -8830,9 +8861,9 @@
 35BD  E6F7     ..                  and   0xF7
 35BF  323B78   2;x                 ld    (OUT_LATCH),a
 35C2  320068   2.h                 ld    (0x6800),a
-35C5  CD9232   ..2                 call  0x3292
+35C5  CD9232   ..2                 call  OUT_SCREEN_CLS
 35C8  21FF71   !.q                 ld    hl,0x71FF
-35CB  222078   " x                 ld    (0x7820),hl
+35CB  222078   " x                 ld    (CURS_ADDR),hl
 35CE  3E1F     >.                  ld    a,0x1F
 35D0  32A678   2.x                 ld    (TTYPOS),a
 35D3  3AE57A   :.z                 ld    a,(0x7AE5)
@@ -8895,7 +8926,7 @@
 3653  18F5     ..                  jr    $-9
 3655  C9       .                   ret   
 3656  E5       .                   push  hl
-3657  213978   !9x                 ld    hl,0x7839
+3657  213978   !9x                 ld    hl,FLAG2
 365A  CBB6     ..                  res   6,(hl)
 365C  CB9E     ..                  res   3,(hl)
 365E  E1       .                   pop   hl
@@ -8921,7 +8952,7 @@
 3691  E5       .                   push  hl
 3692  C1       .                   pop   bc
 3693  E1       .                   pop   hl
-3694  3A3978   :9x                 ld    a,(0x7839)
+3694  3A3978   :9x                 ld    a,(FLAG2)
 3697  CB5F     ._                  bit   3,a
 3699  C24237   .B7                 jp    nz,0x3742
 369C  CD733F   .s?                 call  0x3F73
@@ -8941,7 +8972,7 @@
 36BB  22F978   ".x                 ld    (0x78F9),hl
 36BE  FB       .                   ei    
 36BF  3E0D     >.                  ld    a,0x0D
-36C1  CD8B30   ..0                 call  0x308B
+36C1  CD8B30   ..0                 call  OUT_BUF_CHAR
 36C4  3AD27A   :.z                 ld    a,(SOUND_NOTE_VALUE)
 36C7  FEF1     ..                  cp    0xF1
 36C9  2004      .                  jr    nz,$+6
@@ -8949,13 +8980,13 @@
 36CE  E9       .                   jp    (hl)
 36CF  212919   !).                 ld    hl,MSG_READY_TEXT
 36D2  CDA728   ..(                 call  OUTSTR
-36D5  2AA478   *.x                 ld    hl,(0x78A4)
+36D5  2AA478   *.x                 ld    hl,(PRGEND)
 36D8  E5       .                   push  hl
-36D9  213978   !9x                 ld    hl,0x7839
+36D9  213978   !9x                 ld    hl,FLAG2
 36DC  CB76     .v                  bit   6,(hl)
 36DE  2003      .                  jr    nz,$+5
 36E0  C3E81A   ...                 jp    0x1AE8
-36E3  213978   !9x                 ld    hl,0x7839
+36E3  213978   !9x                 ld    hl,FLAG2
 36E6  CBB6     ..                  res   6,(hl)
 36E8  D1       .                   pop   de
 36E9  CDFC1A   ...                 call  RENEW_LINE_PTRS
@@ -8984,17 +9015,17 @@
 371C  B7       .                   or    a
 371D  C26736   .g6                 jp    nz,0x3667
 3720  21FF71   !.q                 ld    hl,0x71FF
-3723  222078   " x                 ld    (0x7820),hl
+3723  222078   " x                 ld    (CURS_ADDR),hl
 3726  3E1F     >.                  ld    a,0x1F
 3728  32A678   2.x                 ld    (TTYPOS),a
 372B  C36736   .g6                 jp    0x3667
 372E  E5       .                   push  hl
-372F  213978   !9x                 ld    hl,0x7839
+372F  213978   !9x                 ld    hl,FLAG2
 3732  CBF6     ..                  set   6,(hl)
 3734  E1       .                   pop   hl
 3735  C35F36   ._6                 jp    0x365F
 3738  E5       .                   push  hl
-3739  213978   !9x                 ld    hl,0x7839
+3739  213978   !9x                 ld    hl,FLAG2
 373C  CBDE     ..                  set   3,(hl)
 373E  E1       .                   pop   hl
 373F  C35F36   ._6                 jp    0x365F
@@ -9010,7 +9041,7 @@
 3754  79       y                   ld    a,c
 3755  B0       .                   or    b
 3756  20EB      .                  jr    nz,$-19
-3758  213978   !9x                 ld    hl,0x7839
+3758  213978   !9x                 ld    hl,FLAG2
 375B  CB9E     ..                  res   3,(hl)
 375D  216C37   !l7                 ld    hl,0x376C
 3760  CDA728   ..(                 call  OUTSTR
@@ -9534,9 +9565,9 @@
 3AFB  D0       .                   ret   nc
 3AFC  E1       .                   pop   hl
 3AFD  E1       .                   pop   hl
-3AFE  3A3978   :9x                 ld    a,(0x7839)
+3AFE  3A3978   :9x                 ld    a,(FLAG2)
 3B01  E6B7     ..                  and   0xB7
-3B03  323978   29x                 ld    (0x7839),a
+3B03  323978   29x                 ld    (FLAG2),a
 3B06  3E01     >.                  ld    a,0x01
 3B08  FB       .                   ei    
 3B09  C3A01D   ...                 jp    0x1DA0
@@ -10197,7 +10228,7 @@
 3E7F  FE62     .b                  cp    0x62
 3E81  2009      .                  jr    nz,$+11
 3E83  E5       .                   push  hl
-3E84  213978   !9x                 ld    hl,0x7839
+3E84  213978   !9x                 ld    hl,FLAG2
 3E87  CB66     .f                  bit   4,(hl)
 3E89  E1       .                   pop   hl
 3E8A  280E     (.                  jr    z,$+16
@@ -10342,7 +10373,7 @@
 3F7E  47       G                   ld    b,a
 3F7F  3A1878   :.x                 ld    a,(0x7818)
 3F82  B8       .                   cp    b
-3F83  CAE830   ..0                 jp    z,0x30E8
+3F83  CAE830   ..0                 jp    z,OUT_BUF_FLUSH
 3F86  321978   2.x                 ld    (0x7819),a
 3F89  210070   !.p                 ld    hl,0x7000
 3F8C  010002   ...                 ld    bc,0x0200
@@ -10356,7 +10387,7 @@
 3F99  78       x                   ld    a,b
 3F9A  B1       .                   or    c
 3F9B  20F2      .                  jr    nz,$-12
-3F9D  C3E830   ..0                 jp    0x30E8
+3F9D  C3E830   ..0                 jp    OUT_BUF_FLUSH
 3FA0  3AFD68   :.h                 ld    a,(0x68FD)
 3FA3  CB57     .W                  bit   2,a
 3FA5  3E20     >                   ld    a,0x20
