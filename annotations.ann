@@ -28887,6 +28887,1006 @@ text = cursor address - column pointer
 offset = 12994
 text = save new cursor address
 
+[comment]
+offset = 12997
+text = test comment
+
+[comment]
+offset = 12998
+text = Determine status of current line
+
+[comment]
+offset = 13001
+text = Is it the first line of a double line?
+
+[comment]
+offset = 13003
+text = Yes!
+
+[comment]
+offset = 13005
+text = Load column pointer
+
+[comment]
+offset = 13008
+text = At the end of the line?
+
+[comment]
+offset = 13010
+text = Yes!
+
+[comment]
+offset = 13012
+text = Transfer column pointer to C
+
+[comment]
+offset = 13014
+text = Clear B
+
+[comment]
+offset = 13015
+text = Load cursor address
+
+[comment]
+offset = 13018
+text = Cursor address - column pointer = start of line
+
+[comment]
+offset = 13020
+text = Width of line (32 bytes - 1)
+
+[comment]
+offset = 13023
+text = Address of the last character of the line
+
+[comment]
+offset = 13024
+text = Test last character of the line
+
+[comment]
+offset = 13027
+text = If not space, no insert possible!
+
+[comment]
+offset = 13029
+text = Last character address
+
+[comment]
+offset = 13030
+text = in DE
+
+[comment]
+offset = 13031
+text = HL = second to last character
+
+[comment]
+offset = 13032
+text = Load column pointer
+
+[comment]
+offset = 13035
+text = Transfer to C
+
+[comment]
+offset = 13036
+text = Line width - 1
+
+[comment]
+offset = 13038
+text = Calculate remaining characters: 31 - column
+
+[comment]
+offset = 13039
+text = Remaining characters to shift in BC
+
+[comment]
+offset = 13040
+text = Shift characters right by one position
+
+[comment]
+offset = 13042
+text = Insert space at cursor position
+
+[comment]
+offset = 13045
+text = Save character at cursor position
+
+[comment]
+offset = 13048
+text = Done
+
+[comment]
+offset = 13049
+text = Determine status of current line
+
+[comment]
+offset = 13052
+text = Is it a follow-up line?
+
+[comment]
+offset = 13053
+text = Yes, done (no insert possible)
+
+[comment]
+offset = 13054
+text = Is it a single line?
+
+[comment]
+offset = 13056
+text = Yes!
+
+[comment]
+offset = 13058
+text = Load column pointer
+
+[comment]
+offset = 13061
+text = Transfer to C
+
+[comment]
+offset = 13063
+text = Clear B
+
+[comment]
+offset = 13064
+text = Load cursor address
+
+[comment]
+offset = 13067
+text = Cursor address - column pointer = start of line
+
+[comment]
+offset = 13069
+text = + 63
+
+[comment]
+offset = 13072
+text = HL = end of double line
+
+[comment]
+offset = 13073
+text = Is the last character empty (space)?
+
+[comment]
+offset = 13076
+text = No, no insert possible!
+
+[comment]
+offset = 13077
+text = Last character address
+
+[comment]
+offset = 13078
+text = in DE
+
+[comment]
+offset = 13079
+text = HL = end of double line - 1
+
+[comment]
+offset = 13080
+text = Load column pointer
+
+[comment]
+offset = 13083
+text = Transfer to C
+
+[comment]
+offset = 13084
+text = Double line width - 1
+
+[comment]
+offset = 13086
+text = Determine count and shift double line
+
+[comment]
+offset = 13088
+text = Status address on stack
+
+[comment]
+offset = 13089
+text = Scroll screen down 1 line from cursor
+
+[comment]
+offset = 13092
+text = Restore status address
+
+[comment]
+offset = 13093
+text = Set status of 1st line to 0x81 (double-line start)
+
+[comment]
+offset = 13095
+text = Write status of 1st line
+
+[comment]
+offset = 13096
+text = Address next status byte
+
+[comment]
+offset = 13097
+text = Set status of new line to 0x00 (double-line follow-up)
+
+[comment]
+offset = 13098
+text = Write status of 2nd line
+
+[comment]
+offset = 13099
+text = Done
+
+[comment]
+offset = 13100
+text = Load cursor address
+
+[comment]
+offset = 13104
+text = Is it the last line (address >= 0x71E0)?
+
+[comment]
+offset = 13106
+text = No!
+
+[comment]
+offset = 13109
+text = Check lower byte of address
+
+[comment]
+offset = 13111
+text = Not the last line!
+
+[comment]
+offset = 13114
+text = Load column pointer
+
+[comment]
+offset = 13117
+text = Save column pointer on stack
+
+[comment]
+offset = 13118
+text = Load status of the first line
+
+[comment]
+offset = 13121
+text = Is it a double line?
+
+[comment]
+offset = 13123
+text = No, scroll only one line
+
+[comment]
+offset = 13125
+text = Save cursor address
+
+[comment]
+offset = 13126
+text = Scroll screen up one line
+
+[comment]
+offset = 13129
+text = Restore cursor address
+
+[comment]
+offset = 13130
+text = Cursor address - 1 line (32 bytes)
+
+[comment]
+offset = 13133
+text = Save cursor address
+
+[comment]
+offset = 13134
+text = Scroll screen up one line
+
+[comment]
+offset = 13137
+text = Restore cursor address
+
+[comment]
+offset = 13138
+text = Cursor address - 1 line (32 bytes)
+
+[comment]
+offset = 13141
+text = Restore column pointer
+
+[comment]
+offset = 13142
+text = Restore original column pointer
+
+[comment]
+offset = 13145
+text = Restore return address
+
+[comment]
+offset = 13146
+text = Restore status address
+
+[comment]
+offset = 13147
+text = Status address - 1 line
+
+[comment]
+offset = 13148
+text = Status address on stack
+
+[comment]
+offset = 13149
+text = Return address on stack
+
+[comment]
+offset = 13150
+text = Done
+
+[comment]
+offset = 13151
+text = Load column pointer
+
+[comment]
+offset = 13154
+text = Transfer to C
+
+[comment]
+offset = 13156
+text = Clear B
+
+[comment]
+offset = 13157
+text = Cursor address - column pointer = start of line
+
+[comment]
+offset = 13159
+text = Add 64 bytes (2 lines)
+
+[comment]
+offset = 13162
+text = Start address of next line + 1 line
+
+[comment]
+offset = 13163
+text = Save start address
+
+[comment]
+offset = 13164
+text = Destination in DE
+
+[comment]
+offset = 13165
+text = Screen RAM end address + 1
+
+[comment]
+offset = 13168
+text = Calculate bytes to shift: 0x7200 - DE
+
+[comment]
+offset = 13170
+text = Save byte count
+
+[comment]
+offset = 13171
+text = Byte count in BC
+
+[comment]
+offset = 13172
+text = Source address: 0x71DF (end of second to last line)
+
+[comment]
+offset = 13175
+text = Destination address: 0x71FF (end of last line)
+
+[comment]
+offset = 13179
+text = Check if byte count is zero
+
+[comment]
+offset = 13180
+text = If zero, no shift needed
+
+[comment]
+offset = 13182
+text = Shift screen contents down by one line
+
+[comment]
+offset = 13184
+text = Restore line start address
+
+[comment]
+offset = 13185
+text = Get clear-screen character in A, width in B (32)
+
+[comment]
+offset = 13189
+text = Fill new line with clear character
+
+[comment]
+offset = 13190
+text = Address of previous character
+
+[comment]
+offset = 13191
+text = Loop until line is cleared
+
+[comment]
+offset = 13193
+text = Get current line status
+
+[comment]
+offset = 13196
+text = Status address in BC
+
+[comment]
+offset = 13197
+text = Restore to BC
+
+[comment]
+offset = 13198
+text = Last line status address
+
+[comment]
+offset = 13201
+text = Save last line status address
+
+[comment]
+offset = 13203
+text = Calculate bytes to shift in status table
+
+[comment]
+offset = 13205
+text = Save byte count
+
+[comment]
+offset = 13206
+text = Byte count in BC
+
+[comment]
+offset = 13207
+text = Pop last line status address
+
+[comment]
+offset = 13208
+text = HL = source (last line status)
+
+[comment]
+offset = 13209
+text = DE = destination (last line status)
+
+[comment]
+offset = 13210
+text = HL = second to last line status
+
+[comment]
+offset = 13211
+text = Shift status bytes down by one
+
+[comment]
+offset = 13213
+text = Check status of last line
+
+[comment]
+offset = 13216
+text = Was it a double line?
+
+[comment]
+offset = 13218
+text = No, done
+
+[comment]
+offset = 13219
+text = Yes, load cursor address
+
+[comment]
+offset = 13222
+text = And scroll one more line down
+
+[comment]
+offset = 13224
+text = Load column pointer
+
+[comment]
+offset = 13227
+text = Transfer to C
+
+[comment]
+offset = 13229
+text = Clear B
+
+[comment]
+offset = 13230
+text = Load cursor address
+
+[comment]
+offset = 13233
+text = HL = start of line
+
+[comment]
+offset = 13235
+text = Save start of line address
+
+[comment]
+offset = 13236
+text = In BC
+
+[comment]
+offset = 13237
+text = Determine relative line number
+
+[comment]
+offset = 13238
+text = Relative page offset (0 or 1)
+
+[comment]
+offset = 13240
+text = Shift relative bit 8 into carry
+
+[comment]
+offset = 13242
+text = Clear B
+
+[comment]
+offset = 13243
+text = Shift relative address right (divide by 2)
+
+[comment]
+offset = 13245
+text = Divide by 4
+
+[comment]
+offset = 13247
+text = Divide by 8
+
+[comment]
+offset = 13249
+text = Divide by 16
+
+[comment]
+offset = 13251
+text = Divide by 32 (C = line number 0..15)
+
+[comment]
+offset = 13253
+text = Start address of line status table
+
+[comment]
+offset = 13256
+text = Add line number
+
+[comment]
+offset = 13257
+text = Load line status
+
+[comment]
+offset = 13258
+text = Done
+
+[comment]
+offset = 13259
+text = Determine status of current line
+
+[comment]
+offset = 13262
+text = Is it the first of a double line?
+
+[comment]
+offset = 13264
+text = Load cursor address
+
+[comment]
+offset = 13267
+text = Save cursor address
+
+[comment]
+offset = 13268
+text = Destination in DE
+
+[comment]
+offset = 13269
+text = HL = next character position (source)
+
+[comment]
+offset = 13270
+text = Load column pointer
+
+[comment]
+offset = 13273
+text = Transfer to C
+
+[comment]
+offset = 13274
+text = If double line, jump to double line handling
+
+[comment]
+offset = 13276
+text = At the end of the line?
+
+[comment]
+offset = 13278
+text = Yes, just clear this character
+
+[comment]
+offset = 13280
+text = Line width - 1
+
+[comment]
+offset = 13282
+text = Calculate remaining characters on line
+
+[comment]
+offset = 13283
+text = BC = count
+
+[comment]
+offset = 13285
+text = Clear B
+
+[comment]
+offset = 13286
+text = Shift characters left by one
+
+[comment]
+offset = 13288
+text = Fill end of line with space
+
+[comment]
+offset = 13291
+text = Save character at cursor position
+
+[comment]
+offset = 13294
+text = Done
+
+[comment]
+offset = 13295
+text = Double line width - 1
+
+[comment]
+offset = 13297
+text = Calculate count and shift over double line
+
+[comment]
+offset = 13299
+text = DE = start of screen (destination)
+
+[comment]
+offset = 13302
+text = HL = start of second line (source)
+
+[comment]
+offset = 13305
+text = Count = 15 lines of 32 bytes (480 bytes)
+
+[comment]
+offset = 13308
+text = Scroll screen contents up by one line
+
+[comment]
+offset = 13310
+text = Get clear-screen character in A, width in B (32)
+
+[comment]
+offset = 13314
+text = Fill last line with space
+
+[comment]
+offset = 13315
+text = Address of next character
+
+[comment]
+offset = 13316
+text = Loop until last line is cleared
+
+[comment]
+offset = 13318
+text = Start of line status table
+
+[comment]
+offset = 13321
+text = Save status address
+
+[comment]
+offset = 13322
+text = DE = destination (line status 0)
+
+[comment]
+offset = 13323
+text = HL = source (line status 1)
+
+[comment]
+offset = 13324
+text = Scroll 15 status bytes
+
+[comment]
+offset = 13327
+text = Shift status bytes up
+
+[comment]
+offset = 13329
+text = Load status of second to last line
+
+[comment]
+offset = 13330
+text = Was it a double line?
+
+[comment]
+offset = 13332
+text = No, last line becomes single line (0x80)
+
+[comment]
+offset = 13334
+text = Yes, last line becomes follow-up line (0x00)
+
+[comment]
+offset = 13335
+text = Set status
+
+[comment]
+offset = 13337
+text = 80H = single line identifier
+
+[comment]
+offset = 13339
+text = Set status of last line
+
+[comment]
+offset = 13341
+text = Column pointer = 0
+
+[comment]
+offset = 13344
+text = HL = start of last line
+
+[comment]
+offset = 13347
+text = Done
+
+[comment]
+offset = 13348
+text = Load status of the first line
+
+[comment]
+offset = 13351
+text = Is it a double line?
+
+[comment]
+offset = 13353
+text = Yes, scroll one line
+
+[comment]
+offset = 13356
+text = Scroll one line
+
+[comment]
+offset = 13359
+text = Done
+
+[comment]
+offset = 13360
+text = Address Flag 2
+
+[comment]
+offset = 13363
+text = Character entered?
+
+[comment]
+offset = 13364
+text = Yes!
+
+[comment]
+offset = 13366
+text = No, set BUZZER flag
+
+[comment]
+offset = 13368
+text = Load wait loop counter
+
+[comment]
+offset = 13371
+text = Decrement BC
+
+[comment]
+offset = 13374
+text = Wait until end of vertical sync pulse
+
+[comment]
+offset = 13376
+text = Done
+
+[comment]
+offset = 13377
+text = Carriage Return flag set?
+
+[comment]
+offset = 13379
+text = Yes, done
+
+[comment]
+offset = 13380
+text = Character = Carriage Return (0x0D)?
+
+[comment]
+offset = 13382
+text = Yes!
+
+[comment]
+offset = 13384
+text = Character = BREAK (0x01)?
+
+[comment]
+offset = 13386
+text = No!
+
+[comment]
+offset = 13388
+text = Yes, set BREAK flag
+
+[comment]
+offset = 13390
+text = Set Carriage Return flag
+
+[comment]
+offset = 13392
+text = Save Flag 2 address
+
+[comment]
+offset = 13393
+text = Load beep frequency (0x00A0)
+
+[comment]
+offset = 13396
+text = Load beep duration (6)
+
+[comment]
+offset = 13399
+text = Emit beep tone
+
+[comment]
+offset = 13402
+text = Restore Flag 2 address
+
+[comment]
+offset = 13403
+text = Done
+
+[comment]
+offset = 13404
+text = Load I/O latch byte
+
+[comment]
+offset = 13407
+text = Transfer to D
+
+[comment]
+offset = 13408
+text = Emit pulse
+
+[comment]
+offset = 13411
+text = Decrement duration
+
+[comment]
+offset = 13414
+text = Loop until tone duration ends
+
+[comment]
+offset = 13416
+text = Done
+
+[comment]
+offset = 13417
+text = Save duration counter
+
+[comment]
+offset = 13418
+text = Load I/O latch byte
+
+[comment]
+offset = 13419
+text = Toggle bits 0 and 5
+
+[comment]
+offset = 13421
+text = Write to I/O port
+
+[comment]
+offset = 13424
+text = Load frequency count
+
+[comment]
+offset = 13426
+text = Decrement frequency counter
+
+[comment]
+offset = 13429
+text = Wait loop for lower half-cycle of tone
+
+[comment]
+offset = 13431
+text = Restore original I/O latch byte
+
+[comment]
+offset = 13432
+text = Write to I/O port
+
+[comment]
+offset = 13435
+text = Load frequency count
+
+[comment]
+offset = 13437
+text = Decrement frequency counter
+
+[comment]
+offset = 13440
+text = Wait loop for upper half-cycle of tone
+
+[comment]
+offset = 13442
+text = Restore duration counter
+
+[comment]
+offset = 13443
+text = Done
+
+[comment]
+offset = 13444
+text = Check if CTRL key is pressed and set color
+
+[comment]
+offset = 13447
+text = Default I/O latch byte
+
+[comment]
+offset = 13449
+text = Save default latch byte
+
+[comment]
+offset = 13452
+text = Write default to I/O port
+
+[comment]
+offset = 13455
+text = Load blink timer value (60)
+
+[comment]
+offset = 13457
+text = Save blink timer
+
+[comment]
+offset = 13460
+text = Load blink counter value (16)
+
+[comment]
+offset = 13462
+text = Save blink counter
+
+[comment]
+offset = 13465
+text = Clear buffer index
+
+[comment]
+offset = 13466
+text = Save buffer size/index
+
+[comment]
+offset = 13469
+text = Start address of input buffer
+
+[comment]
+offset = 13472
+text = Save input buffer pointer
+
+[comment]
+offset = 13475
+text = RET instruction opcode
+
+[comment]
+offset = 13477
+text = Jump to color-set routine (yellow)
+
+[comment]
+offset = 13480
+text = Not used
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -30933,4 +31933,58 @@ text = Clear screen
 [block]
 offset = 12980
 text = Move cursor to start of line
+
+[block]
+offset = 12998
+text = ******************************************************************
+              * INSERT CHARACTER FUNCTION                                      *
+              ******************************************************************
+
+[block]
+offset = 13100
+text = ******************************************************************
+              * SCROLL SCREEN DOWN ONE LINE FROM CURSOR POSITION               *
+              ******************************************************************
+
+[block]
+offset = 13224
+text = ******************************************************************
+              * DETERMINE LINE STATUS                                          *
+              ******************************************************************
+
+[block]
+offset = 13259
+text = ******************************************************************
+              * RUBOUT (DELETE) CHARACTER FUNCTION                             *
+              ******************************************************************
+
+[block]
+offset = 13299
+text = ******************************************************************
+              * SCROLL SCREEN UP ONE LINE AND CLEAR LAST LINE                  *
+              ******************************************************************
+
+[block]
+offset = 13348
+text = ******************************************************************
+              * SCROLL UP ONE OR TWO LINES DEPENDING ON LINE STATUS            *
+              ******************************************************************
+
+[block]
+offset = 13360
+text = ******************************************************************
+              * EMIT AUDIBLE BEEP ON CHARACTER INPUT                           *
+              ******************************************************************
+
+[block]
+offset = 13404
+text = ******************************************************************
+              * SOUND OUTPUT ROUTINE                                           *
+              ******************************************************************
+
+[block]
+offset = 13444
+text = ******************************************************************
+              * PART OF THE INITIALIZATION ROUTINE                             *
+              ******************************************************************
 

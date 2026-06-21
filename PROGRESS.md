@@ -51,3 +51,13 @@
   - Total Annotations: ~7193 (Blocks: 459, Comments: 6307, Labels: 427)
   - Total Symbols: 386
 - **Verification**: Built `export.asm` and confirmed MD5 match with `VZ200.bin`.
+
+## Iteration: 2026-06-21
+- **Target Range**: 0x32C5-0x34A8
+- **Summary**: Translated and applied annotations for character insertion, vertical screen scrolling operations (both single and double line logic), line status calculation, character delete/rubout processing, keyboard input buzzer/beeper control, sound/tone synthesis (frequency and duration parameters), and the initial parts of the ROM/IO latches setup.
+- **Toolchain**: Utilized `z80bench-cli` for annotating code and `z88dk-z80asm` for assembly validation.
+- **Issues**: None.
+- **Statistics**:
+  - Total Annotations: ~7452 (Blocks: 468, Comments: 6557, Labels: 427)
+  - Total Symbols: 396
+- **Verification**: Built `export.asm` and confirmed MD5 checksum match with `VZ200.bin`.

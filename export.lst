@@ -193,7 +193,7 @@
 00F6  22A078   ".x                 ld    (STKTOP),hl    ; = start of string space - 1
                      INIT_VARS_2:
 00F9  CD4D1B   .M.                 call  0x1B4D         ; call the NEW routine (1B4DH)
-00FC  CD8434   ..4                 call  0x3484         ; initialize counters and pointers (3484H)
+00FC  CD8434   ..4                 call  INIT_IO_LATCH_AND_BUFFERS ; initialize counters and pointers (3484H)
 00FF  210F01   !..                 ld    hl,0x010F      ; Load banner string address (010FH)
 0102  CDA728   ..(                 call  OUTSTR         ; Print banner string (OUTSTR)
 0105  ED56     .V                  im    1              ; Set Interrupt Mode 1
@@ -611,7 +611,7 @@
                      ; For INPUT set text pointer after given text
 042F  C5       .                   push  bc             ; save registers
 0430  E5       .                   push  hl             ; Push hl
-0431  CDA833   ..3                 call  0x33A8         ; determine status of line
+0431  CDA833   ..3                 call  GET_LINE_STATUS ; determine status of line
 0434  E1       .                   pop   hl             ; reload HL + BC
 0435  C1       .                   pop   bc             ; Pop bc
 0436  B7       .                   or    a              ; continuation line? (status=00)
@@ -634,7 +634,7 @@
 044D  010000   ...                 ld    bc,START       ; unequal, length = 0
 0450  C5       .                   push  bc             ; on the stack
 0451  E5       .                   push  hl             ; save HL
-0452  CDA833   ..3                 call  0x33A8         ; read status of line
+0452  CDA833   ..3                 call  GET_LINE_STATUS ; read status of line
 0455  E1       .                   pop   hl             ; reload HL + BC
 0456  C1       .                   pop   bc             ; Pop bc
 0457  C5       .                   push  bc             ; remember length again
@@ -655,7 +655,7 @@
 0471  010000   ...                 ld    bc,START       ; set leading text length = 0
 0474  C5       .                   push  bc             ; on stack
 0475  E5       .                   push  hl             ; save HL
-0476  CDA833   ..3                 call  0x33A8         ; determine status of line
+0476  CDA833   ..3                 call  GET_LINE_STATUS ; determine status of line
 0479  E1       .                   pop   hl             ; reload HL
 047A  FE80     ..                  cp    0x80           ; single line?
 047C  280E     (.                  jr    z,$+16         ; yes!
@@ -735,7 +735,7 @@
 0500  AF       .                   xor   a              ; mark it
 0501  12       .                   ld    (de),a         ; Load (de) from a
                      ; Output one or two blank lines by line status
-0502  CDA833   ..3                 call  0x33A8         ; determine line status
+0502  CDA833   ..3                 call  GET_LINE_STATUS ; determine line status
 0505  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor pointer
 0508  FE81     ..                  cp    0x81           ; 2 lines?
 050A  CD5300   .S.                 call  0x0053         ; save character from cursor position.
@@ -774,7 +774,7 @@
 0549  10FC     ..                  djnz  $-2            ; counter - 1, if 0 - done!
 054B  AF       .                   xor   a              ; 0 in A
 054C  77       w                   ld    (hl),a         ; mark buffer end with X'00'.
-054D  CDA833   ..3                 call  0x33A8         ; determine line status
+054D  CDA833   ..3                 call  GET_LINE_STATUS ; determine line status
 0550  B7       .                   or    a              ; continuation line?
 0551  3AA678   :.x                 ld    a,(TTYPOS)     ; load column counter
 0554  2002      .                  jr    nz,$+4         ; no continuation line!
@@ -7439,7 +7439,7 @@
 2C3E  CDF83A   ..:                 call  0x3AF8         ; BREAK key pressed?
 2C41  3A3B78   :;x                 ld    a,(OUT_LATCH)  ; Load output latch byte
 2C44  57       W                   ld    d,a            ; in D
-2C45  CD6934   .i4                 call  0x3469         ; Output tone
+2C45  CD6934   .i4                 call  SOUND_PULSE    ; Output tone
 2C48  0B       .                   dec   bc             ; Cycle counter - 1
 2C49  79       y                   ld    a,c            ; = 0?
 2C4A  B0       .                   or    b
@@ -7877,7 +7877,7 @@
 2ECC  CB46     .F                  bit   0,(hl)         ; Carriage return flag set?
 2ECE  CC1B30   ..0                 call  z,ECHO_CHAR    ; no, output character (echo)
 2ED1  F1       .                   pop   af             ; Reload character
-2ED2  CD3034   .04                 call  0x3430         ; Sound buzzer
+2ED2  CD3034   .04                 call  KEY_BEEP       ; Sound buzzer
 2ED5  E1       .                   pop   hl             ; Restore register contents
 2ED6  D1       .                   pop   de
 2ED7  C1       .                   pop   bc
@@ -8223,13 +8223,13 @@
 3122  09       .                   add   hl,bc
 3123  7C       |                   ld    a,h            ; address outside of the screen?
 3124  FE72     .r                  cp    0x72
-3126  F4F333   ..3                 call  p,0x33F3       ; yes, scroll screen up 1 line
+3126  F4F333   ..3                 call  p,SCROLL_UP_ONE_LINE ; yes, scroll screen up 1 line
 3129  222078   " x                 ld    (CURS_ADDR),hl ; save new cursor address
 312C  CD5300   .S.                 call  0x0053         ; save character from cursor position
 312F  F1       .                   pop   af             ; load character to be output
 3130  B7       .                   or    a              ; CR from RDLINE (03E3H)?
 3131  C8       .                   ret   z              ; yes, done
-3132  CDA833   ..3                 call  0x33A8         ; determine status of the line
+3132  CDA833   ..3                 call  GET_LINE_STATUS ; determine status of the line
 3135  FE80     ..                  cp    0x80           ; single line?
 3137  C8       .                   ret   z              ; yes, done
 3138  FE81     ..                  cp    0x81           ; first of a double line?
@@ -8275,9 +8275,9 @@
 317A  FE01     ..                  cp    0x01           ; BREAK?
 317C  C8       .                   ret   z              ; yes, done!
 317D  FE7F     ..                  cp    0x7F           ; RUBOUT?
-317F  CACB33   ..3                 jp    z,0x33CB       ; yes!
+317F  CACB33   ..3                 jp    z,RUBOUT_CHAR  ; yes!
 3182  FE15     ..                  cp    0x15           ; INSERT?
-3184  CAC632   ..2                 jp    z,0x32C6       ; yes!
+3184  CAC632   ..2                 jp    z,INSERT_CHAR  ; yes!
 3187  FE18     ..                  cp    0x18           ; arrow left?
 3189  CA2732   .'2                 jp    z,OUT_CURSOR_DEC ; yes!
 318C  FE19     ..                  cp    0x19           ; arrow right?
@@ -8311,7 +8311,7 @@
 31C2  3C       <                   inc   a              ; + 1
 31C3  FE20     .                   cp    0x20           ; at the beginning of the next line?
 31C5  202B      +                  jr    nz,$+45        ; no!
-31C7  CDA833   ..3                 call  0x33A8         ; determine line status
+31C7  CDA833   ..3                 call  GET_LINE_STATUS ; determine line status
 31CA  FE81     ..                  cp    0x81           ; first of a double line?
 31CC  2823     (#                  jr    z,$+37         ; yes!
 31CE  B7       .                   or    a              ; second of a double line?
@@ -8345,7 +8345,7 @@
 31FB  09       .                   add   hl,bc
 31FC  7C       |                   ld    a,h            ; outside of the screen?
 31FD  FE72     .r                  cp    0x72
-31FF  F4F333   ..3                 call  p,0x33F3       ; yes, scroll up one line
+31FF  F4F333   ..3                 call  p,SCROLL_UP_ONE_LINE ; yes, scroll up one line
 3202  222078   " x                 ld    (CURS_ADDR),hl ; save cursor address
 3205  C9       .                   ret                  ; done
 3206  F5       .                   push  af             ; remember status
@@ -8360,7 +8360,7 @@
 3217  2007      .                  jr    nz,$+9         ; yes!
 3219  CB66     .f                  bit   4,(hl)         ; INPUT flag set?
 321B  2003      .                  jr    nz,$+5         ; yes!
-321D  CD2C33   .,3                 call  0x332C         ; scroll back one line
+321D  CD2C33   .,3                 call  SCROLL_DOWN_FROM_CURSOR ; scroll back one line
 3220  E1       .                   pop   hl             ; load status address
 3221  F1       .                   pop   af             ; load line status
 3222  3C       <                   inc   a              ; set status = 81
@@ -8370,7 +8370,7 @@
 3227  3AA678   :.x                 ld    a,(TTYPOS)     ; load column pointer
 322A  3D       =                   dec   a              ; - 1
 322B  F23532   .52                 jp    p,0x3235       ; still same line!
-322E  CDA833   ..3                 call  0x33A8         ; determine line status
+322E  CDA833   ..3                 call  GET_LINE_STATUS ; determine line status
 3231  B7       .                   or    a              ; is this a continuation line?
 3232  C0       .                   ret   nz             ; no, cannot go further back
 3233  3E1F     >.                  ld    a,0x1F         ; column pointer to last column
@@ -8411,7 +8411,7 @@
 3279  09       .                   add   hl,bc          ; + one line
 327A  7C       |                   ld    a,h            ; outside of the screen?
 327B  FE72     .r                  cp    0x72
-327D  F42434   .$4                 call  p,0x3424       ; yes, scroll up one line
+327D  F42434   .$4                 call  p,SCROLL_UP_BY_STATUS ; yes, scroll up one line
 3280  222078   " x                 ld    (CURS_ADDR),hl ; save cursor address
 3283  CD5300   .S.                 call  0x0053         ; save character at cursor position
 3286  C9       .                   ret   
@@ -8449,278 +8449,305 @@
 32BD  32A678   2.x                 ld    (TTYPOS),a     ; column pointer = 0
 32C0  ED42     .B                  sbc   hl,bc          ; cursor address - column pointer
 32C2  222078   " x                 ld    (CURS_ADDR),hl ; save new cursor address
-32C5  C9       .                   ret   
-32C6  CDA833   ..3                 call  0x33A8
-32C9  FE81     ..                  cp    0x81
-32CB  2831     (1                  jr    z,$+51
-32CD  3AA678   :.x                 ld    a,(TTYPOS)
-32D0  FE1F     ..                  cp    0x1F
-32D2  2825     (%                  jr    z,$+39
-32D4  4F       O                   ld    c,a
+32C5  C9       .                   ret                  ; test comment
+                     ; ******************************************************************
+                     ; * INSERT CHARACTER FUNCTION                                      *
+                     ; ******************************************************************
+32C6  CDA833   ..3                 call  GET_LINE_STATUS ; Determine status of current line
+32C9  FE81     ..                  cp    0x81           ; Is it the first line of a double line?
+32CB  2831     (1                  jr    z,$+51         ; Yes!
+32CD  3AA678   :.x                 ld    a,(TTYPOS)     ; Load column pointer
+32D0  FE1F     ..                  cp    0x1F           ; At the end of the line?
+32D2  2825     (%                  jr    z,$+39         ; Yes!
+32D4  4F       O                   ld    c,a            ; Transfer column pointer to C
 32D5  AF       .                   xor   a
-32D6  47       G                   ld    b,a
-32D7  2A2078   * x                 ld    hl,(CURS_ADDR)
-32DA  ED42     .B                  sbc   hl,bc
-32DC  011F00   ...                 ld    bc,0x001F
-32DF  09       .                   add   hl,bc
-32E0  CDE93E   ..>                 call  0x3EE9
-32E3  2014      .                  jr    nz,$+22
-32E5  E5       .                   push  hl
-32E6  D1       .                   pop   de
-32E7  2B       +                   dec   hl
-32E8  3AA678   :.x                 ld    a,(TTYPOS)
-32EB  4F       O                   ld    c,a
-32EC  3E1F     >.                  ld    a,0x1F
-32EE  91       .                   sub   c
-32EF  4F       O                   ld    c,a
-32F0  EDB8     ..                  lddr  
-32F2  CDF63E   ..>                 call  0x3EF6
-32F5  323C78   2<x                 ld    (0x783C),a
-32F8  C9       .                   ret   
-32F9  CDA833   ..3                 call  0x33A8
-32FC  B7       .                   or    a
-32FD  C8       .                   ret   z
-32FE  FE80     ..                  cp    0x80
-3300  281E     (.                  jr    z,$+32
-3302  3AA678   :.x                 ld    a,(TTYPOS)
-3305  4F       O                   ld    c,a
+32D6  47       G                   ld    b,a            ; Clear B
+32D7  2A2078   * x                 ld    hl,(CURS_ADDR) ; Load cursor address
+32DA  ED42     .B                  sbc   hl,bc          ; Cursor address - column pointer = start of
+32DC  011F00   ...                 ld    bc,0x001F      ; Width of line (32 bytes - 1)
+32DF  09       .                   add   hl,bc          ; Address of the last character of the line
+32E0  CDE93E   ..>                 call  0x3EE9         ; Test last character of the line
+32E3  2014      .                  jr    nz,$+22        ; If not space, no insert possible!
+32E5  E5       .                   push  hl             ; Last character address
+32E6  D1       .                   pop   de             ; in DE
+32E7  2B       +                   dec   hl             ; HL = second to last character
+32E8  3AA678   :.x                 ld    a,(TTYPOS)     ; Load column pointer
+32EB  4F       O                   ld    c,a            ; Transfer to C
+32EC  3E1F     >.                  ld    a,0x1F         ; Line width - 1
+32EE  91       .                   sub   c              ; Calculate remaining characters: 31 - colum
+32EF  4F       O                   ld    c,a            ; Remaining characters to shift in BC
+32F0  EDB8     ..                  lddr                 ; Shift characters right by one position
+32F2  CDF63E   ..>                 call  0x3EF6         ; Insert space at cursor position
+32F5  323C78   2<x                 ld    (0x783C),a     ; Save character at cursor position
+32F8  C9       .                   ret                  ; Done
+32F9  CDA833   ..3                 call  GET_LINE_STATUS ; Determine status of current line
+32FC  B7       .                   or    a              ; Is it a follow-up line?
+32FD  C8       .                   ret   z              ; Yes, done (no insert possible)
+32FE  FE80     ..                  cp    0x80           ; Is it a single line?
+3300  281E     (.                  jr    z,$+32         ; Yes!
+3302  3AA678   :.x                 ld    a,(TTYPOS)     ; Load column pointer
+3305  4F       O                   ld    c,a            ; Transfer to C
 3306  AF       .                   xor   a
-3307  47       G                   ld    b,a
-3308  2A2078   * x                 ld    hl,(CURS_ADDR)
-330B  ED42     .B                  sbc   hl,bc
-330D  013F00   .?.                 ld    bc,0x003F
-3310  09       .                   add   hl,bc
-3311  CDE93E   ..>                 call  0x3EE9
-3314  C0       .                   ret   nz
-3315  E5       .                   push  hl
-3316  D1       .                   pop   de
-3317  2B       +                   dec   hl
-3318  3AA678   :.x                 ld    a,(TTYPOS)
-331B  4F       O                   ld    c,a
-331C  3E3F     >?                  ld    a,0x3F
-331E  18CE     ..                  jr    $-48
-3320  E5       .                   push  hl
-3321  CD2C33   .,3                 call  0x332C
-3324  E1       .                   pop   hl
-3325  3E81     >.                  ld    a,0x81
-3327  77       w                   ld    (hl),a
-3328  23       #                   inc   hl
-3329  AF       .                   xor   a
-332A  77       w                   ld    (hl),a
-332B  C9       .                   ret   
-332C  2A2078   * x                 ld    hl,(CURS_ADDR)
+3307  47       G                   ld    b,a            ; Clear B
+3308  2A2078   * x                 ld    hl,(CURS_ADDR) ; Load cursor address
+330B  ED42     .B                  sbc   hl,bc          ; Cursor address - column pointer = start of
+330D  013F00   .?.                 ld    bc,0x003F      ; + 63
+3310  09       .                   add   hl,bc          ; HL = end of double line
+3311  CDE93E   ..>                 call  0x3EE9         ; Is the last character empty (space)?
+3314  C0       .                   ret   nz             ; No, no insert possible!
+3315  E5       .                   push  hl             ; Last character address
+3316  D1       .                   pop   de             ; in DE
+3317  2B       +                   dec   hl             ; HL = end of double line - 1
+3318  3AA678   :.x                 ld    a,(TTYPOS)     ; Load column pointer
+331B  4F       O                   ld    c,a            ; Transfer to C
+331C  3E3F     >?                  ld    a,0x3F         ; Double line width - 1
+331E  18CE     ..                  jr    $-48           ; Determine count and shift double line
+3320  E5       .                   push  hl             ; Status address on stack
+3321  CD2C33   .,3                 call  SCROLL_DOWN_FROM_CURSOR ; Scroll screen down 1 line from cursor
+3324  E1       .                   pop   hl             ; Restore status address
+3325  3E81     >.                  ld    a,0x81         ; Set status of 1st line to 0x81 (double-lin
+3327  77       w                   ld    (hl),a         ; Write status of 1st line
+3328  23       #                   inc   hl             ; Address next status byte
+3329  AF       .                   xor   a              ; Set status of new line to 0x00 (double-lin
+332A  77       w                   ld    (hl),a         ; Write status of 2nd line
+332B  C9       .                   ret                  ; Done
+                     ; ******************************************************************
+                     ; * SCROLL SCREEN DOWN ONE LINE FROM CURSOR POSITION               *
+                     ; ******************************************************************
+332C  2A2078   * x                 ld    hl,(CURS_ADDR) ; Load cursor address
 332F  7C       |                   ld    a,h
-3330  FE71     .q                  cp    0x71
-3332  202B      +                  jr    nz,$+45
+3330  FE71     .q                  cp    0x71           ; Is it the last line (address >= 0x71E0)?
+3332  202B      +                  jr    nz,$+45        ; No!
 3334  7D       }                   ld    a,l
-3335  FEE0     ..                  cp    0xE0
-3337  DA5F33   ._3                 jp    c,0x335F
-333A  3AA678   :.x                 ld    a,(TTYPOS)
-333D  F5       .                   push  af
-333E  3AD77A   :.z                 ld    a,(LINE_STATUS)
-3341  FE81     ..                  cp    0x81
-3343  2008      .                  jr    nz,$+10
-3345  E5       .                   push  hl
-3346  CDF333   ..3                 call  0x33F3
-3349  E1       .                   pop   hl
-334A  CD1703   ...                 call  CURSOR_LINE_BACK
-334D  E5       .                   push  hl
-334E  CDF333   ..3                 call  0x33F3
-3351  E1       .                   pop   hl
-3352  CD1703   ...                 call  CURSOR_LINE_BACK
-3355  F1       .                   pop   af
-3356  32A678   2.x                 ld    (TTYPOS),a
-3359  D1       .                   pop   de
-335A  E1       .                   pop   hl
-335B  2B       +                   dec   hl
-335C  E5       .                   push  hl
-335D  D5       .                   push  de
-335E  C9       .                   ret   
-335F  3AA678   :.x                 ld    a,(TTYPOS)
-3362  4F       O                   ld    c,a
+3335  FEE0     ..                  cp    0xE0           ; Check lower byte of address
+3337  DA5F33   ._3                 jp    c,0x335F       ; Not the last line!
+333A  3AA678   :.x                 ld    a,(TTYPOS)     ; Load column pointer
+333D  F5       .                   push  af             ; Save column pointer on stack
+333E  3AD77A   :.z                 ld    a,(LINE_STATUS) ; Load status of the first line
+3341  FE81     ..                  cp    0x81           ; Is it a double line?
+3343  2008      .                  jr    nz,$+10        ; No, scroll only one line
+3345  E5       .                   push  hl             ; Save cursor address
+3346  CDF333   ..3                 call  SCROLL_UP_ONE_LINE ; Scroll screen up one line
+3349  E1       .                   pop   hl             ; Restore cursor address
+334A  CD1703   ...                 call  CURSOR_LINE_BACK ; Cursor address - 1 line (32 bytes)
+334D  E5       .                   push  hl             ; Save cursor address
+334E  CDF333   ..3                 call  SCROLL_UP_ONE_LINE ; Scroll screen up one line
+3351  E1       .                   pop   hl             ; Restore cursor address
+3352  CD1703   ...                 call  CURSOR_LINE_BACK ; Cursor address - 1 line (32 bytes)
+3355  F1       .                   pop   af             ; Restore column pointer
+3356  32A678   2.x                 ld    (TTYPOS),a     ; Restore original column pointer
+3359  D1       .                   pop   de             ; Restore return address
+335A  E1       .                   pop   hl             ; Restore status address
+335B  2B       +                   dec   hl             ; Status address - 1 line
+335C  E5       .                   push  hl             ; Status address on stack
+335D  D5       .                   push  de             ; Return address on stack
+335E  C9       .                   ret                  ; Done
+335F  3AA678   :.x                 ld    a,(TTYPOS)     ; Load column pointer
+3362  4F       O                   ld    c,a            ; Transfer to C
 3363  AF       .                   xor   a
-3364  47       G                   ld    b,a
-3365  ED42     .B                  sbc   hl,bc
-3367  014000   .@.                 ld    bc,0x0040
-336A  09       .                   add   hl,bc
-336B  E5       .                   push  hl
-336C  EB       .                   ex    de,hl
-336D  210072   !.r                 ld    hl,0x7200
-3370  ED52     .R                  sbc   hl,de
-3372  E5       .                   push  hl
-3373  C1       .                   pop   bc
-3374  21DF71   !.q                 ld    hl,0x71DF
-3377  11FF71   ..q                 ld    de,0x71FF
+3364  47       G                   ld    b,a            ; Clear B
+3365  ED42     .B                  sbc   hl,bc          ; Cursor address - column pointer = start of
+3367  014000   .@.                 ld    bc,0x0040      ; Add 64 bytes (2 lines)
+336A  09       .                   add   hl,bc          ; Start address of next line + 1 line
+336B  E5       .                   push  hl             ; Save start address
+336C  EB       .                   ex    de,hl          ; Destination in DE
+336D  210072   !.r                 ld    hl,0x7200      ; Screen RAM end address + 1
+3370  ED52     .R                  sbc   hl,de          ; Calculate bytes to shift: 0x7200 - DE
+3372  E5       .                   push  hl             ; Save byte count
+3373  C1       .                   pop   bc             ; Byte count in BC
+3374  21DF71   !.q                 ld    hl,0x71DF      ; Source address: 0x71DF (end of second to l
+3377  11FF71   ..q                 ld    de,0x71FF      ; Destination address: 0x71FF (end of last l
 337A  79       y                   ld    a,c
-337B  B0       .                   or    b
-337C  2802     (.                  jr    z,$+4
-337E  EDB8     ..                  lddr  
-3380  E1       .                   pop   hl
-3381  CD023F   ..?                 call  0x3F02
+337B  B0       .                   or    b              ; Check if byte count is zero
+337C  2802     (.                  jr    z,$+4          ; If zero, no shift needed
+337E  EDB8     ..                  lddr                 ; Shift screen contents down by one line
+3380  E1       .                   pop   hl             ; Restore line start address
+3381  CD023F   ..?                 call  0x3F02         ; Get clear-screen character in A, width in 
 3384  00       .                   nop   
-3385  12       .                   ld    (de),a
-3386  1B       .                   dec   de
-3387  10FC     ..                  djnz  $-2
-3389  CDA833   ..3                 call  0x33A8
-338C  E5       .                   push  hl
-338D  C1       .                   pop   bc
-338E  21E67A   !.z                 ld    hl,0x7AE6
-3391  E5       .                   push  hl
+3385  12       .                   ld    (de),a         ; Fill new line with clear character
+3386  1B       .                   dec   de             ; Address of previous character
+3387  10FC     ..                  djnz  $-2            ; Loop until line is cleared
+3389  CDA833   ..3                 call  GET_LINE_STATUS ; Get current line status
+338C  E5       .                   push  hl             ; Status address in BC
+338D  C1       .                   pop   bc             ; Restore to BC
+338E  21E67A   !.z                 ld    hl,0x7AE6      ; Last line status address
+3391  E5       .                   push  hl             ; Save last line status address
 3392  B7       .                   or    a
-3393  ED42     .B                  sbc   hl,bc
-3395  E5       .                   push  hl
-3396  C1       .                   pop   bc
-3397  E1       .                   pop   hl
-3398  E5       .                   push  hl
-3399  D1       .                   pop   de
-339A  2B       +                   dec   hl
-339B  EDB8     ..                  lddr  
-339D  3AE67A   :.z                 ld    a,(0x7AE6)
-33A0  FE81     ..                  cp    0x81
-33A2  C0       .                   ret   nz
-33A3  2A2078   * x                 ld    hl,(CURS_ADDR)
-33A6  18B7     ..                  jr    $-71
-33A8  3AA678   :.x                 ld    a,(TTYPOS)
-33AB  4F       O                   ld    c,a
+3393  ED42     .B                  sbc   hl,bc          ; Calculate bytes to shift in status table
+3395  E5       .                   push  hl             ; Save byte count
+3396  C1       .                   pop   bc             ; Byte count in BC
+3397  E1       .                   pop   hl             ; Pop last line status address
+3398  E5       .                   push  hl             ; HL = source (last line status)
+3399  D1       .                   pop   de             ; DE = destination (last line status)
+339A  2B       +                   dec   hl             ; HL = second to last line status
+339B  EDB8     ..                  lddr                 ; Shift status bytes down by one
+339D  3AE67A   :.z                 ld    a,(0x7AE6)     ; Check status of last line
+33A0  FE81     ..                  cp    0x81           ; Was it a double line?
+33A2  C0       .                   ret   nz             ; No, done
+33A3  2A2078   * x                 ld    hl,(CURS_ADDR) ; Yes, load cursor address
+33A6  18B7     ..                  jr    $-71           ; And scroll one more line down
+                     ; ******************************************************************
+                     ; * DETERMINE LINE STATUS                                          *
+                     ; ******************************************************************
+33A8  3AA678   :.x                 ld    a,(TTYPOS)     ; Load column pointer
+33AB  4F       O                   ld    c,a            ; Transfer to C
 33AC  AF       .                   xor   a
-33AD  47       G                   ld    b,a
-33AE  2A2078   * x                 ld    hl,(CURS_ADDR)
-33B1  ED42     .B                  sbc   hl,bc
-33B3  E5       .                   push  hl
-33B4  C1       .                   pop   bc
-33B5  78       x                   ld    a,b
-33B6  E60F     ..                  and   0x0F
-33B8  CB3F     .?                  srl   a
-33BA  47       G                   ld    b,a
-33BB  CB19     ..                  rr    c
-33BD  CB39     .9                  srl   c
-33BF  CB39     .9                  srl   c
-33C1  CB39     .9                  srl   c
-33C3  CB39     .9                  srl   c
-33C5  21D77A   !.z                 ld    hl,LINE_STATUS
-33C8  09       .                   add   hl,bc
-33C9  7E       ~                   ld    a,(hl)
-33CA  C9       .                   ret   
-33CB  CDA833   ..3                 call  0x33A8
-33CE  FE81     ..                  cp    0x81
-33D0  2A2078   * x                 ld    hl,(CURS_ADDR)
-33D3  E5       .                   push  hl
-33D4  D1       .                   pop   de
-33D5  23       #                   inc   hl
-33D6  3AA678   :.x                 ld    a,(TTYPOS)
-33D9  4F       O                   ld    c,a
-33DA  2813     (.                  jr    z,$+21
-33DC  FE1F     ..                  cp    0x1F
-33DE  2808     (.                  jr    z,$+10
-33E0  3E1F     >.                  ld    a,0x1F
-33E2  91       .                   sub   c
-33E3  4F       O                   ld    c,a
+33AD  47       G                   ld    b,a            ; Clear B
+33AE  2A2078   * x                 ld    hl,(CURS_ADDR) ; Load cursor address
+33B1  ED42     .B                  sbc   hl,bc          ; HL = start of line
+33B3  E5       .                   push  hl             ; Save start of line address
+33B4  C1       .                   pop   bc             ; In BC
+33B5  78       x                   ld    a,b            ; Determine relative line number
+33B6  E60F     ..                  and   0x0F           ; Relative page offset (0 or 1)
+33B8  CB3F     .?                  srl   a              ; Shift relative bit 8 into carry
+33BA  47       G                   ld    b,a            ; Clear B
+33BB  CB19     ..                  rr    c              ; Shift relative address right (divide by 2)
+33BD  CB39     .9                  srl   c              ; Divide by 4
+33BF  CB39     .9                  srl   c              ; Divide by 8
+33C1  CB39     .9                  srl   c              ; Divide by 16
+33C3  CB39     .9                  srl   c              ; Divide by 32 (C = line number 0..15)
+33C5  21D77A   !.z                 ld    hl,LINE_STATUS ; Start address of line status table
+33C8  09       .                   add   hl,bc          ; Add line number
+33C9  7E       ~                   ld    a,(hl)         ; Load line status
+33CA  C9       .                   ret                  ; Done
+                     ; ******************************************************************
+                     ; * RUBOUT (DELETE) CHARACTER FUNCTION                             *
+                     ; ******************************************************************
+33CB  CDA833   ..3                 call  GET_LINE_STATUS ; Determine status of current line
+33CE  FE81     ..                  cp    0x81           ; Is it the first of a double line?
+33D0  2A2078   * x                 ld    hl,(CURS_ADDR) ; Load cursor address
+33D3  E5       .                   push  hl             ; Save cursor address
+33D4  D1       .                   pop   de             ; Destination in DE
+33D5  23       #                   inc   hl             ; HL = next character position (source)
+33D6  3AA678   :.x                 ld    a,(TTYPOS)     ; Load column pointer
+33D9  4F       O                   ld    c,a            ; Transfer to C
+33DA  2813     (.                  jr    z,$+21         ; If double line, jump to double line handli
+33DC  FE1F     ..                  cp    0x1F           ; At the end of the line?
+33DE  2808     (.                  jr    z,$+10         ; Yes, just clear this character
+33E0  3E1F     >.                  ld    a,0x1F         ; Line width - 1
+33E2  91       .                   sub   c              ; Calculate remaining characters on line
+33E3  4F       O                   ld    c,a            ; BC = count
 33E4  AF       .                   xor   a
-33E5  47       G                   ld    b,a
-33E6  EDB0     ..                  ldir  
-33E8  CDF63E   ..>                 call  0x3EF6
-33EB  CD5000   .P.                 call  GET_CURSOR_CHAR
-33EE  C9       .                   ret   
-33EF  3E3F     >?                  ld    a,0x3F
-33F1  18EF     ..                  jr    $-15
-33F3  110070   ..p                 ld    de,0x7000
-33F6  212070   ! p                 ld    hl,0x7020
-33F9  01E001   ...                 ld    bc,0x01E0
-33FC  EDB0     ..                  ldir  
-33FE  CD023F   ..?                 call  0x3F02
+33E5  47       G                   ld    b,a            ; Clear B
+33E6  EDB0     ..                  ldir                 ; Shift characters left by one
+33E8  CDF63E   ..>                 call  0x3EF6         ; Fill end of line with space
+33EB  CD5000   .P.                 call  GET_CURSOR_CHAR ; Save character at cursor position
+33EE  C9       .                   ret                  ; Done
+33EF  3E3F     >?                  ld    a,0x3F         ; Double line width - 1
+33F1  18EF     ..                  jr    $-15           ; Calculate count and shift over double line
+                     ; ******************************************************************
+                     ; * SCROLL SCREEN UP ONE LINE AND CLEAR LAST LINE                  *
+                     ; ******************************************************************
+33F3  110070   ..p                 ld    de,0x7000      ; DE = start of screen (destination)
+33F6  212070   ! p                 ld    hl,0x7020      ; HL = start of second line (source)
+33F9  01E001   ...                 ld    bc,0x01E0      ; Count = 15 lines of 32 bytes (480 bytes)
+33FC  EDB0     ..                  ldir                 ; Scroll screen contents up by one line
+33FE  CD023F   ..?                 call  0x3F02         ; Get clear-screen character in A, width in 
 3401  00       .                   nop   
-3402  12       .                   ld    (de),a
-3403  13       .                   inc   de
-3404  10FC     ..                  djnz  $-2
-3406  21D77A   !.z                 ld    hl,LINE_STATUS
-3409  E5       .                   push  hl
-340A  D1       .                   pop   de
-340B  23       #                   inc   hl
-340C  010F00   ...                 ld    bc,0x000F
-340F  EDB0     ..                  ldir  
-3411  1A       .                   ld    a,(de)
-3412  FE81     ..                  cp    0x81
-3414  2003      .                  jr    nz,$+5
-3416  AF       .                   xor   a
-3417  1802     ..                  jr    $+4
-3419  3E80     >.                  ld    a,0x80
-341B  12       .                   ld    (de),a
+3402  12       .                   ld    (de),a         ; Fill last line with space
+3403  13       .                   inc   de             ; Address of next character
+3404  10FC     ..                  djnz  $-2            ; Loop until last line is cleared
+3406  21D77A   !.z                 ld    hl,LINE_STATUS ; Start of line status table
+3409  E5       .                   push  hl             ; Save status address
+340A  D1       .                   pop   de             ; DE = destination (line status 0)
+340B  23       #                   inc   hl             ; HL = source (line status 1)
+340C  010F00   ...                 ld    bc,0x000F      ; Scroll 15 status bytes
+340F  EDB0     ..                  ldir                 ; Shift status bytes up
+3411  1A       .                   ld    a,(de)         ; Load status of second to last line
+3412  FE81     ..                  cp    0x81           ; Was it a double line?
+3414  2003      .                  jr    nz,$+5         ; No, last line becomes single line (0x80)
+3416  AF       .                   xor   a              ; Yes, last line becomes follow-up line (0x0
+3417  1802     ..                  jr    $+4            ; Set status
+3419  3E80     >.                  ld    a,0x80         ; 80H = single line identifier
+341B  12       .                   ld    (de),a         ; Set status of last line
 341C  AF       .                   xor   a
-341D  32A678   2.x                 ld    (TTYPOS),a
-3420  21E071   !.q                 ld    hl,0x71E0
-3423  C9       .                   ret   
-3424  3AD77A   :.z                 ld    a,(LINE_STATUS)
-3427  FE81     ..                  cp    0x81
-3429  CCF333   ..3                 call  z,0x33F3
-342C  CDF333   ..3                 call  0x33F3
-342F  C9       .                   ret   
-3430  213978   !9x                 ld    hl,FLAG2
-3433  B7       .                   or    a
-3434  200B      .                  jr    nz,$+13
-3436  CBCE     ..                  set   1,(hl)
-3438  01FF03   ...                 ld    bc,0x03FF
-343B  0B       .                   dec   bc
+341D  32A678   2.x                 ld    (TTYPOS),a     ; Column pointer = 0
+3420  21E071   !.q                 ld    hl,0x71E0      ; HL = start of last line
+3423  C9       .                   ret                  ; Done
+                     ; ******************************************************************
+                     ; * SCROLL UP ONE OR TWO LINES DEPENDING ON LINE STATUS            *
+                     ; ******************************************************************
+3424  3AD77A   :.z                 ld    a,(LINE_STATUS) ; Load status of the first line
+3427  FE81     ..                  cp    0x81           ; Is it a double line?
+3429  CCF333   ..3                 call  z,SCROLL_UP_ONE_LINE ; Yes, scroll one line
+342C  CDF333   ..3                 call  SCROLL_UP_ONE_LINE ; Scroll one line
+342F  C9       .                   ret                  ; Done
+                     ; ******************************************************************
+                     ; * EMIT AUDIBLE BEEP ON CHARACTER INPUT                           *
+                     ; ******************************************************************
+3430  213978   !9x                 ld    hl,FLAG2       ; Address Flag 2
+3433  B7       .                   or    a              ; Character entered?
+3434  200B      .                  jr    nz,$+13        ; Yes!
+3436  CBCE     ..                  set   1,(hl)         ; No, set BUZZER flag
+3438  01FF03   ...                 ld    bc,0x03FF      ; Load wait loop counter
+343B  0B       .                   dec   bc             ; Decrement BC
 343C  79       y                   ld    a,c
 343D  B0       .                   or    b
-343E  20FB      .                  jr    nz,$-3
-3440  C9       .                   ret   
-3441  CB46     .F                  bit   0,(hl)
-3443  C0       .                   ret   nz
-3444  FE0D     ..                  cp    0x0D
-3446  2806     (.                  jr    z,$+8
-3448  FE01     ..                  cp    0x01
-344A  2004      .                  jr    nz,$+6
-344C  CBD6     ..                  set   2,(hl)
-344E  CBC6     ..                  set   0,(hl)
-3450  E5       .                   push  hl
-3451  21A000   !..                 ld    hl,0x00A0
-3454  010600   ...                 ld    bc,0x0006
-3457  CD5C34   .\4                 call  0x345C
-345A  E1       .                   pop   hl
-345B  C9       .                   ret   
-345C  3A3B78   :;x                 ld    a,(OUT_LATCH)
-345F  57       W                   ld    d,a
-3460  CD6934   .i4                 call  0x3469
-3463  0B       .                   dec   bc
+343E  20FB      .                  jr    nz,$-3         ; Wait until end of vertical sync pulse
+3440  C9       .                   ret                  ; Done
+3441  CB46     .F                  bit   0,(hl)         ; Carriage Return flag set?
+3443  C0       .                   ret   nz             ; Yes, done
+3444  FE0D     ..                  cp    0x0D           ; Character = Carriage Return (0x0D)?
+3446  2806     (.                  jr    z,$+8          ; Yes!
+3448  FE01     ..                  cp    0x01           ; Character = BREAK (0x01)?
+344A  2004      .                  jr    nz,$+6         ; No!
+344C  CBD6     ..                  set   2,(hl)         ; Yes, set BREAK flag
+344E  CBC6     ..                  set   0,(hl)         ; Set Carriage Return flag
+3450  E5       .                   push  hl             ; Save Flag 2 address
+3451  21A000   !..                 ld    hl,0x00A0      ; Load beep frequency (0x00A0)
+3454  010600   ...                 ld    bc,0x0006      ; Load beep duration (6)
+3457  CD5C34   .\4                 call  SOUND_OUT      ; Emit beep tone
+345A  E1       .                   pop   hl             ; Restore Flag 2 address
+345B  C9       .                   ret                  ; Done
+                     ; ******************************************************************
+                     ; * SOUND OUTPUT ROUTINE                                           *
+                     ; ******************************************************************
+345C  3A3B78   :;x                 ld    a,(OUT_LATCH)  ; Load I/O latch byte
+345F  57       W                   ld    d,a            ; Transfer to D
+3460  CD6934   .i4                 call  SOUND_PULSE    ; Emit pulse
+3463  0B       .                   dec   bc             ; Decrement duration
 3464  79       y                   ld    a,c
 3465  B0       .                   or    b
-3466  20F8      .                  jr    nz,$-6
-3468  C9       .                   ret   
-3469  C5       .                   push  bc
-346A  7A       z                   ld    a,d
-346B  EE21     .!                  xor   0x21
-346D  320068   2.h                 ld    (0x6800),a
-3470  E5       .                   push  hl
+3466  20F8      .                  jr    nz,$-6         ; Loop until tone duration ends
+3468  C9       .                   ret                  ; Done
+3469  C5       .                   push  bc             ; Save duration counter
+346A  7A       z                   ld    a,d            ; Load I/O latch byte
+346B  EE21     .!                  xor   0x21           ; Toggle bits 0 and 5
+346D  320068   2.h                 ld    (0x6800),a     ; Write to I/O port
+3470  E5       .                   push  hl             ; Load frequency count
 3471  C1       .                   pop   bc
-3472  0B       .                   dec   bc
+3472  0B       .                   dec   bc             ; Decrement frequency counter
 3473  79       y                   ld    a,c
 3474  B0       .                   or    b
-3475  20FB      .                  jr    nz,$-3
-3477  7A       z                   ld    a,d
-3478  320068   2.h                 ld    (0x6800),a
-347B  E5       .                   push  hl
+3475  20FB      .                  jr    nz,$-3         ; Wait loop for lower half-cycle of tone
+3477  7A       z                   ld    a,d            ; Restore original I/O latch byte
+3478  320068   2.h                 ld    (0x6800),a     ; Write to I/O port
+347B  E5       .                   push  hl             ; Load frequency count
 347C  C1       .                   pop   bc
-347D  0B       .                   dec   bc
+347D  0B       .                   dec   bc             ; Decrement frequency counter
 347E  79       y                   ld    a,c
 347F  B0       .                   or    b
-3480  20FB      .                  jr    nz,$-3
-3482  C1       .                   pop   bc
-3483  C9       .                   ret   
-3484  CDA03F   ..?                 call  0x3FA0
-3487  3E20     >                   ld    a,0x20
-3489  323B78   2;x                 ld    (OUT_LATCH),a
-348C  320068   2.h                 ld    (0x6800),a
-348F  3E3C     ><                  ld    a,0x3C
-3491  323A78   2:x                 ld    (0x783A),a
-3494  3E10     >.                  ld    a,0x10
-3496  324178   2Ax                 ld    (0x7841),a
-3499  AF       .                   xor   a
-349A  32AF7A   2.z                 ld    (0x7AAF),a
-349D  21B27A   !.z                 ld    hl,0x7AB2
-34A0  22B07A   ".z                 ld    (0x7AB0),hl
-34A3  3EC9     >.                  ld    a,0xC9
-34A5  C3373E   .7>                 jp    0x3E37
-34A8  C9       .                   ret   
+3480  20FB      .                  jr    nz,$-3         ; Wait loop for upper half-cycle of tone
+3482  C1       .                   pop   bc             ; Restore duration counter
+3483  C9       .                   ret                  ; Done
+                     ; ******************************************************************
+                     ; * PART OF THE INITIALIZATION ROUTINE                             *
+                     ; ******************************************************************
+3484  CDA03F   ..?                 call  0x3FA0         ; Check if CTRL key is pressed and set color
+3487  3E20     >                   ld    a,0x20         ; Default I/O latch byte
+3489  323B78   2;x                 ld    (OUT_LATCH),a  ; Save default latch byte
+348C  320068   2.h                 ld    (0x6800),a     ; Write default to I/O port
+348F  3E3C     ><                  ld    a,0x3C         ; Load blink timer value (60)
+3491  323A78   2:x                 ld    (0x783A),a     ; Save blink timer
+3494  3E10     >.                  ld    a,0x10         ; Load blink counter value (16)
+3496  324178   2Ax                 ld    (0x7841),a     ; Save blink counter
+3499  AF       .                   xor   a              ; Clear buffer index
+349A  32AF7A   2.z                 ld    (0x7AAF),a     ; Save buffer size/index
+349D  21B27A   !.z                 ld    hl,0x7AB2      ; Start address of input buffer
+34A0  22B07A   ".z                 ld    (0x7AB0),hl    ; Save input buffer pointer
+34A3  3EC9     >.                  ld    a,0xC9         ; RET instruction opcode
+34A5  C3373E   .7>                 jp    0x3E37         ; Jump to color-set routine (yellow)
+34A8  C9       .                   ret                  ; Not used
 34A9  F3       .                   di    
 34AA  0EF0     ..                  ld    c,0xF0
 34AC  CD5835   .X5                 call  0x3558
