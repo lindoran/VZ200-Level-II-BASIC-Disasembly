@@ -3657,6 +3657,46 @@ name = OUT_SCREEN_RAW
 offset = 12735
 name = OUT_CURSOR_ADVANCE
 
+[label]
+offset = 13481
+name = CSAVE
+
+[label]
+offset = 13585
+name = TAPE_WRITE_BYTE
+
+[label]
+offset = 13611
+name = TAPE_WRITE_ZERO_BIT
+
+[label]
+offset = 13634
+name = TAPE_CLOCK_PULSE
+
+[label]
+offset = 13656
+name = TAPE_WRITE_LEADER_NAME
+
+[label]
+offset = 13708
+name = TAPE_BUFFER_NAME
+
+[label]
+offset = 13745
+name = TAPE_PREPARE_MESSAGES
+
+[label]
+offset = 13793
+name = TAPE_FIND_PROGRAM
+
+[label]
+offset = 13910
+name = CLOAD
+
+[label]
+offset = 13919
+name = TAPE_LOAD_COMMON
+
 [comment]
 offset = 0
 text = Test Start
@@ -29887,6 +29927,1150 @@ text = Jump to color-set routine (yellow)
 offset = 13480
 text = Not used
 
+[comment]
+offset = 13481
+text = Disable interrupts
+
+[comment]
+offset = 13482
+text = Set BASIC program identifier
+
+[comment]
+offset = 13484
+text = Write tape leader and program name
+
+[comment]
+offset = 13487
+text = If carry is set, BREAK was pressed
+
+[comment]
+offset = 13490
+text = Save program text pointer
+
+[comment]
+offset = 13491
+text = About 3 ms gap on tape
+
+[comment]
+offset = 13494
+text = Decrement gap counter
+
+[comment]
+offset = 13495
+text = Test low byte of counter
+
+[comment]
+offset = 13496
+text = Counter expired?
+
+[comment]
+offset = 13497
+text = No, keep waiting
+
+[comment]
+offset = 13499
+text = Check whether BREAK was pressed
+
+[comment]
+offset = 13502
+text = Address checksum bytes
+
+[comment]
+offset = 13506
+text = Load program start address
+
+[comment]
+offset = 13509
+text = Load LSB of start address
+
+[comment]
+offset = 13510
+text = Write byte to cassette
+
+[comment]
+offset = 13513
+text = Store in checksum LSB
+
+[comment]
+offset = 13516
+text = Clear A for checksum MSB
+
+[comment]
+offset = 13517
+text = Clear checksum MSB
+
+[comment]
+offset = 13520
+text = Load MSB of start address
+
+[comment]
+offset = 13521
+text = Write byte to cassette
+
+[comment]
+offset = 13524
+text = Add byte to checksum
+
+[comment]
+offset = 13527
+text = Move start address to DE
+
+[comment]
+offset = 13528
+text = Load program end address
+
+[comment]
+offset = 13531
+text = Load LSB of end address
+
+[comment]
+offset = 13532
+text = Write byte to cassette
+
+[comment]
+offset = 13535
+text = Add byte to checksum
+
+[comment]
+offset = 13538
+text = Load MSB of end address
+
+[comment]
+offset = 13539
+text = Write byte to cassette
+
+[comment]
+offset = 13542
+text = Add byte to checksum
+
+[comment]
+offset = 13545
+text = Check whether BREAK was pressed
+
+[comment]
+offset = 13548
+text = Load next program byte
+
+[comment]
+offset = 13549
+text = Advance program address
+
+[comment]
+offset = 13550
+text = Write program byte to cassette
+
+[comment]
+offset = 13553
+text = Add byte to checksum
+
+[comment]
+offset = 13556
+text = Check whether BREAK was pressed
+
+[comment]
+offset = 13559
+text = Test whether program end was reached
+
+[comment]
+offset = 13560
+text = No, write next byte
+
+[comment]
+offset = 13562
+text = Load checksum LSB
+
+[comment]
+offset = 13565
+text = Write checksum LSB to cassette
+
+[comment]
+offset = 13568
+text = Load checksum MSB
+
+[comment]
+offset = 13571
+text = Write checksum MSB to cassette
+
+[comment]
+offset = 13574
+text = 20 zero bytes mark the end
+
+[comment]
+offset = 13576
+text = A = 0 end marker byte
+
+[comment]
+offset = 13577
+text = Write end marker byte
+
+[comment]
+offset = 13580
+text = Loop until end markers are written
+
+[comment]
+offset = 13582
+text = Restore program text pointer
+
+[comment]
+offset = 13583
+text = Re-enable interrupts
+
+[comment]
+offset = 13584
+text = Done
+
+[comment]
+offset = 13585
+text = Save A
+
+[comment]
+offset = 13586
+text = Save BC
+
+[comment]
+offset = 13587
+text = Save HL
+
+[comment]
+offset = 13588
+text = Set bit counter to 8
+
+[comment]
+offset = 13590
+text = H = byte to output
+
+[comment]
+offset = 13591
+text = Output clock pulse
+
+[comment]
+offset = 13594
+text = Rotate next bit into carry
+
+[comment]
+offset = 13596
+text = Carry clear means output a 0 bit
+
+[comment]
+offset = 13598
+text = Output first pulse of a 1 bit
+
+[comment]
+offset = 13601
+text = Output second pulse of a 1 bit
+
+[comment]
+offset = 13604
+text = Decrement bit counter
+
+[comment]
+offset = 13605
+text = Loop for next bit
+
+[comment]
+offset = 13607
+text = Restore HL
+
+[comment]
+offset = 13608
+text = Restore BC
+
+[comment]
+offset = 13609
+text = Restore A
+
+[comment]
+offset = 13610
+text = Done
+
+[comment]
+offset = 13611
+text = Load I/O latch byte
+
+[comment]
+offset = 13614
+text = Set bits 1 and 2
+
+[comment]
+offset = 13616
+text = Write latch byte to I/O port
+
+[comment]
+offset = 13619
+text = Pause about 555 us
+
+[comment]
+offset = 13621
+text = Delay loop
+
+[comment]
+offset = 13623
+text = Clear bits 1 and 2 again
+
+[comment]
+offset = 13625
+text = Write latch byte to I/O port
+
+[comment]
+offset = 13628
+text = Pause about 555 us
+
+[comment]
+offset = 13630
+text = Delay loop
+
+[comment]
+offset = 13632
+text = Continue with next bit
+
+[comment]
+offset = 13634
+text = Load I/O latch byte
+
+[comment]
+offset = 13637
+text = Set bits 1 and 2
+
+[comment]
+offset = 13639
+text = Write latch byte to I/O port
+
+[comment]
+offset = 13642
+text = Pause about 277 us
+
+[comment]
+offset = 13644
+text = Delay loop
+
+[comment]
+offset = 13646
+text = Clear bits 1 and 2 again
+
+[comment]
+offset = 13648
+text = Write latch byte to I/O port
+
+[comment]
+offset = 13651
+text = Pause about 277 us
+
+[comment]
+offset = 13653
+text = Delay loop
+
+[comment]
+offset = 13655
+text = Done
+
+[comment]
+offset = 13656
+text = Copy program name into buffer
+
+[comment]
+offset = 13659
+text = Output 255 synchronization bytes
+
+[comment]
+offset = 13661
+text = A = sync byte 0x80
+
+[comment]
+offset = 13663
+text = Write byte to cassette
+
+[comment]
+offset = 13666
+text = Check whether BREAK was pressed
+
+[comment]
+offset = 13669
+text = Abort if BREAK was pressed
+
+[comment]
+offset = 13670
+text = Loop for 255 sync bytes
+
+[comment]
+offset = 13672
+text = Output five 0xFE leader bytes
+
+[comment]
+offset = 13674
+text = A = leader byte 0xFE
+
+[comment]
+offset = 13676
+text = Write byte to cassette
+
+[comment]
+offset = 13679
+text = Check whether BREAK was pressed
+
+[comment]
+offset = 13682
+text = Abort if BREAK was pressed
+
+[comment]
+offset = 13683
+text = Loop for leader bytes
+
+[comment]
+offset = 13685
+text = Load program/file identifier
+
+[comment]
+offset = 13686
+text = Write identifier to cassette
+
+[comment]
+offset = 13689
+text = Check whether BREAK was pressed
+
+[comment]
+offset = 13692
+text = Abort if BREAK was pressed
+
+[comment]
+offset = 13693
+text = Load program name length
+
+[comment]
+offset = 13696
+text = Use length as counter
+
+[comment]
+offset = 13697
+text = Point DE to name buffer
+
+[comment]
+offset = 13700
+text = Load next name character
+
+[comment]
+offset = 13701
+text = Advance name pointer
+
+[comment]
+offset = 13702
+text = Write character to cassette
+
+[comment]
+offset = 13705
+text = Loop until the name is complete
+
+[comment]
+offset = 13707
+text = Done
+
+[comment]
+offset = 13708
+text = Maximum name length is 16 chars
+
+[comment]
+offset = 13710
+text = Load start address of name buffer
+
+[comment]
+offset = 13713
+text = Load character from program text
+
+[comment]
+offset = 13714
+text = End of statement?
+
+[comment]
+offset = 13716
+text = Yes, finish name
+
+[comment]
+offset = 13718
+text = End of line?
+
+[comment]
+offset = 13719
+text = Yes, finish name
+
+[comment]
+offset = 13721
+text = Check for opening quote
+
+[comment]
+offset = 13722
+text = Embedded quote-check operand bytes
+
+[comment]
+offset = 13725
+text = If no name follows, finish
+
+[comment]
+offset = 13727
+text = Advance program text pointer
+
+[comment]
+offset = 13728
+text = End of string?
+
+[comment]
+offset = 13730
+text = Yes, finish name
+
+[comment]
+offset = 13732
+text = Copy character into buffer
+
+[comment]
+offset = 13733
+text = Advance buffer pointer
+
+[comment]
+offset = 13734
+text = Loop for next character
+
+[comment]
+offset = 13736
+text = Use 0x00 as terminator
+
+[comment]
+offset = 13737
+text = Store terminator in buffer
+
+[comment]
+offset = 13738
+text = Start with max length plus terminator
+
+[comment]
+offset = 13740
+text = Calculate actual name length
+
+[comment]
+offset = 13741
+text = Save name length
+
+[comment]
+offset = 13744
+text = Done
+
+[comment]
+offset = 13745
+text = Load message-output flag
+
+[comment]
+offset = 13748
+text = Messages disabled?
+
+[comment]
+offset = 13749
+text = Yes, suppress messages
+
+[comment]
+offset = 13750
+text = Load I/O latch byte
+
+[comment]
+offset = 13753
+text = Graphics mode active?
+
+[comment]
+offset = 13755
+text = No, skip mode switch
+
+[comment]
+offset = 13757
+text = Switch to text mode
+
+[comment]
+offset = 13759
+text = Save updated latch byte
+
+[comment]
+offset = 13762
+text = Write latch byte to I/O port
+
+[comment]
+offset = 13765
+text = Clear the screen
+
+[comment]
+offset = 13768
+text = Set cursor to last screen position
+
+[comment]
+offset = 13771
+text = Save cursor address
+
+[comment]
+offset = 13774
+text = Set column pointer to last column
+
+[comment]
+offset = 13776
+text = Save column pointer
+
+[comment]
+offset = 13779
+text = Load status of previous line
+
+[comment]
+offset = 13782
+text = Is it a double line?
+
+[comment]
+offset = 13784
+text = No, done
+
+[comment]
+offset = 13785
+text = Mark last lines as single lines
+
+[comment]
+offset = 13786
+text = Store status for previous line
+
+[comment]
+offset = 13789
+text = Store status for last line
+
+[comment]
+offset = 13792
+text = Done
+
+[comment]
+offset = 13793
+text = Load address of WAITING text
+
+[comment]
+offset = 13796
+text = Output text if messages are enabled
+
+[comment]
+offset = 13799
+text = Check whether BREAK was pressed
+
+[comment]
+offset = 13802
+text = Read I/O byte
+
+[comment]
+offset = 13805
+text = Evaluate cassette pulse input
+
+[comment]
+offset = 13807
+text = No pulse, keep waiting
+
+[comment]
+offset = 13809
+text = Read one bit
+
+[comment]
+offset = 13812
+text = Timed out, restart search
+
+[comment]
+offset = 13814
+text = Was the bit a 1?
+
+[comment]
+offset = 13816
+text = No, read next bit
+
+[comment]
+offset = 13818
+text = Read seven more bits
+
+[comment]
+offset = 13820
+text = Read one bit
+
+[comment]
+offset = 13823
+text = Timeout, restart search
+
+[comment]
+offset = 13825
+text = Loop for next bit
+
+[comment]
+offset = 13827
+text = Is this a sync byte?
+
+[comment]
+offset = 13829
+text = No, keep searching
+
+[comment]
+offset = 13831
+text = Read next byte
+
+[comment]
+offset = 13834
+text = Timeout, restart search
+
+[comment]
+offset = 13837
+text = Still a sync byte?
+
+[comment]
+offset = 13839
+text = Yes, read next byte
+
+[comment]
+offset = 13841
+text = Four bytes remain; first already loaded
+
+[comment]
+offset = 13843
+text = Is this a leader byte?
+
+[comment]
+offset = 13845
+text = No, restart search
+
+[comment]
+offset = 13848
+text = Read next byte
+
+[comment]
+offset = 13851
+text = Timeout, restart search
+
+[comment]
+offset = 13854
+text = Check remaining leader bytes
+
+[comment]
+offset = 13856
+text = Read identifier byte
+
+[comment]
+offset = 13859
+text = Save identifier byte
+
+[comment]
+offset = 13862
+text = Load destination buffer address
+
+[comment]
+offset = 13865
+text = Maximum length is 18 bytes
+
+[comment]
+offset = 13867
+text = Read next byte
+
+[comment]
+offset = 13870
+text = Store byte in buffer
+
+[comment]
+offset = 13871
+text = End of name?
+
+[comment]
+offset = 13872
+text = Yes, name is complete
+
+[comment]
+offset = 13874
+text = Advance buffer pointer
+
+[comment]
+offset = 13875
+text = Loop for next name byte
+
+[comment]
+offset = 13877
+text = Name too long; restart search
+
+[comment]
+offset = 13880
+text = Address FOUND text
+
+[comment]
+offset = 13883
+text = Output FOUND text
+
+[comment]
+offset = 13886
+text = Address name in buffer
+
+[comment]
+offset = 13889
+text = Output the found name
+
+[comment]
+offset = 13892
+text = Address received name
+
+[comment]
+offset = 13895
+text = Address requested name
+
+[comment]
+offset = 13898
+text = Load byte from requested name
+
+[comment]
+offset = 13899
+text = End of requested name?
+
+[comment]
+offset = 13900
+text = Yes, this program matches
+
+[comment]
+offset = 13901
+text = Compare with received name byte
+
+[comment]
+offset = 13902
+text = Mismatch, keep searching
+
+[comment]
+offset = 13905
+text = Advance received-name pointer
+
+[comment]
+offset = 13906
+text = Advance requested-name pointer
+
+[comment]
+offset = 13907
+text = Check next character
+
+[comment]
+offset = 13909
+text = Not used
+
+[comment]
+offset = 13910
+text = Save program text pointer
+
+[comment]
+offset = 13911
+text = Address Flag 2
+
+[comment]
+offset = 13914
+text = Clear CRUN flag
+
+[comment]
+offset = 13916
+text = Clear VERIFY flag
+
+[comment]
+offset = 13918
+text = Restore program text pointer
+
+[comment]
+offset = 13919
+text = Disable interrupts
+
+[comment]
+offset = 13920
+text = Copy name from program text
+
+[comment]
+offset = 13923
+text = Save program text pointer
+
+[comment]
+offset = 13924
+text = Prepare message output
+
+[comment]
+offset = 13927
+text = Address WAITING text
+
+[comment]
+offset = 13930
+text = Output WAITING text
+
+[comment]
+offset = 13933
+text = Search for program on cassette
+
+[comment]
+offset = 13936
+text = Load program identifier
+
+[comment]
+offset = 13939
+text = Is it plain data?
+
+[comment]
+offset = 13941
+text = Yes, keep searching
+
+[comment]
+offset = 13943
+text = Address LOADING text
+
+[comment]
+offset = 13946
+text = Output LOADING text
+
+[comment]
+offset = 13949
+text = Address checksum bytes
+
+[comment]
+offset = 13953
+text = Read start and end addresses
+
+[comment]
+offset = 13956
+text = On error, print LOADING ERROR
+
+[comment]
+offset = 13959
+text = Save end address
+
+[comment]
+offset = 13960
+text = Compute byte count: end - start
+
+[comment]
+offset = 13962
+text = Error if start is after end
+
+[comment]
+offset = 13965
+text = Save start address
+
+[comment]
+offset = 13969
+text = Move byte count into BC
+
+[comment]
+offset = 13970
+text = BC = byte count
+
+[comment]
+offset = 13971
+text = Restore end address
+
+[comment]
+offset = 13972
+text = Load Flag 2
+
+[comment]
+offset = 13975
+text = VERIFY flag set?
+
+[comment]
+offset = 13977
+text = Yes, compare against memory
+
+[comment]
+offset = 13980
+text = Read byte from cassette
+
+[comment]
+offset = 13983
+text = Store byte in RAM
+
+[comment]
+offset = 13984
+text = Add byte to checksum
+
+[comment]
+offset = 13987
+text = Advance program address
+
+[comment]
+offset = 13988
+text = Decrement byte count
+
+[comment]
+offset = 13989
+text = Test low byte of count
+
+[comment]
+offset = 13990
+text = Any bytes left?
+
+[comment]
+offset = 13991
+text = Yes, continue loading
+
+[comment]
+offset = 13993
+text = Read checksum LSB
+
+[comment]
+offset = 13996
+text = Compare with calculated checksum LSB
+
+[comment]
+offset = 13999
+text = Mismatch, print LOADING ERROR
+
+[comment]
+offset = 14002
+text = Read checksum MSB
+
+[comment]
+offset = 14005
+text = Compare with calculated checksum MSB
+
+[comment]
+offset = 14008
+text = Mismatch, print LOADING ERROR
+
+[comment]
+offset = 14011
+text = Save program end address
+
+[comment]
+offset = 14014
+text = Re-enable interrupts
+
+[comment]
+offset = 14015
+text = Output carriage return
+
+[comment]
+offset = 14017
+text = Send character to output buffer
+
+[comment]
+offset = 14020
+text = Load program identifier
+
+[comment]
+offset = 14023
+text = Is it a machine-code program?
+
+[comment]
+offset = 14025
+text = No, continue as BASIC program
+
+[comment]
+offset = 14027
+text = Load start address
+
+[comment]
+offset = 14030
+text = Jump to machine-code program
+
+[comment]
+offset = 14031
+text = Address READY text
+
+[comment]
+offset = 14034
+text = Output READY text
+
+[comment]
+offset = 14037
+text = Load BASIC program start address
+
+[comment]
+offset = 14040
+text = Save it on the stack
+
+[comment]
+offset = 14041
+text = Address Flag 2
+
+[comment]
+offset = 14044
+text = CRUN flag set?
+
+[comment]
+offset = 14046
+text = Yes, start the program
+
+[comment]
+offset = 14048
+text = No, return to the main loop
+
+[comment]
+offset = 14051
+text = Address Flag 2
+
+[comment]
+offset = 14054
+text = Clear CRUN flag
+
+[comment]
+offset = 14056
+text = Load program start address
+
+[comment]
+offset = 14057
+text = Renew BASIC line pointers
+
+[comment]
+offset = 14060
+text = RAM expansion output hook
+
+[comment]
+offset = 14063
+text = Clear variable table
+
+[comment]
+offset = 14066
+text = RAM expansion output hook
+
+[comment]
+offset = 14069
+text = Set current line number to direct mode
+
+[comment]
+offset = 14072
+text = Save current line number
+
+[comment]
+offset = 14075
+text = Address I/O buffer
+
+[comment]
+offset = 14078
+text = Address RUN command text
+
+[comment]
+offset = 14081
+text = Load next RUN command byte
+
+[comment]
+offset = 14082
+text = Copy byte into I/O buffer
+
+[comment]
+offset = 14083
+text = End of command text?
+
+[comment]
+offset = 14084
+text = Yes, command is complete
+
+[comment]
+offset = 14086
+text = Advance buffer pointer
+
+[comment]
+offset = 14087
+text = Advance command text pointer
+
+[comment]
+offset = 14088
+text = Copy next byte
+
+[comment]
+offset = 14090
+text = Address one byte before I/O buffer
+
+[comment]
+offset = 14093
+text = Clear A
+
+[comment]
+offset = 14094
+text = Execute the RUN command
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -31987,4 +33171,80 @@ offset = 13444
 text = ******************************************************************
               * PART OF THE INITIALIZATION ROUTINE                             *
               ******************************************************************
+
+[block]
+offset = 13481
+text = ******** CSAVE - WRITE PROGRAM TO CASSETTE
+
+[block]
+offset = 13585
+text = ******** WRITE ONE BYTE TO CASSETTE
+
+[block]
+offset = 13611
+text = Output a 0 bit
+
+[block]
+offset = 13634
+text = Output clock pulse
+
+[block]
+offset = 13656
+text = ******** WRITE CASSETTE LEADER AND NAME
+
+[block]
+offset = 13708
+text = ******** CHECK AND BUFFER PROGRAM/FILE NAME
+
+[block]
+offset = 13745
+text = ******** PREPARE CASSETTE LOAD MESSAGES
+
+[block]
+offset = 13793
+text = ******** SEARCH FOR PROGRAM START ON CASSETTE
+
+[block]
+offset = 13831
+text = Advance tape past the sync bytes
+
+[block]
+offset = 13841
+text = The next five bytes must be 0xFE
+
+[block]
+offset = 13856
+text = Read program identifier
+
+[block]
+offset = 13862
+text = Read name and copy it into the buffer
+
+[block]
+offset = 13880
+text = Output FOUND message
+
+[block]
+offset = 13892
+text = Check whether this is the requested program
+
+[block]
+offset = 13910
+text = ******** CLOAD - READ PROGRAM FROM CASSETTE
+
+[block]
+offset = 13919
+text = Common code used by CLOAD, CRUN, and VERIFY
+
+[block]
+offset = 14027
+text = Start machine-code program
+
+[block]
+offset = 14031
+text = BASIC program
+
+[block]
+offset = 14051
+text = Start BASIC program
 

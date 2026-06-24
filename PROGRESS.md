@@ -61,3 +61,15 @@
   - Total Annotations: ~7452 (Blocks: 468, Comments: 6557, Labels: 427)
   - Total Symbols: 396
 - **Verification**: Built `export.asm` and confirmed MD5 checksum match with `VZ200.bin`.
+
+## Iteration: 2026-06-23
+- **Target Range**: 0x34A9-0x370E (German PDF pages 229-236; starts near `export.lst` line 8751)
+- **Prompt**: "please read @GEMINI.md and @Z80BENCH_WORKFLOW.md you are translating german to english. Please work 0x34A9-0x370E this starts at line 8751 in @export.lst and is pages 229 to 236 in @doc/book - Laser310-ROM-Listing-german.pdf. Please remember you need to use Z80 bench to make the changes and treat the two markdowns as skilling advice. rember we are using those documents as guidlines to properly translate the block comments and the inline comments."
+- **Summary**: Translated and applied English annotations for the cassette SAVE/LOAD path, including `CSAVE`, cassette byte output and clock pulse timing, tape leader/name writing, filename buffering, cassette message preparation, program search/sync detection, CLOAD common handling, checksum verification, machine-code start, and BASIC CRUN/RUN setup through 0x370E.
+- **Toolchain**: Used `z80bench-cli` batch commands for all annotation edits, then exported `export.asm` and `export.lst` with `./z80bench-cli project export . both export`.
+- **Issues/Notes**: The German PDF pages are scanned images, so OCR was used and checked against the disassembly. Initial multi-line block-comment batch input was rejected by `z80bench-cli`; affected headers were immediately replaced with command-safe English block headers. The local `z88dk-z80asm` Snap binary required an escalated run because sandboxed `snap-confine` failed before execution.
+- **Statistics**:
+  - Total Annotations: 6853
+  - Total Symbols: 396
+  - Limits: Well within maximums (100000 annotations, 6000 symbols).
+- **Verification**: Checked `export.lst` for inline comments in the completed range. Rebuilt `export.bin` from `export.asm`; `cmp` returned 0 and MD5 matched `VZ200.bin` (`42c8f9e6c2133ae0e953b89ccbbdb7e2`).

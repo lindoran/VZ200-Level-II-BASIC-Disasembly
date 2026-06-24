@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Sun Jun 21 17:20:25 2026
+; Generated: Tue Jun 23 23:42:29 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -9110,292 +9110,340 @@ USING_FIELD_LEN:
               ld    a,0xC9         ; RET instruction opcode
               jp    0x3E37         ; Jump to color-set routine (yellow)
               ret                  ; Not used
-              di    
-              ld    c,0xF0
-              call  0x3558
-              jp    c,0x3AFE
-              push  hl
-              ld    bc,0x019A
-              dec   bc
-              ld    a,c
-              or    b
-              jr    nz,$-3
-              call  0x3AF8
-              ld    ix,0x7823
-              ld    hl,(PRGEND)
-              ld    a,l
-              call  0x3511
-              ld    (ix+0x00),a
-              xor   a
-              ld    (ix+0x01),a
-              ld    a,h
-              call  0x3511
-              call  0x388E
-              ex    de,hl
-              ld    hl,(0x78F9)
-              ld    a,l
-              call  0x3511
-              call  0x388E
-              ld    a,h
-              call  0x3511
-              call  0x388E
-              call  0x3AF8
-              ld    a,(de)
-              inc   de
-              call  0x3511
-              call  0x388E
-              call  0x3AF8
-              rst   0x18
-              jr    nz,$-12
-              ld    a,(ix+0x00)
-              call  0x3511
-              ld    a,(ix+0x01)
-              call  0x3511
-              ld    b,0x14
-              xor   a
-              call  0x3511
-              djnz  $-3
-              pop   hl
-              ei    
-              ret   
-              push  af
-              push  bc
-              push  hl
-              ld    l,0x08
-              ld    h,a
-              call  0x3542
-              rlc   h
-              jr    nc,$+15
-              call  0x3542
-              call  0x3542
-              dec   l
-              jr    nz,$-14
-              pop   hl
-              pop   bc
-              pop   af
-              ret   
-              ld    a,(OUT_LATCH)
-              or    0x06
-              ld    (0x6800),a
-              ld    b,0x99
-              djnz  $+0
-              and   0xF9
-              ld    (0x6800),a
-              ld    b,0x99
-              djnz  $+0
-              jr    $-28
-              ld    a,(OUT_LATCH)
-              or    0x06
-              ld    (0x6800),a
-              ld    b,0x4C
-              djnz  $+0
-              and   0xF9
-              ld    (0x6800),a
-              ld    b,0x4C
-              djnz  $+0
-              ret   
-              call  0x358C
-              ld    b,0xFF
-              ld    a,0x80
-              call  0x3511
-              call  0x3AE8
-              ret   c
-              djnz  $-9
-              ld    b,0x05
-              ld    a,0xFE
-              call  0x3511
-              call  0x3AE8
-              ret   c
-              djnz  $-9
-              ld    a,c
-              call  0x3511
-              call  0x3AE8
-              ret   c
-              ld    a,(0x7AD6)
-              ld    b,a
-              ld    de,0x7A9D
-              ld    a,(de)
-              inc   de
-              call  0x3511
-              djnz  $-5
-              ret   
-              ld    b,0x10
-              ld    de,0x7A9D
-              ld    a,(hl)
-              cp    0x3A
-              jr    z,$+20
-              or    a
-              jr    z,$+17
-              rst   8
-              ld    (0xB77E),hl
-              jr    z,$+11
-              inc   hl
-              cp    0x22
-              jr    z,$+6
-              ld    (de),a
-              inc   de
-              djnz  $-11
-              xor   a
-              ld    (de),a
-              ld    a,0x11
-              sub   b
-              ld    (0x7AD6),a
-              ret   
-              ld    a,(0x784C)
-              or    a
-              ret   nz
-              ld    a,(OUT_LATCH)
-              bit   3,a
-              jr    z,$+13
-              and   0xF7
-              ld    (OUT_LATCH),a
-              ld    (0x6800),a
-              call  OUT_SCREEN_CLS
-              ld    hl,0x71FF
-              ld    (CURS_ADDR),hl
-              ld    a,0x1F
-              ld    (TTYPOS),a
-              ld    a,(0x7AE5)
-              cp    0x81
-              ret   nz
-              dec   a
-              ld    (0x7AE5),a
-              ld    (0x7AE6),a
-              ret   
-              ld    hl,0x3842
-              call  0x37F4
-              call  0x3AF8
-              ld    a,(0x6800)
-              bit   6,a
-              jr    nz,$-8
-              call  0x378F
-              jr    c,$-13
-              bit   0,a
-              jr    z,$-7
-              ld    b,0x07
-              call  0x378F
-              jr    c,$-24
-              djnz  $-5
-              cp    0x80
-              jr    nz,$-30
-              call  0x3775
-              jp    c,0x35E7
-              cp    0x80
-              jr    z,$-8
-              ld    b,0x04
-              cp    0xFE
-              jp    nz,0x35E7
-              call  0x3775
-              jp    c,0x35E7
-              djnz  $-11
-              call  0x3775
-              ld    (SOUND_NOTE_VALUE),a
-              ld    hl,0x7AB2
-              ld    b,0x12
-              call  0x3775
-              ld    (hl),a
-              or    a
-              jr    z,$+8
-              inc   hl
-              djnz  $-8
-              jp    0x35E7
-              ld    hl,0x385A
-              call  0x37F4
-              ld    hl,0x7AB2
-              call  0x3814
-              ld    hl,0x7AB2
-              ld    de,0x7A9D
-              ld    a,(de)
-              or    a
-              ret   z
-              cp    (hl)
-              jp    nz,0x35E7
-              inc   hl
-              inc   de
-              jr    $-9
-              ret   
-              push  hl
-              ld    hl,FLAG2
-              res   6,(hl)
-              res   3,(hl)
-              pop   hl
-              di    
-              call  0x358C
-              push  hl
-              call  0x35B1
-              ld    hl,0x3842
-              call  0x37F4
-              call  0x35E7
-              ld    a,(SOUND_NOTE_VALUE)
-              cp    0xF2
-              jr    z,$-8
-              ld    hl,0x3860
-              call  0x3804
-              ld    ix,0x7823
-              call  0x3868
-              jp    c,0x3711
-              push  hl
-              sbc   hl,de
-              jp    c,0x3711
-              ld    (0x781E),de
-              push  hl
-              pop   bc
-              pop   hl
-              ld    a,(FLAG2)
-              bit   3,a
-              jp    nz,0x3742
-              call  0x3F73
-              ld    (de),a
-              call  0x388E
-              inc   de
-              dec   bc
-              ld    a,c
-              or    b
-              jr    nz,$-11
-              call  0x3775
-              cp    (ix+0x00)
-              jp    nz,0x3711
-              call  0x3775
-              cp    (ix+0x01)
-              jp    nz,0x3711
-              ld    (0x78F9),hl
-              ei    
-              ld    a,0x0D
-              call  OUT_BUF_CHAR
-              ld    a,(SOUND_NOTE_VALUE)
-              cp    0xF1
-              jr    nz,$+6
-              ld    hl,(0x781E)
-              jp    (hl)
-              ld    hl,MSG_READY_TEXT
-              call  OUTSTR
-              ld    hl,(PRGEND)
-              push  hl
-              ld    hl,FLAG2
-              bit   6,(hl)
-              jr    nz,$+5
-              jp    0x1AE8
-              ld    hl,FLAG2
-              res   6,(hl)
-              pop   de
-              call  RENEW_LINE_PTRS
-              call  0x79B5
-              call  VRESET
-              call  0x79B8
-              ld    hl,0xFFFF
-              ld    (0x78A2),hl
-              ld    hl,0x79E8
-              ld    de,0x0570
-              ld    a,(de)
-              ld    (hl),a
-              or    a
-              jr    z,$+6
-              inc   hl
-              inc   de
-              jr    $-7
-              ld    hl,0x79E7
-              xor   a
-              jp    0x1A81
+
+; ******** CSAVE - WRITE PROGRAM TO CASSETTE
+CSAVE:
+              di                   ; Disable interrupts
+              ld    c,0xF0         ; Set BASIC program identifier
+              call  TAPE_WRITE_LEADER_NAME ; Write tape leader and program name
+              jp    c,0x3AFE       ; If carry is set, BREAK was pressed
+              push  hl             ; Save program text pointer
+              ld    bc,0x019A      ; About 3 ms gap on tape
+              dec   bc             ; Decrement gap counter
+              ld    a,c            ; Test low byte of counter
+              or    b              ; Counter expired?
+              jr    nz,$-3         ; No, keep waiting
+              call  0x3AF8         ; Check whether BREAK was pressed
+              ld    ix,0x7823      ; Address checksum bytes
+              ld    hl,(PRGEND)    ; Load program start address
+              ld    a,l            ; Load LSB of start address
+              call  TAPE_WRITE_BYTE ; Write byte to cassette
+              ld    (ix+0x00),a    ; Store in checksum LSB
+              xor   a              ; Clear A for checksum MSB
+              ld    (ix+0x01),a    ; Clear checksum MSB
+              ld    a,h            ; Load MSB of start address
+              call  TAPE_WRITE_BYTE ; Write byte to cassette
+              call  0x388E         ; Add byte to checksum
+              ex    de,hl          ; Move start address to DE
+              ld    hl,(0x78F9)    ; Load program end address
+              ld    a,l            ; Load LSB of end address
+              call  TAPE_WRITE_BYTE ; Write byte to cassette
+              call  0x388E         ; Add byte to checksum
+              ld    a,h            ; Load MSB of end address
+              call  TAPE_WRITE_BYTE ; Write byte to cassette
+              call  0x388E         ; Add byte to checksum
+              call  0x3AF8         ; Check whether BREAK was pressed
+              ld    a,(de)         ; Load next program byte
+              inc   de             ; Advance program address
+              call  TAPE_WRITE_BYTE ; Write program byte to cassette
+              call  0x388E         ; Add byte to checksum
+              call  0x3AF8         ; Check whether BREAK was pressed
+              rst   0x18           ; Test whether program end was reached
+              jr    nz,$-12        ; No, write next byte
+              ld    a,(ix+0x00)    ; Load checksum LSB
+              call  TAPE_WRITE_BYTE ; Write checksum LSB to cassette
+              ld    a,(ix+0x01)    ; Load checksum MSB
+              call  TAPE_WRITE_BYTE ; Write checksum MSB to cassette
+              ld    b,0x14         ; 20 zero bytes mark the end
+              xor   a              ; A = 0 end marker byte
+              call  TAPE_WRITE_BYTE ; Write end marker byte
+              djnz  $-3            ; Loop until end markers are written
+              pop   hl             ; Restore program text pointer
+              ei                   ; Re-enable interrupts
+              ret                  ; Done
+
+; ******** WRITE ONE BYTE TO CASSETTE
+TAPE_WRITE_BYTE:
+              push  af             ; Save A
+              push  bc             ; Save BC
+              push  hl             ; Save HL
+              ld    l,0x08         ; Set bit counter to 8
+              ld    h,a            ; H = byte to output
+              call  TAPE_CLOCK_PULSE ; Output clock pulse
+              rlc   h              ; Rotate next bit into carry
+              jr    nc,$+15        ; Carry clear means output a 0 bit
+              call  TAPE_CLOCK_PULSE ; Output first pulse of a 1 bit
+              call  TAPE_CLOCK_PULSE ; Output second pulse of a 1 bit
+              dec   l              ; Decrement bit counter
+              jr    nz,$-14        ; Loop for next bit
+              pop   hl             ; Restore HL
+              pop   bc             ; Restore BC
+              pop   af             ; Restore A
+              ret                  ; Done
+
+; Output a 0 bit
+TAPE_WRITE_ZERO_BIT:
+              ld    a,(OUT_LATCH)  ; Load I/O latch byte
+              or    0x06           ; Set bits 1 and 2
+              ld    (0x6800),a     ; Write latch byte to I/O port
+              ld    b,0x99         ; Pause about 555 us
+              djnz  $+0            ; Delay loop
+              and   0xF9           ; Clear bits 1 and 2 again
+              ld    (0x6800),a     ; Write latch byte to I/O port
+              ld    b,0x99         ; Pause about 555 us
+              djnz  $+0            ; Delay loop
+              jr    $-28           ; Continue with next bit
+
+; Output clock pulse
+TAPE_CLOCK_PULSE:
+              ld    a,(OUT_LATCH)  ; Load I/O latch byte
+              or    0x06           ; Set bits 1 and 2
+              ld    (0x6800),a     ; Write latch byte to I/O port
+              ld    b,0x4C         ; Pause about 277 us
+              djnz  $+0            ; Delay loop
+              and   0xF9           ; Clear bits 1 and 2 again
+              ld    (0x6800),a     ; Write latch byte to I/O port
+              ld    b,0x4C         ; Pause about 277 us
+              djnz  $+0            ; Delay loop
+              ret                  ; Done
+
+; ******** WRITE CASSETTE LEADER AND NAME
+TAPE_WRITE_LEADER_NAME:
+              call  TAPE_BUFFER_NAME ; Copy program name into buffer
+              ld    b,0xFF         ; Output 255 synchronization bytes
+              ld    a,0x80         ; A = sync byte 0x80
+              call  TAPE_WRITE_BYTE ; Write byte to cassette
+              call  0x3AE8         ; Check whether BREAK was pressed
+              ret   c              ; Abort if BREAK was pressed
+              djnz  $-9            ; Loop for 255 sync bytes
+              ld    b,0x05         ; Output five 0xFE leader bytes
+              ld    a,0xFE         ; A = leader byte 0xFE
+              call  TAPE_WRITE_BYTE ; Write byte to cassette
+              call  0x3AE8         ; Check whether BREAK was pressed
+              ret   c              ; Abort if BREAK was pressed
+              djnz  $-9            ; Loop for leader bytes
+              ld    a,c            ; Load program/file identifier
+              call  TAPE_WRITE_BYTE ; Write identifier to cassette
+              call  0x3AE8         ; Check whether BREAK was pressed
+              ret   c              ; Abort if BREAK was pressed
+              ld    a,(0x7AD6)     ; Load program name length
+              ld    b,a            ; Use length as counter
+              ld    de,0x7A9D      ; Point DE to name buffer
+              ld    a,(de)         ; Load next name character
+              inc   de             ; Advance name pointer
+              call  TAPE_WRITE_BYTE ; Write character to cassette
+              djnz  $-5            ; Loop until the name is complete
+              ret                  ; Done
+
+; ******** CHECK AND BUFFER PROGRAM/FILE NAME
+TAPE_BUFFER_NAME:
+              ld    b,0x10         ; Maximum name length is 16 chars
+              ld    de,0x7A9D      ; Load start address of name buffer
+              ld    a,(hl)         ; Load character from program text
+              cp    0x3A           ; End of statement?
+              jr    z,$+20         ; Yes, finish name
+              or    a              ; End of line?
+              jr    z,$+17         ; Yes, finish name
+              rst   8              ; Check for opening quote
+              ld    (0xB77E),hl    ; Embedded quote-check operand bytes
+              jr    z,$+11         ; If no name follows, finish
+              inc   hl             ; Advance program text pointer
+              cp    0x22           ; End of string?
+              jr    z,$+6          ; Yes, finish name
+              ld    (de),a         ; Copy character into buffer
+              inc   de             ; Advance buffer pointer
+              djnz  $-11           ; Loop for next character
+              xor   a              ; Use 0x00 as terminator
+              ld    (de),a         ; Store terminator in buffer
+              ld    a,0x11         ; Start with max length plus terminator
+              sub   b              ; Calculate actual name length
+              ld    (0x7AD6),a     ; Save name length
+              ret                  ; Done
+
+; ******** PREPARE CASSETTE LOAD MESSAGES
+TAPE_PREPARE_MESSAGES:
+              ld    a,(0x784C)     ; Load message-output flag
+              or    a              ; Messages disabled?
+              ret   nz             ; Yes, suppress messages
+              ld    a,(OUT_LATCH)  ; Load I/O latch byte
+              bit   3,a            ; Graphics mode active?
+              jr    z,$+13         ; No, skip mode switch
+              and   0xF7           ; Switch to text mode
+              ld    (OUT_LATCH),a  ; Save updated latch byte
+              ld    (0x6800),a     ; Write latch byte to I/O port
+              call  OUT_SCREEN_CLS ; Clear the screen
+              ld    hl,0x71FF      ; Set cursor to last screen position
+              ld    (CURS_ADDR),hl ; Save cursor address
+              ld    a,0x1F         ; Set column pointer to last column
+              ld    (TTYPOS),a     ; Save column pointer
+              ld    a,(0x7AE5)     ; Load status of previous line
+              cp    0x81           ; Is it a double line?
+              ret   nz             ; No, done
+              dec   a              ; Mark last lines as single lines
+              ld    (0x7AE5),a     ; Store status for previous line
+              ld    (0x7AE6),a     ; Store status for last line
+              ret                  ; Done
+
+; ******** SEARCH FOR PROGRAM START ON CASSETTE
+TAPE_FIND_PROGRAM:
+              ld    hl,0x3842      ; Load address of WAITING text
+              call  0x37F4         ; Output text if messages are enabled
+              call  0x3AF8         ; Check whether BREAK was pressed
+              ld    a,(0x6800)     ; Read I/O byte
+              bit   6,a            ; Evaluate cassette pulse input
+              jr    nz,$-8         ; No pulse, keep waiting
+              call  0x378F         ; Read one bit
+              jr    c,$-13         ; Timed out, restart search
+              bit   0,a            ; Was the bit a 1?
+              jr    z,$-7          ; No, read next bit
+              ld    b,0x07         ; Read seven more bits
+              call  0x378F         ; Read one bit
+              jr    c,$-24         ; Timeout, restart search
+              djnz  $-5            ; Loop for next bit
+              cp    0x80           ; Is this a sync byte?
+              jr    nz,$-30        ; No, keep searching
+
+; Advance tape past the sync bytes
+              call  0x3775         ; Read next byte
+              jp    c,0x35E7       ; Timeout, restart search
+              cp    0x80           ; Still a sync byte?
+              jr    z,$-8          ; Yes, read next byte
+
+; The next five bytes must be 0xFE
+              ld    b,0x04         ; Four bytes remain; first already loaded
+              cp    0xFE           ; Is this a leader byte?
+              jp    nz,0x35E7      ; No, restart search
+              call  0x3775         ; Read next byte
+              jp    c,0x35E7       ; Timeout, restart search
+              djnz  $-11           ; Check remaining leader bytes
+
+; Read program identifier
+              call  0x3775         ; Read identifier byte
+              ld    (SOUND_NOTE_VALUE),a ; Save identifier byte
+
+; Read name and copy it into the buffer
+              ld    hl,0x7AB2      ; Load destination buffer address
+              ld    b,0x12         ; Maximum length is 18 bytes
+              call  0x3775         ; Read next byte
+              ld    (hl),a         ; Store byte in buffer
+              or    a              ; End of name?
+              jr    z,$+8          ; Yes, name is complete
+              inc   hl             ; Advance buffer pointer
+              djnz  $-8            ; Loop for next name byte
+              jp    0x35E7         ; Name too long; restart search
+
+; Output FOUND message
+              ld    hl,0x385A      ; Address FOUND text
+              call  0x37F4         ; Output FOUND text
+              ld    hl,0x7AB2      ; Address name in buffer
+              call  0x3814         ; Output the found name
+
+; Check whether this is the requested program
+              ld    hl,0x7AB2      ; Address received name
+              ld    de,0x7A9D      ; Address requested name
+              ld    a,(de)         ; Load byte from requested name
+              or    a              ; End of requested name?
+              ret   z              ; Yes, this program matches
+              cp    (hl)           ; Compare with received name byte
+              jp    nz,0x35E7      ; Mismatch, keep searching
+              inc   hl             ; Advance received-name pointer
+              inc   de             ; Advance requested-name pointer
+              jr    $-9            ; Check next character
+              ret                  ; Not used
+
+; ******** CLOAD - READ PROGRAM FROM CASSETTE
+CLOAD:
+              push  hl             ; Save program text pointer
+              ld    hl,FLAG2       ; Address Flag 2
+              res   6,(hl)         ; Clear CRUN flag
+              res   3,(hl)         ; Clear VERIFY flag
+              pop   hl             ; Restore program text pointer
+
+; Common code used by CLOAD, CRUN, and VERIFY
+TAPE_LOAD_COMMON:
+              di                   ; Disable interrupts
+              call  TAPE_BUFFER_NAME ; Copy name from program text
+              push  hl             ; Save program text pointer
+              call  TAPE_PREPARE_MESSAGES ; Prepare message output
+              ld    hl,0x3842      ; Address WAITING text
+              call  0x37F4         ; Output WAITING text
+              call  0x35E7         ; Search for program on cassette
+              ld    a,(SOUND_NOTE_VALUE) ; Load program identifier
+              cp    0xF2           ; Is it plain data?
+              jr    z,$-8          ; Yes, keep searching
+              ld    hl,0x3860      ; Address LOADING text
+              call  0x3804         ; Output LOADING text
+              ld    ix,0x7823      ; Address checksum bytes
+              call  0x3868         ; Read start and end addresses
+              jp    c,0x3711       ; On error, print LOADING ERROR
+              push  hl             ; Save end address
+              sbc   hl,de          ; Compute byte count: end - start
+              jp    c,0x3711       ; Error if start is after end
+              ld    (0x781E),de    ; Save start address
+              push  hl             ; Move byte count into BC
+              pop   bc             ; BC = byte count
+              pop   hl             ; Restore end address
+              ld    a,(FLAG2)      ; Load Flag 2
+              bit   3,a            ; VERIFY flag set?
+              jp    nz,0x3742      ; Yes, compare against memory
+              call  0x3F73         ; Read byte from cassette
+              ld    (de),a         ; Store byte in RAM
+              call  0x388E         ; Add byte to checksum
+              inc   de             ; Advance program address
+              dec   bc             ; Decrement byte count
+              ld    a,c            ; Test low byte of count
+              or    b              ; Any bytes left?
+              jr    nz,$-11        ; Yes, continue loading
+              call  0x3775         ; Read checksum LSB
+              cp    (ix+0x00)      ; Compare with calculated checksum LSB
+              jp    nz,0x3711      ; Mismatch, print LOADING ERROR
+              call  0x3775         ; Read checksum MSB
+              cp    (ix+0x01)      ; Compare with calculated checksum MSB
+              jp    nz,0x3711      ; Mismatch, print LOADING ERROR
+              ld    (0x78F9),hl    ; Save program end address
+              ei                   ; Re-enable interrupts
+              ld    a,0x0D         ; Output carriage return
+              call  OUT_BUF_CHAR   ; Send character to output buffer
+              ld    a,(SOUND_NOTE_VALUE) ; Load program identifier
+              cp    0xF1           ; Is it a machine-code program?
+              jr    nz,$+6         ; No, continue as BASIC program
+
+; Start machine-code program
+              ld    hl,(0x781E)    ; Load start address
+              jp    (hl)           ; Jump to machine-code program
+
+; BASIC program
+              ld    hl,MSG_READY_TEXT ; Address READY text
+              call  OUTSTR         ; Output READY text
+              ld    hl,(PRGEND)    ; Load BASIC program start address
+              push  hl             ; Save it on the stack
+              ld    hl,FLAG2       ; Address Flag 2
+              bit   6,(hl)         ; CRUN flag set?
+              jr    nz,$+5         ; Yes, start the program
+              jp    0x1AE8         ; No, return to the main loop
+
+; Start BASIC program
+              ld    hl,FLAG2       ; Address Flag 2
+              res   6,(hl)         ; Clear CRUN flag
+              pop   de             ; Load program start address
+              call  RENEW_LINE_PTRS ; Renew BASIC line pointers
+              call  0x79B5         ; RAM expansion output hook
+              call  VRESET         ; Clear variable table
+              call  0x79B8         ; RAM expansion output hook
+              ld    hl,0xFFFF      ; Set current line number to direct mode
+              ld    (0x78A2),hl    ; Save current line number
+              ld    hl,0x79E8      ; Address I/O buffer
+              ld    de,0x0570      ; Address RUN command text
+              ld    a,(de)         ; Load next RUN command byte
+              ld    (hl),a         ; Copy byte into I/O buffer
+              or    a              ; End of command text?
+              jr    z,$+6          ; Yes, command is complete
+              inc   hl             ; Advance buffer pointer
+              inc   de             ; Advance command text pointer
+              jr    $-7            ; Copy next byte
+              ld    hl,0x79E7      ; Address one byte before I/O buffer
+              xor   a              ; Clear A
+              jp    0x1A81         ; Execute the RUN command
               ld    hl,0x384A
               ei    
               call  OUTSTR
@@ -9412,12 +9460,12 @@ USING_FIELD_LEN:
               ld    hl,FLAG2
               set   6,(hl)
               pop   hl
-              jp    0x365F
+              jp    TAPE_LOAD_COMMON
               push  hl
               ld    hl,FLAG2
               set   3,(hl)
               pop   hl
-              jp    0x365F
+              jp    TAPE_LOAD_COMMON
               ex    de,hl
               call  0x3775
               cp    (hl)
@@ -9994,12 +10042,12 @@ USING_FIELD_LEN:
               jr    nz,$-3
               ld    hl,0x68EF
               ret   
-              call  0x3511
+              call  TAPE_WRITE_BYTE
               ret   
               di    
               inc   hl
               ld    c,0xF2
-              call  0x3558
+              call  TAPE_WRITE_LEADER_NAME
               jp    c,0x3AFE
               dec   hl
               rst   8
@@ -10007,12 +10055,12 @@ USING_FIELD_LEN:
               ret   
               di    
               inc   hl
-              call  0x358C
+              call  TAPE_BUFFER_NAME
               dec   hl
               rst   8
               ld    (0x2CCF),hl
               push  hl
-              call  0x35B1
+              call  TAPE_PREPARE_MESSAGES
               ld    hl,0x3842
               call  0x37F4
               call  0x35E7
