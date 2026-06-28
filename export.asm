@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Tue Jun 23 23:42:29 2026
+; Generated: Sun Jun 28 17:55:04 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -285,7 +285,7 @@ RESET:
               ld    b,a            ; B = A
               pop   af             ; Get original command flag (POINT/SET/RESET)
               or    a              ; Is it POINT (0)?
-              jp    z,0x38E7       ; Yes, JP to POINT routine (38E7H)
+              jp    z,POINT_HELPER ; Yes, JP to POINT routine (38E7H)
               push  af             ; Save Command flag
               ld    c,0x3F         ; C = 3FH (Graphics mask?)
               ld    a,(0x7846)     ; Get color mode latch?
@@ -294,7 +294,7 @@ RESET:
               rrc   a              ; RRC A
               rrc   c              ; RRC C
               djnz  $-4            ; DJNZ hBc2 (Shift bit into position)
-              jp    0x3903         ; JP to rest of SET/RESET (3903H)
+              jp    SET_RESET_HELPER ; JP to rest of SET/RESET (3903H)
 
 ; Set cursor to 7839H and reset bit 3
               ld    hl,FLAG2       ; Load 7839H (Cursor flags?)
@@ -9133,20 +9133,20 @@ CSAVE:
               ld    (ix+0x01),a    ; Clear checksum MSB
               ld    a,h            ; Load MSB of start address
               call  TAPE_WRITE_BYTE ; Write byte to cassette
-              call  0x388E         ; Add byte to checksum
+              call  TAPE_CALC_CHECKSUM ; Add byte to checksum
               ex    de,hl          ; Move start address to DE
               ld    hl,(0x78F9)    ; Load program end address
               ld    a,l            ; Load LSB of end address
               call  TAPE_WRITE_BYTE ; Write byte to cassette
-              call  0x388E         ; Add byte to checksum
+              call  TAPE_CALC_CHECKSUM ; Add byte to checksum
               ld    a,h            ; Load MSB of end address
               call  TAPE_WRITE_BYTE ; Write byte to cassette
-              call  0x388E         ; Add byte to checksum
+              call  TAPE_CALC_CHECKSUM ; Add byte to checksum
               call  0x3AF8         ; Check whether BREAK was pressed
               ld    a,(de)         ; Load next program byte
               inc   de             ; Advance program address
               call  TAPE_WRITE_BYTE ; Write program byte to cassette
-              call  0x388E         ; Add byte to checksum
+              call  TAPE_CALC_CHECKSUM ; Add byte to checksum
               call  0x3AF8         ; Check whether BREAK was pressed
               rst   0x18           ; Test whether program end was reached
               jr    nz,$-12        ; No, write next byte
@@ -9287,24 +9287,24 @@ TAPE_PREPARE_MESSAGES:
 ; ******** SEARCH FOR PROGRAM START ON CASSETTE
 TAPE_FIND_PROGRAM:
               ld    hl,0x3842      ; Load address of WAITING text
-              call  0x37F4         ; Output text if messages are enabled
+              call  TAPE_PRINT_MSG ; Output text if messages are enabled
               call  0x3AF8         ; Check whether BREAK was pressed
               ld    a,(0x6800)     ; Read I/O byte
               bit   6,a            ; Evaluate cassette pulse input
               jr    nz,$-8         ; No pulse, keep waiting
-              call  0x378F         ; Read one bit
+              call  TAPE_READ_BIT  ; Read one bit
               jr    c,$-13         ; Timed out, restart search
               bit   0,a            ; Was the bit a 1?
               jr    z,$-7          ; No, read next bit
               ld    b,0x07         ; Read seven more bits
-              call  0x378F         ; Read one bit
+              call  TAPE_READ_BIT  ; Read one bit
               jr    c,$-24         ; Timeout, restart search
               djnz  $-5            ; Loop for next bit
               cp    0x80           ; Is this a sync byte?
               jr    nz,$-30        ; No, keep searching
 
 ; Advance tape past the sync bytes
-              call  0x3775         ; Read next byte
+              call  TAPE_READ_BYTE ; Read next byte
               jp    c,0x35E7       ; Timeout, restart search
               cp    0x80           ; Still a sync byte?
               jr    z,$-8          ; Yes, read next byte
@@ -9313,18 +9313,18 @@ TAPE_FIND_PROGRAM:
               ld    b,0x04         ; Four bytes remain; first already loaded
               cp    0xFE           ; Is this a leader byte?
               jp    nz,0x35E7      ; No, restart search
-              call  0x3775         ; Read next byte
+              call  TAPE_READ_BYTE ; Read next byte
               jp    c,0x35E7       ; Timeout, restart search
               djnz  $-11           ; Check remaining leader bytes
 
 ; Read program identifier
-              call  0x3775         ; Read identifier byte
+              call  TAPE_READ_BYTE ; Read identifier byte
               ld    (SOUND_NOTE_VALUE),a ; Save identifier byte
 
 ; Read name and copy it into the buffer
               ld    hl,0x7AB2      ; Load destination buffer address
               ld    b,0x12         ; Maximum length is 18 bytes
-              call  0x3775         ; Read next byte
+              call  TAPE_READ_BYTE ; Read next byte
               ld    (hl),a         ; Store byte in buffer
               or    a              ; End of name?
               jr    z,$+8          ; Yes, name is complete
@@ -9334,9 +9334,9 @@ TAPE_FIND_PROGRAM:
 
 ; Output FOUND message
               ld    hl,0x385A      ; Address FOUND text
-              call  0x37F4         ; Output FOUND text
+              call  TAPE_PRINT_MSG ; Output FOUND text
               ld    hl,0x7AB2      ; Address name in buffer
-              call  0x3814         ; Output the found name
+              call  TAPE_PRINT_NAME ; Output the found name
 
 ; Check whether this is the requested program
               ld    hl,0x7AB2      ; Address received name
@@ -9366,7 +9366,7 @@ TAPE_LOAD_COMMON:
               push  hl             ; Save program text pointer
               call  TAPE_PREPARE_MESSAGES ; Prepare message output
               ld    hl,0x3842      ; Address WAITING text
-              call  0x37F4         ; Output WAITING text
+              call  TAPE_PRINT_MSG ; Output WAITING text
               call  0x35E7         ; Search for program on cassette
               ld    a,(SOUND_NOTE_VALUE) ; Load program identifier
               cp    0xF2           ; Is it plain data?
@@ -9374,32 +9374,32 @@ TAPE_LOAD_COMMON:
               ld    hl,0x3860      ; Address LOADING text
               call  0x3804         ; Output LOADING text
               ld    ix,0x7823      ; Address checksum bytes
-              call  0x3868         ; Read start and end addresses
-              jp    c,0x3711       ; On error, print LOADING ERROR
+              call  TAPE_READ_ADDRS ; Read start and end addresses
+              jp    c,TAPE_LOAD_ERROR ; On error, print LOADING ERROR
               push  hl             ; Save end address
               sbc   hl,de          ; Compute byte count: end - start
-              jp    c,0x3711       ; Error if start is after end
+              jp    c,TAPE_LOAD_ERROR ; Error if start is after end
               ld    (0x781E),de    ; Save start address
               push  hl             ; Move byte count into BC
               pop   bc             ; BC = byte count
               pop   hl             ; Restore end address
               ld    a,(FLAG2)      ; Load Flag 2
               bit   3,a            ; VERIFY flag set?
-              jp    nz,0x3742      ; Yes, compare against memory
+              jp    nz,VERIFY_COMPARE ; Yes, compare against memory
               call  0x3F73         ; Read byte from cassette
               ld    (de),a         ; Store byte in RAM
-              call  0x388E         ; Add byte to checksum
+              call  TAPE_CALC_CHECKSUM ; Add byte to checksum
               inc   de             ; Advance program address
               dec   bc             ; Decrement byte count
               ld    a,c            ; Test low byte of count
               or    b              ; Any bytes left?
               jr    nz,$-11        ; Yes, continue loading
-              call  0x3775         ; Read checksum LSB
+              call  TAPE_READ_BYTE ; Read checksum LSB
               cp    (ix+0x00)      ; Compare with calculated checksum LSB
-              jp    nz,0x3711      ; Mismatch, print LOADING ERROR
-              call  0x3775         ; Read checksum MSB
+              jp    nz,TAPE_LOAD_ERROR ; Mismatch, print LOADING ERROR
+              call  TAPE_READ_BYTE ; Read checksum MSB
               cp    (ix+0x01)      ; Compare with calculated checksum MSB
-              jp    nz,0x3711      ; Mismatch, print LOADING ERROR
+              jp    nz,TAPE_LOAD_ERROR ; Mismatch, print LOADING ERROR
               ld    (0x78F9),hl    ; Save program end address
               ei                   ; Re-enable interrupts
               ld    a,0x0D         ; Output carriage return
@@ -9444,303 +9444,296 @@ TAPE_LOAD_COMMON:
               ld    hl,0x79E7      ; Address one byte before I/O buffer
               xor   a              ; Clear A
               jp    0x1A81         ; Execute the RUN command
-              ld    hl,0x384A
-              ei    
-              call  OUTSTR
-              di    
-              ld    a,(0x784C)
-              or    a
-              jp    nz,0x3667
-              ld    hl,0x71FF
-              ld    (CURS_ADDR),hl
-              ld    a,0x1F
-              ld    (TTYPOS),a
-              jp    0x3667
-              push  hl
-              ld    hl,FLAG2
-              set   6,(hl)
-              pop   hl
-              jp    TAPE_LOAD_COMMON
-              push  hl
-              ld    hl,FLAG2
-              set   3,(hl)
-              pop   hl
-              jp    TAPE_LOAD_COMMON
-              ex    de,hl
-              call  0x3775
-              cp    (hl)
-              jr    z,$+11
-              ld    hl,0x376C
-              call  OUTSTR
-              jp    0x0183
-              inc   hl
-              dec   bc
-              ld    a,c
-              or    b
-              jr    nz,$-19
-              ld    hl,FLAG2
-              res   3,(hl)
-              ld    hl,0x376C
-              call  OUTSTR
-              ld    hl,0x0380
-              call  OUTSTR
-              jp    0x36CF
-              dec   c
-              ld    d,(hl)
-              ld    b,l
-              ld    d,d
-              ld    c,c
-              ld    b,(hl)
-              ld    e,c
-              jr    nz,$+2
-              push  bc
-              push  de
-              ld    b,0x08
-              call  0x378F
-              jr    c,$+16
-              djnz  $-5
-              pop   de
-              pop   bc
-              ld    (0x7AD3),a
-              call  0x3AF8
-              ld    a,(0x7AD3)
-              ret   
-              pop   de
-              pop   bc
-              ret   
-              push  bc
-              ld    bc,0x07FF
-              ld    a,(0x6800)
-              bit   6,a
-              jr    z,$+10
-              dec   bc
-              ld    a,c
-              or    b
-              jr    nz,$-10
-              pop   bc
-              scf   
-              ret   
-              ld    a,(0x6800)
-              bit   6,a
-              jr    nz,$-20
-              ld    a,(0x6800)
-              bit   6,a
-              jr    nz,$-27
-              ld    b,0x52
-              djnz  $+0
-              ld    a,(0x6800)
-              bit   6,a
-              jr    nz,$+11
-              ld    a,(0x6800)
-              bit   6,a
-              jr    z,$-5
-              jr    $-50
-              ld    b,0x5A
-              ld    c,0x00
-              ld    a,(0x6800)
-              bit   6,a
-              jr    z,$+13
-              djnz  $-7
-              ld    a,c
-              dec   a
-              rra   
-              rl    d
-              pop   bc
-              ld    a,d
-              or    a
-              ret   
-              ld    a,(0x6800)
-              bit   6,a
-              jr    nz,$-16
-              ld    a,(0x6800)
-              bit   6,a
-              jr    nz,$-23
-              inc   c
-              ld    a,(0x6800)
-              bit   6,a
-              jr    nz,$-31
-              djnz  $-7
-              jr    $-33
-              ld    a,(0x784C)
-              or    a
-              ret   nz
-              ld    de,0x71E0
-              ld    b,0x20
-              call  0x3EF6
-              inc   de
-              djnz  $-4
-              ld    a,(0x784C)
-              or    a
-              ret   nz
-              call  0x3F0E
-              ld    a,(hl)
-              or    a
-              ret   z
-              ld    (de),a
-              inc   de
-              inc   hl
-              jr    $-6
-              ld    a,(0x784C)
-              or    a
-              ret   nz
-              ld    de,0x71E9
-              push  hl
-              ld    a,(SOUND_NOTE_VALUE)
-              and   0x0F
-              ld    hl,0x383F
-              add   a,l
+
+; Print loading error message
+              ld    hl,0x384A      ; Address 'LOADING ERROR' text
+              ei                   ; Enable interrupts
+              call  OUTSTR         ; Print text
+              di                   ; Disable interrupts
+              ld    a,(0x784C)     ; Load message-output flag
+              or    a              ; Is it zero?
+              jp    nz,0x3667      ; No, suppress further text output
+              ld    hl,0x71FF      ; Set cursor to last character position
+              ld    (CURS_ADDR),hl ; Save cursor address
+              ld    a,0x1F         ; Column pointer to last column (31)
+              ld    (TTYPOS),a     ; Save TTY position
+              jp    0x3667         ; Try again
+
+; CRUN command - load and run a program
+              push  hl             ; Save program pointer on stack
+              ld    hl,FLAG2       ; Address Flag 2
+              set   6,(hl)         ; Set CRUN flag
+              pop   hl             ; Restore program pointer
+              jp    TAPE_LOAD_COMMON ; Jump to common tape load routine
+
+; VERIFY command - check a program on cassette
+              push  hl             ; Save program pointer on stack
+              ld    hl,FLAG2       ; Address Flag 2
+              set   3,(hl)         ; Set VERIFY flag
+              pop   hl             ; Restore program pointer
+              jp    TAPE_LOAD_COMMON ; Jump to common tape load routine
+
+; VERIFY continuation after common routine with CLOAD
+              ex    de,hl          ; HL = program start address
+              call  TAPE_READ_BYTE ; Read byte from cassette
+              cp    (hl)           ; Match with program byte?
+              jr    z,$+11         ; Yes, matches
+              ld    hl,0x376C      ; Address 'VERIFY ' text
+              call  OUTSTR         ; Print text
+              jp    0x0183         ; Print 'ERROR' and return
+              inc   hl             ; Increment program address
+              dec   bc             ; Decrement byte counter
+              ld    a,c            ; Is counter zero?
+              or    b              ; Is counter zero?
+              jr    nz,$-19        ; No, compare next byte
+              ld    hl,FLAG2       ; Address Flag 2
+              res   3,(hl)         ; Clear VERIFY flag
+              ld    hl,0x376C      ; Address 'VERIFY ' text
+              call  OUTSTR         ; Print text
+              ld    hl,0x0380      ; Address 'OK' text
+              call  OUTSTR         ; Print text
+              jp    0x36CF         ; Return to BASIC
+              DEFB  0x0D,0x56,0x45,0x52,0x49,0x46,0x59,0x20 ; Text definition 'VERIFY '
+              DEFB  0x00
+
+; Read byte from cassette. Output: A = read byte, Carry set on read error.
+              push  bc             ; Save BC
+              push  de             ; Save DE
+              ld    b,0x08         ; Bit counter = 8
+              call  TAPE_READ_BIT  ; Read one bit
+              jr    c,$+16         ; Read error!
+              djnz  $-5            ; Read next bit
+              pop   de             ; Restore DE
+              pop   bc             ; Restore BC
+              ld    (0x7AD3),a     ; Save read byte temporarily
+              call  0x3AF8         ; Check for BREAK key
+              ld    a,(0x7AD3)     ; Restore read byte
+              ret                  ; Return
+              pop   de             ; Restore DE (error exit)
+              pop   bc             ; Restore BC (error exit)
+              ret                  ; Return with error (Carry set)
+
+; Read bit from cassette
+              push  bc             ; Save BC
+              ld    bc,0x07FF      ; Timeout limit value
+              ld    a,(0x6800)     ; Load I/O port
+              bit   6,a            ; Signal level high?
+              jr    z,$+10         ; Yes, continue
+              dec   bc             ; Decrement timeout counter
+              ld    a,c            ; Timeout reached?
+              or    b              ; Timeout reached?
+              jr    nz,$-10        ; No, keep reading
+              pop   bc             ; Restore BC
+              scf                  ; Set Carry flag (error)
+              ret                  ; Return with error
+
+; Verify clock pulse stability
+              ld    a,(0x6800)     ; Load I/O port
+              bit   6,a            ; Signal level high?
+              jr    nz,$-20        ; Yes, signal low pulse was too short!
+              ld    a,(0x6800)     ; Load I/O port
+              bit   6,a            ; Signal level high?
+              jr    nz,$-27        ; Yes, signal low pulse still too short!
+              ld    b,0x52         ; Delay counter for ~130 us
+              djnz  $+0            ; Delay loop to skip negative pulse
+              ld    a,(0x6800)     ; Load I/O port
+              bit   6,a            ; Is signal level high now?
+              jr    nz,$+11        ; Yes, valid clock pulse
+              ld    a,(0x6800)     ; Load I/O port
+              bit   6,a            ; Signal level transition?
+              jr    z,$-5          ; Wait for end of pulse
+              jr    $-50           ; Not a valid clock pulse
+
+; Measure pulse count. Result: 0 or 1 bit collected into D.
+              ld    b,0x5A         ; Timeout delay counter
+              ld    c,0x00         ; Clear pulse counter
+              ld    a,(0x6800)     ; Read I/O port
+              bit   6,a            ; Wait for negative edge
+              jr    z,$+13         ; Edge detected!
+              djnz  $-7            ; Keep waiting/reading
+              ld    a,c            ; Pulse count to A
+              dec   a              ; Subtract 1
+              rra                  ; Shift LSB into Carry
+              rl    d              ; Shift Carry bit into D (assemble byte)
+              pop   bc             ; Restore BC
+              ld    a,d            ; Transfer assembled byte to A
+              or    a              ; Clear Carry flag
+              ret                  ; Return
+
+; Check pulse stability and wait for possible second pulse
+              ld    a,(0x6800)     ; Load I/O port
+              bit   6,a            ; High level again?
+              jr    nz,$-16        ; Yes, pulse too short!
+              ld    a,(0x6800)     ; Load I/O port
+              bit   6,a            ; High level again?
+              jr    nz,$-23        ; Yes, still too short!
+              inc   c              ; Increment pulse counter
+              ld    a,(0x6800)     ; Load I/O port
+              bit   6,a            ; End of pulse?
+              jr    nz,$-31        ; Yes, measure second pulse
+              djnz  $-7            ; Timeout reached?
+              jr    $-33           ; Yes, evaluate pulse count
+
+; Clear last screen line and print message
+              ld    a,(0x784C)     ; Load message-output flag
+              or    a              ; Is it zero?
+              ret   nz             ; No, suppress output
+              ld    de,0x71E0      ; Address start of last line
+              ld    b,0x20         ; Line length (32) as counter
+              call  0x3EF6         ; Fill last line with spaces
+              inc   de             ; Advance screen address
+              djnz  $-4            ; Loop for entire line
+              ld    a,(0x784C)     ; Load message-output flag
+              or    a              ; Is it zero?
+              ret   nz             ; No, suppress output
+              call  0x3F0E         ; Print character (may invert depending on background)
+              ld    a,(hl)         ; Load text character
+              or    a              ; End of text? (Null terminator)
+              ret   z              ; Yes, finished
+              ld    (de),a         ; Copy character to screen
+              inc   de             ; Advance screen address
+              inc   hl             ; Advance text pointer
+              jr    $-6            ; Copy next character
+
+; Print program/file identifier and name
+              ld    a,(0x784C)     ; Load message-output flag
+              or    a              ; Is it zero?
+              ret   nz             ; No, suppress output
+              ld    de,0x71E9      ; Address name position in last line
+              push  hl             ; Save name address
+              ld    a,(SOUND_NOTE_VALUE) ; Load program identifier
+              and   0x0F           ; Clear upper nibble
+              ld    hl,0x383F      ; Address identifier table
+              add   a,l            ; Offset into table
               ld    l,a
               ld    a,0x00
               adc   a,h
               ld    h,a
-              call  0x3F21
-              nop   
-              nop   
-              ld    (de),a
+              call  0x3F21         ; Print identifier character
+              nop                  ; Unused
+              nop                  ; Unused
+              ld    (de),a         ; Print space as separator
+              inc   de             ; Advance screen address by 2
               inc   de
-              inc   de
-              pop   hl
-              ld    a,(hl)
-              or    a
-              ret   z
-              call  0x3F33
-              inc   de
-              inc   hl
-              jr    $-8
-              ret   
-              inc   d
-              ld    (bc),a
-              inc   b
-              ld    d,a
-              ld    b,c
-              ld    c,c
-              ld    d,h
-              ld    c,c
-              ld    c,(hl)
-              ld    b,a
-              nop   
-              dec   c
-              ld    c,h
-              ld    c,a
-              ld    b,c
-              ld    b,h
-              ld    c,c
-              ld    c,(hl)
-              ld    b,a
-              jr    nz,$+71
-              ld    d,d
-              ld    d,d
-              ld    c,a
-              ld    d,d
-              dec   c
-              nop   
-              ld    b,(hl)
-              ld    c,a
-              ld    d,l
-              ld    c,(hl)
-              ld    b,h
-              nop   
-              ld    c,h
-              ld    c,a
-              ld    b,c
-              ld    b,h
-              ld    c,c
-              ld    c,(hl)
-              ld    b,a
-              nop   
-              call  0x3775
-              ret   c
-              ld    e,a
-              ld    (ix+0x00),a
-              xor   a
-              ld    (ix+0x01),a
-              call  0x3775
-              ret   c
-              ld    d,a
-              call  0x388E
-              call  0x3775
-              ret   c
-              ld    l,a
-              call  0x388E
-              call  0x3775
-              ret   c
-              ld    h,a
-              call  0x388E
-              or    a
-              ret   
-              add   a,(ix+0x00)
-              ld    (ix+0x00),a
-              ld    a,0x00
-              adc   a,(ix+0x01)
-              ld    (ix+0x01),a
-              ret   
-              ld    a,(hl)
-              cp    0x2C
-              jr    z,$+34
-              call  GETBYT
-              or    a
-              jp    z,0x1E4A
-              cp    0x09
-              jp    nc,0x1E4A
-              dec   a
-              and   0x07
+              pop   hl             ; Load name address
+              ld    a,(hl)         ; Load character from name
+              or    a              ; End of name?
+              ret   z              ; Yes, finished
+              call  0x3F33         ; Print character depending on background
+              inc   de             ; Advance screen address
+              inc   hl             ; Advance name pointer
+              jr    $-8            ; Print next character
+              ret                  ; Return
+              DEFB  0x14,0x02,0x04 ; Codes for tape file types (B, D, S)
+              DEFB  0x57,0x41,0x49,0x54,0x49,0x4E,0x47,0x00 ; Text definition 'WAITING'
+              DEFB  0x0D,0x4C,0x4F,0x41,0x44,0x49,0x4E,0x47 ; Text definition 'LOADING ERROR'
+              DEFB  0x20,0x45,0x52,0x52,0x4F,0x52
+              DEFB  0x0D,0x00      ; Carriage return and null terminator
+              DEFB  0x46,0x4F,0x55,0x4E,0x44,0x00 ; Text definition 'FOUND'
+              DEFB  0x4C,0x4F,0x41,0x44,0x49,0x4E,0x47,0x00 ; Text definition 'LOADING'
+
+; Read start and end addresses from cassette
+              call  TAPE_READ_BYTE ; Read byte
+              ret   c              ; Return on read error
+              ld    e,a            ; E = LSB of start address
+              ld    (ix+0x00),a    ; Initialize LSB of checksum
+              xor   a              ; A = 0
+              ld    (ix+0x01),a    ; Initialize MSB of checksum to 0
+              call  TAPE_READ_BYTE ; Read byte
+              ret   c              ; Return on read error
+              ld    d,a            ; D = MSB of start address
+              call  TAPE_CALC_CHECKSUM ; Add byte to checksum
+              call  TAPE_READ_BYTE ; Read byte
+              ret   c              ; Return on read error
+              ld    l,a            ; L = LSB of end address
+              call  TAPE_CALC_CHECKSUM ; Add byte to checksum
+              call  TAPE_READ_BYTE ; Read byte
+              ret   c              ; Return on read error
+              ld    h,a            ; H = MSB of end address
+              call  TAPE_CALC_CHECKSUM ; Add byte to checksum
+              or    a              ; Clear Carry flag
+              ret                  ; Return
+
+; Update checksum. Input: IX = pointer to 16-bit checksum, A = byte to add.
+              add   a,(ix+0x00)    ; Add byte to LSB of checksum
+              ld    (ix+0x00),a    ; Save updated LSB
+              ld    a,0x00         ; A = 0
+              adc   a,(ix+0x01)    ; Add Carry to MSB of checksum
+              ld    (ix+0x01),a    ; Save updated MSB
+              ret                  ; Return
+
+; COLOR command
+              ld    a,(hl)         ; Load next command character
+              cp    0x2C           ; Is it a comma?
+              jr    z,$+34         ; Yes, change background color only
+              call  GETBYT         ; Evaluate expression
+              or    a              ; Is foreground color code 0?
+              jp    z,0x1E4A       ; Yes, Function Code Error
+              cp    0x09           ; Is color code >= 9?
+              jp    nc,0x1E4A      ; Yes, Function Code Error
+              dec   a              ; Color code - 1 (0 to 7)
+              and   0x07           ; Limit to range 0-7
+              sla   a              ; Shift into upper nibble (multiply by 16)
               sla   a
               sla   a
               sla   a
-              sla   a
-              ld    (0x7846),a
-              ld    a,(hl)
-              or    a
-              ret   z
-              cp    0x3A
-              ret   z
-              rst   8
-              inc   l
-              call  GETBYT
-              or    a
-              jr    nz,$+14
-              ld    a,(OUT_LATCH)
-              res   4,a
-              ld    (OUT_LATCH),a
-              ld    (0x6800),a
-              ret   
-              cp    0x01
-              jp    nz,0x1E4A
-              ld    a,(OUT_LATCH)
-              set   4,a
-              ld    (OUT_LATCH),a
-              ld    (0x6800),a
-              ret   
-              ld    c,0xC0
-              rrc   c
-              djnz  $-2
-              ld    a,(de)
-              and   c
-              ld    b,a
-              ld    a,c
-              rrc   b
+              ld    (0x7846),a     ; Save foreground color
+              ld    a,(hl)         ; Load next character
+              or    a              ; End of line?
+              ret   z              ; Yes, finished
+              cp    0x3A           ; End of statement? (':')
+              ret   z              ; Yes, finished
+              rst   8              ; Expect comma
+              inc   l              ; Parameter: ','
+              call  GETBYT         ; Evaluate expression
+              or    a              ; Is color code 0?
+              jr    nz,$+14        ; No, select red background
+              ld    a,(OUT_LATCH)  ; Load I/O latch byte
+              res   4,a            ; Clear background color bit (green)
+              ld    (OUT_LATCH),a  ; Save updated latch byte
+              ld    (0x6800),a     ; Output to I/O port
+              ret                  ; Return
+              cp    0x01           ; Is color code 1?
+              jp    nz,0x1E4A      ; No, Function Code Error
+              ld    a,(OUT_LATCH)  ; Load I/O latch byte
+              set   4,a            ; Set background color bit (red)
+              ld    (OUT_LATCH),a  ; Save updated latch byte
+              ld    (0x6800),a     ; Output to I/O port
+              ret                  ; Return
+
+; Supplementary routine for the POINT function
+              ld    c,0xC0         ; Load 2-bit pixel mask
+              rrc   c              ; Shift mask to right
+              djnz  $-2            ; Repeat according to pixel position
+              ld    a,(de)         ; Load byte from graphics RAM
+              and   c              ; Mask the pixel bits
+              ld    b,a            ; Save pixel value in B
+              ld    a,c            ; Load mask into A
+              rrc   b              ; Shift pixel value right
               rrc   a
-              cp    0x03
-              jr    nz,$-6
-              ld    a,b
-              inc   a
-              push  hl
-              call  CONIA
-              pop   hl
-              jp    0x390F
-              ld    b,a
-              ld    a,(de)
-              and   c
-              ld    (de),a
-              pop   af
-              or    a
-              jp    p,0x390F
-              ld    a,(de)
-              or    b
-              ld    (de),a
-              rst   8
-              add   hl,hl
-              ret   
+              cp    0x03           ; Is mask at rightmost position?
+              jr    nz,$-6         ; No, keep shifting
+              ld    a,b            ; Load color code from B
+              inc   a              ; Add 1 for result (1-4)
+              push  hl             ; Save program pointer
+              call  CONIA          ; Convert color code to floating point
+              pop   hl             ; Restore program pointer
+              jp    0x390F         ; Check for closing parenthesis
+
+; Supplementary routine for the SET and RESET statements
+              ld    b,a            ; Copy SET mask to B
+              ld    a,(de)         ; Load byte from graphics RAM
+              and   c              ; Clear bits for addressed pixel
+              ld    (de),a         ; Write byte back
+              pop   af             ; Load statement flag (SET/RESET)
+              or    a              ; Is it RESET statement?
+              jp    p,0x390F       ; Yes, finished
+              ld    a,(de)         ; SET statement, load byte again
+              or    b              ; Set bits for addressed pixel
+              ld    (de),a         ; Write byte back
+              rst   8              ; Expect closing parenthesis
+              add   hl,hl          ; Parameter: ')'
+              ret                  ; Return
               di    
               push  hl
               ld    a,(OUT_LATCH)
@@ -10062,14 +10055,14 @@ TAPE_LOAD_COMMON:
               push  hl
               call  TAPE_PREPARE_MESSAGES
               ld    hl,0x3842
-              call  0x37F4
+              call  TAPE_PRINT_MSG
               call  0x35E7
               ld    a,(SOUND_NOTE_VALUE)
               cp    0xF2
               jr    nz,$-8
               pop   hl
               ret   
-              call  0x3775
+              call  TAPE_READ_BYTE
               cp    0x0D
               ret   nz
               push  af
@@ -10802,10 +10795,10 @@ TAPE_LOAD_COMMON:
               pop   af
               and   0x7F
               jp    0x3154
-              call  0x3775
+              call  TAPE_READ_BYTE
               ret   nc
               pop   hl
-              jp    0x3711
+              jp    TAPE_LOAD_ERROR
               ld    a,(0x7819)
               ld    b,a
               ld    a,(0x7818)

@@ -1949,6 +1949,41 @@ offset = 11931
 end = 11931
 type = DATA_BYTE
 
+[region]
+offset = 14188
+end = 14196
+type = DATA_BYTE
+
+[region]
+offset = 14399
+end = 14401
+type = DATA_BYTE
+
+[region]
+offset = 14402
+end = 14409
+type = DATA_BYTE
+
+[region]
+offset = 14410
+end = 14423
+type = DATA_BYTE
+
+[region]
+offset = 14424
+end = 14425
+type = DATA_BYTE
+
+[region]
+offset = 14426
+end = 14431
+type = DATA_BYTE
+
+[region]
+offset = 14432
+end = 14439
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -31071,6 +31106,994 @@ text = Clear A
 offset = 14094
 text = Execute the RUN command
 
+[comment]
+offset = 14097
+text = Address 'LOADING ERROR' text
+
+[comment]
+offset = 14100
+text = Enable interrupts
+
+[comment]
+offset = 14101
+text = Print text
+
+[comment]
+offset = 14104
+text = Disable interrupts
+
+[comment]
+offset = 14105
+text = Load message-output flag
+
+[comment]
+offset = 14108
+text = Is it zero?
+
+[comment]
+offset = 14109
+text = No, suppress further text output
+
+[comment]
+offset = 14112
+text = Set cursor to last character position
+
+[comment]
+offset = 14115
+text = Save cursor address
+
+[comment]
+offset = 14118
+text = Column pointer to last column (31)
+
+[comment]
+offset = 14120
+text = Save TTY position
+
+[comment]
+offset = 14123
+text = Try again
+
+[comment]
+offset = 14126
+text = Save program pointer on stack
+
+[comment]
+offset = 14127
+text = Address Flag 2
+
+[comment]
+offset = 14130
+text = Set CRUN flag
+
+[comment]
+offset = 14132
+text = Restore program pointer
+
+[comment]
+offset = 14133
+text = Jump to common tape load routine
+
+[comment]
+offset = 14136
+text = Save program pointer on stack
+
+[comment]
+offset = 14137
+text = Address Flag 2
+
+[comment]
+offset = 14140
+text = Set VERIFY flag
+
+[comment]
+offset = 14142
+text = Restore program pointer
+
+[comment]
+offset = 14143
+text = Jump to common tape load routine
+
+[comment]
+offset = 14146
+text = HL = program start address
+
+[comment]
+offset = 14147
+text = Read byte from cassette
+
+[comment]
+offset = 14150
+text = Match with program byte?
+
+[comment]
+offset = 14151
+text = Yes, matches
+
+[comment]
+offset = 14153
+text = Address 'VERIFY ' text
+
+[comment]
+offset = 14156
+text = Print text
+
+[comment]
+offset = 14159
+text = Print 'ERROR' and return
+
+[comment]
+offset = 14162
+text = Increment program address
+
+[comment]
+offset = 14163
+text = Decrement byte counter
+
+[comment]
+offset = 14164
+text = Is counter zero?
+
+[comment]
+offset = 14165
+text = Is counter zero?
+
+[comment]
+offset = 14166
+text = No, compare next byte
+
+[comment]
+offset = 14168
+text = Address Flag 2
+
+[comment]
+offset = 14171
+text = Clear VERIFY flag
+
+[comment]
+offset = 14173
+text = Address 'VERIFY ' text
+
+[comment]
+offset = 14176
+text = Print text
+
+[comment]
+offset = 14179
+text = Address 'OK' text
+
+[comment]
+offset = 14182
+text = Print text
+
+[comment]
+offset = 14185
+text = Return to BASIC
+
+[comment]
+offset = 14188
+text = Text definition 'VERIFY '
+
+[comment]
+offset = 14197
+text = Save BC
+
+[comment]
+offset = 14198
+text = Save DE
+
+[comment]
+offset = 14199
+text = Bit counter = 8
+
+[comment]
+offset = 14201
+text = Read one bit
+
+[comment]
+offset = 14204
+text = Read error!
+
+[comment]
+offset = 14206
+text = Read next bit
+
+[comment]
+offset = 14208
+text = Restore DE
+
+[comment]
+offset = 14209
+text = Restore BC
+
+[comment]
+offset = 14210
+text = Save read byte temporarily
+
+[comment]
+offset = 14213
+text = Check for BREAK key
+
+[comment]
+offset = 14216
+text = Restore read byte
+
+[comment]
+offset = 14219
+text = Return
+
+[comment]
+offset = 14220
+text = Restore DE (error exit)
+
+[comment]
+offset = 14221
+text = Restore BC (error exit)
+
+[comment]
+offset = 14222
+text = Return with error (Carry set)
+
+[comment]
+offset = 14223
+text = Save BC
+
+[comment]
+offset = 14224
+text = Timeout limit value
+
+[comment]
+offset = 14227
+text = Load I/O port
+
+[comment]
+offset = 14230
+text = Signal level high?
+
+[comment]
+offset = 14232
+text = Yes, continue
+
+[comment]
+offset = 14234
+text = Decrement timeout counter
+
+[comment]
+offset = 14235
+text = Timeout reached?
+
+[comment]
+offset = 14236
+text = Timeout reached?
+
+[comment]
+offset = 14237
+text = No, keep reading
+
+[comment]
+offset = 14239
+text = Restore BC
+
+[comment]
+offset = 14240
+text = Set Carry flag (error)
+
+[comment]
+offset = 14241
+text = Return with error
+
+[comment]
+offset = 14242
+text = Load I/O port
+
+[comment]
+offset = 14245
+text = Signal level high?
+
+[comment]
+offset = 14247
+text = Yes, signal low pulse was too short!
+
+[comment]
+offset = 14249
+text = Load I/O port
+
+[comment]
+offset = 14252
+text = Signal level high?
+
+[comment]
+offset = 14254
+text = Yes, signal low pulse still too short!
+
+[comment]
+offset = 14256
+text = Delay counter for ~130 us
+
+[comment]
+offset = 14258
+text = Delay loop to skip negative pulse
+
+[comment]
+offset = 14260
+text = Load I/O port
+
+[comment]
+offset = 14263
+text = Is signal level high now?
+
+[comment]
+offset = 14265
+text = Yes, valid clock pulse
+
+[comment]
+offset = 14267
+text = Load I/O port
+
+[comment]
+offset = 14270
+text = Signal level transition?
+
+[comment]
+offset = 14272
+text = Wait for end of pulse
+
+[comment]
+offset = 14274
+text = Not a valid clock pulse
+
+[comment]
+offset = 14276
+text = Timeout delay counter
+
+[comment]
+offset = 14278
+text = Clear pulse counter
+
+[comment]
+offset = 14280
+text = Read I/O port
+
+[comment]
+offset = 14283
+text = Wait for negative edge
+
+[comment]
+offset = 14285
+text = Edge detected!
+
+[comment]
+offset = 14287
+text = Keep waiting/reading
+
+[comment]
+offset = 14289
+text = Pulse count to A
+
+[comment]
+offset = 14290
+text = Subtract 1
+
+[comment]
+offset = 14291
+text = Shift LSB into Carry
+
+[comment]
+offset = 14292
+text = Shift Carry bit into D (assemble byte)
+
+[comment]
+offset = 14294
+text = Restore BC
+
+[comment]
+offset = 14295
+text = Transfer assembled byte to A
+
+[comment]
+offset = 14296
+text = Clear Carry flag
+
+[comment]
+offset = 14297
+text = Return
+
+[comment]
+offset = 14298
+text = Load I/O port
+
+[comment]
+offset = 14301
+text = High level again?
+
+[comment]
+offset = 14303
+text = Yes, pulse too short!
+
+[comment]
+offset = 14305
+text = Load I/O port
+
+[comment]
+offset = 14308
+text = High level again?
+
+[comment]
+offset = 14310
+text = Yes, still too short!
+
+[comment]
+offset = 14312
+text = Increment pulse counter
+
+[comment]
+offset = 14313
+text = Load I/O port
+
+[comment]
+offset = 14316
+text = End of pulse?
+
+[comment]
+offset = 14318
+text = Yes, measure second pulse
+
+[comment]
+offset = 14320
+text = Timeout reached?
+
+[comment]
+offset = 14322
+text = Yes, evaluate pulse count
+
+[comment]
+offset = 14324
+text = Load message-output flag
+
+[comment]
+offset = 14327
+text = Is it zero?
+
+[comment]
+offset = 14328
+text = No, suppress output
+
+[comment]
+offset = 14329
+text = Address start of last line
+
+[comment]
+offset = 14332
+text = Line length (32) as counter
+
+[comment]
+offset = 14334
+text = Fill last line with spaces
+
+[comment]
+offset = 14337
+text = Advance screen address
+
+[comment]
+offset = 14338
+text = Loop for entire line
+
+[comment]
+offset = 14340
+text = Load message-output flag
+
+[comment]
+offset = 14343
+text = Is it zero?
+
+[comment]
+offset = 14344
+text = No, suppress output
+
+[comment]
+offset = 14345
+text = Print character (may invert depending on background)
+
+[comment]
+offset = 14348
+text = Load text character
+
+[comment]
+offset = 14349
+text = End of text? (Null terminator)
+
+[comment]
+offset = 14350
+text = Yes, finished
+
+[comment]
+offset = 14351
+text = Copy character to screen
+
+[comment]
+offset = 14352
+text = Advance screen address
+
+[comment]
+offset = 14353
+text = Advance text pointer
+
+[comment]
+offset = 14354
+text = Copy next character
+
+[comment]
+offset = 14356
+text = Load message-output flag
+
+[comment]
+offset = 14359
+text = Is it zero?
+
+[comment]
+offset = 14360
+text = No, suppress output
+
+[comment]
+offset = 14361
+text = Address name position in last line
+
+[comment]
+offset = 14364
+text = Save name address
+
+[comment]
+offset = 14365
+text = Load program identifier
+
+[comment]
+offset = 14368
+text = Clear upper nibble
+
+[comment]
+offset = 14370
+text = Address identifier table
+
+[comment]
+offset = 14373
+text = Offset into table
+
+[comment]
+offset = 14379
+text = Print identifier character
+
+[comment]
+offset = 14382
+text = Unused
+
+[comment]
+offset = 14383
+text = Unused
+
+[comment]
+offset = 14384
+text = Print space as separator
+
+[comment]
+offset = 14385
+text = Advance screen address by 2
+
+[comment]
+offset = 14387
+text = Load name address
+
+[comment]
+offset = 14388
+text = Load character from name
+
+[comment]
+offset = 14389
+text = End of name?
+
+[comment]
+offset = 14390
+text = Yes, finished
+
+[comment]
+offset = 14391
+text = Print character depending on background
+
+[comment]
+offset = 14394
+text = Advance screen address
+
+[comment]
+offset = 14395
+text = Advance name pointer
+
+[comment]
+offset = 14396
+text = Print next character
+
+[comment]
+offset = 14398
+text = Return
+
+[comment]
+offset = 14399
+text = Codes for tape file types (B, D, S)
+
+[comment]
+offset = 14402
+text = Text definition 'WAITING'
+
+[comment]
+offset = 14410
+text = Text definition 'LOADING ERROR'
+
+[comment]
+offset = 14424
+text = Carriage return and null terminator
+
+[comment]
+offset = 14426
+text = Text definition 'FOUND'
+
+[comment]
+offset = 14432
+text = Text definition 'LOADING'
+
+[comment]
+offset = 14440
+text = Read byte
+
+[comment]
+offset = 14443
+text = Return on read error
+
+[comment]
+offset = 14444
+text = E = LSB of start address
+
+[comment]
+offset = 14445
+text = Initialize LSB of checksum
+
+[comment]
+offset = 14448
+text = A = 0
+
+[comment]
+offset = 14449
+text = Initialize MSB of checksum to 0
+
+[comment]
+offset = 14452
+text = Read byte
+
+[comment]
+offset = 14455
+text = Return on read error
+
+[comment]
+offset = 14456
+text = D = MSB of start address
+
+[comment]
+offset = 14457
+text = Add byte to checksum
+
+[comment]
+offset = 14460
+text = Read byte
+
+[comment]
+offset = 14463
+text = Return on read error
+
+[comment]
+offset = 14464
+text = L = LSB of end address
+
+[comment]
+offset = 14465
+text = Add byte to checksum
+
+[comment]
+offset = 14468
+text = Read byte
+
+[comment]
+offset = 14471
+text = Return on read error
+
+[comment]
+offset = 14472
+text = H = MSB of end address
+
+[comment]
+offset = 14473
+text = Add byte to checksum
+
+[comment]
+offset = 14476
+text = Clear Carry flag
+
+[comment]
+offset = 14477
+text = Return
+
+[comment]
+offset = 14478
+text = Add byte to LSB of checksum
+
+[comment]
+offset = 14481
+text = Save updated LSB
+
+[comment]
+offset = 14484
+text = A = 0
+
+[comment]
+offset = 14486
+text = Add Carry to MSB of checksum
+
+[comment]
+offset = 14489
+text = Save updated MSB
+
+[comment]
+offset = 14492
+text = Return
+
+[comment]
+offset = 14493
+text = Load next command character
+
+[comment]
+offset = 14494
+text = Is it a comma?
+
+[comment]
+offset = 14496
+text = Yes, change background color only
+
+[comment]
+offset = 14498
+text = Evaluate expression
+
+[comment]
+offset = 14501
+text = Is foreground color code 0?
+
+[comment]
+offset = 14502
+text = Yes, Function Code Error
+
+[comment]
+offset = 14505
+text = Is color code >= 9?
+
+[comment]
+offset = 14507
+text = Yes, Function Code Error
+
+[comment]
+offset = 14510
+text = Color code - 1 (0 to 7)
+
+[comment]
+offset = 14511
+text = Limit to range 0-7
+
+[comment]
+offset = 14513
+text = Shift into upper nibble (multiply by 16)
+
+[comment]
+offset = 14521
+text = Save foreground color
+
+[comment]
+offset = 14524
+text = Load next character
+
+[comment]
+offset = 14525
+text = End of line?
+
+[comment]
+offset = 14526
+text = Yes, finished
+
+[comment]
+offset = 14527
+text = End of statement? (':')
+
+[comment]
+offset = 14529
+text = Yes, finished
+
+[comment]
+offset = 14530
+text = Expect comma
+
+[comment]
+offset = 14531
+text = Parameter: ','
+
+[comment]
+offset = 14532
+text = Evaluate expression
+
+[comment]
+offset = 14535
+text = Is color code 0?
+
+[comment]
+offset = 14536
+text = No, select red background
+
+[comment]
+offset = 14538
+text = Load I/O latch byte
+
+[comment]
+offset = 14541
+text = Clear background color bit (green)
+
+[comment]
+offset = 14543
+text = Save updated latch byte
+
+[comment]
+offset = 14546
+text = Output to I/O port
+
+[comment]
+offset = 14549
+text = Return
+
+[comment]
+offset = 14550
+text = Is color code 1?
+
+[comment]
+offset = 14552
+text = No, Function Code Error
+
+[comment]
+offset = 14555
+text = Load I/O latch byte
+
+[comment]
+offset = 14558
+text = Set background color bit (red)
+
+[comment]
+offset = 14560
+text = Save updated latch byte
+
+[comment]
+offset = 14563
+text = Output to I/O port
+
+[comment]
+offset = 14566
+text = Return
+
+[comment]
+offset = 14567
+text = Load 2-bit pixel mask
+
+[comment]
+offset = 14569
+text = Shift mask to right
+
+[comment]
+offset = 14571
+text = Repeat according to pixel position
+
+[comment]
+offset = 14573
+text = Load byte from graphics RAM
+
+[comment]
+offset = 14574
+text = Mask the pixel bits
+
+[comment]
+offset = 14575
+text = Save pixel value in B
+
+[comment]
+offset = 14576
+text = Load mask into A
+
+[comment]
+offset = 14577
+text = Shift pixel value right
+
+[comment]
+offset = 14581
+text = Is mask at rightmost position?
+
+[comment]
+offset = 14583
+text = No, keep shifting
+
+[comment]
+offset = 14585
+text = Load color code from B
+
+[comment]
+offset = 14586
+text = Add 1 for result (1-4)
+
+[comment]
+offset = 14587
+text = Save program pointer
+
+[comment]
+offset = 14588
+text = Convert color code to floating point
+
+[comment]
+offset = 14591
+text = Restore program pointer
+
+[comment]
+offset = 14592
+text = Check for closing parenthesis
+
+[comment]
+offset = 14595
+text = Copy SET mask to B
+
+[comment]
+offset = 14596
+text = Load byte from graphics RAM
+
+[comment]
+offset = 14597
+text = Clear bits for addressed pixel
+
+[comment]
+offset = 14598
+text = Write byte back
+
+[comment]
+offset = 14599
+text = Load statement flag (SET/RESET)
+
+[comment]
+offset = 14600
+text = Is it RESET statement?
+
+[comment]
+offset = 14601
+text = Yes, finished
+
+[comment]
+offset = 14604
+text = SET statement, load byte again
+
+[comment]
+offset = 14605
+text = Set bits for addressed pixel
+
+[comment]
+offset = 14606
+text = Write byte back
+
+[comment]
+offset = 14607
+text = Expect closing parenthesis
+
+[comment]
+offset = 14608
+text = Parameter: ')'
+
+[comment]
+offset = 14609
+text = Return
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -33247,4 +34270,68 @@ text = BASIC program
 [block]
 offset = 14051
 text = Start BASIC program
+
+[block]
+offset = 14097
+text = Print loading error message
+
+[block]
+offset = 14126
+text = CRUN command - load and run a program
+
+[block]
+offset = 14136
+text = VERIFY command - check a program on cassette
+
+[block]
+offset = 14146
+text = VERIFY continuation after common routine with CLOAD
+
+[block]
+offset = 14197
+text = Read byte from cassette. Output: A = read byte, Carry set on read error.
+
+[block]
+offset = 14223
+text = Read bit from cassette
+
+[block]
+offset = 14242
+text = Verify clock pulse stability
+
+[block]
+offset = 14276
+text = Measure pulse count. Result: 0 or 1 bit collected into D.
+
+[block]
+offset = 14298
+text = Check pulse stability and wait for possible second pulse
+
+[block]
+offset = 14324
+text = Clear last screen line and print message
+
+[block]
+offset = 14356
+text = Print program/file identifier and name
+
+[block]
+offset = 14440
+text = Read start and end addresses from cassette
+
+[block]
+offset = 14478
+text = Update checksum. Input: IX = pointer to 16-bit checksum, A = byte to add.
+
+[block]
+offset = 14493
+text = COLOR command
+
+[block]
+offset = 14567
+text = Supplementary routine for the POINT function
+
+[block]
+offset = 14595
+text = Supplementary routine for the SET and RESET statements
 

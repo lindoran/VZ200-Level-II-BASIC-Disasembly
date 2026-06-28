@@ -260,7 +260,7 @@
 016A  47       G                   ld    b,a            ; B = A
 016B  F1       .                   pop   af             ; Get original command flag (POINT/SET/RESET
 016C  B7       .                   or    a              ; Is it POINT (0)?
-016D  CAE738   ..8                 jp    z,0x38E7       ; Yes, JP to POINT routine (38E7H)
+016D  CAE738   ..8                 jp    z,POINT_HELPER ; Yes, JP to POINT routine (38E7H)
 0170  F5       .                   push  af             ; Save Command flag
 0171  0E3F     .?                  ld    c,0x3F         ; C = 3FH (Graphics mask?)
 0173  3A4678   :Fx                 ld    a,(0x7846)     ; Get color mode latch?
@@ -269,7 +269,7 @@
 017A  CB0F     ..                  rrc   a              ; RRC A
 017C  CB09     ..                  rrc   c              ; RRC C
 017E  10FA     ..                  djnz  $-4            ; DJNZ hBc2 (Shift bit into position)
-0180  C30339   ..9                 jp    0x3903         ; JP to rest of SET/RESET (3903H)
+0180  C30339   ..9                 jp    SET_RESET_HELPER ; JP to rest of SET/RESET (3903H)
                      ; Set cursor to 7839H and reset bit 3
 0183  213978   !9x                 ld    hl,FLAG2       ; Load 7839H (Cursor flags?)
 0186  CB9E     ..                  res   3,(hl)         ; Reset bit 3
@@ -8770,20 +8770,20 @@
 34CD  DD7701   .w.                 ld    (ix+0x01),a    ; Clear checksum MSB
 34D0  7C       |                   ld    a,h            ; Load MSB of start address
 34D1  CD1135   ..5                 call  TAPE_WRITE_BYTE ; Write byte to cassette
-34D4  CD8E38   ..8                 call  0x388E         ; Add byte to checksum
+34D4  CD8E38   ..8                 call  TAPE_CALC_CHECKSUM ; Add byte to checksum
 34D7  EB       .                   ex    de,hl          ; Move start address to DE
 34D8  2AF978   *.x                 ld    hl,(0x78F9)    ; Load program end address
 34DB  7D       }                   ld    a,l            ; Load LSB of end address
 34DC  CD1135   ..5                 call  TAPE_WRITE_BYTE ; Write byte to cassette
-34DF  CD8E38   ..8                 call  0x388E         ; Add byte to checksum
+34DF  CD8E38   ..8                 call  TAPE_CALC_CHECKSUM ; Add byte to checksum
 34E2  7C       |                   ld    a,h            ; Load MSB of end address
 34E3  CD1135   ..5                 call  TAPE_WRITE_BYTE ; Write byte to cassette
-34E6  CD8E38   ..8                 call  0x388E         ; Add byte to checksum
+34E6  CD8E38   ..8                 call  TAPE_CALC_CHECKSUM ; Add byte to checksum
 34E9  CDF83A   ..:                 call  0x3AF8         ; Check whether BREAK was pressed
 34EC  1A       .                   ld    a,(de)         ; Load next program byte
 34ED  13       .                   inc   de             ; Advance program address
 34EE  CD1135   ..5                 call  TAPE_WRITE_BYTE ; Write program byte to cassette
-34F1  CD8E38   ..8                 call  0x388E         ; Add byte to checksum
+34F1  CD8E38   ..8                 call  TAPE_CALC_CHECKSUM ; Add byte to checksum
 34F4  CDF83A   ..:                 call  0x3AF8         ; Check whether BREAK was pressed
 34F7  DF       .                   rst   0x18           ; Test whether program end was reached
 34F8  20F2      .                  jr    nz,$-12        ; No, write next byte
@@ -8917,23 +8917,23 @@
                      ; ******** SEARCH FOR PROGRAM START ON CASSETTE
                      TAPE_FIND_PROGRAM:
 35E1  214238   !B8                 ld    hl,0x3842      ; Load address of WAITING text
-35E4  CDF437   ..7                 call  0x37F4         ; Output text if messages are enabled
+35E4  CDF437   ..7                 call  TAPE_PRINT_MSG ; Output text if messages are enabled
 35E7  CDF83A   ..:                 call  0x3AF8         ; Check whether BREAK was pressed
 35EA  3A0068   :.h                 ld    a,(0x6800)     ; Read I/O byte
 35ED  CB77     .w                  bit   6,a            ; Evaluate cassette pulse input
 35EF  20F6      .                  jr    nz,$-8         ; No pulse, keep waiting
-35F1  CD8F37   ..7                 call  0x378F         ; Read one bit
+35F1  CD8F37   ..7                 call  TAPE_READ_BIT  ; Read one bit
 35F4  38F1     8.                  jr    c,$-13         ; Timed out, restart search
 35F6  CB47     .G                  bit   0,a            ; Was the bit a 1?
 35F8  28F7     (.                  jr    z,$-7          ; No, read next bit
 35FA  0607     ..                  ld    b,0x07         ; Read seven more bits
-35FC  CD8F37   ..7                 call  0x378F         ; Read one bit
+35FC  CD8F37   ..7                 call  TAPE_READ_BIT  ; Read one bit
 35FF  38E6     8.                  jr    c,$-24         ; Timeout, restart search
 3601  10F9     ..                  djnz  $-5            ; Loop for next bit
 3603  FE80     ..                  cp    0x80           ; Is this a sync byte?
 3605  20E0      .                  jr    nz,$-30        ; No, keep searching
                      ; Advance tape past the sync bytes
-3607  CD7537   .u7                 call  0x3775         ; Read next byte
+3607  CD7537   .u7                 call  TAPE_READ_BYTE ; Read next byte
 360A  DAE735   ..5                 jp    c,0x35E7       ; Timeout, restart search
 360D  FE80     ..                  cp    0x80           ; Still a sync byte?
 360F  28F6     (.                  jr    z,$-8          ; Yes, read next byte
@@ -8941,16 +8941,16 @@
 3611  0604     ..                  ld    b,0x04         ; Four bytes remain; first already loaded
 3613  FEFE     ..                  cp    0xFE           ; Is this a leader byte?
 3615  C2E735   ..5                 jp    nz,0x35E7      ; No, restart search
-3618  CD7537   .u7                 call  0x3775         ; Read next byte
+3618  CD7537   .u7                 call  TAPE_READ_BYTE ; Read next byte
 361B  DAE735   ..5                 jp    c,0x35E7       ; Timeout, restart search
 361E  10F3     ..                  djnz  $-11           ; Check remaining leader bytes
                      ; Read program identifier
-3620  CD7537   .u7                 call  0x3775         ; Read identifier byte
+3620  CD7537   .u7                 call  TAPE_READ_BYTE ; Read identifier byte
 3623  32D27A   2.z                 ld    (SOUND_NOTE_VALUE),a ; Save identifier byte
                      ; Read name and copy it into the buffer
 3626  21B27A   !.z                 ld    hl,0x7AB2      ; Load destination buffer address
 3629  0612     ..                  ld    b,0x12         ; Maximum length is 18 bytes
-362B  CD7537   .u7                 call  0x3775         ; Read next byte
+362B  CD7537   .u7                 call  TAPE_READ_BYTE ; Read next byte
 362E  77       w                   ld    (hl),a         ; Store byte in buffer
 362F  B7       .                   or    a              ; End of name?
 3630  2806     (.                  jr    z,$+8          ; Yes, name is complete
@@ -8959,9 +8959,9 @@
 3635  C3E735   ..5                 jp    0x35E7         ; Name too long; restart search
                      ; Output FOUND message
 3638  215A38   !Z8                 ld    hl,0x385A      ; Address FOUND text
-363B  CDF437   ..7                 call  0x37F4         ; Output FOUND text
+363B  CDF437   ..7                 call  TAPE_PRINT_MSG ; Output FOUND text
 363E  21B27A   !.z                 ld    hl,0x7AB2      ; Address name in buffer
-3641  CD1438   ..8                 call  0x3814         ; Output the found name
+3641  CD1438   ..8                 call  TAPE_PRINT_NAME ; Output the found name
                      ; Check whether this is the requested program
 3644  21B27A   !.z                 ld    hl,0x7AB2      ; Address received name
 3647  119D7A   ..z                 ld    de,0x7A9D      ; Address requested name
@@ -8988,7 +8988,7 @@
 3663  E5       .                   push  hl             ; Save program text pointer
 3664  CDB135   ..5                 call  TAPE_PREPARE_MESSAGES ; Prepare message output
 3667  214238   !B8                 ld    hl,0x3842      ; Address WAITING text
-366A  CDF437   ..7                 call  0x37F4         ; Output WAITING text
+366A  CDF437   ..7                 call  TAPE_PRINT_MSG ; Output WAITING text
 366D  CDE735   ..5                 call  0x35E7         ; Search for program on cassette
 3670  3AD27A   :.z                 ld    a,(SOUND_NOTE_VALUE) ; Load program identifier
 3673  FEF2     ..                  cp    0xF2           ; Is it plain data?
@@ -8996,32 +8996,32 @@
 3677  216038   !`8                 ld    hl,0x3860      ; Address LOADING text
 367A  CD0438   ..8                 call  0x3804         ; Output LOADING text
 367D  DD212378 .!#x                ld    ix,0x7823      ; Address checksum bytes
-3681  CD6838   .h8                 call  0x3868         ; Read start and end addresses
-3684  DA1137   ..7                 jp    c,0x3711       ; On error, print LOADING ERROR
+3681  CD6838   .h8                 call  TAPE_READ_ADDRS ; Read start and end addresses
+3684  DA1137   ..7                 jp    c,TAPE_LOAD_ERROR ; On error, print LOADING ERROR
 3687  E5       .                   push  hl             ; Save end address
 3688  ED52     .R                  sbc   hl,de          ; Compute byte count: end - start
-368A  DA1137   ..7                 jp    c,0x3711       ; Error if start is after end
+368A  DA1137   ..7                 jp    c,TAPE_LOAD_ERROR ; Error if start is after end
 368D  ED531E78 .S.x                ld    (0x781E),de    ; Save start address
 3691  E5       .                   push  hl             ; Move byte count into BC
 3692  C1       .                   pop   bc             ; BC = byte count
 3693  E1       .                   pop   hl             ; Restore end address
 3694  3A3978   :9x                 ld    a,(FLAG2)      ; Load Flag 2
 3697  CB5F     ._                  bit   3,a            ; VERIFY flag set?
-3699  C24237   .B7                 jp    nz,0x3742      ; Yes, compare against memory
+3699  C24237   .B7                 jp    nz,VERIFY_COMPARE ; Yes, compare against memory
 369C  CD733F   .s?                 call  0x3F73         ; Read byte from cassette
 369F  12       .                   ld    (de),a         ; Store byte in RAM
-36A0  CD8E38   ..8                 call  0x388E         ; Add byte to checksum
+36A0  CD8E38   ..8                 call  TAPE_CALC_CHECKSUM ; Add byte to checksum
 36A3  13       .                   inc   de             ; Advance program address
 36A4  0B       .                   dec   bc             ; Decrement byte count
 36A5  79       y                   ld    a,c            ; Test low byte of count
 36A6  B0       .                   or    b              ; Any bytes left?
 36A7  20F3      .                  jr    nz,$-11        ; Yes, continue loading
-36A9  CD7537   .u7                 call  0x3775         ; Read checksum LSB
+36A9  CD7537   .u7                 call  TAPE_READ_BYTE ; Read checksum LSB
 36AC  DDBE00   ...                 cp    (ix+0x00)      ; Compare with calculated checksum LSB
-36AF  C21137   ..7                 jp    nz,0x3711      ; Mismatch, print LOADING ERROR
-36B2  CD7537   .u7                 call  0x3775         ; Read checksum MSB
+36AF  C21137   ..7                 jp    nz,TAPE_LOAD_ERROR ; Mismatch, print LOADING ERROR
+36B2  CD7537   .u7                 call  TAPE_READ_BYTE ; Read checksum MSB
 36B5  DDBE01   ...                 cp    (ix+0x01)      ; Compare with calculated checksum MSB
-36B8  C21137   ..7                 jp    nz,0x3711      ; Mismatch, print LOADING ERROR
+36B8  C21137   ..7                 jp    nz,TAPE_LOAD_ERROR ; Mismatch, print LOADING ERROR
 36BB  22F978   ".x                 ld    (0x78F9),hl    ; Save program end address
 36BE  FB       .                   ei                   ; Re-enable interrupts
 36BF  3E0D     >.                  ld    a,0x0D         ; Output carriage return
@@ -9063,303 +9063,286 @@
 370A  21E779   !.y                 ld    hl,0x79E7      ; Address one byte before I/O buffer
 370D  AF       .                   xor   a              ; Clear A
 370E  C3811A   ...                 jp    0x1A81         ; Execute the RUN command
-3711  214A38   !J8                 ld    hl,0x384A
-3714  FB       .                   ei    
-3715  CDA728   ..(                 call  OUTSTR
-3718  F3       .                   di    
-3719  3A4C78   :Lx                 ld    a,(0x784C)
-371C  B7       .                   or    a
-371D  C26736   .g6                 jp    nz,0x3667
-3720  21FF71   !.q                 ld    hl,0x71FF
-3723  222078   " x                 ld    (CURS_ADDR),hl
-3726  3E1F     >.                  ld    a,0x1F
-3728  32A678   2.x                 ld    (TTYPOS),a
-372B  C36736   .g6                 jp    0x3667
-372E  E5       .                   push  hl
-372F  213978   !9x                 ld    hl,FLAG2
-3732  CBF6     ..                  set   6,(hl)
-3734  E1       .                   pop   hl
-3735  C35F36   ._6                 jp    TAPE_LOAD_COMMON
-3738  E5       .                   push  hl
-3739  213978   !9x                 ld    hl,FLAG2
-373C  CBDE     ..                  set   3,(hl)
-373E  E1       .                   pop   hl
-373F  C35F36   ._6                 jp    TAPE_LOAD_COMMON
-3742  EB       .                   ex    de,hl
-3743  CD7537   .u7                 call  0x3775
-3746  BE       .                   cp    (hl)
-3747  2809     (.                  jr    z,$+11
-3749  216C37   !l7                 ld    hl,0x376C
-374C  CDA728   ..(                 call  OUTSTR
-374F  C38301   ...                 jp    0x0183
-3752  23       #                   inc   hl
-3753  0B       .                   dec   bc
-3754  79       y                   ld    a,c
-3755  B0       .                   or    b
-3756  20EB      .                  jr    nz,$-19
-3758  213978   !9x                 ld    hl,FLAG2
-375B  CB9E     ..                  res   3,(hl)
-375D  216C37   !l7                 ld    hl,0x376C
-3760  CDA728   ..(                 call  OUTSTR
-3763  218003   !..                 ld    hl,0x0380
-3766  CDA728   ..(                 call  OUTSTR
-3769  C3CF36   ..6                 jp    0x36CF
-376C  0D       .                   dec   c
-376D  56       V                   ld    d,(hl)
-376E  45       E                   ld    b,l
-376F  52       R                   ld    d,d
-3770  49       I                   ld    c,c
-3771  46       F                   ld    b,(hl)
-3772  59       Y                   ld    e,c
-3773  2000      .                  jr    nz,$+2
-3775  C5       .                   push  bc
-3776  D5       .                   push  de
-3777  0608     ..                  ld    b,0x08
-3779  CD8F37   ..7                 call  0x378F
-377C  380E     8.                  jr    c,$+16
-377E  10F9     ..                  djnz  $-5
-3780  D1       .                   pop   de
-3781  C1       .                   pop   bc
-3782  32D37A   2.z                 ld    (0x7AD3),a
-3785  CDF83A   ..:                 call  0x3AF8
-3788  3AD37A   :.z                 ld    a,(0x7AD3)
-378B  C9       .                   ret   
-378C  D1       .                   pop   de
-378D  C1       .                   pop   bc
-378E  C9       .                   ret   
-378F  C5       .                   push  bc
-3790  01FF07   ...                 ld    bc,0x07FF
-3793  3A0068   :.h                 ld    a,(0x6800)
-3796  CB77     .w                  bit   6,a
-3798  2808     (.                  jr    z,$+10
-379A  0B       .                   dec   bc
-379B  79       y                   ld    a,c
-379C  B0       .                   or    b
-379D  20F4      .                  jr    nz,$-10
-379F  C1       .                   pop   bc
-37A0  37       7                   scf   
-37A1  C9       .                   ret   
-37A2  3A0068   :.h                 ld    a,(0x6800)
-37A5  CB77     .w                  bit   6,a
-37A7  20EA      .                  jr    nz,$-20
-37A9  3A0068   :.h                 ld    a,(0x6800)
-37AC  CB77     .w                  bit   6,a
-37AE  20E3      .                  jr    nz,$-27
-37B0  0652     .R                  ld    b,0x52
-37B2  10FE     ..                  djnz  $+0
-37B4  3A0068   :.h                 ld    a,(0x6800)
-37B7  CB77     .w                  bit   6,a
-37B9  2009      .                  jr    nz,$+11
-37BB  3A0068   :.h                 ld    a,(0x6800)
-37BE  CB77     .w                  bit   6,a
-37C0  28F9     (.                  jr    z,$-5
-37C2  18CC     ..                  jr    $-50
-37C4  065A     .Z                  ld    b,0x5A
-37C6  0E00     ..                  ld    c,0x00
-37C8  3A0068   :.h                 ld    a,(0x6800)
-37CB  CB77     .w                  bit   6,a
-37CD  280B     (.                  jr    z,$+13
-37CF  10F7     ..                  djnz  $-7
-37D1  79       y                   ld    a,c
-37D2  3D       =                   dec   a
-37D3  1F       .                   rra   
-37D4  CB12     ..                  rl    d
-37D6  C1       .                   pop   bc
-37D7  7A       z                   ld    a,d
-37D8  B7       .                   or    a
-37D9  C9       .                   ret   
-37DA  3A0068   :.h                 ld    a,(0x6800)
-37DD  CB77     .w                  bit   6,a
-37DF  20EE      .                  jr    nz,$-16
-37E1  3A0068   :.h                 ld    a,(0x6800)
-37E4  CB77     .w                  bit   6,a
-37E6  20E7      .                  jr    nz,$-23
-37E8  0C       .                   inc   c
-37E9  3A0068   :.h                 ld    a,(0x6800)
-37EC  CB77     .w                  bit   6,a
-37EE  20DF      .                  jr    nz,$-31
-37F0  10F7     ..                  djnz  $-7
-37F2  18DD     ..                  jr    $-33
-37F4  3A4C78   :Lx                 ld    a,(0x784C)
-37F7  B7       .                   or    a
-37F8  C0       .                   ret   nz
-37F9  11E071   ..q                 ld    de,0x71E0
-37FC  0620     .                   ld    b,0x20
-37FE  CDF63E   ..>                 call  0x3EF6
-3801  13       .                   inc   de
-3802  10FA     ..                  djnz  $-4
-3804  3A4C78   :Lx                 ld    a,(0x784C)
-3807  B7       .                   or    a
-3808  C0       .                   ret   nz
-3809  CD0E3F   ..?                 call  0x3F0E
-380C  7E       ~                   ld    a,(hl)
-380D  B7       .                   or    a
-380E  C8       .                   ret   z
-380F  12       .                   ld    (de),a
-3810  13       .                   inc   de
-3811  23       #                   inc   hl
-3812  18F8     ..                  jr    $-6
-3814  3A4C78   :Lx                 ld    a,(0x784C)
-3817  B7       .                   or    a
-3818  C0       .                   ret   nz
-3819  11E971   ..q                 ld    de,0x71E9
-381C  E5       .                   push  hl
-381D  3AD27A   :.z                 ld    a,(SOUND_NOTE_VALUE)
-3820  E60F     ..                  and   0x0F
-3822  213F38   !?8                 ld    hl,0x383F
-3825  85       .                   add   a,l
+                     ; Print loading error message
+3711  214A38   !J8                 ld    hl,0x384A      ; Address 'LOADING ERROR' text
+3714  FB       .                   ei                   ; Enable interrupts
+3715  CDA728   ..(                 call  OUTSTR         ; Print text
+3718  F3       .                   di                   ; Disable interrupts
+3719  3A4C78   :Lx                 ld    a,(0x784C)     ; Load message-output flag
+371C  B7       .                   or    a              ; Is it zero?
+371D  C26736   .g6                 jp    nz,0x3667      ; No, suppress further text output
+3720  21FF71   !.q                 ld    hl,0x71FF      ; Set cursor to last character position
+3723  222078   " x                 ld    (CURS_ADDR),hl ; Save cursor address
+3726  3E1F     >.                  ld    a,0x1F         ; Column pointer to last column (31)
+3728  32A678   2.x                 ld    (TTYPOS),a     ; Save TTY position
+372B  C36736   .g6                 jp    0x3667         ; Try again
+                     ; CRUN command - load and run a program
+372E  E5       .                   push  hl             ; Save program pointer on stack
+372F  213978   !9x                 ld    hl,FLAG2       ; Address Flag 2
+3732  CBF6     ..                  set   6,(hl)         ; Set CRUN flag
+3734  E1       .                   pop   hl             ; Restore program pointer
+3735  C35F36   ._6                 jp    TAPE_LOAD_COMMON ; Jump to common tape load routine
+                     ; VERIFY command - check a program on cassette
+3738  E5       .                   push  hl             ; Save program pointer on stack
+3739  213978   !9x                 ld    hl,FLAG2       ; Address Flag 2
+373C  CBDE     ..                  set   3,(hl)         ; Set VERIFY flag
+373E  E1       .                   pop   hl             ; Restore program pointer
+373F  C35F36   ._6                 jp    TAPE_LOAD_COMMON ; Jump to common tape load routine
+                     ; VERIFY continuation after common routine with CLOAD
+3742  EB       .                   ex    de,hl          ; HL = program start address
+3743  CD7537   .u7                 call  TAPE_READ_BYTE ; Read byte from cassette
+3746  BE       .                   cp    (hl)           ; Match with program byte?
+3747  2809     (.                  jr    z,$+11         ; Yes, matches
+3749  216C37   !l7                 ld    hl,0x376C      ; Address 'VERIFY ' text
+374C  CDA728   ..(                 call  OUTSTR         ; Print text
+374F  C38301   ...                 jp    0x0183         ; Print 'ERROR' and return
+3752  23       #                   inc   hl             ; Increment program address
+3753  0B       .                   dec   bc             ; Decrement byte counter
+3754  79       y                   ld    a,c            ; Is counter zero?
+3755  B0       .                   or    b              ; Is counter zero?
+3756  20EB      .                  jr    nz,$-19        ; No, compare next byte
+3758  213978   !9x                 ld    hl,FLAG2       ; Address Flag 2
+375B  CB9E     ..                  res   3,(hl)         ; Clear VERIFY flag
+375D  216C37   !l7                 ld    hl,0x376C      ; Address 'VERIFY ' text
+3760  CDA728   ..(                 call  OUTSTR         ; Print text
+3763  218003   !..                 ld    hl,0x0380      ; Address 'OK' text
+3766  CDA728   ..(                 call  OUTSTR         ; Print text
+3769  C3CF36   ..6                 jp    0x36CF         ; Return to BASIC
+376C  0D564552 .VER                DEFB  0x0D,0x56,0x45,0x52,0x49,0x46,0x59,0x20 ; Text definition 'VERIFY '
+      49465920 IFY   
+3774  00       .                   DEFB  0x00
+                     ; Read byte from cassette. Output: A = read byte, Carry set on read error.
+3775  C5       .                   push  bc             ; Save BC
+3776  D5       .                   push  de             ; Save DE
+3777  0608     ..                  ld    b,0x08         ; Bit counter = 8
+3779  CD8F37   ..7                 call  TAPE_READ_BIT  ; Read one bit
+377C  380E     8.                  jr    c,$+16         ; Read error!
+377E  10F9     ..                  djnz  $-5            ; Read next bit
+3780  D1       .                   pop   de             ; Restore DE
+3781  C1       .                   pop   bc             ; Restore BC
+3782  32D37A   2.z                 ld    (0x7AD3),a     ; Save read byte temporarily
+3785  CDF83A   ..:                 call  0x3AF8         ; Check for BREAK key
+3788  3AD37A   :.z                 ld    a,(0x7AD3)     ; Restore read byte
+378B  C9       .                   ret                  ; Return
+378C  D1       .                   pop   de             ; Restore DE (error exit)
+378D  C1       .                   pop   bc             ; Restore BC (error exit)
+378E  C9       .                   ret                  ; Return with error (Carry set)
+                     ; Read bit from cassette
+378F  C5       .                   push  bc             ; Save BC
+3790  01FF07   ...                 ld    bc,0x07FF      ; Timeout limit value
+3793  3A0068   :.h                 ld    a,(0x6800)     ; Load I/O port
+3796  CB77     .w                  bit   6,a            ; Signal level high?
+3798  2808     (.                  jr    z,$+10         ; Yes, continue
+379A  0B       .                   dec   bc             ; Decrement timeout counter
+379B  79       y                   ld    a,c            ; Timeout reached?
+379C  B0       .                   or    b              ; Timeout reached?
+379D  20F4      .                  jr    nz,$-10        ; No, keep reading
+379F  C1       .                   pop   bc             ; Restore BC
+37A0  37       7                   scf                  ; Set Carry flag (error)
+37A1  C9       .                   ret                  ; Return with error
+                     ; Verify clock pulse stability
+37A2  3A0068   :.h                 ld    a,(0x6800)     ; Load I/O port
+37A5  CB77     .w                  bit   6,a            ; Signal level high?
+37A7  20EA      .                  jr    nz,$-20        ; Yes, signal low pulse was too short!
+37A9  3A0068   :.h                 ld    a,(0x6800)     ; Load I/O port
+37AC  CB77     .w                  bit   6,a            ; Signal level high?
+37AE  20E3      .                  jr    nz,$-27        ; Yes, signal low pulse still too short!
+37B0  0652     .R                  ld    b,0x52         ; Delay counter for ~130 us
+37B2  10FE     ..                  djnz  $+0            ; Delay loop to skip negative pulse
+37B4  3A0068   :.h                 ld    a,(0x6800)     ; Load I/O port
+37B7  CB77     .w                  bit   6,a            ; Is signal level high now?
+37B9  2009      .                  jr    nz,$+11        ; Yes, valid clock pulse
+37BB  3A0068   :.h                 ld    a,(0x6800)     ; Load I/O port
+37BE  CB77     .w                  bit   6,a            ; Signal level transition?
+37C0  28F9     (.                  jr    z,$-5          ; Wait for end of pulse
+37C2  18CC     ..                  jr    $-50           ; Not a valid clock pulse
+                     ; Measure pulse count. Result: 0 or 1 bit collected into D.
+37C4  065A     .Z                  ld    b,0x5A         ; Timeout delay counter
+37C6  0E00     ..                  ld    c,0x00         ; Clear pulse counter
+37C8  3A0068   :.h                 ld    a,(0x6800)     ; Read I/O port
+37CB  CB77     .w                  bit   6,a            ; Wait for negative edge
+37CD  280B     (.                  jr    z,$+13         ; Edge detected!
+37CF  10F7     ..                  djnz  $-7            ; Keep waiting/reading
+37D1  79       y                   ld    a,c            ; Pulse count to A
+37D2  3D       =                   dec   a              ; Subtract 1
+37D3  1F       .                   rra                  ; Shift LSB into Carry
+37D4  CB12     ..                  rl    d              ; Shift Carry bit into D (assemble byte)
+37D6  C1       .                   pop   bc             ; Restore BC
+37D7  7A       z                   ld    a,d            ; Transfer assembled byte to A
+37D8  B7       .                   or    a              ; Clear Carry flag
+37D9  C9       .                   ret                  ; Return
+                     ; Check pulse stability and wait for possible second pulse
+37DA  3A0068   :.h                 ld    a,(0x6800)     ; Load I/O port
+37DD  CB77     .w                  bit   6,a            ; High level again?
+37DF  20EE      .                  jr    nz,$-16        ; Yes, pulse too short!
+37E1  3A0068   :.h                 ld    a,(0x6800)     ; Load I/O port
+37E4  CB77     .w                  bit   6,a            ; High level again?
+37E6  20E7      .                  jr    nz,$-23        ; Yes, still too short!
+37E8  0C       .                   inc   c              ; Increment pulse counter
+37E9  3A0068   :.h                 ld    a,(0x6800)     ; Load I/O port
+37EC  CB77     .w                  bit   6,a            ; End of pulse?
+37EE  20DF      .                  jr    nz,$-31        ; Yes, measure second pulse
+37F0  10F7     ..                  djnz  $-7            ; Timeout reached?
+37F2  18DD     ..                  jr    $-33           ; Yes, evaluate pulse count
+                     ; Clear last screen line and print message
+37F4  3A4C78   :Lx                 ld    a,(0x784C)     ; Load message-output flag
+37F7  B7       .                   or    a              ; Is it zero?
+37F8  C0       .                   ret   nz             ; No, suppress output
+37F9  11E071   ..q                 ld    de,0x71E0      ; Address start of last line
+37FC  0620     .                   ld    b,0x20         ; Line length (32) as counter
+37FE  CDF63E   ..>                 call  0x3EF6         ; Fill last line with spaces
+3801  13       .                   inc   de             ; Advance screen address
+3802  10FA     ..                  djnz  $-4            ; Loop for entire line
+3804  3A4C78   :Lx                 ld    a,(0x784C)     ; Load message-output flag
+3807  B7       .                   or    a              ; Is it zero?
+3808  C0       .                   ret   nz             ; No, suppress output
+3809  CD0E3F   ..?                 call  0x3F0E         ; Print character (may invert depending on b
+380C  7E       ~                   ld    a,(hl)         ; Load text character
+380D  B7       .                   or    a              ; End of text? (Null terminator)
+380E  C8       .                   ret   z              ; Yes, finished
+380F  12       .                   ld    (de),a         ; Copy character to screen
+3810  13       .                   inc   de             ; Advance screen address
+3811  23       #                   inc   hl             ; Advance text pointer
+3812  18F8     ..                  jr    $-6            ; Copy next character
+                     ; Print program/file identifier and name
+3814  3A4C78   :Lx                 ld    a,(0x784C)     ; Load message-output flag
+3817  B7       .                   or    a              ; Is it zero?
+3818  C0       .                   ret   nz             ; No, suppress output
+3819  11E971   ..q                 ld    de,0x71E9      ; Address name position in last line
+381C  E5       .                   push  hl             ; Save name address
+381D  3AD27A   :.z                 ld    a,(SOUND_NOTE_VALUE) ; Load program identifier
+3820  E60F     ..                  and   0x0F           ; Clear upper nibble
+3822  213F38   !?8                 ld    hl,0x383F      ; Address identifier table
+3825  85       .                   add   a,l            ; Offset into table
 3826  6F       o                   ld    l,a
 3827  3E00     >.                  ld    a,0x00
 3829  8C       .                   adc   a,h
 382A  67       g                   ld    h,a
-382B  CD213F   .!?                 call  0x3F21
-382E  00       .                   nop   
-382F  00       .                   nop   
-3830  12       .                   ld    (de),a
-3831  13       .                   inc   de
+382B  CD213F   .!?                 call  0x3F21         ; Print identifier character
+382E  00       .                   nop                  ; Unused
+382F  00       .                   nop                  ; Unused
+3830  12       .                   ld    (de),a         ; Print space as separator
+3831  13       .                   inc   de             ; Advance screen address by 2
 3832  13       .                   inc   de
-3833  E1       .                   pop   hl
-3834  7E       ~                   ld    a,(hl)
-3835  B7       .                   or    a
-3836  C8       .                   ret   z
-3837  CD333F   .3?                 call  0x3F33
-383A  13       .                   inc   de
-383B  23       #                   inc   hl
-383C  18F6     ..                  jr    $-8
-383E  C9       .                   ret   
-383F  14       .                   inc   d
-3840  02       .                   ld    (bc),a
-3841  04       .                   inc   b
-3842  57       W                   ld    d,a
-3843  41       A                   ld    b,c
-3844  49       I                   ld    c,c
-3845  54       T                   ld    d,h
-3846  49       I                   ld    c,c
-3847  4E       N                   ld    c,(hl)
-3848  47       G                   ld    b,a
-3849  00       .                   nop   
-384A  0D       .                   dec   c
-384B  4C       L                   ld    c,h
-384C  4F       O                   ld    c,a
-384D  41       A                   ld    b,c
-384E  44       D                   ld    b,h
-384F  49       I                   ld    c,c
-3850  4E       N                   ld    c,(hl)
-3851  47       G                   ld    b,a
-3852  2045      E                  jr    nz,$+71
-3854  52       R                   ld    d,d
-3855  52       R                   ld    d,d
-3856  4F       O                   ld    c,a
-3857  52       R                   ld    d,d
-3858  0D       .                   dec   c
-3859  00       .                   nop   
-385A  46       F                   ld    b,(hl)
-385B  4F       O                   ld    c,a
-385C  55       U                   ld    d,l
-385D  4E       N                   ld    c,(hl)
-385E  44       D                   ld    b,h
-385F  00       .                   nop   
-3860  4C       L                   ld    c,h
-3861  4F       O                   ld    c,a
-3862  41       A                   ld    b,c
-3863  44       D                   ld    b,h
-3864  49       I                   ld    c,c
-3865  4E       N                   ld    c,(hl)
-3866  47       G                   ld    b,a
-3867  00       .                   nop   
-3868  CD7537   .u7                 call  0x3775
-386B  D8       .                   ret   c
-386C  5F       _                   ld    e,a
-386D  DD7700   .w.                 ld    (ix+0x00),a
-3870  AF       .                   xor   a
-3871  DD7701   .w.                 ld    (ix+0x01),a
-3874  CD7537   .u7                 call  0x3775
-3877  D8       .                   ret   c
-3878  57       W                   ld    d,a
-3879  CD8E38   ..8                 call  0x388E
-387C  CD7537   .u7                 call  0x3775
-387F  D8       .                   ret   c
-3880  6F       o                   ld    l,a
-3881  CD8E38   ..8                 call  0x388E
-3884  CD7537   .u7                 call  0x3775
-3887  D8       .                   ret   c
-3888  67       g                   ld    h,a
-3889  CD8E38   ..8                 call  0x388E
-388C  B7       .                   or    a
-388D  C9       .                   ret   
-388E  DD8600   ...                 add   a,(ix+0x00)
-3891  DD7700   .w.                 ld    (ix+0x00),a
-3894  3E00     >.                  ld    a,0x00
-3896  DD8E01   ...                 adc   a,(ix+0x01)
-3899  DD7701   .w.                 ld    (ix+0x01),a
-389C  C9       .                   ret   
-389D  7E       ~                   ld    a,(hl)
-389E  FE2C     .,                  cp    0x2C
-38A0  2820     (                   jr    z,$+34
-38A2  CD1C2B   ..+                 call  GETBYT
-38A5  B7       .                   or    a
-38A6  CA4A1E   .J.                 jp    z,0x1E4A
-38A9  FE09     ..                  cp    0x09
-38AB  D24A1E   .J.                 jp    nc,0x1E4A
-38AE  3D       =                   dec   a
-38AF  E607     ..                  and   0x07
-38B1  CB27     .'                  sla   a
+3833  E1       .                   pop   hl             ; Load name address
+3834  7E       ~                   ld    a,(hl)         ; Load character from name
+3835  B7       .                   or    a              ; End of name?
+3836  C8       .                   ret   z              ; Yes, finished
+3837  CD333F   .3?                 call  0x3F33         ; Print character depending on background
+383A  13       .                   inc   de             ; Advance screen address
+383B  23       #                   inc   hl             ; Advance name pointer
+383C  18F6     ..                  jr    $-8            ; Print next character
+383E  C9       .                   ret                  ; Return
+383F  140204   ...                 DEFB  0x14,0x02,0x04 ; Codes for tape file types (B, D, S)
+3842  57414954 WAIT                DEFB  0x57,0x41,0x49,0x54,0x49,0x4E,0x47,0x00 ; Text definition 'WAITING'
+      494E4700 ING.  
+384A  0D4C4F41 .LOA                DEFB  0x0D,0x4C,0x4F,0x41,0x44,0x49,0x4E,0x47 ; Text definition 'LOADING ERROR'
+      44494E47 DING  
+3852  20455252  ERR                DEFB  0x20,0x45,0x52,0x52,0x4F,0x52
+      4F52     OR    
+3858  0D00     ..                  DEFB  0x0D,0x00      ; Carriage return and null terminator
+385A  464F554E FOUN                DEFB  0x46,0x4F,0x55,0x4E,0x44,0x00 ; Text definition 'FOUND'
+      4400     D.    
+3860  4C4F4144 LOAD                DEFB  0x4C,0x4F,0x41,0x44,0x49,0x4E,0x47,0x00 ; Text definition 'LOADING'
+      494E4700 ING.  
+                     ; Read start and end addresses from cassette
+3868  CD7537   .u7                 call  TAPE_READ_BYTE ; Read byte
+386B  D8       .                   ret   c              ; Return on read error
+386C  5F       _                   ld    e,a            ; E = LSB of start address
+386D  DD7700   .w.                 ld    (ix+0x00),a    ; Initialize LSB of checksum
+3870  AF       .                   xor   a              ; A = 0
+3871  DD7701   .w.                 ld    (ix+0x01),a    ; Initialize MSB of checksum to 0
+3874  CD7537   .u7                 call  TAPE_READ_BYTE ; Read byte
+3877  D8       .                   ret   c              ; Return on read error
+3878  57       W                   ld    d,a            ; D = MSB of start address
+3879  CD8E38   ..8                 call  TAPE_CALC_CHECKSUM ; Add byte to checksum
+387C  CD7537   .u7                 call  TAPE_READ_BYTE ; Read byte
+387F  D8       .                   ret   c              ; Return on read error
+3880  6F       o                   ld    l,a            ; L = LSB of end address
+3881  CD8E38   ..8                 call  TAPE_CALC_CHECKSUM ; Add byte to checksum
+3884  CD7537   .u7                 call  TAPE_READ_BYTE ; Read byte
+3887  D8       .                   ret   c              ; Return on read error
+3888  67       g                   ld    h,a            ; H = MSB of end address
+3889  CD8E38   ..8                 call  TAPE_CALC_CHECKSUM ; Add byte to checksum
+388C  B7       .                   or    a              ; Clear Carry flag
+388D  C9       .                   ret                  ; Return
+                     ; Update checksum. Input: IX = pointer to 16-bit checksum, A = byte to add.
+388E  DD8600   ...                 add   a,(ix+0x00)    ; Add byte to LSB of checksum
+3891  DD7700   .w.                 ld    (ix+0x00),a    ; Save updated LSB
+3894  3E00     >.                  ld    a,0x00         ; A = 0
+3896  DD8E01   ...                 adc   a,(ix+0x01)    ; Add Carry to MSB of checksum
+3899  DD7701   .w.                 ld    (ix+0x01),a    ; Save updated MSB
+389C  C9       .                   ret                  ; Return
+                     ; COLOR command
+389D  7E       ~                   ld    a,(hl)         ; Load next command character
+389E  FE2C     .,                  cp    0x2C           ; Is it a comma?
+38A0  2820     (                   jr    z,$+34         ; Yes, change background color only
+38A2  CD1C2B   ..+                 call  GETBYT         ; Evaluate expression
+38A5  B7       .                   or    a              ; Is foreground color code 0?
+38A6  CA4A1E   .J.                 jp    z,0x1E4A       ; Yes, Function Code Error
+38A9  FE09     ..                  cp    0x09           ; Is color code >= 9?
+38AB  D24A1E   .J.                 jp    nc,0x1E4A      ; Yes, Function Code Error
+38AE  3D       =                   dec   a              ; Color code - 1 (0 to 7)
+38AF  E607     ..                  and   0x07           ; Limit to range 0-7
+38B1  CB27     .'                  sla   a              ; Shift into upper nibble (multiply by 16)
 38B3  CB27     .'                  sla   a
 38B5  CB27     .'                  sla   a
 38B7  CB27     .'                  sla   a
-38B9  324678   2Fx                 ld    (0x7846),a
-38BC  7E       ~                   ld    a,(hl)
-38BD  B7       .                   or    a
-38BE  C8       .                   ret   z
-38BF  FE3A     .:                  cp    0x3A
-38C1  C8       .                   ret   z
-38C2  CF       .                   rst   8
-38C3  2C       ,                   inc   l
-38C4  CD1C2B   ..+                 call  GETBYT
-38C7  B7       .                   or    a
-38C8  200C      .                  jr    nz,$+14
-38CA  3A3B78   :;x                 ld    a,(OUT_LATCH)
-38CD  CBA7     ..                  res   4,a
-38CF  323B78   2;x                 ld    (OUT_LATCH),a
-38D2  320068   2.h                 ld    (0x6800),a
-38D5  C9       .                   ret   
-38D6  FE01     ..                  cp    0x01
-38D8  C24A1E   .J.                 jp    nz,0x1E4A
-38DB  3A3B78   :;x                 ld    a,(OUT_LATCH)
-38DE  CBE7     ..                  set   4,a
-38E0  323B78   2;x                 ld    (OUT_LATCH),a
-38E3  320068   2.h                 ld    (0x6800),a
-38E6  C9       .                   ret   
-38E7  0EC0     ..                  ld    c,0xC0
-38E9  CB09     ..                  rrc   c
-38EB  10FC     ..                  djnz  $-2
-38ED  1A       .                   ld    a,(de)
-38EE  A1       .                   and   c
-38EF  47       G                   ld    b,a
-38F0  79       y                   ld    a,c
-38F1  CB08     ..                  rrc   b
+38B9  324678   2Fx                 ld    (0x7846),a     ; Save foreground color
+38BC  7E       ~                   ld    a,(hl)         ; Load next character
+38BD  B7       .                   or    a              ; End of line?
+38BE  C8       .                   ret   z              ; Yes, finished
+38BF  FE3A     .:                  cp    0x3A           ; End of statement? (':')
+38C1  C8       .                   ret   z              ; Yes, finished
+38C2  CF       .                   rst   8              ; Expect comma
+38C3  2C       ,                   inc   l              ; Parameter: ','
+38C4  CD1C2B   ..+                 call  GETBYT         ; Evaluate expression
+38C7  B7       .                   or    a              ; Is color code 0?
+38C8  200C      .                  jr    nz,$+14        ; No, select red background
+38CA  3A3B78   :;x                 ld    a,(OUT_LATCH)  ; Load I/O latch byte
+38CD  CBA7     ..                  res   4,a            ; Clear background color bit (green)
+38CF  323B78   2;x                 ld    (OUT_LATCH),a  ; Save updated latch byte
+38D2  320068   2.h                 ld    (0x6800),a     ; Output to I/O port
+38D5  C9       .                   ret                  ; Return
+38D6  FE01     ..                  cp    0x01           ; Is color code 1?
+38D8  C24A1E   .J.                 jp    nz,0x1E4A      ; No, Function Code Error
+38DB  3A3B78   :;x                 ld    a,(OUT_LATCH)  ; Load I/O latch byte
+38DE  CBE7     ..                  set   4,a            ; Set background color bit (red)
+38E0  323B78   2;x                 ld    (OUT_LATCH),a  ; Save updated latch byte
+38E3  320068   2.h                 ld    (0x6800),a     ; Output to I/O port
+38E6  C9       .                   ret                  ; Return
+                     ; Supplementary routine for the POINT function
+38E7  0EC0     ..                  ld    c,0xC0         ; Load 2-bit pixel mask
+38E9  CB09     ..                  rrc   c              ; Shift mask to right
+38EB  10FC     ..                  djnz  $-2            ; Repeat according to pixel position
+38ED  1A       .                   ld    a,(de)         ; Load byte from graphics RAM
+38EE  A1       .                   and   c              ; Mask the pixel bits
+38EF  47       G                   ld    b,a            ; Save pixel value in B
+38F0  79       y                   ld    a,c            ; Load mask into A
+38F1  CB08     ..                  rrc   b              ; Shift pixel value right
 38F3  CB0F     ..                  rrc   a
-38F5  FE03     ..                  cp    0x03
-38F7  20F8      .                  jr    nz,$-6
-38F9  78       x                   ld    a,b
-38FA  3C       <                   inc   a
-38FB  E5       .                   push  hl
-38FC  CD8D09   ...                 call  CONIA
-38FF  E1       .                   pop   hl
-3900  C30F39   ..9                 jp    0x390F
-3903  47       G                   ld    b,a
-3904  1A       .                   ld    a,(de)
-3905  A1       .                   and   c
-3906  12       .                   ld    (de),a
-3907  F1       .                   pop   af
-3908  B7       .                   or    a
-3909  F20F39   ..9                 jp    p,0x390F
-390C  1A       .                   ld    a,(de)
-390D  B0       .                   or    b
-390E  12       .                   ld    (de),a
-390F  CF       .                   rst   8
-3910  29       )                   add   hl,hl
-3911  C9       .                   ret   
+38F5  FE03     ..                  cp    0x03           ; Is mask at rightmost position?
+38F7  20F8      .                  jr    nz,$-6         ; No, keep shifting
+38F9  78       x                   ld    a,b            ; Load color code from B
+38FA  3C       <                   inc   a              ; Add 1 for result (1-4)
+38FB  E5       .                   push  hl             ; Save program pointer
+38FC  CD8D09   ...                 call  CONIA          ; Convert color code to floating point
+38FF  E1       .                   pop   hl             ; Restore program pointer
+3900  C30F39   ..9                 jp    0x390F         ; Check for closing parenthesis
+                     ; Supplementary routine for the SET and RESET statements
+3903  47       G                   ld    b,a            ; Copy SET mask to B
+3904  1A       .                   ld    a,(de)         ; Load byte from graphics RAM
+3905  A1       .                   and   c              ; Clear bits for addressed pixel
+3906  12       .                   ld    (de),a         ; Write byte back
+3907  F1       .                   pop   af             ; Load statement flag (SET/RESET)
+3908  B7       .                   or    a              ; Is it RESET statement?
+3909  F20F39   ..9                 jp    p,0x390F       ; Yes, finished
+390C  1A       .                   ld    a,(de)         ; SET statement, load byte again
+390D  B0       .                   or    b              ; Set bits for addressed pixel
+390E  12       .                   ld    (de),a         ; Write byte back
+390F  CF       .                   rst   8              ; Expect closing parenthesis
+3910  29       )                   add   hl,hl          ; Parameter: ')'
+3911  C9       .                   ret                  ; Return
 3912  F3       .                   di    
 3913  E5       .                   push  hl
 3914  3A3B78   :;x                 ld    a,(OUT_LATCH)
@@ -9681,14 +9664,14 @@
 3B72  E5       .                   push  hl
 3B73  CDB135   ..5                 call  TAPE_PREPARE_MESSAGES
 3B76  214238   !B8                 ld    hl,0x3842
-3B79  CDF437   ..7                 call  0x37F4
+3B79  CDF437   ..7                 call  TAPE_PRINT_MSG
 3B7C  CDE735   ..5                 call  0x35E7
 3B7F  3AD27A   :.z                 ld    a,(SOUND_NOTE_VALUE)
 3B82  FEF2     ..                  cp    0xF2
 3B84  20F6      .                  jr    nz,$-8
 3B86  E1       .                   pop   hl
 3B87  C9       .                   ret   
-3B88  CD7537   .u7                 call  0x3775
+3B88  CD7537   .u7                 call  TAPE_READ_BYTE
 3B8B  FE0D     ..                  cp    0x0D
 3B8D  C0       .                   ret   nz
 3B8E  F5       .                   push  af
@@ -10421,10 +10404,10 @@
 3F6D  F1       .                   pop   af
 3F6E  E67F     ..                  and   0x7F
 3F70  C35431   .T1                 jp    0x3154
-3F73  CD7537   .u7                 call  0x3775
+3F73  CD7537   .u7                 call  TAPE_READ_BYTE
 3F76  D0       .                   ret   nc
 3F77  E1       .                   pop   hl
-3F78  C31137   ..7                 jp    0x3711
+3F78  C31137   ..7                 jp    TAPE_LOAD_ERROR
 3F7B  3A1978   :.x                 ld    a,(0x7819)
 3F7E  47       G                   ld    b,a
 3F7F  3A1878   :.x                 ld    a,(0x7818)

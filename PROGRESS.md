@@ -73,3 +73,15 @@
   - Total Symbols: 396
   - Limits: Well within maximums (100000 annotations, 6000 symbols).
 - **Verification**: Checked `export.lst` for inline comments in the completed range. Rebuilt `export.bin` from `export.asm`; `cmp` returned 0 and MD5 matched `VZ200.bin` (`42c8f9e6c2133ae0e953b89ccbbdb7e2`).
+
+## Iteration: 2026-06-28
+- **Target Range**: 0x3711-0x3911 (German PDF pages 236-244; starts near `export.lst` line 9066)
+- **Prompt**: "please read @GEMINI.md and @Z80BENCH_WORKFLOW.md you are translating german to english.  Please work 0x3711-0x3911 this starts at line 9066 in @export.lst export.lst and is pages 236 to 244 in @doc/book - Laser310-ROM-Listing-german.pdf.  Please remember you need to use Z80 bench to make the changes and treat the two markdowns as skilling advice.  rember we are using those documents as guidlines to properly translate the block comments and the inline comments."
+- **Summary**: Translated and applied English annotations for the cassette loading error handler (`TAPE_LOAD_ERROR`), `CRUN` command (`CMD_CRUN`), `VERIFY` command (`CMD_VERIFY`) and its memory comparison logic (`VERIFY_COMPARE`), cassette byte/bit readers (`TAPE_READ_BYTE`, `TAPE_READ_BIT`), cassette clock pulse detection and measurement, screen printing/message helper (`TAPE_PRINT_MSG`, `TAPE_PRINT_NAME`), cassette address reader (`TAPE_READ_ADDRS`), checksum calculation (`TAPE_CALC_CHECKSUM`), `COLOR` command (`CMD_COLOR`), and graphic function helper routines for `POINT` (`POINT_HELPER`) and `SET/RESET` (`SET_RESET_HELPER`). Added segment boundaries (`DIRECT_BYTE`) for tape message strings to ensure clean formatting.
+- **Toolchain**: Used `z80bench-cli` for segment mapping, symbol additions, and comment annotations, then generated output using `./z80bench-cli project export . both export`.
+- **Issues/Notes**: The German PDF pages are scanned images, so OCR (Tesseract) was used and manually corrected against the disassembly logic. Used `DIRECT_BYTE` instead of `DEFINE_MSG` in `z80bench-cli` for message segments because the string escaping (`\0D`, `\00`) of `DEFINE_MSG` causes byte-shifts and compilation failures in `z88dk-z80asm`. Identified that bytes at `0x38C3` (comma `,`) and `0x3910` (parenthesis `)`) immediately following `RST 8` instructions are parameters rather than real instruction code (`inc l` and `add hl, hl`). Left them disassembled as instructions but documented them using clear inline comments.
+- **Statistics**:
+  - Total Annotations: 7100
+  - Total Symbols: 409
+  - Limits: Well within maximums (100000 annotations, 6000 symbols).
+- **Verification**: Verified `export.lst` for inline comments in the work section. Compiled `export.asm` using `z88dk-z80asm`; MD5 checksum matched `VZ200.bin` (`42c8f9e6c2133ae0e953b89ccbbdb7e2`).
