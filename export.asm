@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Sun Jun 28 17:55:04 2026
+; Generated: Sun Jun 28 18:15:25 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -450,7 +450,7 @@ CHAR_OUTPUT_DISPATCH:
               or    a              ; and test
               ld    a,c            ; character back to A
               pop   bc             ; restore BC
-              jp    m,0x3B54       ; Cassette? yes - continue at 3B54H
+              jp    m,TAPE_CMD_WRITE ; Cassette? yes - continue at 3B54H
               jr    nz,$+100       ; Printer? yes - to printer output
 
 ; Output a character to the screen
@@ -830,7 +830,7 @@ PRINTER_DRIVER:
               ld    a,(ix+0x03)    ; lines/page
               sub   (ix+0x04)      ; - number of printed lines
               ld    b,a            ; in B as skip counter
-              call  0x3AE2         ; output Carriage-Return + Line Feed
+              call  PRN_CR_LF      ; output Carriage-Return + Line Feed
               djnz  $-3            ; until new page
               jr    $+20           ; Relative jump to $+20
               call  0x3AB6         ; character output
@@ -5600,7 +5600,7 @@ PRINT_LOOP:
               cp    0x2C           ; comma ?
               jp    z,PRINT_COMMA  ; yes, to next TAB position
               cp    0x3B           ; semicolon ?
-              jp    z,0x3B0C       ; wait until all characters output.
+              jp    z,WAIT_OUTPUT_EMPTY ; wait until all characters output.
               pop   bc             ; load program pointer
               call  0x2337         ; evaluate expression
               push  hl             ; program pointer on stack
@@ -5635,7 +5635,7 @@ PRINT_VAL:
 
 ; Check if cursor is at start of line
 PRINT_BOL_CHECK:
-              call  0x3B1C         ; load cursor position
+              call  GET_TTYPOS     ; load cursor position
               or    a              ; = 0 ?
               ret   z              ; yes, back
 
@@ -5739,11 +5739,11 @@ PRINT_BOL_CHECK:
               jr    nz,$+34        ; no cassette!
 
 ; Read from Cassette
-              call  0x3B68         ; search file on cassette
+              call  TAPE_CMD_SEARCH ; search file on cassette
               push  hl             ; program pointer on stack
               ld    b,0xFA         ; max. 250 characters
               ld    hl,(IO_BUF_PTR) ; address I/O buffer
-              call  0x3B88         ; read one byte
+              call  TAPE_READ_1_BYTE ; read one byte
               ld    (hl),a         ; transfer to buffer
               inc   hl             ; buffer pointer + 1
               cp    0x0D           ; end of record?
@@ -7748,7 +7748,7 @@ CMD_SOUND:
               push  hl             ; Transfer tone duration to BC
               pop   bc             ; as cycle counter
               pop   hl             ; Load frequency value
-              call  0x3AF8         ; BREAK key pressed?
+              call  CHECK_BREAK_STOP ; BREAK key pressed?
               ld    a,(OUT_LATCH)  ; Load output latch byte
               ld    d,a            ; in D
               call  SOUND_PULSE    ; Output tone
@@ -7777,7 +7777,7 @@ SOUND_PAUSE:
               pop   de             ; Multiply base value by B+1
               add   hl,de          ; = pause counter
               djnz  $-1
-              call  0x3AF8         ; BREAK key pressed?
+              call  CHECK_BREAK_STOP ; BREAK key pressed?
               dec   hl             ; Counter - 1
               ld    a,l            ; = 0?
               or    h
@@ -7789,7 +7789,7 @@ PRN_GFX_CHAR:
               push  bc             ; Save BC on stack
               ld    b,a            ; Character in B
               ld    a,0x08         ; Switch printer to graphics mode
-              call  0x3ABA         ; by outputting X'08'
+              call  PRN_CHAR_OUT   ; by outputting X'08'
               ld    a,b            ; Character back in A
               and   0x0F           ; Clear high nibble
               push  hl             ; Save HL on stack
@@ -7805,17 +7805,17 @@ PRN_GFX_CHAR:
               ld    a,(hl)
               ld    c,a            ; Load 2nd table value in C
               ld    a,b
-              call  0x3ABA         ; Output value three times to printer
-              call  0x3ABA
-              call  0x3ABA
+              call  PRN_CHAR_OUT   ; Output value three times to printer
+              call  PRN_CHAR_OUT
+              call  PRN_CHAR_OUT
               ld    a,c            ; 2nd table value in A
-              call  0x3ABA         ; Output value three times to printer
-              call  0x3ABA
-              call  0x3ABA
+              call  PRN_CHAR_OUT   ; Output value three times to printer
+              call  PRN_CHAR_OUT
+              call  PRN_CHAR_OUT
               pop   hl             ; Restore HL and BC
               pop   bc
               ld    a,0x0F         ; Switch printer back to text mode
-              call  0x3ABA         ; by outputting X'0F'
+              call  PRN_CHAR_OUT   ; by outputting X'0F'
               ret                  ; done
               jr    nc,$-97
 
@@ -9123,7 +9123,7 @@ CSAVE:
               ld    a,c            ; Test low byte of counter
               or    b              ; Counter expired?
               jr    nz,$-3         ; No, keep waiting
-              call  0x3AF8         ; Check whether BREAK was pressed
+              call  CHECK_BREAK_STOP ; Check whether BREAK was pressed
               ld    ix,0x7823      ; Address checksum bytes
               ld    hl,(PRGEND)    ; Load program start address
               ld    a,l            ; Load LSB of start address
@@ -9142,12 +9142,12 @@ CSAVE:
               ld    a,h            ; Load MSB of end address
               call  TAPE_WRITE_BYTE ; Write byte to cassette
               call  TAPE_CALC_CHECKSUM ; Add byte to checksum
-              call  0x3AF8         ; Check whether BREAK was pressed
+              call  CHECK_BREAK_STOP ; Check whether BREAK was pressed
               ld    a,(de)         ; Load next program byte
               inc   de             ; Advance program address
               call  TAPE_WRITE_BYTE ; Write program byte to cassette
               call  TAPE_CALC_CHECKSUM ; Add byte to checksum
-              call  0x3AF8         ; Check whether BREAK was pressed
+              call  CHECK_BREAK_STOP ; Check whether BREAK was pressed
               rst   0x18           ; Test whether program end was reached
               jr    nz,$-12        ; No, write next byte
               ld    a,(ix+0x00)    ; Load checksum LSB
@@ -9213,18 +9213,18 @@ TAPE_WRITE_LEADER_NAME:
               ld    b,0xFF         ; Output 255 synchronization bytes
               ld    a,0x80         ; A = sync byte 0x80
               call  TAPE_WRITE_BYTE ; Write byte to cassette
-              call  0x3AE8         ; Check whether BREAK was pressed
+              call  CHECK_BREAK    ; Check whether BREAK was pressed
               ret   c              ; Abort if BREAK was pressed
               djnz  $-9            ; Loop for 255 sync bytes
               ld    b,0x05         ; Output five 0xFE leader bytes
               ld    a,0xFE         ; A = leader byte 0xFE
               call  TAPE_WRITE_BYTE ; Write byte to cassette
-              call  0x3AE8         ; Check whether BREAK was pressed
+              call  CHECK_BREAK    ; Check whether BREAK was pressed
               ret   c              ; Abort if BREAK was pressed
               djnz  $-9            ; Loop for leader bytes
               ld    a,c            ; Load program/file identifier
               call  TAPE_WRITE_BYTE ; Write identifier to cassette
-              call  0x3AE8         ; Check whether BREAK was pressed
+              call  CHECK_BREAK    ; Check whether BREAK was pressed
               ret   c              ; Abort if BREAK was pressed
               ld    a,(0x7AD6)     ; Load program name length
               ld    b,a            ; Use length as counter
@@ -9288,7 +9288,7 @@ TAPE_PREPARE_MESSAGES:
 TAPE_FIND_PROGRAM:
               ld    hl,0x3842      ; Load address of WAITING text
               call  TAPE_PRINT_MSG ; Output text if messages are enabled
-              call  0x3AF8         ; Check whether BREAK was pressed
+              call  CHECK_BREAK_STOP ; Check whether BREAK was pressed
               ld    a,(0x6800)     ; Read I/O byte
               bit   6,a            ; Evaluate cassette pulse input
               jr    nz,$-8         ; No pulse, keep waiting
@@ -9506,7 +9506,7 @@ TAPE_LOAD_COMMON:
               pop   de             ; Restore DE
               pop   bc             ; Restore BC
               ld    (0x7AD3),a     ; Save read byte temporarily
-              call  0x3AF8         ; Check for BREAK key
+              call  CHECK_BREAK_STOP ; Check for BREAK key
               ld    a,(0x7AD3)     ; Restore read byte
               ret                  ; Return
               pop   de             ; Restore DE (error exit)
@@ -9734,285 +9734,313 @@ TAPE_LOAD_COMMON:
               rst   8              ; Expect closing parenthesis
               add   hl,hl          ; Parameter: ')'
               ret                  ; Return
-              di    
-              push  hl
-              ld    a,(OUT_LATCH)
-              bit   3,a
-              jp    nz,0x398E
-              ld    hl,0x7000
-              ld    c,0x10
-              ld    b,0x20
-              ld    a,(hl)
-              or    a
-              jp    p,0x392D
-              call  PRN_GFX_CHAR
-              jr    $+24
-              jp    0x3F44
-              nop   
-              and   0x3F
-              call  0x3956
-              jr    $+13
-              and   0x3F
-              bit   5,a
-              jr    nz,$+4
-              or    0x40
-              call  0x3ABA
-              inc   hl
-              djnz  $-33
-              ld    a,0x0D
-              call  0x3ABA
-              call  0x3AF8
-              dec   c
-              ld    a,c
-              or    a
-              jr    nz,$-48
-              pop   hl
-              ei    
-              ret   
-              push  af
-              push  bc
-              push  de
-              push  hl
-              ld    l,a
-              ld    h,0x00
-              ld    a,0x08
-              call  0x3ABA
-              ld    b,0x04
-              push  hl
+
+; COPY command
+              di                   ; Disable interrupts
+              push  hl             ; Save program pointer on stack
+              ld    a,(OUT_LATCH)  ; Load I/O latch byte
+              bit   3,a            ; Is machine in graphics mode?
+              jp    nz,COPY_GFX    ; Yes, graphics output
+              ld    hl,0x7000      ; Screen start address
+              ld    c,0x10         ; Line counter = 16
+              ld    b,0x20         ; Column counter = 32
+              ld    a,(hl)         ; Load character from screen RAM
+              or    a              ; Block graphics character?
+              jp    p,0x392D       ; No
+              call  PRN_GFX_CHAR   ; Yes, output block graphics character
+              jr    $+24           ; Continue
+              jp    0x3F44         ; Output plain text character to printer
+              nop                  ; Unused
+              and   0x3F           ; Clear bits 6 and 7
+              call  PRN_INV_CHAR   ; Output inverted character
+              jr    $+13           ; Continue
+              and   0x3F           ; Clear bits 6 and 7
+              bit   5,a            ; Test bit 5 (inverted?)
+              jr    nz,$+4         ; No, skip
+              or    0x40           ; Yes, add 0x40 for real ASCII character
+              call  PRN_CHAR_OUT   ; Output character to printer
+              inc   hl             ; Advance screen address
+              djnz  $-33           ; End of row?
+              ld    a,0x0D         ; Output carriage return
+              call  PRN_CHAR_OUT   ; Send CR to printer
+              call  CHECK_BREAK_STOP ; BREAK key pressed?
+              dec   c              ; Line counter - 1
+              ld    a,c            ; Finished?
+              or    a              ; Finished?
+              jr    nz,$-48        ; No, process next line
+              pop   hl             ; Restore program pointer
+              ei                   ; Enable interrupts
+              ret                  ; Return
+
+; Output inverted character to printer
+              push  af             ; Save AF
+              push  bc             ; Save BC
+              push  de             ; Save DE
+              push  hl             ; Save HL
+              ld    l,a            ; Character code as HL offset
+              ld    h,0x00         ; H = 0
+              ld    a,0x08         ; Switch printer to graphics mode (code 0x08)
+              call  PRN_CHAR_OUT   ; Output 0x08 to printer
+              ld    b,0x04         ; Loop counter = 4 (multiply char by 5)
+              push  hl             ; HL = character code
               pop   de
-              or    a
-              adc   hl,de
-              djnz  $-2
-              push  hl
-              pop   bc
-              ld    hl,0x3B94
-              add   hl,bc
-              ld    a,0xFF
-              call  0x3ABA
-              ld    b,0x05
-              ld    a,(hl)
-              inc   hl
-              call  0x3ABA
-              djnz  $-5
-              ld    a,0xFF
-              call  0x3ABA
-              ld    a,0x0F
-              call  0x3ABA
-              pop   hl
-              pop   de
-              pop   bc
-              pop   af
-              ret   
-              xor   a
-              ld    (0x7AD6),a
-              ld    (0x7AD6),a
-              ld    a,0x08
-              call  0x3ABA
-              ld    ix,SOUND_NOTE_VALUE
-              ld    hl,0x7000
-              ld    de,START
-              ld    c,0xC0
-              call  0x3AF8
-              push  hl
-              call  PRN_GFXBUF_CLEAR
-              ld    b,0x03
-              ld    a,(hl)
-              and   c
-              push  bc
-              ld    b,a
-              rrc   b
-              rrc   b
-              rrc   c
-              rrc   c
-              ld    a,c
-              cp    0x03
-              jp    nz,0x39B3
-              ld    a,b
-              pop   bc
-              cp    0x03
-              jr    z,$+15
-              cp    0x02
-              jr    z,$+16
-              cp    0x01
-              jr    z,$+18
-              ld    de,START
-              jr    $+17
-              ld    de,0xE0E0
-              jr    $+12
-              ld    d,0x40
-              ld    e,0xA0
-              jr    $+6
-              ld    d,0xA0
-              ld    e,0x40
-              ld    a,(ix+0x00)
-              srl   a
-              srl   a
-              srl   a
-              push  hl
-              ld    hl,0x7AD3
-              call  0x3A6A
-              pop   hl
-              or    d
-              ld    (ix+0x00),a
-              ld    a,(ix+0x02)
-              srl   a
-              srl   a
-              srl   a
-              push  hl
-              ld    hl,0x7AD5
-              call  0x3A6A
-              pop   hl
-              or    e
-              ld    (ix+0x02),a
-              ld    a,0x20
-              add   a,l
-              ld    l,a
-              ld    a,0x00
-              adc   a,h
-              ld    h,a
-              djnz  $+82
-              call  0x3A73
-              pop   hl
-              srl   c
-              srl   c
-              ld    a,c
-              or    a
-              jr    nz,$-123
-              inc   hl
-              ld    a,l
-              and   0x1F
-              jp    nz,0x39A4
-              call  0x3AE2
-              ld    a,(0x7AD6)
-              inc   a
-              cp    0x03
-              jr    nz,$+3
-              xor   a
-              ld    (0x7AD6),a
-              jr    nz,$+6
-              ld    a,0x40
-              jr    $+4
-              ld    a,0x20
-              add   a,l
-              ld    l,a
-              ld    a,0x00
-              adc   a,h
-              ld    h,a
-              cp    0x78
-              jp    nc,0x3A5F
-              cp    0x77
-              jp    nz,0x39A4
-              ld    a,l
-              cp    0xE0
-              jp    c,0x39A4
-              ld    a,0xFF
-              ld    (0x7AD6),a
-              jp    0x39A4
-              ld    a,0x0F
-              call  0x3ABA
-              pop   hl
-              ei    
-              ret   
-              jp    0x39AF
-              jp    nc,0x3A70
-              set   0,(hl)
-              ret   
-              res   0,(hl)
-              ret   
-              call  0x3A85
-              inc   ix
-              inc   ix
-              call  0x3A85
-              dec   ix
-              dec   ix
-              call  0x3A85
-              ret   
-              ld    a,(ix+0x01)
-              rrc   a
-              ld    a,(ix+0x00)
-              push  af
-              ld    a,(0x7AD6)
-              cp    0x02
-              jr    z,$+31
-              cp    0x01
-              jr    z,$+24
-              pop   af
-              rla   
-              push  af
-              ld    a,(0x7AD6)
-              cp    0xFF
-              jr    nz,$+7
-              pop   af
-              and   0x07
-              jr    $+3
-              pop   af
-              or    0x80
-              call  0x3ABA
-              ret   
-              pop   af
-              jr    $-21
-              pop   af
-              rra   
-              jr    $-25
-              or    a
-              jp    m,0x3AD8
-              push  af
-              call  0x3AE8
-              jp    nc,0x3AC4
-              pop   af
-              scf   
-              ret   
-              in    a,(0x00)
-              bit   0,a
-              jr    nz,$-13
-              pop   af
-              out   (0x0E),a
-              out   (0x0D),a
-              cp    0x0D
-              scf   
-              ccf   
-              ret   nz
-              ld    a,0x0A
-              jr    $-28
-              bit   6,a
-              jp    z,PRN_GFX_CHAR
-              and   0x3F
-              jp    0x3956
-              ld    a,0x0D
-              call  0x3ABA
-              ret   
-              or    a
-              ld    a,(0x68FD)
-              bit   2,a
-              ret   nz
-              ld    a,(0x68DF)
-              scf   
-              bit   2,a
-              ret   z
-              ccf   
-              ret   
-              call  0x3AE8
-              ret   nc
-              pop   hl
-              pop   hl
-              ld    a,(FLAG2)
-              and   0xB7
-              ld    (FLAG2),a
-              ld    a,0x01
-              ei    
-              jp    0x1DA0
-              ld    a,(0x789C)
-              or    a
-              jp    nz,PRINT_NEXT
-              ld    a,(0x7AAF)
-              or    a
-              jr    nz,$-4
-              jp    PRINT_NEXT
-              ld    a,(0x7AAF)
-              or    a
-              ret   nz
-              ld    a,(TTYPOS)
-              ret   
+              or    a              ; Clear carry
+              adc   hl,de          ; HL = HL + HL (multiply)
+              djnz  $-2            ; Repeat 4 times (multiply by 5 total)
+              push  hl             ; Result (char * 5) into BC
+              pop   bc             ; BC = char offset
+              ld    hl,PRN_GFX_FONT ; Base address of printer font table
+              add   hl,bc          ; HL = font entry address
+              ld    a,0xFF         ; Output all-ones byte (1 dot column left margin)
+              call  PRN_CHAR_OUT   ; Send to printer
+              ld    b,0x05         ; Loop counter = 5 (5 bytes per character)
+              ld    a,(hl)         ; Load font byte
+              inc   hl             ; Advance font pointer
+              call  PRN_CHAR_OUT   ; Send font byte to printer
+              djnz  $-5            ; All 5 bytes output?
+              ld    a,0xFF         ; Output all-ones byte (1 dot column right margin)
+              call  PRN_CHAR_OUT   ; Send to printer
+              ld    a,0x0F         ; Switch printer back to text mode (code 0x0F)
+              call  PRN_CHAR_OUT   ; Send to printer
+              pop   hl             ; Restore HL
+              pop   de             ; Restore DE
+              pop   bc             ; Restore BC
+              pop   af             ; Restore AF
+              ret                  ; Return
+
+; COPY output in graphics mode
+              xor   a              ; Reset interval counter
+              ld    (0x7AD6),a     ; Save to interval counter (LSB)
+              ld    (0x7AD6),a     ; Save to interval counter (MSB)
+              ld    a,0x08         ; Switch printer to graphics mode (code 0x08)
+              call  PRN_CHAR_OUT   ; Send to printer
+              ld    ix,SOUND_NOTE_VALUE ; Load address of graphics buffer (SOUND_NOTE_VALUE area)
+              ld    hl,0x7000      ; Screen start address
+              ld    de,START       ; DE = 0 (print pattern)
+              ld    c,0xC0         ; Shift mask bits 6,7 set
+              call  CHECK_BREAK_STOP ; BREAK key pressed?
+              push  hl             ; Save screen address on stack
+              call  PRN_GFXBUF_CLEAR ; Clear graphics buffer
+              ld    b,0x03         ; Line counter = 3 (combine 3 rows)
+              ld    a,(hl)         ; Load byte from screen RAM
+              and   c              ; Select pixel with shift mask
+              push  bc             ; Save counter and shift mask
+              ld    b,a            ; Selected pixel value into B
+              rrc   b              ; Rotate pixel value right
+              rrc   b              ; Rotate pixel value right
+              rrc   c              ; Rotate shift mask right
+              rrc   c              ; Rotate shift mask right
+              ld    a,c            ; Check if shift mask is right-aligned
+              cp    0x03           ; Is shift mask right-aligned?
+              jp    nz,0x39B3      ; No, keep shifting
+              ld    a,b            ; Pixel value back to A
+              pop   bc             ; Restore counter and shift mask
+              cp    0x03           ; Pixel color = red (3)?
+              jr    z,$+15         ; Yes!
+              cp    0x02           ; Pixel color = blue (2)?
+              jr    z,$+16         ; Yes!
+              cp    0x01           ; Pixel color = green (1)?
+              jr    z,$+18         ; Yes!
+              ld    de,START       ; Green: print pattern = 0x0000
+              jr    $+17           ; Continue
+              ld    de,0xE0E0      ; Red: print pattern = 0xE0E0
+              jr    $+12           ; Continue
+              ld    d,0x40         ; Blue: print pattern D = 0x40
+              ld    e,0xA0         ; Blue: print pattern E = 0xA0
+              jr    $+6            ; Continue
+              ld    d,0xA0         ; Yellow: print pattern D = 0xA0
+              ld    e,0x40         ; Yellow: print pattern E = 0x40
+              ld    a,(ix+0x00)    ; Load byte 0 from buffer
+              srl   a              ; Shift right 3 bits (previous row contribution)
+              srl   a              ; Shift right
+              srl   a              ; Shift right
+              push  hl             ; Save screen address
+              ld    hl,0x7AD3      ; Point to buffer byte 0
+              call  COPY_CARRY_SET ; Carry bit into buffer byte 0
+              pop   hl             ; Restore screen address
+              or    d              ; Merge with D print pattern
+              ld    (ix+0x00),a    ; Write byte 0 back to buffer
+              ld    a,(ix+0x02)    ; Load byte 2 from buffer
+              srl   a              ; Shift right 3 bits
+              srl   a              ; Shift right
+              srl   a              ; Shift right
+              push  hl             ; Save screen address
+              ld    hl,0x7AD5      ; Point to buffer byte 2
+              call  COPY_CARRY_SET ; Carry bit into buffer byte 2
+              pop   hl             ; Restore screen address
+              or    e              ; Merge with E print pattern
+              ld    (ix+0x02),a    ; Write byte 2 back to buffer
+              ld    a,0x20         ; HL = HL + 32 (advance to next screen row)
+              add   a,l            ; Add 32 to L
+              ld    l,a            ; HL L updated
+              ld    a,0x00         ; Carry into H
+              adc   a,h            ; Add carry
+              ld    h,a            ; H updated
+              djnz  $+82           ; 3 rows combined?
+              call  PRN_OUTPUT_BUF ; Yes, output the buffer
+              pop   hl             ; Restore screen address
+              srl   c              ; Shift mask 2 bits right
+              srl   c              ; Shift mask 2 bits right
+              ld    a,c            ; Shift mask zero?
+              or    a              ; Shift mask zero?
+              jr    nz,$-123       ; No, process next pixel in same byte
+              inc   hl             ; Yes, advance screen address by 1
+              ld    a,l            ; End of screen row?
+              and   0x1F           ; Check column count
+              jp    nz,0x39A4      ; No, process next screen byte
+              call  PRN_CR_LF      ; Output CR/LF for new line
+              ld    a,(0x7AD6)     ; Load interval counter
+              inc   a              ; Increment interval counter
+              cp    0x03           ; Is it row 3?
+              jr    nz,$+3         ; Not yet
+              xor   a              ; Yes, reset interval counter to 0
+              ld    (0x7AD6),a     ; Save updated interval counter
+              jr    nz,$+6         ; If non-zero, advance by 2 rows
+              ld    a,0x40         ; 2-row advance: offset = 64
+              jr    $+4            ; Skip to 1-row advance
+              ld    a,0x20         ; 1-row advance: offset = 32
+              add   a,l            ; Add offset to HL
+              ld    l,a            ; Update L
+              ld    a,0x00         ; Carry
+              adc   a,h            ; ADC carry
+              ld    h,a            ; Update H
+              cp    0x78           ; Is H >= 0x78? (past end of screen)
+              jp    nc,0x3A5F      ; Yes, print done
+              cp    0x77           ; H = 0x77 (last row)?
+              jp    nz,0x39A4      ; No, continue with next row
+              ld    a,l            ; Load L
+              cp    0xE0           ; Is L >= 0xE0 (last column of last row)?
+              jp    c,0x39A4       ; No, continue
+              ld    a,0xFF         ; Set 'last row' marker (0xFF)
+              ld    (0x7AD6),a     ; Save interval counter (last row flag)
+              jp    0x39A4         ; Process next row
+              ld    a,0x0F         ; Graphics output complete - switch printer to text mode
+              call  PRN_CHAR_OUT   ; Send 0x0F (text mode) to printer
+              pop   hl             ; Restore program pointer
+              ei                   ; Enable interrupts
+              ret                  ; Return
+              jp    0x39AF         ; Jump to carry-into-buffer routine
+
+; Set or clear bit 0 of buffer byte depending on carry
+              jp    nc,0x3A70      ; If no carry, clear bit 0
+              set   0,(hl)         ; Set bit 0 of (HL)
+              ret                  ; Return
+              res   0,(hl)         ; Clear bit 0 of (HL)
+              ret                  ; Return
+
+; Output graphics print buffer to printer (2 bytes)
+              call  PRN_OUTPUT_BUF_BYTE ; Output buffer bytes +0 and +1
+              inc   ix             ; Advance IX by 2
+              inc   ix             ; Advance IX by 2
+              call  PRN_OUTPUT_BUF_BYTE ; Output buffer bytes +0 and +1
+              dec   ix             ; Retreat IX by 2
+              dec   ix             ; Retreat IX by 2
+              call  PRN_OUTPUT_BUF_BYTE ; Output buffer bytes +0 and +1
+              ret                  ; Return
+
+; Output one pair of graphics buffer bytes to printer
+              ld    a,(ix+0x01)    ; Load carry from buffer byte +1
+              rrc   a              ; Rotate right into carry
+              ld    a,(ix+0x00)    ; Load buffer byte +0
+              push  af             ; Save on stack
+              ld    a,(0x7AD6)     ; Load interval counter
+              cp    0x02           ; Is this row 3?
+              jr    z,$+31         ; Yes!
+              cp    0x01           ; Is this row 2?
+              jr    z,$+24         ; Yes!
+              pop   af             ; Row 1: load byte from stack
+              rla                  ; Shift carry into high bit (RLA)
+              push  af             ; Save on stack
+              ld    a,(0x7AD6)     ; Load interval counter
+              cp    0xFF           ; Last row flag (0xFF)?
+              jr    nz,$+7         ; No
+              pop   af             ; Yes: load from stack
+              and   0x07           ; Keep only lower 3 bits
+              jr    $+3            ; Skip
+              pop   af             ; Not last row: load from stack
+              or    0x80           ; Set bit 7
+              call  PRN_CHAR_OUT   ; Output byte to printer
+              ret                  ; Return
+              pop   af             ; Row 1 exit: load from stack
+              jr    $-21           ; Jump back to row 1 processing
+              pop   af             ; Row 3: load from stack
+              rra                  ; Shift carry into low bit (RRA)
+              jr    $-25           ; Jump back
+
+; Output character to printer - checks for block/inverted graphics
+              or    a              ; Is bit 7 set? (block graphics or inverted)
+              jp    m,0x3AD8       ; Yes, jump to graphics handler
+
+; Output one character byte to printer
+              push  af             ; Save character on stack
+              call  CHECK_BREAK    ; Check BREAK key
+              jp    nc,0x3AC4      ; If BREAK pressed, return
+              pop   af             ; Restore character from stack
+              scf                  ; Set Carry flag (BREAK)
+              ret                  ; Return with BREAK error
+              in    a,(0x00)       ; Read printer port (port 0)
+              bit   0,a            ; BUSY signal?
+              jr    nz,$-13        ; Yes, wait
+              pop   af             ; Restore character
+              out   (0x0E),a       ; Output byte to printer port 0x0E
+              out   (0x0D),a       ; Send strobe to printer port 0x0D
+              cp    0x0D           ; Carriage return (0x0D)?
+              scf                  ; Set Carry
+              ccf                  ; Complement Carry (clear it)
+              ret   nz             ; Return if not CR
+              ld    a,0x0A         ; Send line feed (0x0A)
+              jr    $-28           ; Output LF to printer
+
+; Output character - handle block graphics or inverted
+              bit   6,a            ; Is bit 6 set? (inverted character)
+              jp    z,PRN_GFX_CHAR ; No, it is block graphics - output via PRN_GFX_CHAR
+              and   0x3F           ; Clear bits 6 and 7
+              jp    PRN_INV_CHAR   ; Output inverted character
+
+; Output carriage return to printer
+              ld    a,0x0D         ; Load CR code (0x0D)
+              call  PRN_CHAR_OUT   ; Send CR to printer
+              ret                  ; Return
+
+; Check if BREAK key is pressed. Output: Carry=1 if BREAK pressed.
+              or    a              ; Clear Carry flag
+              ld    a,(0x68FD)     ; Load keyboard row 2 (port 0x68FD)
+              bit   2,a            ; Is CTRL key pressed?
+              ret   nz             ; No, return (not pressed)
+              ld    a,(0x68DF)     ; Load keyboard row 6 (port 0x68DF)
+              scf                  ; Set Carry flag
+              bit   2,a            ; Test bit 2 (BREAK key)
+              ret   z              ; BREAK pressed? Return with Carry set
+              ccf                  ; Not BREAK, clear Carry
+              ret                  ; Return
+
+; Check BREAK key; if pressed, stop execution and return to BASIC
+              call  CHECK_BREAK    ; Check BREAK key
+              ret   nc             ; Not pressed, return
+              pop   hl             ; Pop return address (discard)
+              pop   hl             ; Pop caller's return address (discard)
+              ld    a,(FLAG2)      ; Load Flag 2
+              and   0xB7           ; Clear CRUN and VERIFY flags (AND with 0xB7)
+              ld    (FLAG2),a      ; Save updated Flag 2
+              ld    a,0x01         ; A = 1 (flag for BREAK)
+              ei                   ; Enable interrupts
+              jp    0x1DA0         ; Jump to BASIC error handler
+
+; Wait until screen output buffer is fully flushed
+              ld    a,(0x789C)     ; Load device type
+              or    a              ; Is it 0 (screen)?
+              jp    nz,PRINT_NEXT  ; No, return immediately
+              ld    a,(0x7AAF)     ; Load output buffer counter
+              or    a              ; Buffer empty (= 0)?
+              jr    nz,$-4         ; No, keep waiting
+              jp    PRINT_NEXT     ; Return to PRINT_NEXT
+
+; If output buffer is empty, load cursor column position
+              ld    a,(0x7AAF)     ; Load output buffer counter
+              or    a              ; Buffer empty?
+              ret   nz             ; No, return
+              ld    a,(TTYPOS)     ; Load cursor column position (TTYPOS)
+              ret                  ; Return
               ld    hl,0x68EF
               bit   4,(hl)
               jr    nz,$+26
@@ -10020,7 +10048,7 @@ TAPE_LOAD_COMMON:
               bit   4,(hl)
               jr    z,$-2
               call  0x3B48
-              call  0x3AF8
+              call  CHECK_BREAK_STOP
               bit   4,(hl)
               jr    nz,$-5
               call  0x3B48
@@ -10069,94 +10097,20 @@ TAPE_LOAD_COMMON:
               call  PRINT_BOL_CHECK
               pop   af
               ret   
-              pop   bc
-              cp    (hl)
-              and   d
-              xor   (hl)
-              or    c
-              add   a,e
-              DEFB  0xED
-              xor   0xED
-              add   a,e
-              add   a,b
-              or    (hl)
-              or    (hl)
-              or    (hl)
-              pop   bc
-              pop   bc
-              cp    (hl)
-              cp    (hl)
-              cp    (hl)
-              defb  0x00DD,0x0080,0x00BE
-              cp    (hl)
-              cp    (hl)
-              pop   bc
-              add   a,b
-              or    (hl)
-              or    (hl)
-              or    (hl)
-              cp    (hl)
-              add   a,b
-              or    0xF6
-              or    0xFE
-              pop   bc
-              cp    (hl)
-              cp    (hl)
-              xor   (hl)
-              adc   a,h
-              add   a,b
-              rst   0x30
-              rst   0x30
-              rst   0x30
-              add   a,b
-              rst   0x38
-              cp    (hl)
-              add   a,b
-              cp    (hl)
-              rst   0x38
-              rst   0x18
-              cp    a
-              cp    a
-              ret   nz
-              cp    0x80
-              rst   0x30
-              ex    de,hl
-              cp    (ix-0x80)
-              cp    a
-              cp    a
-              cp    a
-              cp    a
-              add   a,b
-              defb  0x00FD,0x00F3,0x00FD
-              add   a,b
-              add   a,b
-              defb  0x00FD,0x00FB,0x00F7
-              add   a,b
-              pop   bc
-              cp    (hl)
-              cp    (hl)
-              cp    (hl)
-              pop   bc
-              add   a,b
-              or    0xF6
-              or    0xF9
-              pop   bc
-              cp    (hl)
-              xor   (hl)
-              sbc   a,0xA1
-              add   a,b
-              or    0xE6
-              sub   0xB9
-              exx   
-              or    (hl)
-              or    (hl)
-              or    (hl)
-              call  0xFEFE
-              add   a,b
-              cp    0xFE
-              ret   nz
-              cp    a
-              cp    a
+              DEFB  0xC1,0xBE,0xA2,0xAE,0xB1,0x83,0xED,0xEE ; Printer graphics font data table (5 bytes per character)
+              DEFB  0xED,0x83,0x80,0xB6,0xB6,0xB6,0xC1,0xC1
+              DEFB  0xBE,0xBE,0xBE,0xDD,0x80,0xBE,0xBE,0xBE
+              DEFB  0xC1,0x80,0xB6,0xB6,0xB6,0xBE,0x80,0xF6
+              DEFB  0xF6,0xF6,0xFE,0xC1,0xBE,0xBE,0xAE,0x8C
+              DEFB  0x80,0xF7,0xF7,0xF7,0x80,0xFF,0xBE,0x80
+              DEFB  0xBE,0xFF,0xDF,0xBF,0xBF,0xC0,0xFE,0x80
+              DEFB  0xF7,0xEB,0xDD,0xBE,0x80,0xBF,0xBF,0xBF
+              DEFB  0xBF,0x80,0xFD,0xF3,0xFD,0x80,0x80,0xFD
+              DEFB  0xFB,0xF7,0x80,0xC1,0xBE,0xBE,0xBE,0xC1
+              DEFB  0x80,0xF6,0xF6,0xF6,0xF9,0xC1,0xBE,0xAE
+              DEFB  0xDE,0xA1,0x80,0xF6,0xE6,0xD6,0xB9,0xD9
+              DEFB  0xB6,0xB6,0xB6,0xCD,0xFE,0xFE,0x80,0xFE
+              DEFB  0xFE,0xC0,0xBF,0xBF
               cp    a
               ret   nz
               ret   m

@@ -1984,6 +1984,11 @@ offset = 14432
 end = 14439
 type = DATA_BYTE
 
+[region]
+offset = 15252
+end = 15359
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -32094,6 +32099,1122 @@ text = Parameter: ')'
 offset = 14609
 text = Return
 
+[comment]
+offset = 14610
+text = Disable interrupts
+
+[comment]
+offset = 14611
+text = Save program pointer on stack
+
+[comment]
+offset = 14612
+text = Load I/O latch byte
+
+[comment]
+offset = 14615
+text = Is machine in graphics mode?
+
+[comment]
+offset = 14617
+text = Yes, graphics output
+
+[comment]
+offset = 14620
+text = Screen start address
+
+[comment]
+offset = 14623
+text = Line counter = 16
+
+[comment]
+offset = 14625
+text = Column counter = 32
+
+[comment]
+offset = 14627
+text = Load character from screen RAM
+
+[comment]
+offset = 14628
+text = Block graphics character?
+
+[comment]
+offset = 14629
+text = No
+
+[comment]
+offset = 14632
+text = Yes, output block graphics character
+
+[comment]
+offset = 14635
+text = Continue
+
+[comment]
+offset = 14637
+text = Output plain text character to printer
+
+[comment]
+offset = 14640
+text = Unused
+
+[comment]
+offset = 14641
+text = Clear bits 6 and 7
+
+[comment]
+offset = 14643
+text = Output inverted character
+
+[comment]
+offset = 14646
+text = Continue
+
+[comment]
+offset = 14648
+text = Clear bits 6 and 7
+
+[comment]
+offset = 14650
+text = Test bit 5 (inverted?)
+
+[comment]
+offset = 14652
+text = No, skip
+
+[comment]
+offset = 14654
+text = Yes, add 0x40 for real ASCII character
+
+[comment]
+offset = 14656
+text = Output character to printer
+
+[comment]
+offset = 14659
+text = Advance screen address
+
+[comment]
+offset = 14660
+text = End of row?
+
+[comment]
+offset = 14662
+text = Output carriage return
+
+[comment]
+offset = 14664
+text = Send CR to printer
+
+[comment]
+offset = 14667
+text = BREAK key pressed?
+
+[comment]
+offset = 14670
+text = Line counter - 1
+
+[comment]
+offset = 14671
+text = Finished?
+
+[comment]
+offset = 14672
+text = Finished?
+
+[comment]
+offset = 14673
+text = No, process next line
+
+[comment]
+offset = 14675
+text = Restore program pointer
+
+[comment]
+offset = 14676
+text = Enable interrupts
+
+[comment]
+offset = 14677
+text = Return
+
+[comment]
+offset = 14678
+text = Save AF
+
+[comment]
+offset = 14679
+text = Save BC
+
+[comment]
+offset = 14680
+text = Save DE
+
+[comment]
+offset = 14681
+text = Save HL
+
+[comment]
+offset = 14682
+text = Character code as HL offset
+
+[comment]
+offset = 14683
+text = H = 0
+
+[comment]
+offset = 14685
+text = Switch printer to graphics mode (code 0x08)
+
+[comment]
+offset = 14687
+text = Output 0x08 to printer
+
+[comment]
+offset = 14690
+text = Loop counter = 4 (multiply char by 5)
+
+[comment]
+offset = 14692
+text = HL = character code
+
+[comment]
+offset = 14694
+text = Clear carry
+
+[comment]
+offset = 14695
+text = HL = HL + HL (multiply)
+
+[comment]
+offset = 14697
+text = Repeat 4 times (multiply by 5 total)
+
+[comment]
+offset = 14699
+text = Result (char * 5) into BC
+
+[comment]
+offset = 14700
+text = BC = char offset
+
+[comment]
+offset = 14701
+text = Base address of printer font table
+
+[comment]
+offset = 14704
+text = HL = font entry address
+
+[comment]
+offset = 14705
+text = Output all-ones byte (1 dot column left margin)
+
+[comment]
+offset = 14707
+text = Send to printer
+
+[comment]
+offset = 14710
+text = Loop counter = 5 (5 bytes per character)
+
+[comment]
+offset = 14712
+text = Load font byte
+
+[comment]
+offset = 14713
+text = Advance font pointer
+
+[comment]
+offset = 14714
+text = Send font byte to printer
+
+[comment]
+offset = 14717
+text = All 5 bytes output?
+
+[comment]
+offset = 14719
+text = Output all-ones byte (1 dot column right margin)
+
+[comment]
+offset = 14721
+text = Send to printer
+
+[comment]
+offset = 14724
+text = Switch printer back to text mode (code 0x0F)
+
+[comment]
+offset = 14726
+text = Send to printer
+
+[comment]
+offset = 14729
+text = Restore HL
+
+[comment]
+offset = 14730
+text = Restore DE
+
+[comment]
+offset = 14731
+text = Restore BC
+
+[comment]
+offset = 14732
+text = Restore AF
+
+[comment]
+offset = 14733
+text = Return
+
+[comment]
+offset = 14734
+text = Reset interval counter
+
+[comment]
+offset = 14735
+text = Save to interval counter (LSB)
+
+[comment]
+offset = 14738
+text = Save to interval counter (MSB)
+
+[comment]
+offset = 14741
+text = Switch printer to graphics mode (code 0x08)
+
+[comment]
+offset = 14743
+text = Send to printer
+
+[comment]
+offset = 14746
+text = Load address of graphics buffer (SOUND_NOTE_VALUE area)
+
+[comment]
+offset = 14750
+text = Screen start address
+
+[comment]
+offset = 14753
+text = DE = 0 (print pattern)
+
+[comment]
+offset = 14756
+text = Shift mask bits 6,7 set
+
+[comment]
+offset = 14758
+text = BREAK key pressed?
+
+[comment]
+offset = 14761
+text = Save screen address on stack
+
+[comment]
+offset = 14762
+text = Clear graphics buffer
+
+[comment]
+offset = 14765
+text = Line counter = 3 (combine 3 rows)
+
+[comment]
+offset = 14767
+text = Load byte from screen RAM
+
+[comment]
+offset = 14768
+text = Select pixel with shift mask
+
+[comment]
+offset = 14769
+text = Save counter and shift mask
+
+[comment]
+offset = 14770
+text = Selected pixel value into B
+
+[comment]
+offset = 14771
+text = Rotate pixel value right
+
+[comment]
+offset = 14773
+text = Rotate pixel value right
+
+[comment]
+offset = 14775
+text = Rotate shift mask right
+
+[comment]
+offset = 14777
+text = Rotate shift mask right
+
+[comment]
+offset = 14779
+text = Check if shift mask is right-aligned
+
+[comment]
+offset = 14780
+text = Is shift mask right-aligned?
+
+[comment]
+offset = 14782
+text = No, keep shifting
+
+[comment]
+offset = 14785
+text = Pixel value back to A
+
+[comment]
+offset = 14786
+text = Restore counter and shift mask
+
+[comment]
+offset = 14787
+text = Pixel color = red (3)?
+
+[comment]
+offset = 14789
+text = Yes!
+
+[comment]
+offset = 14791
+text = Pixel color = blue (2)?
+
+[comment]
+offset = 14793
+text = Yes!
+
+[comment]
+offset = 14795
+text = Pixel color = green (1)?
+
+[comment]
+offset = 14797
+text = Yes!
+
+[comment]
+offset = 14799
+text = Green: print pattern = 0x0000
+
+[comment]
+offset = 14802
+text = Continue
+
+[comment]
+offset = 14804
+text = Red: print pattern = 0xE0E0
+
+[comment]
+offset = 14807
+text = Continue
+
+[comment]
+offset = 14809
+text = Blue: print pattern D = 0x40
+
+[comment]
+offset = 14811
+text = Blue: print pattern E = 0xA0
+
+[comment]
+offset = 14813
+text = Continue
+
+[comment]
+offset = 14815
+text = Yellow: print pattern D = 0xA0
+
+[comment]
+offset = 14817
+text = Yellow: print pattern E = 0x40
+
+[comment]
+offset = 14819
+text = Load byte 0 from buffer
+
+[comment]
+offset = 14822
+text = Shift right 3 bits (previous row contribution)
+
+[comment]
+offset = 14824
+text = Shift right
+
+[comment]
+offset = 14826
+text = Shift right
+
+[comment]
+offset = 14828
+text = Save screen address
+
+[comment]
+offset = 14829
+text = Point to buffer byte 0
+
+[comment]
+offset = 14832
+text = Carry bit into buffer byte 0
+
+[comment]
+offset = 14835
+text = Restore screen address
+
+[comment]
+offset = 14836
+text = Merge with D print pattern
+
+[comment]
+offset = 14837
+text = Write byte 0 back to buffer
+
+[comment]
+offset = 14840
+text = Load byte 2 from buffer
+
+[comment]
+offset = 14843
+text = Shift right 3 bits
+
+[comment]
+offset = 14845
+text = Shift right
+
+[comment]
+offset = 14847
+text = Shift right
+
+[comment]
+offset = 14849
+text = Save screen address
+
+[comment]
+offset = 14850
+text = Point to buffer byte 2
+
+[comment]
+offset = 14853
+text = Carry bit into buffer byte 2
+
+[comment]
+offset = 14856
+text = Restore screen address
+
+[comment]
+offset = 14857
+text = Merge with E print pattern
+
+[comment]
+offset = 14858
+text = Write byte 2 back to buffer
+
+[comment]
+offset = 14861
+text = HL = HL + 32 (advance to next screen row)
+
+[comment]
+offset = 14863
+text = Add 32 to L
+
+[comment]
+offset = 14864
+text = HL L updated
+
+[comment]
+offset = 14865
+text = Carry into H
+
+[comment]
+offset = 14867
+text = Add carry
+
+[comment]
+offset = 14868
+text = H updated
+
+[comment]
+offset = 14869
+text = 3 rows combined?
+
+[comment]
+offset = 14871
+text = Yes, output the buffer
+
+[comment]
+offset = 14874
+text = Restore screen address
+
+[comment]
+offset = 14875
+text = Shift mask 2 bits right
+
+[comment]
+offset = 14877
+text = Shift mask 2 bits right
+
+[comment]
+offset = 14879
+text = Shift mask zero?
+
+[comment]
+offset = 14880
+text = Shift mask zero?
+
+[comment]
+offset = 14881
+text = No, process next pixel in same byte
+
+[comment]
+offset = 14883
+text = Yes, advance screen address by 1
+
+[comment]
+offset = 14884
+text = End of screen row?
+
+[comment]
+offset = 14885
+text = Check column count
+
+[comment]
+offset = 14887
+text = No, process next screen byte
+
+[comment]
+offset = 14890
+text = Output CR/LF for new line
+
+[comment]
+offset = 14893
+text = Load interval counter
+
+[comment]
+offset = 14896
+text = Increment interval counter
+
+[comment]
+offset = 14897
+text = Is it row 3?
+
+[comment]
+offset = 14899
+text = Not yet
+
+[comment]
+offset = 14901
+text = Yes, reset interval counter to 0
+
+[comment]
+offset = 14902
+text = Save updated interval counter
+
+[comment]
+offset = 14905
+text = If non-zero, advance by 2 rows
+
+[comment]
+offset = 14907
+text = 2-row advance: offset = 64
+
+[comment]
+offset = 14909
+text = Skip to 1-row advance
+
+[comment]
+offset = 14911
+text = 1-row advance: offset = 32
+
+[comment]
+offset = 14913
+text = Add offset to HL
+
+[comment]
+offset = 14914
+text = Update L
+
+[comment]
+offset = 14915
+text = Carry
+
+[comment]
+offset = 14917
+text = ADC carry
+
+[comment]
+offset = 14918
+text = Update H
+
+[comment]
+offset = 14919
+text = Is H >= 0x78? (past end of screen)
+
+[comment]
+offset = 14921
+text = Yes, print done
+
+[comment]
+offset = 14924
+text = H = 0x77 (last row)?
+
+[comment]
+offset = 14926
+text = No, continue with next row
+
+[comment]
+offset = 14929
+text = Load L
+
+[comment]
+offset = 14930
+text = Is L >= 0xE0 (last column of last row)?
+
+[comment]
+offset = 14932
+text = No, continue
+
+[comment]
+offset = 14935
+text = Set 'last row' marker (0xFF)
+
+[comment]
+offset = 14937
+text = Save interval counter (last row flag)
+
+[comment]
+offset = 14940
+text = Process next row
+
+[comment]
+offset = 14943
+text = Graphics output complete - switch printer to text mode
+
+[comment]
+offset = 14945
+text = Send 0x0F (text mode) to printer
+
+[comment]
+offset = 14948
+text = Restore program pointer
+
+[comment]
+offset = 14949
+text = Enable interrupts
+
+[comment]
+offset = 14950
+text = Return
+
+[comment]
+offset = 14951
+text = Jump to carry-into-buffer routine
+
+[comment]
+offset = 14954
+text = If no carry, clear bit 0
+
+[comment]
+offset = 14957
+text = Set bit 0 of (HL)
+
+[comment]
+offset = 14959
+text = Return
+
+[comment]
+offset = 14960
+text = Clear bit 0 of (HL)
+
+[comment]
+offset = 14962
+text = Return
+
+[comment]
+offset = 14963
+text = Output buffer bytes +0 and +1
+
+[comment]
+offset = 14966
+text = Advance IX by 2
+
+[comment]
+offset = 14968
+text = Advance IX by 2
+
+[comment]
+offset = 14970
+text = Output buffer bytes +0 and +1
+
+[comment]
+offset = 14973
+text = Retreat IX by 2
+
+[comment]
+offset = 14975
+text = Retreat IX by 2
+
+[comment]
+offset = 14977
+text = Output buffer bytes +0 and +1
+
+[comment]
+offset = 14980
+text = Return
+
+[comment]
+offset = 14981
+text = Load carry from buffer byte +1
+
+[comment]
+offset = 14984
+text = Rotate right into carry
+
+[comment]
+offset = 14986
+text = Load buffer byte +0
+
+[comment]
+offset = 14989
+text = Save on stack
+
+[comment]
+offset = 14990
+text = Load interval counter
+
+[comment]
+offset = 14993
+text = Is this row 3?
+
+[comment]
+offset = 14995
+text = Yes!
+
+[comment]
+offset = 14997
+text = Is this row 2?
+
+[comment]
+offset = 14999
+text = Yes!
+
+[comment]
+offset = 15001
+text = Row 1: load byte from stack
+
+[comment]
+offset = 15002
+text = Shift carry into high bit (RLA)
+
+[comment]
+offset = 15003
+text = Save on stack
+
+[comment]
+offset = 15004
+text = Load interval counter
+
+[comment]
+offset = 15007
+text = Last row flag (0xFF)?
+
+[comment]
+offset = 15009
+text = No
+
+[comment]
+offset = 15011
+text = Yes: load from stack
+
+[comment]
+offset = 15012
+text = Keep only lower 3 bits
+
+[comment]
+offset = 15014
+text = Skip
+
+[comment]
+offset = 15016
+text = Not last row: load from stack
+
+[comment]
+offset = 15017
+text = Set bit 7
+
+[comment]
+offset = 15019
+text = Output byte to printer
+
+[comment]
+offset = 15022
+text = Return
+
+[comment]
+offset = 15023
+text = Row 1 exit: load from stack
+
+[comment]
+offset = 15024
+text = Jump back to row 1 processing
+
+[comment]
+offset = 15026
+text = Row 3: load from stack
+
+[comment]
+offset = 15027
+text = Shift carry into low bit (RRA)
+
+[comment]
+offset = 15028
+text = Jump back
+
+[comment]
+offset = 15030
+text = Is bit 7 set? (block graphics or inverted)
+
+[comment]
+offset = 15031
+text = Yes, jump to graphics handler
+
+[comment]
+offset = 15034
+text = Save character on stack
+
+[comment]
+offset = 15035
+text = Check BREAK key
+
+[comment]
+offset = 15038
+text = If BREAK pressed, return
+
+[comment]
+offset = 15041
+text = Restore character from stack
+
+[comment]
+offset = 15042
+text = Set Carry flag (BREAK)
+
+[comment]
+offset = 15043
+text = Return with BREAK error
+
+[comment]
+offset = 15044
+text = Read printer port (port 0)
+
+[comment]
+offset = 15046
+text = BUSY signal?
+
+[comment]
+offset = 15048
+text = Yes, wait
+
+[comment]
+offset = 15050
+text = Restore character
+
+[comment]
+offset = 15051
+text = Output byte to printer port 0x0E
+
+[comment]
+offset = 15053
+text = Send strobe to printer port 0x0D
+
+[comment]
+offset = 15055
+text = Carriage return (0x0D)?
+
+[comment]
+offset = 15057
+text = Set Carry
+
+[comment]
+offset = 15058
+text = Complement Carry (clear it)
+
+[comment]
+offset = 15059
+text = Return if not CR
+
+[comment]
+offset = 15060
+text = Send line feed (0x0A)
+
+[comment]
+offset = 15062
+text = Output LF to printer
+
+[comment]
+offset = 15064
+text = Is bit 6 set? (inverted character)
+
+[comment]
+offset = 15066
+text = No, it is block graphics - output via PRN_GFX_CHAR
+
+[comment]
+offset = 15069
+text = Clear bits 6 and 7
+
+[comment]
+offset = 15071
+text = Output inverted character
+
+[comment]
+offset = 15074
+text = Load CR code (0x0D)
+
+[comment]
+offset = 15076
+text = Send CR to printer
+
+[comment]
+offset = 15079
+text = Return
+
+[comment]
+offset = 15080
+text = Clear Carry flag
+
+[comment]
+offset = 15081
+text = Load keyboard row 2 (port 0x68FD)
+
+[comment]
+offset = 15084
+text = Is CTRL key pressed?
+
+[comment]
+offset = 15086
+text = No, return (not pressed)
+
+[comment]
+offset = 15087
+text = Load keyboard row 6 (port 0x68DF)
+
+[comment]
+offset = 15090
+text = Set Carry flag
+
+[comment]
+offset = 15091
+text = Test bit 2 (BREAK key)
+
+[comment]
+offset = 15093
+text = BREAK pressed? Return with Carry set
+
+[comment]
+offset = 15094
+text = Not BREAK, clear Carry
+
+[comment]
+offset = 15095
+text = Return
+
+[comment]
+offset = 15096
+text = Check BREAK key
+
+[comment]
+offset = 15099
+text = Not pressed, return
+
+[comment]
+offset = 15100
+text = Pop return address (discard)
+
+[comment]
+offset = 15101
+text = Pop caller's return address (discard)
+
+[comment]
+offset = 15102
+text = Load Flag 2
+
+[comment]
+offset = 15105
+text = Clear CRUN and VERIFY flags (AND with 0xB7)
+
+[comment]
+offset = 15107
+text = Save updated Flag 2
+
+[comment]
+offset = 15110
+text = A = 1 (flag for BREAK)
+
+[comment]
+offset = 15112
+text = Enable interrupts
+
+[comment]
+offset = 15113
+text = Jump to BASIC error handler
+
+[comment]
+offset = 15116
+text = Load device type
+
+[comment]
+offset = 15119
+text = Is it 0 (screen)?
+
+[comment]
+offset = 15120
+text = No, return immediately
+
+[comment]
+offset = 15123
+text = Load output buffer counter
+
+[comment]
+offset = 15126
+text = Buffer empty (= 0)?
+
+[comment]
+offset = 15127
+text = No, keep waiting
+
+[comment]
+offset = 15129
+text = Return to PRINT_NEXT
+
+[comment]
+offset = 15132
+text = Load output buffer counter
+
+[comment]
+offset = 15135
+text = Buffer empty?
+
+[comment]
+offset = 15136
+text = No, return
+
+[comment]
+offset = 15137
+text = Load cursor column position (TTYPOS)
+
+[comment]
+offset = 15140
+text = Return
+
+[comment]
+offset = 15252
+text = Printer graphics font data table (5 bytes per character)
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -34334,4 +35455,60 @@ text = Supplementary routine for the POINT function
 [block]
 offset = 14595
 text = Supplementary routine for the SET and RESET statements
+
+[block]
+offset = 14610
+text = COPY command
+
+[block]
+offset = 14678
+text = Output inverted character to printer
+
+[block]
+offset = 14734
+text = COPY output in graphics mode
+
+[block]
+offset = 14954
+text = Set or clear bit 0 of buffer byte depending on carry
+
+[block]
+offset = 14963
+text = Output graphics print buffer to printer (2 bytes)
+
+[block]
+offset = 14981
+text = Output one pair of graphics buffer bytes to printer
+
+[block]
+offset = 15030
+text = Output character to printer - checks for block/inverted graphics
+
+[block]
+offset = 15034
+text = Output one character byte to printer
+
+[block]
+offset = 15064
+text = Output character - handle block graphics or inverted
+
+[block]
+offset = 15074
+text = Output carriage return to printer
+
+[block]
+offset = 15080
+text = Check if BREAK key is pressed. Output: Carry=1 if BREAK pressed.
+
+[block]
+offset = 15096
+text = Check BREAK key; if pressed, stop execution and return to BASIC
+
+[block]
+offset = 15116
+text = Wait until screen output buffer is fully flushed
+
+[block]
+offset = 15132
+text = If output buffer is empty, load cursor column position
 

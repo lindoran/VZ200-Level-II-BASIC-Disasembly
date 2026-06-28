@@ -454,7 +454,7 @@
 0332  B7       .                   or    a              ; and test
 0333  79       y                   ld    a,c            ; character back to A
 0334  C1       .                   pop   bc             ; restore BC
-0335  FA543B   .T;                 jp    m,0x3B54       ; Cassette? yes - continue at 3B54H
+0335  FA543B   .T;                 jp    m,TAPE_CMD_WRITE ; Cassette? yes - continue at 3B54H
 0338  2062      b                  jr    nz,$+100       ; Printer? yes - to printer output
                      ; Output a character to the screen
                      SCREEN_OUT_CHAR:
@@ -819,7 +819,7 @@
 059F  DD7E03   .~.                 ld    a,(ix+0x03)    ; lines/page
 05A2  DD9604   ...                 sub   (ix+0x04)      ; - number of printed lines
 05A5  47       G                   ld    b,a            ; in B as skip counter
-05A6  CDE23A   ..:                 call  0x3AE2         ; output Carriage-Return + Line Feed
+05A6  CDE23A   ..:                 call  PRN_CR_LF      ; output Carriage-Return + Line Feed
 05A9  10FB     ..                  djnz  $-3            ; until new page
 05AB  1812     ..                  jr    $+20           ; Relative jump to $+20
 05AD  CDB63A   ..:                 call  0x3AB6         ; character output
@@ -5403,7 +5403,7 @@
 20AE  FE2C     .,                  cp    0x2C           ; comma ?
 20B0  CA0821   ..!                 jp    z,PRINT_COMMA  ; yes, to next TAB position
 20B3  FE3B     .;                  cp    0x3B           ; semicolon ?
-20B5  CA0C3B   ..;                 jp    z,0x3B0C       ; wait until all characters output.
+20B5  CA0C3B   ..;                 jp    z,WAIT_OUTPUT_EMPTY ; wait until all characters output.
 20B8  C1       .                   pop   bc             ; load program pointer
 20B9  CD3723   .7#                 call  0x2337         ; evaluate expression
 20BC  E5       .                   push  hl             ; program pointer on stack
@@ -5437,7 +5437,7 @@
 20F6  C39B20   ..                  jp    PRINT_LOOP     ; continue!
                      ; Check if cursor is at start of line
                      PRINT_BOL_CHECK:
-20F9  CD1C3B   ..;                 call  0x3B1C         ; load cursor position
+20F9  CD1C3B   ..;                 call  GET_TTYPOS     ; load cursor position
 20FC  B7       .                   or    a              ; = 0 ?
 20FD  C8       .                   ret   z              ; yes, back
                      ; Output Carriage-Return
@@ -5533,11 +5533,11 @@
 21A6  7E       ~                   ld    a,(hl)         ; load character
 21A7  2020                         jr    nz,$+34        ; no cassette!
                      ; Read from Cassette
-21A9  CD683B   .h;                 call  0x3B68         ; search file on cassette
+21A9  CD683B   .h;                 call  TAPE_CMD_SEARCH ; search file on cassette
 21AC  E5       .                   push  hl             ; program pointer on stack
 21AD  06FA     ..                  ld    b,0xFA         ; max. 250 characters
 21AF  2AA778   *.x                 ld    hl,(IO_BUF_PTR) ; address I/O buffer
-21B2  CD883B   ..;                 call  0x3B88         ; read one byte
+21B2  CD883B   ..;                 call  TAPE_READ_1_BYTE ; read one byte
 21B5  77       w                   ld    (hl),a         ; transfer to buffer
 21B6  23       #                   inc   hl             ; buffer pointer + 1
 21B7  FE0D     ..                  cp    0x0D           ; end of record?
@@ -7436,7 +7436,7 @@
 2C3B  E5       .                   push  hl             ; Transfer tone duration to BC
 2C3C  C1       .                   pop   bc             ; as cycle counter
 2C3D  E1       .                   pop   hl             ; Load frequency value
-2C3E  CDF83A   ..:                 call  0x3AF8         ; BREAK key pressed?
+2C3E  CDF83A   ..:                 call  CHECK_BREAK_STOP ; BREAK key pressed?
 2C41  3A3B78   :;x                 ld    a,(OUT_LATCH)  ; Load output latch byte
 2C44  57       W                   ld    d,a            ; in D
 2C45  CD6934   .i4                 call  SOUND_PULSE    ; Output tone
@@ -7465,7 +7465,7 @@
 2C65  D1       .                   pop   de             ; Multiply base value by B+1
 2C66  19       .                   add   hl,de          ; = pause counter
 2C67  10FD     ..                  djnz  $-1
-2C69  CDF83A   ..:                 call  0x3AF8         ; BREAK key pressed?
+2C69  CDF83A   ..:                 call  CHECK_BREAK_STOP ; BREAK key pressed?
 2C6C  2B       +                   dec   hl             ; Counter - 1
 2C6D  7D       }                   ld    a,l            ; = 0?
 2C6E  B4       .                   or    h
@@ -7476,7 +7476,7 @@
 2C73  C5       .                   push  bc             ; Save BC on stack
 2C74  47       G                   ld    b,a            ; Character in B
 2C75  3E08     >.                  ld    a,0x08         ; Switch printer to graphics mode
-2C77  CDBA3A   ..:                 call  0x3ABA         ; by outputting X'08'
+2C77  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; by outputting X'08'
 2C7A  78       x                   ld    a,b            ; Character back in A
 2C7B  E60F     ..                  and   0x0F           ; Clear high nibble
 2C7D  E5       .                   push  hl             ; Save HL on stack
@@ -7492,17 +7492,17 @@
 2C8A  7E       ~                   ld    a,(hl)
 2C8B  4F       O                   ld    c,a            ; Load 2nd table value in C
 2C8C  78       x                   ld    a,b
-2C8D  CDBA3A   ..:                 call  0x3ABA         ; Output value three times to printer
-2C90  CDBA3A   ..:                 call  0x3ABA
-2C93  CDBA3A   ..:                 call  0x3ABA
+2C8D  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Output value three times to printer
+2C90  CDBA3A   ..:                 call  PRN_CHAR_OUT
+2C93  CDBA3A   ..:                 call  PRN_CHAR_OUT
 2C96  79       y                   ld    a,c            ; 2nd table value in A
-2C97  CDBA3A   ..:                 call  0x3ABA         ; Output value three times to printer
-2C9A  CDBA3A   ..:                 call  0x3ABA
-2C9D  CDBA3A   ..:                 call  0x3ABA
+2C97  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Output value three times to printer
+2C9A  CDBA3A   ..:                 call  PRN_CHAR_OUT
+2C9D  CDBA3A   ..:                 call  PRN_CHAR_OUT
 2CA0  E1       .                   pop   hl             ; Restore HL and BC
 2CA1  C1       .                   pop   bc
 2CA2  3E0F     >.                  ld    a,0x0F         ; Switch printer back to text mode
-2CA4  CDBA3A   ..:                 call  0x3ABA         ; by outputting X'0F'
+2CA4  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; by outputting X'0F'
 2CA7  C9       .                   ret                  ; done
 2CA8  309D     0.                  jr    nc,$-97
                      ; PEEK function
@@ -8760,7 +8760,7 @@
 34B7  79       y                   ld    a,c            ; Test low byte of counter
 34B8  B0       .                   or    b              ; Counter expired?
 34B9  20FB      .                  jr    nz,$-3         ; No, keep waiting
-34BB  CDF83A   ..:                 call  0x3AF8         ; Check whether BREAK was pressed
+34BB  CDF83A   ..:                 call  CHECK_BREAK_STOP ; Check whether BREAK was pressed
 34BE  DD212378 .!#x                ld    ix,0x7823      ; Address checksum bytes
 34C2  2AA478   *.x                 ld    hl,(PRGEND)    ; Load program start address
 34C5  7D       }                   ld    a,l            ; Load LSB of start address
@@ -8779,12 +8779,12 @@
 34E2  7C       |                   ld    a,h            ; Load MSB of end address
 34E3  CD1135   ..5                 call  TAPE_WRITE_BYTE ; Write byte to cassette
 34E6  CD8E38   ..8                 call  TAPE_CALC_CHECKSUM ; Add byte to checksum
-34E9  CDF83A   ..:                 call  0x3AF8         ; Check whether BREAK was pressed
+34E9  CDF83A   ..:                 call  CHECK_BREAK_STOP ; Check whether BREAK was pressed
 34EC  1A       .                   ld    a,(de)         ; Load next program byte
 34ED  13       .                   inc   de             ; Advance program address
 34EE  CD1135   ..5                 call  TAPE_WRITE_BYTE ; Write program byte to cassette
 34F1  CD8E38   ..8                 call  TAPE_CALC_CHECKSUM ; Add byte to checksum
-34F4  CDF83A   ..:                 call  0x3AF8         ; Check whether BREAK was pressed
+34F4  CDF83A   ..:                 call  CHECK_BREAK_STOP ; Check whether BREAK was pressed
 34F7  DF       .                   rst   0x18           ; Test whether program end was reached
 34F8  20F2      .                  jr    nz,$-12        ; No, write next byte
 34FA  DD7E00   .~.                 ld    a,(ix+0x00)    ; Load checksum LSB
@@ -8846,18 +8846,18 @@
 355B  06FF     ..                  ld    b,0xFF         ; Output 255 synchronization bytes
 355D  3E80     >.                  ld    a,0x80         ; A = sync byte 0x80
 355F  CD1135   ..5                 call  TAPE_WRITE_BYTE ; Write byte to cassette
-3562  CDE83A   ..:                 call  0x3AE8         ; Check whether BREAK was pressed
+3562  CDE83A   ..:                 call  CHECK_BREAK    ; Check whether BREAK was pressed
 3565  D8       .                   ret   c              ; Abort if BREAK was pressed
 3566  10F5     ..                  djnz  $-9            ; Loop for 255 sync bytes
 3568  0605     ..                  ld    b,0x05         ; Output five 0xFE leader bytes
 356A  3EFE     >.                  ld    a,0xFE         ; A = leader byte 0xFE
 356C  CD1135   ..5                 call  TAPE_WRITE_BYTE ; Write byte to cassette
-356F  CDE83A   ..:                 call  0x3AE8         ; Check whether BREAK was pressed
+356F  CDE83A   ..:                 call  CHECK_BREAK    ; Check whether BREAK was pressed
 3572  D8       .                   ret   c              ; Abort if BREAK was pressed
 3573  10F5     ..                  djnz  $-9            ; Loop for leader bytes
 3575  79       y                   ld    a,c            ; Load program/file identifier
 3576  CD1135   ..5                 call  TAPE_WRITE_BYTE ; Write identifier to cassette
-3579  CDE83A   ..:                 call  0x3AE8         ; Check whether BREAK was pressed
+3579  CDE83A   ..:                 call  CHECK_BREAK    ; Check whether BREAK was pressed
 357C  D8       .                   ret   c              ; Abort if BREAK was pressed
 357D  3AD67A   :.z                 ld    a,(0x7AD6)     ; Load program name length
 3580  47       G                   ld    b,a            ; Use length as counter
@@ -8918,7 +8918,7 @@
                      TAPE_FIND_PROGRAM:
 35E1  214238   !B8                 ld    hl,0x3842      ; Load address of WAITING text
 35E4  CDF437   ..7                 call  TAPE_PRINT_MSG ; Output text if messages are enabled
-35E7  CDF83A   ..:                 call  0x3AF8         ; Check whether BREAK was pressed
+35E7  CDF83A   ..:                 call  CHECK_BREAK_STOP ; Check whether BREAK was pressed
 35EA  3A0068   :.h                 ld    a,(0x6800)     ; Read I/O byte
 35ED  CB77     .w                  bit   6,a            ; Evaluate cassette pulse input
 35EF  20F6      .                  jr    nz,$-8         ; No pulse, keep waiting
@@ -9121,7 +9121,7 @@
 3780  D1       .                   pop   de             ; Restore DE
 3781  C1       .                   pop   bc             ; Restore BC
 3782  32D37A   2.z                 ld    (0x7AD3),a     ; Save read byte temporarily
-3785  CDF83A   ..:                 call  0x3AF8         ; Check for BREAK key
+3785  CDF83A   ..:                 call  CHECK_BREAK_STOP ; Check for BREAK key
 3788  3AD37A   :.z                 ld    a,(0x7AD3)     ; Restore read byte
 378B  C9       .                   ret                  ; Return
 378C  D1       .                   pop   de             ; Restore DE (error exit)
@@ -9343,285 +9343,299 @@
 390F  CF       .                   rst   8              ; Expect closing parenthesis
 3910  29       )                   add   hl,hl          ; Parameter: ')'
 3911  C9       .                   ret                  ; Return
-3912  F3       .                   di    
-3913  E5       .                   push  hl
-3914  3A3B78   :;x                 ld    a,(OUT_LATCH)
-3917  CB5F     ._                  bit   3,a
-3919  C28E39   ..9                 jp    nz,0x398E
-391C  210070   !.p                 ld    hl,0x7000
-391F  0E10     ..                  ld    c,0x10
-3921  0620     .                   ld    b,0x20
-3923  7E       ~                   ld    a,(hl)
-3924  B7       .                   or    a
-3925  F22D39   .-9                 jp    p,0x392D
-3928  CD732C   .s,                 call  PRN_GFX_CHAR
-392B  1816     ..                  jr    $+24
-392D  C3443F   .D?                 jp    0x3F44
-3930  00       .                   nop   
-3931  E63F     .?                  and   0x3F
-3933  CD5639   .V9                 call  0x3956
-3936  180B     ..                  jr    $+13
-3938  E63F     .?                  and   0x3F
-393A  CB6F     .o                  bit   5,a
-393C  2002      .                  jr    nz,$+4
-393E  F640     .@                  or    0x40
-3940  CDBA3A   ..:                 call  0x3ABA
-3943  23       #                   inc   hl
-3944  10DD     ..                  djnz  $-33
-3946  3E0D     >.                  ld    a,0x0D
-3948  CDBA3A   ..:                 call  0x3ABA
-394B  CDF83A   ..:                 call  0x3AF8
-394E  0D       .                   dec   c
-394F  79       y                   ld    a,c
-3950  B7       .                   or    a
-3951  20CE      .                  jr    nz,$-48
-3953  E1       .                   pop   hl
-3954  FB       .                   ei    
-3955  C9       .                   ret   
-3956  F5       .                   push  af
-3957  C5       .                   push  bc
-3958  D5       .                   push  de
-3959  E5       .                   push  hl
-395A  6F       o                   ld    l,a
-395B  2600     &.                  ld    h,0x00
-395D  3E08     >.                  ld    a,0x08
-395F  CDBA3A   ..:                 call  0x3ABA
-3962  0604     ..                  ld    b,0x04
-3964  E5       .                   push  hl
+                     ; COPY command
+3912  F3       .                   di                   ; Disable interrupts
+3913  E5       .                   push  hl             ; Save program pointer on stack
+3914  3A3B78   :;x                 ld    a,(OUT_LATCH)  ; Load I/O latch byte
+3917  CB5F     ._                  bit   3,a            ; Is machine in graphics mode?
+3919  C28E39   ..9                 jp    nz,COPY_GFX    ; Yes, graphics output
+391C  210070   !.p                 ld    hl,0x7000      ; Screen start address
+391F  0E10     ..                  ld    c,0x10         ; Line counter = 16
+3921  0620     .                   ld    b,0x20         ; Column counter = 32
+3923  7E       ~                   ld    a,(hl)         ; Load character from screen RAM
+3924  B7       .                   or    a              ; Block graphics character?
+3925  F22D39   .-9                 jp    p,0x392D       ; No
+3928  CD732C   .s,                 call  PRN_GFX_CHAR   ; Yes, output block graphics character
+392B  1816     ..                  jr    $+24           ; Continue
+392D  C3443F   .D?                 jp    0x3F44         ; Output plain text character to printer
+3930  00       .                   nop                  ; Unused
+3931  E63F     .?                  and   0x3F           ; Clear bits 6 and 7
+3933  CD5639   .V9                 call  PRN_INV_CHAR   ; Output inverted character
+3936  180B     ..                  jr    $+13           ; Continue
+3938  E63F     .?                  and   0x3F           ; Clear bits 6 and 7
+393A  CB6F     .o                  bit   5,a            ; Test bit 5 (inverted?)
+393C  2002      .                  jr    nz,$+4         ; No, skip
+393E  F640     .@                  or    0x40           ; Yes, add 0x40 for real ASCII character
+3940  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Output character to printer
+3943  23       #                   inc   hl             ; Advance screen address
+3944  10DD     ..                  djnz  $-33           ; End of row?
+3946  3E0D     >.                  ld    a,0x0D         ; Output carriage return
+3948  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Send CR to printer
+394B  CDF83A   ..:                 call  CHECK_BREAK_STOP ; BREAK key pressed?
+394E  0D       .                   dec   c              ; Line counter - 1
+394F  79       y                   ld    a,c            ; Finished?
+3950  B7       .                   or    a              ; Finished?
+3951  20CE      .                  jr    nz,$-48        ; No, process next line
+3953  E1       .                   pop   hl             ; Restore program pointer
+3954  FB       .                   ei                   ; Enable interrupts
+3955  C9       .                   ret                  ; Return
+                     ; Output inverted character to printer
+3956  F5       .                   push  af             ; Save AF
+3957  C5       .                   push  bc             ; Save BC
+3958  D5       .                   push  de             ; Save DE
+3959  E5       .                   push  hl             ; Save HL
+395A  6F       o                   ld    l,a            ; Character code as HL offset
+395B  2600     &.                  ld    h,0x00         ; H = 0
+395D  3E08     >.                  ld    a,0x08         ; Switch printer to graphics mode (code 0x08
+395F  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Output 0x08 to printer
+3962  0604     ..                  ld    b,0x04         ; Loop counter = 4 (multiply char by 5)
+3964  E5       .                   push  hl             ; HL = character code
 3965  D1       .                   pop   de
-3966  B7       .                   or    a
-3967  ED5A     .Z                  adc   hl,de
-3969  10FC     ..                  djnz  $-2
-396B  E5       .                   push  hl
-396C  C1       .                   pop   bc
-396D  21943B   !.;                 ld    hl,0x3B94
-3970  09       .                   add   hl,bc
-3971  3EFF     >.                  ld    a,0xFF
-3973  CDBA3A   ..:                 call  0x3ABA
-3976  0605     ..                  ld    b,0x05
-3978  7E       ~                   ld    a,(hl)
-3979  23       #                   inc   hl
-397A  CDBA3A   ..:                 call  0x3ABA
-397D  10F9     ..                  djnz  $-5
-397F  3EFF     >.                  ld    a,0xFF
-3981  CDBA3A   ..:                 call  0x3ABA
-3984  3E0F     >.                  ld    a,0x0F
-3986  CDBA3A   ..:                 call  0x3ABA
-3989  E1       .                   pop   hl
-398A  D1       .                   pop   de
-398B  C1       .                   pop   bc
-398C  F1       .                   pop   af
-398D  C9       .                   ret   
-398E  AF       .                   xor   a
-398F  32D67A   2.z                 ld    (0x7AD6),a
-3992  32D67A   2.z                 ld    (0x7AD6),a
-3995  3E08     >.                  ld    a,0x08
-3997  CDBA3A   ..:                 call  0x3ABA
-399A  DD21D27A .!.z                ld    ix,SOUND_NOTE_VALUE
-399E  210070   !.p                 ld    hl,0x7000
-39A1  110000   ...                 ld    de,START
-39A4  0EC0     ..                  ld    c,0xC0
-39A6  CDF83A   ..:                 call  0x3AF8
-39A9  E5       .                   push  hl
-39AA  CDC905   ...                 call  PRN_GFXBUF_CLEAR
-39AD  0603     ..                  ld    b,0x03
-39AF  7E       ~                   ld    a,(hl)
-39B0  A1       .                   and   c
-39B1  C5       .                   push  bc
-39B2  47       G                   ld    b,a
-39B3  CB08     ..                  rrc   b
-39B5  CB08     ..                  rrc   b
-39B7  CB09     ..                  rrc   c
-39B9  CB09     ..                  rrc   c
-39BB  79       y                   ld    a,c
-39BC  FE03     ..                  cp    0x03
-39BE  C2B339   ..9                 jp    nz,0x39B3
-39C1  78       x                   ld    a,b
-39C2  C1       .                   pop   bc
-39C3  FE03     ..                  cp    0x03
-39C5  280D     (.                  jr    z,$+15
-39C7  FE02     ..                  cp    0x02
-39C9  280E     (.                  jr    z,$+16
-39CB  FE01     ..                  cp    0x01
-39CD  2810     (.                  jr    z,$+18
-39CF  110000   ...                 ld    de,START
-39D2  180F     ..                  jr    $+17
-39D4  11E0E0   ...                 ld    de,0xE0E0
-39D7  180A     ..                  jr    $+12
-39D9  1640     .@                  ld    d,0x40
-39DB  1EA0     ..                  ld    e,0xA0
-39DD  1804     ..                  jr    $+6
-39DF  16A0     ..                  ld    d,0xA0
-39E1  1E40     .@                  ld    e,0x40
-39E3  DD7E00   .~.                 ld    a,(ix+0x00)
-39E6  CB3F     .?                  srl   a
-39E8  CB3F     .?                  srl   a
-39EA  CB3F     .?                  srl   a
-39EC  E5       .                   push  hl
-39ED  21D37A   !.z                 ld    hl,0x7AD3
-39F0  CD6A3A   .j:                 call  0x3A6A
-39F3  E1       .                   pop   hl
-39F4  B2       .                   or    d
-39F5  DD7700   .w.                 ld    (ix+0x00),a
-39F8  DD7E02   .~.                 ld    a,(ix+0x02)
-39FB  CB3F     .?                  srl   a
-39FD  CB3F     .?                  srl   a
-39FF  CB3F     .?                  srl   a
-3A01  E5       .                   push  hl
-3A02  21D57A   !.z                 ld    hl,0x7AD5
-3A05  CD6A3A   .j:                 call  0x3A6A
-3A08  E1       .                   pop   hl
-3A09  B3       .                   or    e
-3A0A  DD7702   .w.                 ld    (ix+0x02),a
-3A0D  3E20     >                   ld    a,0x20
-3A0F  85       .                   add   a,l
-3A10  6F       o                   ld    l,a
-3A11  3E00     >.                  ld    a,0x00
-3A13  8C       .                   adc   a,h
-3A14  67       g                   ld    h,a
-3A15  1050     .P                  djnz  $+82
-3A17  CD733A   .s:                 call  0x3A73
-3A1A  E1       .                   pop   hl
-3A1B  CB39     .9                  srl   c
-3A1D  CB39     .9                  srl   c
-3A1F  79       y                   ld    a,c
-3A20  B7       .                   or    a
-3A21  2083      .                  jr    nz,$-123
-3A23  23       #                   inc   hl
-3A24  7D       }                   ld    a,l
-3A25  E61F     ..                  and   0x1F
-3A27  C2A439   ..9                 jp    nz,0x39A4
-3A2A  CDE23A   ..:                 call  0x3AE2
-3A2D  3AD67A   :.z                 ld    a,(0x7AD6)
-3A30  3C       <                   inc   a
-3A31  FE03     ..                  cp    0x03
-3A33  2001      .                  jr    nz,$+3
-3A35  AF       .                   xor   a
-3A36  32D67A   2.z                 ld    (0x7AD6),a
-3A39  2004      .                  jr    nz,$+6
-3A3B  3E40     >@                  ld    a,0x40
-3A3D  1802     ..                  jr    $+4
-3A3F  3E20     >                   ld    a,0x20
-3A41  85       .                   add   a,l
-3A42  6F       o                   ld    l,a
-3A43  3E00     >.                  ld    a,0x00
-3A45  8C       .                   adc   a,h
-3A46  67       g                   ld    h,a
-3A47  FE78     .x                  cp    0x78
-3A49  D25F3A   ._:                 jp    nc,0x3A5F
-3A4C  FE77     .w                  cp    0x77
-3A4E  C2A439   ..9                 jp    nz,0x39A4
-3A51  7D       }                   ld    a,l
-3A52  FEE0     ..                  cp    0xE0
-3A54  DAA439   ..9                 jp    c,0x39A4
-3A57  3EFF     >.                  ld    a,0xFF
-3A59  32D67A   2.z                 ld    (0x7AD6),a
-3A5C  C3A439   ..9                 jp    0x39A4
-3A5F  3E0F     >.                  ld    a,0x0F
-3A61  CDBA3A   ..:                 call  0x3ABA
-3A64  E1       .                   pop   hl
-3A65  FB       .                   ei    
-3A66  C9       .                   ret   
-3A67  C3AF39   ..9                 jp    0x39AF
-3A6A  D2703A   .p:                 jp    nc,0x3A70
-3A6D  CBC6     ..                  set   0,(hl)
-3A6F  C9       .                   ret   
-3A70  CB86     ..                  res   0,(hl)
-3A72  C9       .                   ret   
-3A73  CD853A   ..:                 call  0x3A85
-3A76  DD23     .#                  inc   ix
-3A78  DD23     .#                  inc   ix
-3A7A  CD853A   ..:                 call  0x3A85
-3A7D  DD2B     .+                  dec   ix
-3A7F  DD2B     .+                  dec   ix
-3A81  CD853A   ..:                 call  0x3A85
-3A84  C9       .                   ret   
-3A85  DD7E01   .~.                 ld    a,(ix+0x01)
-3A88  CB0F     ..                  rrc   a
-3A8A  DD7E00   .~.                 ld    a,(ix+0x00)
-3A8D  F5       .                   push  af
-3A8E  3AD67A   :.z                 ld    a,(0x7AD6)
-3A91  FE02     ..                  cp    0x02
-3A93  281D     (.                  jr    z,$+31
-3A95  FE01     ..                  cp    0x01
-3A97  2816     (.                  jr    z,$+24
-3A99  F1       .                   pop   af
-3A9A  17       .                   rla   
-3A9B  F5       .                   push  af
-3A9C  3AD67A   :.z                 ld    a,(0x7AD6)
-3A9F  FEFF     ..                  cp    0xFF
-3AA1  2005      .                  jr    nz,$+7
-3AA3  F1       .                   pop   af
-3AA4  E607     ..                  and   0x07
-3AA6  1801     ..                  jr    $+3
-3AA8  F1       .                   pop   af
-3AA9  F680     ..                  or    0x80
-3AAB  CDBA3A   ..:                 call  0x3ABA
-3AAE  C9       .                   ret   
-3AAF  F1       .                   pop   af
-3AB0  18E9     ..                  jr    $-21
-3AB2  F1       .                   pop   af
-3AB3  1F       .                   rra   
-3AB4  18E5     ..                  jr    $-25
-3AB6  B7       .                   or    a
-3AB7  FAD83A   ..:                 jp    m,0x3AD8
-3ABA  F5       .                   push  af
-3ABB  CDE83A   ..:                 call  0x3AE8
-3ABE  D2C43A   ..:                 jp    nc,0x3AC4
-3AC1  F1       .                   pop   af
-3AC2  37       7                   scf   
-3AC3  C9       .                   ret   
-3AC4  DB00     ..                  in    a,(0x00)
-3AC6  CB47     .G                  bit   0,a
-3AC8  20F1      .                  jr    nz,$-13
-3ACA  F1       .                   pop   af
-3ACB  D30E     ..                  out   (0x0E),a
-3ACD  D30D     ..                  out   (0x0D),a
-3ACF  FE0D     ..                  cp    0x0D
-3AD1  37       7                   scf   
-3AD2  3F       ?                   ccf   
-3AD3  C0       .                   ret   nz
-3AD4  3E0A     >.                  ld    a,0x0A
-3AD6  18E2     ..                  jr    $-28
-3AD8  CB77     .w                  bit   6,a
-3ADA  CA732C   .s,                 jp    z,PRN_GFX_CHAR
-3ADD  E63F     .?                  and   0x3F
-3ADF  C35639   .V9                 jp    0x3956
-3AE2  3E0D     >.                  ld    a,0x0D
-3AE4  CDBA3A   ..:                 call  0x3ABA
-3AE7  C9       .                   ret   
-3AE8  B7       .                   or    a
-3AE9  3AFD68   :.h                 ld    a,(0x68FD)
-3AEC  CB57     .W                  bit   2,a
-3AEE  C0       .                   ret   nz
-3AEF  3ADF68   :.h                 ld    a,(0x68DF)
-3AF2  37       7                   scf   
-3AF3  CB57     .W                  bit   2,a
-3AF5  C8       .                   ret   z
-3AF6  3F       ?                   ccf   
-3AF7  C9       .                   ret   
-3AF8  CDE83A   ..:                 call  0x3AE8
-3AFB  D0       .                   ret   nc
-3AFC  E1       .                   pop   hl
-3AFD  E1       .                   pop   hl
-3AFE  3A3978   :9x                 ld    a,(FLAG2)
-3B01  E6B7     ..                  and   0xB7
-3B03  323978   29x                 ld    (FLAG2),a
-3B06  3E01     >.                  ld    a,0x01
-3B08  FB       .                   ei    
-3B09  C3A01D   ...                 jp    0x1DA0
-3B0C  3A9C78   :.x                 ld    a,(0x789C)
-3B0F  B7       .                   or    a
-3B10  C26421   .d!                 jp    nz,PRINT_NEXT
-3B13  3AAF7A   :.z                 ld    a,(0x7AAF)
-3B16  B7       .                   or    a
-3B17  20FA      .                  jr    nz,$-4
-3B19  C36421   .d!                 jp    PRINT_NEXT
-3B1C  3AAF7A   :.z                 ld    a,(0x7AAF)
-3B1F  B7       .                   or    a
-3B20  C0       .                   ret   nz
-3B21  3AA678   :.x                 ld    a,(TTYPOS)
-3B24  C9       .                   ret   
+3966  B7       .                   or    a              ; Clear carry
+3967  ED5A     .Z                  adc   hl,de          ; HL = HL + HL (multiply)
+3969  10FC     ..                  djnz  $-2            ; Repeat 4 times (multiply by 5 total)
+396B  E5       .                   push  hl             ; Result (char * 5) into BC
+396C  C1       .                   pop   bc             ; BC = char offset
+396D  21943B   !.;                 ld    hl,PRN_GFX_FONT ; Base address of printer font table
+3970  09       .                   add   hl,bc          ; HL = font entry address
+3971  3EFF     >.                  ld    a,0xFF         ; Output all-ones byte (1 dot column left ma
+3973  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Send to printer
+3976  0605     ..                  ld    b,0x05         ; Loop counter = 5 (5 bytes per character)
+3978  7E       ~                   ld    a,(hl)         ; Load font byte
+3979  23       #                   inc   hl             ; Advance font pointer
+397A  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Send font byte to printer
+397D  10F9     ..                  djnz  $-5            ; All 5 bytes output?
+397F  3EFF     >.                  ld    a,0xFF         ; Output all-ones byte (1 dot column right m
+3981  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Send to printer
+3984  3E0F     >.                  ld    a,0x0F         ; Switch printer back to text mode (code 0x0
+3986  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Send to printer
+3989  E1       .                   pop   hl             ; Restore HL
+398A  D1       .                   pop   de             ; Restore DE
+398B  C1       .                   pop   bc             ; Restore BC
+398C  F1       .                   pop   af             ; Restore AF
+398D  C9       .                   ret                  ; Return
+                     ; COPY output in graphics mode
+398E  AF       .                   xor   a              ; Reset interval counter
+398F  32D67A   2.z                 ld    (0x7AD6),a     ; Save to interval counter (LSB)
+3992  32D67A   2.z                 ld    (0x7AD6),a     ; Save to interval counter (MSB)
+3995  3E08     >.                  ld    a,0x08         ; Switch printer to graphics mode (code 0x08
+3997  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Send to printer
+399A  DD21D27A .!.z                ld    ix,SOUND_NOTE_VALUE ; Load address of graphics buffer (SOUND_NOT
+399E  210070   !.p                 ld    hl,0x7000      ; Screen start address
+39A1  110000   ...                 ld    de,START       ; DE = 0 (print pattern)
+39A4  0EC0     ..                  ld    c,0xC0         ; Shift mask bits 6,7 set
+39A6  CDF83A   ..:                 call  CHECK_BREAK_STOP ; BREAK key pressed?
+39A9  E5       .                   push  hl             ; Save screen address on stack
+39AA  CDC905   ...                 call  PRN_GFXBUF_CLEAR ; Clear graphics buffer
+39AD  0603     ..                  ld    b,0x03         ; Line counter = 3 (combine 3 rows)
+39AF  7E       ~                   ld    a,(hl)         ; Load byte from screen RAM
+39B0  A1       .                   and   c              ; Select pixel with shift mask
+39B1  C5       .                   push  bc             ; Save counter and shift mask
+39B2  47       G                   ld    b,a            ; Selected pixel value into B
+39B3  CB08     ..                  rrc   b              ; Rotate pixel value right
+39B5  CB08     ..                  rrc   b              ; Rotate pixel value right
+39B7  CB09     ..                  rrc   c              ; Rotate shift mask right
+39B9  CB09     ..                  rrc   c              ; Rotate shift mask right
+39BB  79       y                   ld    a,c            ; Check if shift mask is right-aligned
+39BC  FE03     ..                  cp    0x03           ; Is shift mask right-aligned?
+39BE  C2B339   ..9                 jp    nz,0x39B3      ; No, keep shifting
+39C1  78       x                   ld    a,b            ; Pixel value back to A
+39C2  C1       .                   pop   bc             ; Restore counter and shift mask
+39C3  FE03     ..                  cp    0x03           ; Pixel color = red (3)?
+39C5  280D     (.                  jr    z,$+15         ; Yes!
+39C7  FE02     ..                  cp    0x02           ; Pixel color = blue (2)?
+39C9  280E     (.                  jr    z,$+16         ; Yes!
+39CB  FE01     ..                  cp    0x01           ; Pixel color = green (1)?
+39CD  2810     (.                  jr    z,$+18         ; Yes!
+39CF  110000   ...                 ld    de,START       ; Green: print pattern = 0x0000
+39D2  180F     ..                  jr    $+17           ; Continue
+39D4  11E0E0   ...                 ld    de,0xE0E0      ; Red: print pattern = 0xE0E0
+39D7  180A     ..                  jr    $+12           ; Continue
+39D9  1640     .@                  ld    d,0x40         ; Blue: print pattern D = 0x40
+39DB  1EA0     ..                  ld    e,0xA0         ; Blue: print pattern E = 0xA0
+39DD  1804     ..                  jr    $+6            ; Continue
+39DF  16A0     ..                  ld    d,0xA0         ; Yellow: print pattern D = 0xA0
+39E1  1E40     .@                  ld    e,0x40         ; Yellow: print pattern E = 0x40
+39E3  DD7E00   .~.                 ld    a,(ix+0x00)    ; Load byte 0 from buffer
+39E6  CB3F     .?                  srl   a              ; Shift right 3 bits (previous row contribut
+39E8  CB3F     .?                  srl   a              ; Shift right
+39EA  CB3F     .?                  srl   a              ; Shift right
+39EC  E5       .                   push  hl             ; Save screen address
+39ED  21D37A   !.z                 ld    hl,0x7AD3      ; Point to buffer byte 0
+39F0  CD6A3A   .j:                 call  COPY_CARRY_SET ; Carry bit into buffer byte 0
+39F3  E1       .                   pop   hl             ; Restore screen address
+39F4  B2       .                   or    d              ; Merge with D print pattern
+39F5  DD7700   .w.                 ld    (ix+0x00),a    ; Write byte 0 back to buffer
+39F8  DD7E02   .~.                 ld    a,(ix+0x02)    ; Load byte 2 from buffer
+39FB  CB3F     .?                  srl   a              ; Shift right 3 bits
+39FD  CB3F     .?                  srl   a              ; Shift right
+39FF  CB3F     .?                  srl   a              ; Shift right
+3A01  E5       .                   push  hl             ; Save screen address
+3A02  21D57A   !.z                 ld    hl,0x7AD5      ; Point to buffer byte 2
+3A05  CD6A3A   .j:                 call  COPY_CARRY_SET ; Carry bit into buffer byte 2
+3A08  E1       .                   pop   hl             ; Restore screen address
+3A09  B3       .                   or    e              ; Merge with E print pattern
+3A0A  DD7702   .w.                 ld    (ix+0x02),a    ; Write byte 2 back to buffer
+3A0D  3E20     >                   ld    a,0x20         ; HL = HL + 32 (advance to next screen row)
+3A0F  85       .                   add   a,l            ; Add 32 to L
+3A10  6F       o                   ld    l,a            ; HL L updated
+3A11  3E00     >.                  ld    a,0x00         ; Carry into H
+3A13  8C       .                   adc   a,h            ; Add carry
+3A14  67       g                   ld    h,a            ; H updated
+3A15  1050     .P                  djnz  $+82           ; 3 rows combined?
+3A17  CD733A   .s:                 call  PRN_OUTPUT_BUF ; Yes, output the buffer
+3A1A  E1       .                   pop   hl             ; Restore screen address
+3A1B  CB39     .9                  srl   c              ; Shift mask 2 bits right
+3A1D  CB39     .9                  srl   c              ; Shift mask 2 bits right
+3A1F  79       y                   ld    a,c            ; Shift mask zero?
+3A20  B7       .                   or    a              ; Shift mask zero?
+3A21  2083      .                  jr    nz,$-123       ; No, process next pixel in same byte
+3A23  23       #                   inc   hl             ; Yes, advance screen address by 1
+3A24  7D       }                   ld    a,l            ; End of screen row?
+3A25  E61F     ..                  and   0x1F           ; Check column count
+3A27  C2A439   ..9                 jp    nz,0x39A4      ; No, process next screen byte
+3A2A  CDE23A   ..:                 call  PRN_CR_LF      ; Output CR/LF for new line
+3A2D  3AD67A   :.z                 ld    a,(0x7AD6)     ; Load interval counter
+3A30  3C       <                   inc   a              ; Increment interval counter
+3A31  FE03     ..                  cp    0x03           ; Is it row 3?
+3A33  2001      .                  jr    nz,$+3         ; Not yet
+3A35  AF       .                   xor   a              ; Yes, reset interval counter to 0
+3A36  32D67A   2.z                 ld    (0x7AD6),a     ; Save updated interval counter
+3A39  2004      .                  jr    nz,$+6         ; If non-zero, advance by 2 rows
+3A3B  3E40     >@                  ld    a,0x40         ; 2-row advance: offset = 64
+3A3D  1802     ..                  jr    $+4            ; Skip to 1-row advance
+3A3F  3E20     >                   ld    a,0x20         ; 1-row advance: offset = 32
+3A41  85       .                   add   a,l            ; Add offset to HL
+3A42  6F       o                   ld    l,a            ; Update L
+3A43  3E00     >.                  ld    a,0x00         ; Carry
+3A45  8C       .                   adc   a,h            ; ADC carry
+3A46  67       g                   ld    h,a            ; Update H
+3A47  FE78     .x                  cp    0x78           ; Is H >= 0x78? (past end of screen)
+3A49  D25F3A   ._:                 jp    nc,0x3A5F      ; Yes, print done
+3A4C  FE77     .w                  cp    0x77           ; H = 0x77 (last row)?
+3A4E  C2A439   ..9                 jp    nz,0x39A4      ; No, continue with next row
+3A51  7D       }                   ld    a,l            ; Load L
+3A52  FEE0     ..                  cp    0xE0           ; Is L >= 0xE0 (last column of last row)?
+3A54  DAA439   ..9                 jp    c,0x39A4       ; No, continue
+3A57  3EFF     >.                  ld    a,0xFF         ; Set 'last row' marker (0xFF)
+3A59  32D67A   2.z                 ld    (0x7AD6),a     ; Save interval counter (last row flag)
+3A5C  C3A439   ..9                 jp    0x39A4         ; Process next row
+3A5F  3E0F     >.                  ld    a,0x0F         ; Graphics output complete - switch printer 
+3A61  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Send 0x0F (text mode) to printer
+3A64  E1       .                   pop   hl             ; Restore program pointer
+3A65  FB       .                   ei                   ; Enable interrupts
+3A66  C9       .                   ret                  ; Return
+3A67  C3AF39   ..9                 jp    0x39AF         ; Jump to carry-into-buffer routine
+                     ; Set or clear bit 0 of buffer byte depending on carry
+3A6A  D2703A   .p:                 jp    nc,0x3A70      ; If no carry, clear bit 0
+3A6D  CBC6     ..                  set   0,(hl)         ; Set bit 0 of (HL)
+3A6F  C9       .                   ret                  ; Return
+3A70  CB86     ..                  res   0,(hl)         ; Clear bit 0 of (HL)
+3A72  C9       .                   ret                  ; Return
+                     ; Output graphics print buffer to printer (2 bytes)
+3A73  CD853A   ..:                 call  PRN_OUTPUT_BUF_BYTE ; Output buffer bytes +0 and +1
+3A76  DD23     .#                  inc   ix             ; Advance IX by 2
+3A78  DD23     .#                  inc   ix             ; Advance IX by 2
+3A7A  CD853A   ..:                 call  PRN_OUTPUT_BUF_BYTE ; Output buffer bytes +0 and +1
+3A7D  DD2B     .+                  dec   ix             ; Retreat IX by 2
+3A7F  DD2B     .+                  dec   ix             ; Retreat IX by 2
+3A81  CD853A   ..:                 call  PRN_OUTPUT_BUF_BYTE ; Output buffer bytes +0 and +1
+3A84  C9       .                   ret                  ; Return
+                     ; Output one pair of graphics buffer bytes to printer
+3A85  DD7E01   .~.                 ld    a,(ix+0x01)    ; Load carry from buffer byte +1
+3A88  CB0F     ..                  rrc   a              ; Rotate right into carry
+3A8A  DD7E00   .~.                 ld    a,(ix+0x00)    ; Load buffer byte +0
+3A8D  F5       .                   push  af             ; Save on stack
+3A8E  3AD67A   :.z                 ld    a,(0x7AD6)     ; Load interval counter
+3A91  FE02     ..                  cp    0x02           ; Is this row 3?
+3A93  281D     (.                  jr    z,$+31         ; Yes!
+3A95  FE01     ..                  cp    0x01           ; Is this row 2?
+3A97  2816     (.                  jr    z,$+24         ; Yes!
+3A99  F1       .                   pop   af             ; Row 1: load byte from stack
+3A9A  17       .                   rla                  ; Shift carry into high bit (RLA)
+3A9B  F5       .                   push  af             ; Save on stack
+3A9C  3AD67A   :.z                 ld    a,(0x7AD6)     ; Load interval counter
+3A9F  FEFF     ..                  cp    0xFF           ; Last row flag (0xFF)?
+3AA1  2005      .                  jr    nz,$+7         ; No
+3AA3  F1       .                   pop   af             ; Yes: load from stack
+3AA4  E607     ..                  and   0x07           ; Keep only lower 3 bits
+3AA6  1801     ..                  jr    $+3            ; Skip
+3AA8  F1       .                   pop   af             ; Not last row: load from stack
+3AA9  F680     ..                  or    0x80           ; Set bit 7
+3AAB  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Output byte to printer
+3AAE  C9       .                   ret                  ; Return
+3AAF  F1       .                   pop   af             ; Row 1 exit: load from stack
+3AB0  18E9     ..                  jr    $-21           ; Jump back to row 1 processing
+3AB2  F1       .                   pop   af             ; Row 3: load from stack
+3AB3  1F       .                   rra                  ; Shift carry into low bit (RRA)
+3AB4  18E5     ..                  jr    $-25           ; Jump back
+                     ; Output character to printer - checks for block/inverted graphics
+3AB6  B7       .                   or    a              ; Is bit 7 set? (block graphics or inverted)
+3AB7  FAD83A   ..:                 jp    m,0x3AD8       ; Yes, jump to graphics handler
+                     ; Output one character byte to printer
+3ABA  F5       .                   push  af             ; Save character on stack
+3ABB  CDE83A   ..:                 call  CHECK_BREAK    ; Check BREAK key
+3ABE  D2C43A   ..:                 jp    nc,0x3AC4      ; If BREAK pressed, return
+3AC1  F1       .                   pop   af             ; Restore character from stack
+3AC2  37       7                   scf                  ; Set Carry flag (BREAK)
+3AC3  C9       .                   ret                  ; Return with BREAK error
+3AC4  DB00     ..                  in    a,(0x00)       ; Read printer port (port 0)
+3AC6  CB47     .G                  bit   0,a            ; BUSY signal?
+3AC8  20F1      .                  jr    nz,$-13        ; Yes, wait
+3ACA  F1       .                   pop   af             ; Restore character
+3ACB  D30E     ..                  out   (0x0E),a       ; Output byte to printer port 0x0E
+3ACD  D30D     ..                  out   (0x0D),a       ; Send strobe to printer port 0x0D
+3ACF  FE0D     ..                  cp    0x0D           ; Carriage return (0x0D)?
+3AD1  37       7                   scf                  ; Set Carry
+3AD2  3F       ?                   ccf                  ; Complement Carry (clear it)
+3AD3  C0       .                   ret   nz             ; Return if not CR
+3AD4  3E0A     >.                  ld    a,0x0A         ; Send line feed (0x0A)
+3AD6  18E2     ..                  jr    $-28           ; Output LF to printer
+                     ; Output character - handle block graphics or inverted
+3AD8  CB77     .w                  bit   6,a            ; Is bit 6 set? (inverted character)
+3ADA  CA732C   .s,                 jp    z,PRN_GFX_CHAR ; No, it is block graphics - output via PRN_
+3ADD  E63F     .?                  and   0x3F           ; Clear bits 6 and 7
+3ADF  C35639   .V9                 jp    PRN_INV_CHAR   ; Output inverted character
+                     ; Output carriage return to printer
+3AE2  3E0D     >.                  ld    a,0x0D         ; Load CR code (0x0D)
+3AE4  CDBA3A   ..:                 call  PRN_CHAR_OUT   ; Send CR to printer
+3AE7  C9       .                   ret                  ; Return
+                     ; Check if BREAK key is pressed. Output: Carry=1 if BREAK pressed.
+3AE8  B7       .                   or    a              ; Clear Carry flag
+3AE9  3AFD68   :.h                 ld    a,(0x68FD)     ; Load keyboard row 2 (port 0x68FD)
+3AEC  CB57     .W                  bit   2,a            ; Is CTRL key pressed?
+3AEE  C0       .                   ret   nz             ; No, return (not pressed)
+3AEF  3ADF68   :.h                 ld    a,(0x68DF)     ; Load keyboard row 6 (port 0x68DF)
+3AF2  37       7                   scf                  ; Set Carry flag
+3AF3  CB57     .W                  bit   2,a            ; Test bit 2 (BREAK key)
+3AF5  C8       .                   ret   z              ; BREAK pressed? Return with Carry set
+3AF6  3F       ?                   ccf                  ; Not BREAK, clear Carry
+3AF7  C9       .                   ret                  ; Return
+                     ; Check BREAK key; if pressed, stop execution and return to BASIC
+3AF8  CDE83A   ..:                 call  CHECK_BREAK    ; Check BREAK key
+3AFB  D0       .                   ret   nc             ; Not pressed, return
+3AFC  E1       .                   pop   hl             ; Pop return address (discard)
+3AFD  E1       .                   pop   hl             ; Pop caller's return address (discard)
+3AFE  3A3978   :9x                 ld    a,(FLAG2)      ; Load Flag 2
+3B01  E6B7     ..                  and   0xB7           ; Clear CRUN and VERIFY flags (AND with 0xB7
+3B03  323978   29x                 ld    (FLAG2),a      ; Save updated Flag 2
+3B06  3E01     >.                  ld    a,0x01         ; A = 1 (flag for BREAK)
+3B08  FB       .                   ei                   ; Enable interrupts
+3B09  C3A01D   ...                 jp    0x1DA0         ; Jump to BASIC error handler
+                     ; Wait until screen output buffer is fully flushed
+3B0C  3A9C78   :.x                 ld    a,(0x789C)     ; Load device type
+3B0F  B7       .                   or    a              ; Is it 0 (screen)?
+3B10  C26421   .d!                 jp    nz,PRINT_NEXT  ; No, return immediately
+3B13  3AAF7A   :.z                 ld    a,(0x7AAF)     ; Load output buffer counter
+3B16  B7       .                   or    a              ; Buffer empty (= 0)?
+3B17  20FA      .                  jr    nz,$-4         ; No, keep waiting
+3B19  C36421   .d!                 jp    PRINT_NEXT     ; Return to PRINT_NEXT
+                     ; If output buffer is empty, load cursor column position
+3B1C  3AAF7A   :.z                 ld    a,(0x7AAF)     ; Load output buffer counter
+3B1F  B7       .                   or    a              ; Buffer empty?
+3B20  C0       .                   ret   nz             ; No, return
+3B21  3AA678   :.x                 ld    a,(TTYPOS)     ; Load cursor column position (TTYPOS)
+3B24  C9       .                   ret                  ; Return
 3B25  21EF68   !.h                 ld    hl,0x68EF
 3B28  CB66     .f                  bit   4,(hl)
 3B2A  2018      .                  jr    nz,$+26
@@ -9629,7 +9643,7 @@
 3B2F  CB66     .f                  bit   4,(hl)
 3B31  28FC     (.                  jr    z,$-2
 3B33  CD483B   .H;                 call  0x3B48
-3B36  CDF83A   ..:                 call  0x3AF8
+3B36  CDF83A   ..:                 call  CHECK_BREAK_STOP
 3B39  CB66     .f                  bit   4,(hl)
 3B3B  20F9      .                  jr    nz,$-5
 3B3D  CD483B   .H;                 call  0x3B48
@@ -9678,94 +9692,33 @@
 3B8F  CDF920   ..                  call  PRINT_BOL_CHECK
 3B92  F1       .                   pop   af
 3B93  C9       .                   ret   
-3B94  C1       .                   pop   bc
-3B95  BE       .                   cp    (hl)
-3B96  A2       .                   and   d
-3B97  AE       .                   xor   (hl)
-3B98  B1       .                   or    c
-3B99  83       .                   add   a,e
-3B9A  ED       .                   DEFB  0xED ; *** ORPHAN ***
-3B9B  EEED     ..                  xor   0xED
-3B9D  83       .                   add   a,e
-3B9E  80       .                   add   a,b
-3B9F  B6       .                   or    (hl)
-3BA0  B6       .                   or    (hl)
-3BA1  B6       .                   or    (hl)
-3BA2  C1       .                   pop   bc
-3BA3  C1       .                   pop   bc
-3BA4  BE       .                   cp    (hl)
-3BA5  BE       .                   cp    (hl)
-3BA6  BE       .                   cp    (hl)
-3BA7  DD80BE   ...                 defb  0x00DD,0x0080,0x00BE
-3BAA  BE       .                   cp    (hl)
-3BAB  BE       .                   cp    (hl)
-3BAC  C1       .                   pop   bc
-3BAD  80       .                   add   a,b
-3BAE  B6       .                   or    (hl)
-3BAF  B6       .                   or    (hl)
-3BB0  B6       .                   or    (hl)
-3BB1  BE       .                   cp    (hl)
-3BB2  80       .                   add   a,b
-3BB3  F6F6     ..                  or    0xF6
-3BB5  F6FE     ..                  or    0xFE
-3BB7  C1       .                   pop   bc
-3BB8  BE       .                   cp    (hl)
-3BB9  BE       .                   cp    (hl)
-3BBA  AE       .                   xor   (hl)
-3BBB  8C       .                   adc   a,h
-3BBC  80       .                   add   a,b
-3BBD  F7       .                   rst   0x30
-3BBE  F7       .                   rst   0x30
-3BBF  F7       .                   rst   0x30
-3BC0  80       .                   add   a,b
-3BC1  FF       .                   rst   0x38
-3BC2  BE       .                   cp    (hl)
-3BC3  80       .                   add   a,b
-3BC4  BE       .                   cp    (hl)
-3BC5  FF       .                   rst   0x38
-3BC6  DF       .                   rst   0x18
-3BC7  BF       .                   cp    a
-3BC8  BF       .                   cp    a
-3BC9  C0       .                   ret   nz
-3BCA  FE80     ..                  cp    0x80
-3BCC  F7       .                   rst   0x30
-3BCD  EB       .                   ex    de,hl
-3BCE  DDBE80   ...                 cp    (ix-0x80)
-3BD1  BF       .                   cp    a
-3BD2  BF       .                   cp    a
-3BD3  BF       .                   cp    a
-3BD4  BF       .                   cp    a
-3BD5  80       .                   add   a,b
-3BD6  FDF3FD   ...                 defb  0x00FD,0x00F3,0x00FD
-3BD9  80       .                   add   a,b
-3BDA  80       .                   add   a,b
-3BDB  FDFBF7   ...                 defb  0x00FD,0x00FB,0x00F7
-3BDE  80       .                   add   a,b
-3BDF  C1       .                   pop   bc
-3BE0  BE       .                   cp    (hl)
-3BE1  BE       .                   cp    (hl)
-3BE2  BE       .                   cp    (hl)
-3BE3  C1       .                   pop   bc
-3BE4  80       .                   add   a,b
-3BE5  F6F6     ..                  or    0xF6
-3BE7  F6F9     ..                  or    0xF9
-3BE9  C1       .                   pop   bc
-3BEA  BE       .                   cp    (hl)
-3BEB  AE       .                   xor   (hl)
-3BEC  DEA1     ..                  sbc   a,0xA1
-3BEE  80       .                   add   a,b
-3BEF  F6E6     ..                  or    0xE6
-3BF1  D6B9     ..                  sub   0xB9
-3BF3  D9       .                   exx   
-3BF4  B6       .                   or    (hl)
-3BF5  B6       .                   or    (hl)
-3BF6  B6       .                   or    (hl)
-3BF7  CDFEFE   ...                 call  0xFEFE
-3BFA  80       .                   add   a,b
-3BFB  FEFE     ..                  cp    0xFE
-3BFD  C0       .                   ret   nz
-3BFE  BF       .                   cp    a
-3BFF  BF       .                   cp    a
+3B94  C1BEA2AE ....                DEFB  0xC1,0xBE,0xA2,0xAE,0xB1,0x83,0xED,0xEE ; Printer graphics font data table (5 bytes 
+      B183EDEE ....  
+3B9C  ED8380B6 ....                DEFB  0xED,0x83,0x80,0xB6,0xB6,0xB6,0xC1,0xC1
+      B6B6C1C1 ....  
+3BA4  BEBEBEDD ....                DEFB  0xBE,0xBE,0xBE,0xDD,0x80,0xBE,0xBE,0xBE
+      80BEBEBE ....  
+3BAC  C180B6B6 ....                DEFB  0xC1,0x80,0xB6,0xB6,0xB6,0xBE,0x80,0xF6
+      B6BE80F6 ....  
+3BB4  F6F6FEC1 ....                DEFB  0xF6,0xF6,0xFE,0xC1,0xBE,0xBE,0xAE,0x8C
+      BEBEAE8C ....  
+3BBC  80F7F7F7 ....                DEFB  0x80,0xF7,0xF7,0xF7,0x80,0xFF,0xBE,0x80
+      80FFBE80 ....  
+3BC4  BEFFDFBF ....                DEFB  0xBE,0xFF,0xDF,0xBF,0xBF,0xC0,0xFE,0x80
+      BFC0FE80 ....  
+3BCC  F7EBDDBE ....                DEFB  0xF7,0xEB,0xDD,0xBE,0x80,0xBF,0xBF,0xBF
+      80BFBFBF ....  
+3BD4  BF80FDF3 ....                DEFB  0xBF,0x80,0xFD,0xF3,0xFD,0x80,0x80,0xFD
+      FD8080FD ....  
+3BDC  FBF780C1 ....                DEFB  0xFB,0xF7,0x80,0xC1,0xBE,0xBE,0xBE,0xC1
+      BEBEBEC1 ....  
+3BE4  80F6F6F6 ....                DEFB  0x80,0xF6,0xF6,0xF6,0xF9,0xC1,0xBE,0xAE
+      F9C1BEAE ....  
+3BEC  DEA180F6 ....                DEFB  0xDE,0xA1,0x80,0xF6,0xE6,0xD6,0xB9,0xD9
+      E6D6B9D9 ....  
+3BF4  B6B6B6CD ....                DEFB  0xB6,0xB6,0xB6,0xCD,0xFE,0xFE,0x80,0xFE
+      FEFE80FE ....  
+3BFC  FEC0BFBF ....                DEFB  0xFE,0xC0,0xBF,0xBF
 3C00  BF       .                   cp    a
 3C01  C0       .                   ret   nz
 3C02  F8       .                   ret   m

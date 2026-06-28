@@ -400,3 +400,4 @@
 0x3858	0x3859	DIRECT_BYTE	MSG_NEWLINE_CR	Newline and carriage return bytes
 0x385A	0x385F	DIRECT_BYTE	MSG_FOUND_STR	FOUND message string
 0x3860	0x3867	DIRECT_BYTE	MSG_LOADING_STR	LOADING message string
+0x3B94	0x3BFF	DIRECT_BYTE	PRN_GFX_FONT_DATA	Printer graphics character font data table

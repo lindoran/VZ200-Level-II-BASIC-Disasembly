@@ -85,3 +85,15 @@
   - Total Symbols: 409
   - Limits: Well within maximums (100000 annotations, 6000 symbols).
 - **Verification**: Verified `export.lst` for inline comments in the work section. Compiled `export.asm` using `z88dk-z80asm`; MD5 checksum matched `VZ200.bin` (`42c8f9e6c2133ae0e953b89ccbbdb7e2`).
+
+## Iteration: 2026-06-28 (Part 2)
+- **Target Range**: 0x3912-0x3B19 (German PDF pages 244-251; starts near `export.lst` line 9346)
+- **Prompt**: "please read @GEMINI.md and @Z80BENCH_WORKFLOW.md you are translating german to english.  Please work 0x3912 to 0x3B19 this starts at line 9346  in @export.lst export.lst and is pages 244 to 251 in @doc/book - Laser310-ROM-Listing-german.pdf.  Please remember you need to use Z80 bench to make the changes and treat the two markdowns as skilling advice.  rember we are using those documents as guidlines to properly translate the block comments and the inline comments."
+- **Summary**: Translated and applied English annotations for the `COPY` command (supporting both text-mode and graphics-mode screen copying), inverted character output (`PRN_INV_CHAR`), graphics output buffering/rotation (`COPY_GFX`, `PRN_OUTPUT_BUF`, `PRN_OUTPUT_BUF_BYTE`), character transmission to printer with busy wait (`PRN_CHAR_OUT`), printer CR/LF output (`PRN_CR_LF`), and key checking routines (`CHECK_BREAK`, `CHECK_BREAK_STOP`). Mapped `0x3B94-0x3BFF` as a `DIRECT_BYTE` segment for printer graphics character font data.
+- **Toolchain**: Used `z80bench-cli` for segment mapping, symbol additions, and comment annotations, then generated output using `./z80bench-cli project export . both export`.
+- **Issues/Notes**: Handled the complex graphics buffer rotation and byte merging logic in the `COPY` command. No major toolchain issues encountered.
+- **Statistics**:
+  - Total Annotations: 7379
+  - Total Symbols: 425
+  - Limits: Well within maximums (100000 annotations, 6000 symbols).
+- **Verification**: Checked `export.lst` for inline comments in the completed range. Rebuilt `export.bin` from `export.asm`; MD5 matched `VZ200.bin` (`42c8f9e6c2133ae0e953b89ccbbdb7e2`).
