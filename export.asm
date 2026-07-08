@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Sun Jun 28 18:15:25 2026
+; Generated: Wed Jul  8 20:30:24 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -4448,12 +4448,12 @@ ERROR_HANDLER:
               ld    (hl),a         ; store
               ld    e,c            ; Error code back in E
               call  PRINT_BOL_CHECK ; if required, output CR
-              ld    hl,0x3CEC      ; Address of error messages
+              ld    hl,ERROR_MSG_TABLE ; Address of error messages
               call  0x79A6         ; RAM expansion output
               ld    d,a            ; D = 0
               ld    a,0x3F         ; output '?'
               call  CHAR_OUTPUT_DISPATCH ; output error message
-              call  0x3CD4         ; output error message
+              call  ERROR_MSG_OUTPUT ; output error message
               nop                  ; 6 x NOP
               nop   
               nop   
@@ -5584,7 +5584,7 @@ PRINT_AT:
 PRINT_HASH:
               cp    0x23           ; cassette output?
               jr    nz,$+10        ; no, continue
-              call  0x3B58         ; write lead-in to cassette
+              call  TAPE_CMD_WRITE_HEADER ; write lead-in to cassette
               ld    a,0x80         ; output flag on cassette
               ld    (0x789C),a
 PRINT_LOOP:
@@ -7563,7 +7563,7 @@ CMDLIST:
               pop   bc             ; Return address from stack
               call  LIST_ARGS      ; Analyze both arguments
               push  bc             ; 1. line address on stack
-              call  0x3B25         ; Interrupt/abort list?
+              call  LIST_PAUSE_CHECK ; Interrupt/abort list?
               ld    (0x78A2),hl    ; Set direct mode (line number = FFFF)
               pop   hl             ; 1. line address in HL
               pop   de             ; 2. line number in DE
@@ -10041,525 +10041,226 @@ TAPE_LOAD_COMMON:
               ret   nz             ; No, return
               ld    a,(TTYPOS)     ; Load cursor column position (TTYPOS)
               ret                  ; Return
-              ld    hl,0x68EF
-              bit   4,(hl)
-              jr    nz,$+26
-              call  0x3B48
-              bit   4,(hl)
+
+; *******************************
+; Output interruption during LIST output
+; *******************************
+              ld    hl,0x68EF      ; Address keyboard row 4
+              bit   4,(hl)         ; SPACE key pressed?
+              jr    nz,$+26        ; No!
+              call  DEBOUNCE_DELAY ; Debounce key
+              bit   4,(hl)         ; Wait until key is released
               jr    z,$-2
-              call  0x3B48
-              call  CHECK_BREAK_STOP
-              bit   4,(hl)
-              jr    nz,$-5
-              call  0x3B48
-              bit   4,(hl)
+              call  DEBOUNCE_DELAY ; Debounce key
+              call  CHECK_BREAK_STOP ; BREAK key pressed?
+              bit   4,(hl)         ; No, SPACE key pressed again?
+              jr    nz,$-5         ; No, keep waiting
+              call  DEBOUNCE_DELAY ; Debounce key
+              bit   4,(hl)         ; Wait until key is released
               jr    z,$-2
-              ld    hl,0xFFFF
-              ret   
-              ld    hl,0x07FF
-              dec   hl
+              ld    hl,0xFFFF      ; Current line number = direct command
+              ret                  ; Done!
+
+; Debounce key
+              ld    hl,0x07FF      ; Counter for wait loop
+              dec   hl             ; Counter - 1
               ld    a,l
               or    h
-              jr    nz,$-3
-              ld    hl,0x68EF
+              jr    nz,$-3         ; No, keep counting
+              ld    hl,0x68EF      ; Address keyboard row 4
+              ret                  ; Done!
+
+; *******************************
+; When PRINT# outputs data to cassette
+; *******************************
+              call  TAPE_WRITE_BYTE ; Write byte to cassette
               ret   
-              call  TAPE_WRITE_BYTE
+
+; *******************************
+; When PRINT# writes header to cassette
+; *******************************
+              di                   ; Disable interrupts
+              inc   hl             ; Program pointer + 1
+              ld    c,0xF2         ; Load identifier for data
+              call  TAPE_WRITE_LEADER_NAME ; Output sync bytes, leader, identifier, and filename to cassette
+              jp    c,0x3AFE       ; BREAK! End
+              dec   hl             ; Program pointer - 1
+              rst   8              ; Is filename terminated with quote-character?
+              DEFB  0x22           ; Comparison literal: quote-character
+              rst   8              ; Is that followed by a comma?
+              DEFB  0x2C           ; Comparison literal: comma
               ret   
-              di    
-              inc   hl
-              ld    c,0xF2
-              call  TAPE_WRITE_LEADER_NAME
-              jp    c,0x3AFE
-              dec   hl
-              rst   8
-              ld    (0x2CCF),hl
-              ret   
-              di    
-              inc   hl
-              call  TAPE_BUFFER_NAME
-              dec   hl
-              rst   8
-              ld    (0x2CCF),hl
-              push  hl
-              call  TAPE_PREPARE_MESSAGES
-              ld    hl,0x3842
-              call  TAPE_PRINT_MSG
-              call  0x35E7
-              ld    a,(SOUND_NOTE_VALUE)
-              cp    0xF2
-              jr    nz,$-8
-              pop   hl
-              ret   
-              call  TAPE_READ_BYTE
-              cp    0x0D
-              ret   nz
-              push  af
-              call  PRINT_BOL_CHECK
-              pop   af
-              ret   
-              DEFB  0xC1,0xBE,0xA2,0xAE,0xB1,0x83,0xED,0xEE ; Printer graphics font data table (5 bytes per character)
-              DEFB  0xED,0x83,0x80,0xB6,0xB6,0xB6,0xC1,0xC1
-              DEFB  0xBE,0xBE,0xBE,0xDD,0x80,0xBE,0xBE,0xBE
-              DEFB  0xC1,0x80,0xB6,0xB6,0xB6,0xBE,0x80,0xF6
-              DEFB  0xF6,0xF6,0xFE,0xC1,0xBE,0xBE,0xAE,0x8C
-              DEFB  0x80,0xF7,0xF7,0xF7,0x80,0xFF,0xBE,0x80
-              DEFB  0xBE,0xFF,0xDF,0xBF,0xBF,0xC0,0xFE,0x80
-              DEFB  0xF7,0xEB,0xDD,0xBE,0x80,0xBF,0xBF,0xBF
-              DEFB  0xBF,0x80,0xFD,0xF3,0xFD,0x80,0x80,0xFD
-              DEFB  0xFB,0xF7,0x80,0xC1,0xBE,0xBE,0xBE,0xC1
-              DEFB  0x80,0xF6,0xF6,0xF6,0xF9,0xC1,0xBE,0xAE
-              DEFB  0xDE,0xA1,0x80,0xF6,0xE6,0xD6,0xB9,0xD9
-              DEFB  0xB6,0xB6,0xB6,0xCD,0xFE,0xFE,0x80,0xFE
-              DEFB  0xFE,0xC0,0xBF,0xBF
-              cp    a
-              ret   nz
-              ret   m
-              rst   0x20
-              sbc   a,a
-              rst   0x20
-              ret   m
-              add   a,b
-              rst   0x18
-              rst   0x20
-              rst   0x18
-              add   a,b
-              sbc   a,h
-              DEFB  0xED
-              rst   0x30
-              ex    de,hl
-              sbc   a,h
-              call  m,0x87FB
-              ei    
-              call  m,0xAE9E
-              or    (hl)
-              cp    d
-              cp    h
-              rst   0x38
-              add   a,b
-              cp    (hl)
-              cp    (hl)
-              rst   0x38
-              defb  0x00FD,0x00FB,0x00F7
-              rst   0x28
-              rst   0x18
-              rst   0x38
-              cp    (hl)
-              cp    (hl)
-              add   a,b
-              rst   0x38
-              ei    
-              defb  0x00FD,0x0080,0x00FD
-              ei    
-              rst   0x30
-              ex    (sp),hl
-              sub   0xF7
-              rst   0x30
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              and   b
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              ret   m
-              rst   0x38
-              ret   m
-              rst   0x38
-              ex    de,hl
-              add   a,b
-              ex    de,hl
-              add   a,b
-              DEFB  0xED
-              in    a,(0xD6)
-              add   a,b
-              sub   0xED
-              exx   
-              jp    (hl)
-              rst   0x30
-              set   1,l
-              ret   
-              sub   0xA9
-              rst   0x18
-              xor   a
-              rst   0x30
-              ret   m
-              call  m,0xFFFF
-              rst   0x38
-              ex    (sp),hl
-              cp    (ix-0x01)
-              rst   0x38
-              cp    (hl)
-              ex    (sp),ix
-              rst   0x38
-              sub   0xE3
-              add   a,b
-              ex    (sp),hl
-              push  de
-              rst   0x30
-              rst   0x30
-              pop   bc
-              rst   0x30
-              rst   0x30
-              rst   0x18
-              rst   0
-              rst   0x30
-              rst   0x38
-              rst   0x38
-              rst   0x30
-              rst   0x30
-              rst   0x30
-              rst   0x30
-              rst   0x30
-              rst   0x38
-              sbc   a,a
-              sbc   a,a
-              rst   0x38
-              rst   0x38
-              rst   0x18
-              rst   0x28
-              rst   0x30
-              ei    
-              defb  0x00FD,0x00C1,0x00AE
-              or    (hl)
-              cp    d
-              pop   bc
-              rst   0x38
-              cp    l
-              add   a,b
-              cp    a
-              rst   0x38
-              sbc   a,l
-              xor   (hl)
-              or    (hl)
-              cp    d
-              cp    l
-              defb  0x00DD,0x00BB,0x00BB
-              cp    e
-              ret   
-              rst   0x20
-              ex    de,hl
-              DEFB  0xED
-              add   a,b
-              rst   0x28
-              ret   c
-              cp    d
-              jp    c,0xC6DA
-              pop   bc
-              or    (hl)
-              or    (hl)
-              or    (hl)
-              rst   8
-              call  m,0x86FE
-              jp    m,0xC9FC
-              or    (hl)
-              or    (hl)
-              or    (hl)
-              ret   
-              ld    sp,hl
-              or    (hl)
-              or    (hl)
-              or    (hl)
-              pop   bc
-              rst   0x38
-              ret   
-              ret   
-              rst   0x38
-              rst   0x38
-              cp    a
-              call  nz,0xFFE4
-              rst   0x38
-              rst   0x30
-              ex    de,hl
-              defb  0x00DD,0x00DE,0x00DE
-              ex    de,hl
-              ex    de,hl
-              ex    de,hl
-              ex    de,hl
-              ex    de,hl
-              sbc   a,0xDE
-              defb  0x00DD,0x00EB,0x00F7
-              defb  0x00FD,0x00FE,0x00A6
-              jp    m,0xCBFD
-              dec   sp
-              inc   e
-              ld    a,(hl)
-              inc   hl
-              or    a
-              jp    p,0x3CD7
-              dec   e
-              jr    nz,$-7
-              and   0x7F
-              call  CHAR_OUTPUT_DISPATCH
-              ld    a,(hl)
-              inc   hl
-              or    a
-              jp    p,0x3CE2
-              ret   
-              adc   a,0x45
-              ld    e,b
-              ld    d,h
-              jr    nz,$+89
-              ld    c,c
-              ld    d,h
-              ld    c,b
-              ld    c,a
-              ld    d,l
-              ld    d,h
-              jr    nz,$+72
-              ld    c,a
-              ld    d,d
-              out   (0x59),a
-              ld    c,(hl)
-              ld    d,h
-              ld    b,c
-              ld    e,b
-              jp    nc,0x5445
-              daa   
-              ld    c,(hl)
-              jr    nz,$+89
-              ld    c,c
-              ld    d,h
-              ld    c,b
-              ld    c,a
-              ld    d,l
-              ld    d,h
-              jr    nz,$+73
-              ld    c,a
-              ld    d,e
-              ld    d,l
-              ld    b,d
-              rst   8
-              ld    d,l
-              ld    d,h
-              jr    nz,$+81
-              ld    b,(hl)
-              jr    nz,$+70
-              ld    b,c
-              ld    d,h
-              ld    b,c
-              add   a,0x55
-              ld    c,(hl)
-              ld    b,e
-              ld    d,h
-              ld    c,c
-              ld    c,a
-              ld    c,(hl)
-              jr    nz,$+69
-              ld    c,a
-              ld    b,h
-              ld    b,l
-              rst   8
-              ld    d,(hl)
-              ld    b,l
-              ld    d,d
-              ld    b,(hl)
-              ld    c,h
-              ld    c,a
-              ld    d,a
-              rst   8
-              ld    d,l
-              ld    d,h
-              jr    nz,$+81
-              ld    b,(hl)
-              jr    nz,$+79
-              ld    b,l
-              ld    c,l
-              ld    c,a
-              ld    d,d
-              ld    e,c
-              push  de
-              ld    c,(hl)
-              ld    b,h
-              ld    b,l
-              ld    b,(hl)
-              daa   
-              ld    b,h
-              jr    nz,$+85
-              ld    d,h
-              ld    b,c
-              ld    d,h
-              ld    b,l
-              ld    c,l
-              ld    b,l
-              ld    c,(hl)
-              ld    d,h
-              jp    nz,0x4441
-              jr    nz,$+85
-              ld    d,l
-              ld    b,d
-              ld    d,e
-              ld    b,e
-              ld    d,d
-              ld    c,c
-              ld    d,b
-              ld    d,h
-              jp    nc,0x4445
-              ld    c,c
-              ld    c,l
-              daa   
-              ld    b,h
-              jr    nz,$+67
-              ld    d,d
-              ld    d,d
-              ld    b,c
-              ld    e,c
-              call  nz,0x5649
-              ld    c,c
-              ld    d,e
-              ld    c,c
-              ld    c,a
-              ld    c,(hl)
-              jr    nz,$+68
-              ld    e,c
-              jr    nz,$+92
-              ld    b,l
-              ld    d,d
-              ld    c,a
-              ret   
-              ld    c,h
-              ld    c,h
-              ld    b,l
-              ld    b,a
-              ld    b,c
-              ld    c,h
-              jr    nz,$+70
-              ld    c,c
-              ld    d,d
-              ld    b,l
-              ld    b,e
-              ld    d,h
-              call  nc,0x5059
-              ld    b,l
-              jr    nz,$+79
-              ld    c,c
-              ld    d,e
-              ld    c,l
-              ld    b,c
-              ld    d,h
-              ld    b,e
-              ld    c,b
-              rst   8
-              ld    d,l
-              ld    d,h
-              jr    nz,$+81
-              ld    b,(hl)
-              jr    nz,$+85
-              ld    d,b
-              ld    b,c
-              ld    b,e
-              ld    b,l
-              out   (0x54),a
-              ld    d,d
-              ld    c,c
-              ld    c,(hl)
-              ld    b,a
-              jr    nz,$+86
-              ld    c,a
-              ld    c,a
-              jr    nz,$+78
-              ld    c,a
-              ld    c,(hl)
-              ld    b,a
-              add   a,0x4F
-              ld    d,d
-              ld    c,l
-              ld    d,l
-              ld    c,h
-              ld    b,c
-              jr    nz,$+86
-              ld    c,a
-              ld    c,a
-              jr    nz,$+69
-              ld    c,a
-              ld    c,l
-              ld    d,b
-              ld    c,h
-              ld    b,l
-              ld    e,b
-              jp    0x4E41
-              daa   
-              ld    d,h
-              jr    nz,$+69
-              ld    c,a
-              ld    c,(hl)
-              ld    d,h
-              adc   a,0x4F
-              jr    nz,$+84
-              ld    b,l
-              ld    d,e
-              ld    d,l
-              ld    c,l
-              ld    b,l
-              jp    nc,0x5345
-              ld    d,l
-              ld    c,l
-              ld    b,l
-              jr    nz,$+89
-              ld    c,c
-              ld    d,h
-              ld    c,b
-              ld    c,a
-              ld    d,l
-              ld    d,h
-              push  de
-              ld    c,(hl)
-              ld    d,b
-              ld    d,d
-              ld    c,c
-              ld    c,(hl)
-              ld    d,h
-              ld    b,c
-              ld    b,d
-              ld    c,h
-              ld    b,l
-              call  0x5349
-              ld    d,e
-              ld    c,c
-              ld    c,(hl)
-              ld    b,a
-              jr    nz,$+81
-              ld    d,b
-              ld    b,l
-              ld    d,d
-              ld    b,c
-              ld    c,(hl)
-              ld    b,h
-              jp    nz,0x4441
-              jr    nz,$+72
-              ld    c,c
-              ld    c,h
-              ld    b,l
-              jr    nz,$+70
-              ld    b,c
-              ld    d,h
-              ld    b,c
-              call  nz,0x5349
-              ld    c,e
-              jr    nz,$+69
-              ld    c,a
-              ld    c,l
-              ld    c,l
-              ld    b,c
-              ld    c,(hl)
-              ld    b,h
-              ccf   
-              ld    d,e
-              ld    e,c
-              ld    c,(hl)
-              ld    d,h
-              ld    b,c
-              ld    e,b
-              jr    nz,$+71
-              ld    d,d
-              ld    d,d
-              ld    c,a
-              ld    d,d
-              dec   c
-              nop   
+
+; *******************************
+; When INPUT# reads header and filename from cassette
+; *******************************
+              di                   ; Disable interrupts
+              inc   hl             ; Program pointer + 1
+              call  TAPE_BUFFER_NAME ; Read in the filename
+              dec   hl             ; Program pointer - 1
+              rst   8              ; Is name terminated with quote-character?
+              DEFB  0x22           ; Comparison literal: quote-character
+              rst   8              ; Is that followed by a comma?
+              DEFB  0x2C           ; Comparison literal: comma
+              push  hl             ; Yes, push program pointer onto stack
+              call  TAPE_PREPARE_MESSAGES ; Prepare message output
+              ld    hl,0x3842      ; Address the 'WAITING' text
+              call  TAPE_PRINT_MSG ; and output it
+              call  0x35E7         ; Search for file on cassette
+              ld    a,(SOUND_NOTE_VALUE) ; Load file identifier
+              cp    0xF2           ; Correct for data?
+              jr    nz,$-8         ; No, keep searching
+              pop   hl             ; Yes, restore program pointer
+              ret                  ; Done!
+
+; *******************************
+; When INPUT# reads data from cassette
+; *******************************
+              call  TAPE_READ_BYTE ; Read byte from cassette
+              cp    0x0D           ; End of record?
+              ret   nz             ; No, return
+              push  af             ; Save character on stack
+              call  PRINT_BOL_CHECK ; Output CR/LF
+              pop   af             ; Reload character
+              ret                  ; Done!
+
+; *******************************
+; Pixel table for inverse character output on the printer
+; (5 bytes per character)
+; *******************************
+              DEFB  0xC1,0xBE,0xA2,0xAE,0xB1 ; Char 0x00: '@'
+              DEFB  0x83,0xED,0xEE,0xED,0x83 ; Char 0x01: 'A'
+              DEFB  0x80,0xB6,0xB6,0xB6,0xC1 ; Char 0x02: 'B'
+              DEFB  0xC1,0xBE,0xBE,0xBE,0xDD ; Char 0x03: 'C'
+              DEFB  0x80,0xBE,0xBE,0xBE,0xC1 ; Char 0x04: 'D'
+              DEFB  0x80,0xB6,0xB6,0xB6,0xBE ; Char 0x05: 'E'
+              DEFB  0x80,0xF6,0xF6,0xF6,0xFE ; Char 0x06: 'F'
+              DEFB  0xC1,0xBE,0xBE,0xAE,0x8C ; Char 0x07: 'G'
+              DEFB  0x80,0xF7,0xF7,0xF7,0x80 ; Char 0x08: 'H'
+              DEFB  0xFF,0xBE,0x80,0xBE,0xFF ; Char 0x09: 'I'
+              DEFB  0xDF,0xBF,0xBF,0xC0,0xFE ; Char 0x0A: 'J'
+              DEFB  0x80,0xF7,0xEB,0xDD,0xBE ; Char 0x0B: 'K'
+              DEFB  0x80,0xBF,0xBF,0xBF,0xBF ; Char 0x0C: 'L'
+              DEFB  0x80,0xFD,0xF3,0xFD,0x80 ; Char 0x0D: 'M'
+              DEFB  0x80,0xFD,0xFB,0xF7,0x80 ; Char 0x0E: 'N'
+              DEFB  0xC1,0xBE,0xBE,0xBE,0xC1 ; Char 0x0F: 'O'
+              DEFB  0x80,0xF6,0xF6,0xF6,0xF9 ; Char 0x10: 'P'
+              DEFB  0xC1,0xBE,0xAE,0xDE,0xA1 ; Char 0x11: 'Q'
+              DEFB  0x80,0xF6,0xE6,0xD6,0xB9 ; Char 0x12: 'R'
+              DEFB  0xD9,0xB6,0xB6,0xB6,0xCD ; Char 0x13: 'S'
+              DEFB  0xFE,0xFE,0x80,0xFE,0xFE ; Char 0x14: 'T'
+              DEFB  0xC0,0xBF,0xBF,0xBF,0xC0 ; Char 0x15: 'U'
+              DEFB  0xF8,0xE7,0x9F,0xE7,0xF8 ; Char 0x16: 'V'
+              DEFB  0x80,0xDF,0xE7,0xDF,0x80 ; Char 0x17: 'W'
+              DEFB  0x9C,0xED,0xF7,0xEB,0x9C ; Char 0x18: 'X'
+              DEFB  0xFC,0xFB,0x87,0xFB,0xFC ; Char 0x19: 'Y'
+              DEFB  0x9E,0xAE,0xB6,0xBA,0xBC ; Char 0x1A: 'Z'
+              DEFB  0xFF,0x80,0xBE,0xBE,0xFF ; Char 0x1B: '['
+              DEFB  0xFD,0xFB,0xF7,0xEF,0xDF ; Char 0x1C: down arrow
+              DEFB  0xFF,0xBE,0xBE,0x80,0xFF ; Char 0x1D: ']'
+              DEFB  0xFB,0xFD,0x80,0xFD,0xFB ; Char 0x1E: up arrow
+              DEFB  0xF7,0xE3,0xD6,0xF7,0xF7 ; Char 0x1F: left arrow
+              DEFB  0xFF,0xFF,0xFF,0xFF,0xFF ; Char 0x20: space
+              DEFB  0xFF,0xFF,0xA0,0xFF,0xFF ; Char 0x21: '!'
+              DEFB  0xFF,0xF8,0xFF,0xF8,0xFF ; Char 0x22: double quote
+              DEFB  0xEB,0x80,0xEB,0x80,0xED ; Char 0x23: '#'
+              DEFB  0xDB,0xD6,0x80,0xD6,0xED ; Char 0x24: '$'
+              DEFB  0xD9,0xE9,0xF7,0xCB,0xCD ; Char 0x25: '%'
+              DEFB  0xC9,0xD6,0xA9,0xDF,0xAF ; Char 0x26: '&'
+              DEFB  0xF7,0xF8,0xFC,0xFF,0xFF ; Char 0x27: '''
+              DEFB  0xFF,0xE3,0xDD,0xBE,0xFF ; Char 0x28: '('
+              DEFB  0xFF,0xBE,0xDD,0xE3,0xFF ; Char 0x29: ')'
+              DEFB  0xD6,0xE3,0x80,0xE3,0xD5 ; Char 0x2A: '*'
+              DEFB  0xF7,0xF7,0xC1,0xF7,0xF7 ; Char 0x2B: '+'
+              DEFB  0xDF,0xC7,0xF7,0xFF,0xFF ; Char 0x2C: ','
+              DEFB  0xF7,0xF7,0xF7,0xF7,0xF7 ; Char 0x2D: '-'
+              DEFB  0xFF,0x9F,0x9F,0xFF,0xFF ; Char 0x2E: '.'
+              DEFB  0xDF,0xEF,0xF7,0xFB,0xFD ; Char 0x2F: '/'
+              DEFB  0xC1,0xAE,0xB6,0xBA,0xC1 ; Char 0x30: '0'
+              DEFB  0xFF,0xBD,0x80,0xBF,0xFF ; Char 0x31: '1'
+              DEFB  0x9D,0xAE,0xB6,0xBA,0xBD ; Char 0x32: '2'
+              DEFB  0xDD,0xBB,0xBB,0xBB,0xC9 ; Char 0x33: '3'
+              DEFB  0xE7,0xEB,0xED,0x80,0xEF ; Char 0x34: '4'
+              DEFB  0xD8,0xBA,0xDA,0xDA,0xC6 ; Char 0x35: '5'
+              DEFB  0xC1,0xB6,0xB6,0xB6,0xCF ; Char 0x36: '6'
+              DEFB  0xFC,0xFE,0x86,0xFA,0xFC ; Char 0x37: '7'
+              DEFB  0xC9,0xB6,0xB6,0xB6,0xC9 ; Char 0x38: '8'
+              DEFB  0xF9,0xB6,0xB6,0xB6,0xC1 ; Char 0x39: '9'
+              DEFB  0xFF,0xC9,0xC9,0xFF,0xFF ; Char 0x3A: ':'
+              DEFB  0xBF,0xC4,0xE4,0xFF,0xFF ; Char 0x3B: ';'
+              DEFB  0xF7,0xEB,0xDD,0xDE,0xDE ; Char 0x3C: '<'
+              DEFB  0xEB,0xEB,0xEB,0xEB,0xEB ; Char 0x3D: '='
+              DEFB  0xDE,0xDE,0xDD,0xEB,0xF7 ; Char 0x3E: '>'
+              DEFB  0xFD,0xFE,0xA6,0xFA,0xFD ; Char 0x3F: '?'
+
+; *******************************
+; Output error message
+              srl   e              ; Error number / 2
+              inc   e              ; + 1
+              ld    a,(hl)         ; Load byte from error table
+              inc   hl             ; Table address + 1
+              or    a              ; New message?
+              jp    p,0x3CD7       ; No!
+              dec   e              ; Error number - 1 = 0?
+              jr    nz,$-7         ; No, not the right message
+              and   0x7F           ; Clear bit 7
+              call  CHAR_OUTPUT_DISPATCH ; Output byte
+              ld    a,(hl)         ; Load next byte from error table
+              inc   hl             ; Table address + 1
+              or    a              ; New message?
+              jp    p,0x3CE2       ; No, output byte
+              ret                  ; Yes, done
+
+; *******************************
+; Table of error messages
+; *******************************
+              DEFB  0xCE           ; 'N'+0x80 = NEXT WITHOUT FOR
+              DEFM  "EXT WITHOUT FOR"
+              DEFB  0xD3           ; 'S'+0x80 = SYNTAX
+              DEFM  "YNTAX"
+              DEFB  0xD2           ; 'R'+0x80 = RET'N WITHOUT GOSUB
+              DEFM  "ET'N WITHOUT GOSUB"
+              DEFB  0xCF           ; 'O'+0x80 = OUT OF DATA
+              DEFM  "UT OF DATA"
+              DEFB  0xC6           ; 'F'+0x80 = FUNCTION CODE
+              DEFM  "UNCTION CODE"
+              DEFB  0xCF           ; 'O'+0x80 = OVERFLOW
+              DEFM  "VERFLOW"
+              DEFB  0xCF           ; 'O'+0x80 = OUT OF MEMORY
+              DEFM  "UT OF MEMORY"
+              DEFB  0xD5           ; 'U'+0x80 = UNDEF'D STATEMENT
+              DEFM  "NDEF'D STATEMENT"
+              DEFB  0xC2           ; 'B'+0x80 = BAD SUBSCRIPT
+              DEFM  "AD SUBSCRIPT"
+              DEFB  0xD2           ; 'R'+0x80 = REDIM'D ARRAY
+              DEFM  "EDIM'D ARRAY"
+              DEFB  0xC4           ; 'D'+0x80 = DIVISION BY ZERO
+              DEFM  "IVISION BY ZERO"
+              DEFB  0xC9           ; 'I'+0x80 = ILLEGAL DIRECT
+              DEFM  "LLEGAL DIRECT"
+              DEFB  0xD4           ; 'T'+0x80 = TYPE MISMATCH
+              DEFM  "YPE MISMATCH"
+              DEFB  0xCF           ; 'O'+0x80 = OUT OF SPACE
+              DEFM  "UT OF SPACE"
+              DEFB  0xD3           ; 'S'+0x80 = STRING TOO LONG
+              DEFM  "TRING TOO LONG"
+              DEFB  0xC6           ; 'F'+0x80 = FORMULA TOO COMPLEX
+              DEFM  "ORMULA TOO COMPLEX"
+              DEFB  0xC3           ; 'C'+0x80 = CAN'T CONT
+              DEFM  "AN'T CONT"
+              DEFB  0xCE           ; 'N'+0x80 = NO RESUME
+              DEFM  "O RESUME"
+              DEFB  0xD2           ; 'R'+0x80 = RESUME WITHOUT
+              DEFM  "ESUME WITHOUT"
+              DEFB  0xD5           ; 'U'+0x80 = UNPRINTABLE
+              DEFM  "NPRINTABLE"
+              DEFB  0xCD           ; 'M'+0x80 = MISSING OPERAND
+              DEFM  "ISSING OPERAND"
+              DEFB  0xC2           ; 'B'+0x80 = BAD FILE DATA
+              DEFM  "AD FILE DATA"
+              DEFB  0xC4           ; 'D'+0x80 = DISK COMMAND?SYNTAX ERROR (separate CR-terminated st
+              DEFM  "ISK COMMAND?SYNTAX ERROR"
+              DEFB  0x0D,0x00      ; CR + null terminator
               ld    a,(hl)
               or    a
               jr    nz,$+9

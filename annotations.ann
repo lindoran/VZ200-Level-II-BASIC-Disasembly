@@ -1985,8 +1985,578 @@ end = 14439
 type = DATA_BYTE
 
 [region]
+offset = 15204
+end = 15204
+type = DATA_BYTE
+
+[region]
+offset = 15206
+end = 15206
+type = DATA_BYTE
+
+[region]
+offset = 15215
+end = 15215
+type = DATA_BYTE
+
+[region]
+offset = 15217
+end = 15217
+type = DATA_BYTE
+
+[region]
 offset = 15252
-end = 15359
+end = 15256
+type = DATA_BYTE
+
+[region]
+offset = 15257
+end = 15261
+type = DATA_BYTE
+
+[region]
+offset = 15262
+end = 15266
+type = DATA_BYTE
+
+[region]
+offset = 15267
+end = 15271
+type = DATA_BYTE
+
+[region]
+offset = 15272
+end = 15276
+type = DATA_BYTE
+
+[region]
+offset = 15277
+end = 15281
+type = DATA_BYTE
+
+[region]
+offset = 15282
+end = 15286
+type = DATA_BYTE
+
+[region]
+offset = 15287
+end = 15291
+type = DATA_BYTE
+
+[region]
+offset = 15292
+end = 15296
+type = DATA_BYTE
+
+[region]
+offset = 15297
+end = 15301
+type = DATA_BYTE
+
+[region]
+offset = 15302
+end = 15306
+type = DATA_BYTE
+
+[region]
+offset = 15307
+end = 15311
+type = DATA_BYTE
+
+[region]
+offset = 15312
+end = 15316
+type = DATA_BYTE
+
+[region]
+offset = 15317
+end = 15321
+type = DATA_BYTE
+
+[region]
+offset = 15322
+end = 15326
+type = DATA_BYTE
+
+[region]
+offset = 15327
+end = 15331
+type = DATA_BYTE
+
+[region]
+offset = 15332
+end = 15336
+type = DATA_BYTE
+
+[region]
+offset = 15337
+end = 15341
+type = DATA_BYTE
+
+[region]
+offset = 15342
+end = 15346
+type = DATA_BYTE
+
+[region]
+offset = 15347
+end = 15351
+type = DATA_BYTE
+
+[region]
+offset = 15352
+end = 15356
+type = DATA_BYTE
+
+[region]
+offset = 15357
+end = 15361
+type = DATA_BYTE
+
+[region]
+offset = 15362
+end = 15366
+type = DATA_BYTE
+
+[region]
+offset = 15367
+end = 15371
+type = DATA_BYTE
+
+[region]
+offset = 15372
+end = 15376
+type = DATA_BYTE
+
+[region]
+offset = 15377
+end = 15381
+type = DATA_BYTE
+
+[region]
+offset = 15382
+end = 15386
+type = DATA_BYTE
+
+[region]
+offset = 15387
+end = 15391
+type = DATA_BYTE
+
+[region]
+offset = 15392
+end = 15396
+type = DATA_BYTE
+
+[region]
+offset = 15397
+end = 15401
+type = DATA_BYTE
+
+[region]
+offset = 15402
+end = 15406
+type = DATA_BYTE
+
+[region]
+offset = 15407
+end = 15411
+type = DATA_BYTE
+
+[region]
+offset = 15412
+end = 15416
+type = DATA_BYTE
+
+[region]
+offset = 15417
+end = 15421
+type = DATA_BYTE
+
+[region]
+offset = 15422
+end = 15426
+type = DATA_BYTE
+
+[region]
+offset = 15427
+end = 15431
+type = DATA_BYTE
+
+[region]
+offset = 15432
+end = 15436
+type = DATA_BYTE
+
+[region]
+offset = 15437
+end = 15441
+type = DATA_BYTE
+
+[region]
+offset = 15442
+end = 15446
+type = DATA_BYTE
+
+[region]
+offset = 15447
+end = 15451
+type = DATA_BYTE
+
+[region]
+offset = 15452
+end = 15456
+type = DATA_BYTE
+
+[region]
+offset = 15457
+end = 15461
+type = DATA_BYTE
+
+[region]
+offset = 15462
+end = 15466
+type = DATA_BYTE
+
+[region]
+offset = 15467
+end = 15471
+type = DATA_BYTE
+
+[region]
+offset = 15472
+end = 15476
+type = DATA_BYTE
+
+[region]
+offset = 15477
+end = 15481
+type = DATA_BYTE
+
+[region]
+offset = 15482
+end = 15486
+type = DATA_BYTE
+
+[region]
+offset = 15487
+end = 15491
+type = DATA_BYTE
+
+[region]
+offset = 15492
+end = 15496
+type = DATA_BYTE
+
+[region]
+offset = 15497
+end = 15501
+type = DATA_BYTE
+
+[region]
+offset = 15502
+end = 15506
+type = DATA_BYTE
+
+[region]
+offset = 15507
+end = 15511
+type = DATA_BYTE
+
+[region]
+offset = 15512
+end = 15516
+type = DATA_BYTE
+
+[region]
+offset = 15517
+end = 15521
+type = DATA_BYTE
+
+[region]
+offset = 15522
+end = 15526
+type = DATA_BYTE
+
+[region]
+offset = 15527
+end = 15531
+type = DATA_BYTE
+
+[region]
+offset = 15532
+end = 15536
+type = DATA_BYTE
+
+[region]
+offset = 15537
+end = 15541
+type = DATA_BYTE
+
+[region]
+offset = 15542
+end = 15546
+type = DATA_BYTE
+
+[region]
+offset = 15547
+end = 15551
+type = DATA_BYTE
+
+[region]
+offset = 15552
+end = 15556
+type = DATA_BYTE
+
+[region]
+offset = 15557
+end = 15561
+type = DATA_BYTE
+
+[region]
+offset = 15562
+end = 15566
+type = DATA_BYTE
+
+[region]
+offset = 15567
+end = 15571
+type = DATA_BYTE
+
+[region]
+offset = 15596
+end = 15596
+type = DATA_BYTE
+
+[region]
+offset = 15597
+end = 15611
+type = DATA_STRING
+
+[region]
+offset = 15612
+end = 15612
+type = DATA_BYTE
+
+[region]
+offset = 15613
+end = 15617
+type = DATA_STRING
+
+[region]
+offset = 15618
+end = 15618
+type = DATA_BYTE
+
+[region]
+offset = 15619
+end = 15636
+type = DATA_STRING
+
+[region]
+offset = 15637
+end = 15637
+type = DATA_BYTE
+
+[region]
+offset = 15638
+end = 15647
+type = DATA_STRING
+
+[region]
+offset = 15648
+end = 15648
+type = DATA_BYTE
+
+[region]
+offset = 15649
+end = 15660
+type = DATA_STRING
+
+[region]
+offset = 15661
+end = 15661
+type = DATA_BYTE
+
+[region]
+offset = 15662
+end = 15668
+type = DATA_STRING
+
+[region]
+offset = 15669
+end = 15669
+type = DATA_BYTE
+
+[region]
+offset = 15670
+end = 15681
+type = DATA_STRING
+
+[region]
+offset = 15682
+end = 15682
+type = DATA_BYTE
+
+[region]
+offset = 15683
+end = 15698
+type = DATA_STRING
+
+[region]
+offset = 15699
+end = 15699
+type = DATA_BYTE
+
+[region]
+offset = 15700
+end = 15711
+type = DATA_STRING
+
+[region]
+offset = 15712
+end = 15712
+type = DATA_BYTE
+
+[region]
+offset = 15713
+end = 15724
+type = DATA_STRING
+
+[region]
+offset = 15725
+end = 15725
+type = DATA_BYTE
+
+[region]
+offset = 15726
+end = 15740
+type = DATA_STRING
+
+[region]
+offset = 15741
+end = 15741
+type = DATA_BYTE
+
+[region]
+offset = 15742
+end = 15754
+type = DATA_STRING
+
+[region]
+offset = 15755
+end = 15755
+type = DATA_BYTE
+
+[region]
+offset = 15756
+end = 15767
+type = DATA_STRING
+
+[region]
+offset = 15768
+end = 15768
+type = DATA_BYTE
+
+[region]
+offset = 15769
+end = 15779
+type = DATA_STRING
+
+[region]
+offset = 15780
+end = 15780
+type = DATA_BYTE
+
+[region]
+offset = 15781
+end = 15794
+type = DATA_STRING
+
+[region]
+offset = 15795
+end = 15795
+type = DATA_BYTE
+
+[region]
+offset = 15796
+end = 15813
+type = DATA_STRING
+
+[region]
+offset = 15814
+end = 15814
+type = DATA_BYTE
+
+[region]
+offset = 15815
+end = 15823
+type = DATA_STRING
+
+[region]
+offset = 15824
+end = 15824
+type = DATA_BYTE
+
+[region]
+offset = 15825
+end = 15832
+type = DATA_STRING
+
+[region]
+offset = 15833
+end = 15833
+type = DATA_BYTE
+
+[region]
+offset = 15834
+end = 15846
+type = DATA_STRING
+
+[region]
+offset = 15847
+end = 15847
+type = DATA_BYTE
+
+[region]
+offset = 15848
+end = 15857
+type = DATA_STRING
+
+[region]
+offset = 15858
+end = 15858
+type = DATA_BYTE
+
+[region]
+offset = 15859
+end = 15872
+type = DATA_STRING
+
+[region]
+offset = 15873
+end = 15873
+type = DATA_BYTE
+
+[region]
+offset = 15874
+end = 15885
+type = DATA_STRING
+
+[region]
+offset = 15886
+end = 15886
+type = DATA_BYTE
+
+[region]
+offset = 15887
+end = 15910
+type = DATA_STRING
+
+[region]
+offset = 15911
+end = 15912
 type = DATA_BYTE
 
 [label]
@@ -33212,8 +33782,632 @@ offset = 15140
 text = Return
 
 [comment]
+offset = 15141
+text = Address keyboard row 4
+
+[comment]
+offset = 15144
+text = SPACE key pressed?
+
+[comment]
+offset = 15146
+text = No!
+
+[comment]
+offset = 15148
+text = Debounce key
+
+[comment]
+offset = 15151
+text = Wait until key is released
+
+[comment]
+offset = 15155
+text = Debounce key
+
+[comment]
+offset = 15158
+text = BREAK key pressed?
+
+[comment]
+offset = 15161
+text = No, SPACE key pressed again?
+
+[comment]
+offset = 15163
+text = No, keep waiting
+
+[comment]
+offset = 15165
+text = Debounce key
+
+[comment]
+offset = 15168
+text = Wait until key is released
+
+[comment]
+offset = 15172
+text = Current line number = direct command
+
+[comment]
+offset = 15175
+text = Done!
+
+[comment]
+offset = 15176
+text = Counter for wait loop
+
+[comment]
+offset = 15179
+text = Counter - 1
+
+[comment]
+offset = 15182
+text = No, keep counting
+
+[comment]
+offset = 15184
+text = Address keyboard row 4
+
+[comment]
+offset = 15187
+text = Done!
+
+[comment]
+offset = 15188
+text = Write byte to cassette
+
+[comment]
+offset = 15192
+text = Disable interrupts
+
+[comment]
+offset = 15193
+text = Program pointer + 1
+
+[comment]
+offset = 15194
+text = Load identifier for data
+
+[comment]
+offset = 15196
+text = Output sync bytes, leader, identifier, and filename to cassette
+
+[comment]
+offset = 15199
+text = BREAK! End
+
+[comment]
+offset = 15202
+text = Program pointer - 1
+
+[comment]
+offset = 15203
+text = Is filename terminated with quote-character?
+
+[comment]
+offset = 15204
+text = Comparison literal: quote-character
+
+[comment]
+offset = 15205
+text = Is that followed by a comma?
+
+[comment]
+offset = 15206
+text = Comparison literal: comma
+
+[comment]
+offset = 15208
+text = Disable interrupts
+
+[comment]
+offset = 15209
+text = Program pointer + 1
+
+[comment]
+offset = 15210
+text = Read in the filename
+
+[comment]
+offset = 15213
+text = Program pointer - 1
+
+[comment]
+offset = 15214
+text = Is name terminated with quote-character?
+
+[comment]
+offset = 15215
+text = Comparison literal: quote-character
+
+[comment]
+offset = 15216
+text = Is that followed by a comma?
+
+[comment]
+offset = 15217
+text = Comparison literal: comma
+
+[comment]
+offset = 15218
+text = Yes, push program pointer onto stack
+
+[comment]
+offset = 15219
+text = Prepare message output
+
+[comment]
+offset = 15222
+text = Address the 'WAITING' text
+
+[comment]
+offset = 15225
+text = and output it
+
+[comment]
+offset = 15228
+text = Search for file on cassette
+
+[comment]
+offset = 15231
+text = Load file identifier
+
+[comment]
+offset = 15234
+text = Correct for data?
+
+[comment]
+offset = 15236
+text = No, keep searching
+
+[comment]
+offset = 15238
+text = Yes, restore program pointer
+
+[comment]
+offset = 15239
+text = Done!
+
+[comment]
+offset = 15240
+text = Read byte from cassette
+
+[comment]
+offset = 15243
+text = End of record?
+
+[comment]
+offset = 15245
+text = No, return
+
+[comment]
+offset = 15246
+text = Save character on stack
+
+[comment]
+offset = 15247
+text = Output CR/LF
+
+[comment]
+offset = 15250
+text = Reload character
+
+[comment]
+offset = 15251
+text = Done!
+
+[comment]
 offset = 15252
-text = Printer graphics font data table (5 bytes per character)
+text = Char 0x00: '@'
+
+[comment]
+offset = 15257
+text = Char 0x01: 'A'
+
+[comment]
+offset = 15262
+text = Char 0x02: 'B'
+
+[comment]
+offset = 15267
+text = Char 0x03: 'C'
+
+[comment]
+offset = 15272
+text = Char 0x04: 'D'
+
+[comment]
+offset = 15277
+text = Char 0x05: 'E'
+
+[comment]
+offset = 15282
+text = Char 0x06: 'F'
+
+[comment]
+offset = 15287
+text = Char 0x07: 'G'
+
+[comment]
+offset = 15292
+text = Char 0x08: 'H'
+
+[comment]
+offset = 15297
+text = Char 0x09: 'I'
+
+[comment]
+offset = 15302
+text = Char 0x0A: 'J'
+
+[comment]
+offset = 15307
+text = Char 0x0B: 'K'
+
+[comment]
+offset = 15312
+text = Char 0x0C: 'L'
+
+[comment]
+offset = 15317
+text = Char 0x0D: 'M'
+
+[comment]
+offset = 15322
+text = Char 0x0E: 'N'
+
+[comment]
+offset = 15327
+text = Char 0x0F: 'O'
+
+[comment]
+offset = 15332
+text = Char 0x10: 'P'
+
+[comment]
+offset = 15337
+text = Char 0x11: 'Q'
+
+[comment]
+offset = 15342
+text = Char 0x12: 'R'
+
+[comment]
+offset = 15347
+text = Char 0x13: 'S'
+
+[comment]
+offset = 15352
+text = Char 0x14: 'T'
+
+[comment]
+offset = 15357
+text = Char 0x15: 'U'
+
+[comment]
+offset = 15362
+text = Char 0x16: 'V'
+
+[comment]
+offset = 15367
+text = Char 0x17: 'W'
+
+[comment]
+offset = 15372
+text = Char 0x18: 'X'
+
+[comment]
+offset = 15377
+text = Char 0x19: 'Y'
+
+[comment]
+offset = 15382
+text = Char 0x1A: 'Z'
+
+[comment]
+offset = 15387
+text = Char 0x1B: '['
+
+[comment]
+offset = 15392
+text = Char 0x1C: down arrow
+
+[comment]
+offset = 15397
+text = Char 0x1D: ']'
+
+[comment]
+offset = 15402
+text = Char 0x1E: up arrow
+
+[comment]
+offset = 15407
+text = Char 0x1F: left arrow
+
+[comment]
+offset = 15412
+text = Char 0x20: space
+
+[comment]
+offset = 15417
+text = Char 0x21: '!'
+
+[comment]
+offset = 15422
+text = Char 0x22: double quote
+
+[comment]
+offset = 15427
+text = Char 0x23: '#'
+
+[comment]
+offset = 15432
+text = Char 0x24: '$'
+
+[comment]
+offset = 15437
+text = Char 0x25: '%'
+
+[comment]
+offset = 15442
+text = Char 0x26: '&'
+
+[comment]
+offset = 15447
+text = Char 0x27: '''
+
+[comment]
+offset = 15452
+text = Char 0x28: '('
+
+[comment]
+offset = 15457
+text = Char 0x29: ')'
+
+[comment]
+offset = 15462
+text = Char 0x2A: '*'
+
+[comment]
+offset = 15467
+text = Char 0x2B: '+'
+
+[comment]
+offset = 15472
+text = Char 0x2C: ','
+
+[comment]
+offset = 15477
+text = Char 0x2D: '-'
+
+[comment]
+offset = 15482
+text = Char 0x2E: '.'
+
+[comment]
+offset = 15487
+text = Char 0x2F: '/'
+
+[comment]
+offset = 15492
+text = Char 0x30: '0'
+
+[comment]
+offset = 15497
+text = Char 0x31: '1'
+
+[comment]
+offset = 15502
+text = Char 0x32: '2'
+
+[comment]
+offset = 15507
+text = Char 0x33: '3'
+
+[comment]
+offset = 15512
+text = Char 0x34: '4'
+
+[comment]
+offset = 15517
+text = Char 0x35: '5'
+
+[comment]
+offset = 15522
+text = Char 0x36: '6'
+
+[comment]
+offset = 15527
+text = Char 0x37: '7'
+
+[comment]
+offset = 15532
+text = Char 0x38: '8'
+
+[comment]
+offset = 15537
+text = Char 0x39: '9'
+
+[comment]
+offset = 15542
+text = Char 0x3A: ':'
+
+[comment]
+offset = 15547
+text = Char 0x3B: ';'
+
+[comment]
+offset = 15552
+text = Char 0x3C: '<'
+
+[comment]
+offset = 15557
+text = Char 0x3D: '='
+
+[comment]
+offset = 15562
+text = Char 0x3E: '>'
+
+[comment]
+offset = 15567
+text = Char 0x3F: '?'
+
+[comment]
+offset = 15572
+text = Error number / 2
+
+[comment]
+offset = 15574
+text = + 1
+
+[comment]
+offset = 15575
+text = Load byte from error table
+
+[comment]
+offset = 15576
+text = Table address + 1
+
+[comment]
+offset = 15577
+text = New message?
+
+[comment]
+offset = 15578
+text = No!
+
+[comment]
+offset = 15581
+text = Error number - 1 = 0?
+
+[comment]
+offset = 15582
+text = No, not the right message
+
+[comment]
+offset = 15584
+text = Clear bit 7
+
+[comment]
+offset = 15586
+text = Output byte
+
+[comment]
+offset = 15589
+text = Load next byte from error table
+
+[comment]
+offset = 15590
+text = Table address + 1
+
+[comment]
+offset = 15591
+text = New message?
+
+[comment]
+offset = 15592
+text = No, output byte
+
+[comment]
+offset = 15595
+text = Yes, done
+
+[comment]
+offset = 15596
+text = 'N'+0x80 = NEXT WITHOUT FOR
+
+[comment]
+offset = 15612
+text = 'S'+0x80 = SYNTAX
+
+[comment]
+offset = 15618
+text = 'R'+0x80 = RET'N WITHOUT GOSUB
+
+[comment]
+offset = 15637
+text = 'O'+0x80 = OUT OF DATA
+
+[comment]
+offset = 15648
+text = 'F'+0x80 = FUNCTION CODE
+
+[comment]
+offset = 15661
+text = 'O'+0x80 = OVERFLOW
+
+[comment]
+offset = 15669
+text = 'O'+0x80 = OUT OF MEMORY
+
+[comment]
+offset = 15682
+text = 'U'+0x80 = UNDEF'D STATEMENT
+
+[comment]
+offset = 15699
+text = 'B'+0x80 = BAD SUBSCRIPT
+
+[comment]
+offset = 15712
+text = 'R'+0x80 = REDIM'D ARRAY
+
+[comment]
+offset = 15725
+text = 'D'+0x80 = DIVISION BY ZERO
+
+[comment]
+offset = 15741
+text = 'I'+0x80 = ILLEGAL DIRECT
+
+[comment]
+offset = 15755
+text = 'T'+0x80 = TYPE MISMATCH
+
+[comment]
+offset = 15768
+text = 'O'+0x80 = OUT OF SPACE
+
+[comment]
+offset = 15780
+text = 'S'+0x80 = STRING TOO LONG
+
+[comment]
+offset = 15795
+text = 'F'+0x80 = FORMULA TOO COMPLEX
+
+[comment]
+offset = 15814
+text = 'C'+0x80 = CAN'T CONT
+
+[comment]
+offset = 15824
+text = 'N'+0x80 = NO RESUME
+
+[comment]
+offset = 15833
+text = 'R'+0x80 = RESUME WITHOUT
+
+[comment]
+offset = 15847
+text = 'U'+0x80 = UNPRINTABLE
+
+[comment]
+offset = 15858
+text = 'M'+0x80 = MISSING OPERAND
+
+[comment]
+offset = 15873
+text = 'B'+0x80 = BAD FILE DATA
+
+[comment]
+offset = 15886
+text = 'D'+0x80 = DISK COMMAND?SYNTAX ERROR (separate CR-terminated string, not part of the error-number table above)
+
+[comment]
+offset = 15911
+text = CR + null terminator
 
 [block]
 offset = 0
@@ -35511,4 +36705,56 @@ text = Wait until screen output buffer is fully flushed
 [block]
 offset = 15132
 text = If output buffer is empty, load cursor column position
+
+[block]
+offset = 15141
+text = *******************************
+              Output interruption during LIST output
+              *******************************
+
+[block]
+offset = 15176
+text = Debounce key
+
+[block]
+offset = 15188
+text = *******************************
+              When PRINT# outputs data to cassette
+              *******************************
+
+[block]
+offset = 15192
+text = *******************************
+              When PRINT# writes header to cassette
+              *******************************
+
+[block]
+offset = 15208
+text = *******************************
+              When INPUT# reads header and filename from cassette
+              *******************************
+
+[block]
+offset = 15240
+text = *******************************
+              When INPUT# reads data from cassette
+              *******************************
+
+[block]
+offset = 15252
+text = *******************************
+              Pixel table for inverse character output on the printer
+              (5 bytes per character)
+              *******************************
+
+[block]
+offset = 15572
+text = *******************************
+              Output error message
+
+[block]
+offset = 15596
+text = *******************************
+              Table of error messages
+              *******************************
 
