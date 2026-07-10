@@ -2559,6 +2559,16 @@ offset = 15911
 end = 15912
 type = DATA_BYTE
 
+[region]
+offset = 16311
+end = 16367
+type = DATA_BYTE
+
+[region]
+offset = 16368
+end = 16383
+type = DATA_BYTE
+
 [label]
 offset = 0
 name = START
@@ -34409,6 +34419,790 @@ text = 'D'+0x80 = DISK COMMAND?SYNTAX ERROR (separate CR-terminated string, not 
 offset = 15911
 text = CR + null terminator
 
+[comment]
+offset = 15913
+text = Load character from buffer
+
+[comment]
+offset = 15914
+text = Is it empty?
+
+[comment]
+offset = 15915
+text = No, not empty!
+
+[comment]
+offset = 15917
+text = Load space character
+
+[comment]
+offset = 15919
+text = ...and store at start of buffer
+
+[comment]
+offset = 15920
+text = End marker goes after the space
+
+[comment]
+offset = 15921
+text = (= 0x00)
+
+[comment]
+offset = 15923
+text = Buffer pointer back to start
+
+[comment]
+offset = 15924
+text = Buffer pointer to the byte before the buffer
+
+[comment]
+offset = 15925
+text = Reload identifier
+
+[comment]
+offset = 15926
+text = Done!
+
+[comment]
+offset = 15927
+text = Interrupt RAM output = RET
+
+[comment]
+offset = 15930
+text = Color yellow into color identifier
+
+[comment]
+offset = 15936
+text = Load character from screen
+
+[comment]
+offset = 15937
+text = Inverse character?
+
+[comment]
+offset = 15939
+text = Yes!
+
+[comment]
+offset = 15941
+text = Graphics character?
+
+[comment]
+offset = 15943
+text = No!
+
+[comment]
+offset = 15946
+text = If not INPUT, then graphics and inverse are only allowed in strings
+
+[comment]
+offset = 15947
+text = Return address onto stack
+
+[comment]
+offset = 15952
+text = Check end-of-text marker (BREAK?)
+
+[comment]
+offset = 15955
+text = BREAK! Back to BASIC
+
+[comment]
+offset = 15956
+text = Address the text 'SYNTAX ERROR'
+
+[comment]
+offset = 15959
+text = and output it
+
+[comment]
+offset = 15962
+text = Back to line input
+
+[comment]
+offset = 15965
+text = String marker: quote-character?
+
+[comment]
+offset = 15967
+text = No, continue
+
+[comment]
+offset = 15969
+text = Clear bit 6
+
+[comment]
+offset = 15971
+text = Character into I/O buffer
+
+[comment]
+offset = 15972
+text = Screen address + 1
+
+[comment]
+offset = 15973
+text = Buffer address + 1
+
+[comment]
+offset = 15974
+text = Character counter - 1
+
+[comment]
+offset = 15975
+text = If 0, end transfer
+
+[comment]
+offset = 15978
+text = Load character from screen
+
+[comment]
+offset = 15979
+text = Graphics character?
+
+[comment]
+offset = 15981
+text = Yes!
+
+[comment]
+offset = 15983
+text = Inverted character?
+
+[comment]
+offset = 15985
+text = No!
+
+[comment]
+offset = 15987
+text = Yes!
+
+[comment]
+offset = 15989
+text = Graphics, clear bits 4,5,6
+
+[comment]
+offset = 15991
+text = Set bit 7
+
+[comment]
+offset = 15995
+text = Set bits 6 and 7
+
+[comment]
+offset = 15999
+text = Is it a quote-character?
+
+[comment]
+offset = 16001
+text = No!
+
+[comment]
+offset = 16003
+text = Save HL
+
+[comment]
+offset = 16004
+text = Address Flag2
+
+[comment]
+offset = 16007
+text = INPUT command?
+
+[comment]
+offset = 16009
+text = Reload HL
+
+[comment]
+offset = 16010
+text = No - from here on, graphics and inverse are not allowed
+
+[comment]
+offset = 16012
+text = Character in real ASCII code?
+
+[comment]
+offset = 16014
+text = Convert, if wrong
+
+[comment]
+offset = 16016
+text = (clear bit 6 if needed)
+
+[comment]
+offset = 16018
+text = Character into I/O buffer
+
+[comment]
+offset = 16019
+text = Screen address + 1
+
+[comment]
+offset = 16020
+text = Buffer address + 1
+
+[comment]
+offset = 16021
+text = Counter - 1
+
+[comment]
+offset = 16023
+text = = 0, then done
+
+[comment]
+offset = 16026
+text = Character in real ASCII code?
+
+[comment]
+offset = 16028
+text = Convert, if wrong
+
+[comment]
+offset = 16030
+text = (clear bit 6 if needed)
+
+[comment]
+offset = 16032
+text = Character into I/O buffer
+
+[comment]
+offset = 16033
+text = Screen address + 1
+
+[comment]
+offset = 16034
+text = Buffer address + 1
+
+[comment]
+offset = 16035
+text = Counter - 1
+
+[comment]
+offset = 16037
+text = = 0, transfer complete
+
+[comment]
+offset = 16040
+text = Depending on background, branch to appropriate routine
+
+[comment]
+offset = 16044
+text = Black background
+
+[comment]
+offset = 16047
+text = Green background
+
+[comment]
+offset = 16050
+text = Load background flag
+
+[comment]
+offset = 16053
+text = Black background?
+
+[comment]
+offset = 16054
+text = Yes!
+
+[comment]
+offset = 16056
+text = Green, clear bit 6
+
+[comment]
+offset = 16059
+text = Black, set bit 6
+
+[comment]
+offset = 16062
+text = Load background flag
+
+[comment]
+offset = 16065
+text = Black background?
+
+[comment]
+offset = 16066
+text = Load space character
+
+[comment]
+offset = 16068
+text = Black, that's fine as is!
+
+[comment]
+offset = 16070
+text = Green, additionally set bit 6
+
+[comment]
+offset = 16072
+text = Space into screen
+
+[comment]
+offset = 16074
+text = Save character to be output
+
+[comment]
+offset = 16075
+text = Load background flag
+
+[comment]
+offset = 16078
+text = Black background?
+
+[comment]
+offset = 16079
+text = No - green!
+
+[comment]
+offset = 16081
+text = Reload character
+
+[comment]
+offset = 16082
+text = Clear bits 6 and 7
+
+[comment]
+offset = 16084
+text = Main routine inverts, if required.
+
+[comment]
+offset = 16088
+text = Reload character
+
+[comment]
+offset = 16089
+text = Set bit 6
+
+[comment]
+offset = 16091
+text = Save HL
+
+[comment]
+offset = 16092
+text = Address Flag 1
+
+[comment]
+offset = 16095
+text = Invert?
+
+[comment]
+offset = 16097
+text = Restore HL
+
+[comment]
+offset = 16098
+text = No!
+
+[comment]
+offset = 16100
+text = Clear bit 6
+
+[comment]
+offset = 16102
+text = Done
+
+[comment]
+offset = 16105
+text = Load background flag
+
+[comment]
+offset = 16108
+text = Black background?
+
+[comment]
+offset = 16109
+text = Load character
+
+[comment]
+offset = 16110
+text = Yes, black!
+
+[comment]
+offset = 16112
+text = Check with bit 6 = 1
+
+[comment]
+offset = 16115
+text = Check with bit 6 = 0
+
+[comment]
+offset = 16118
+text = Load background flag
+
+[comment]
+offset = 16121
+text = Black?
+
+[comment]
+offset = 16122
+text = Load space character
+
+[comment]
+offset = 16124
+text = Yes!
+
+[comment]
+offset = 16126
+text = For green, set bit 6
+
+[comment]
+offset = 16128
+text = ...into screen memory
+
+[comment]
+offset = 16130
+text = Load length of a line
+
+[comment]
+offset = 16132
+text = Load background flag
+
+[comment]
+offset = 16135
+text = Black?
+
+[comment]
+offset = 16136
+text = Load space character
+
+[comment]
+offset = 16138
+text = Yes, done!
+
+[comment]
+offset = 16139
+text = For green, set bit 6
+
+[comment]
+offset = 16142
+text = Address last line
+
+[comment]
+offset = 16145
+text = Load background flag
+
+[comment]
+offset = 16148
+text = Black?
+
+[comment]
+offset = 16149
+text = Yes, no action
+
+[comment]
+offset = 16150
+text = Clean up stack
+
+[comment]
+offset = 16151
+text = Load text character
+
+[comment]
+offset = 16152
+text = End of text?
+
+[comment]
+offset = 16153
+text = Yes, done!
+
+[comment]
+offset = 16154
+text = Clear bit 6
+
+[comment]
+offset = 16156
+text = Output character inverted
+
+[comment]
+offset = 16157
+text = Screen address + 1
+
+[comment]
+offset = 16158
+text = Text address + 1
+
+[comment]
+offset = 16159
+text = Next byte
+
+[comment]
+offset = 16161
+text = Load background flag
+
+[comment]
+offset = 16164
+text = Black?
+
+[comment]
+offset = 16165
+text = Load identifier
+
+[comment]
+offset = 16166
+text = Yes!
+
+[comment]
+offset = 16168
+text = Green, set bit 6
+
+[comment]
+offset = 16170
+text = Transfer into screen
+
+[comment]
+offset = 16171
+text = Screen address + 1
+
+[comment]
+offset = 16172
+text = Load separator for green
+
+[comment]
+offset = 16175
+text = Identifier onto screen (black)
+
+[comment]
+offset = 16176
+text = Load separator
+
+[comment]
+offset = 16179
+text = Save character
+
+[comment]
+offset = 16180
+text = Load background flag
+
+[comment]
+offset = 16183
+text = Black?
+
+[comment]
+offset = 16184
+text = Yes!
+
+[comment]
+offset = 16186
+text = Green! Reload character
+
+[comment]
+offset = 16187
+text = Set bit 6
+
+[comment]
+offset = 16189
+text = Output character to screen
+
+[comment]
+offset = 16191
+text = Black! Reload character
+
+[comment]
+offset = 16192
+text = Clear bits 6 and 7
+
+[comment]
+offset = 16194
+text = Output character to screen
+
+[comment]
+offset = 16196
+text = Save character
+
+[comment]
+offset = 16197
+text = Load background flag
+
+[comment]
+offset = 16200
+text = Black?
+
+[comment]
+offset = 16201
+text = Yes!
+
+[comment]
+offset = 16203
+text = Green! Reload character
+
+[comment]
+offset = 16204
+text = Inverted character?
+
+[comment]
+offset = 16206
+text = No, normal output
+
+[comment]
+offset = 16209
+text = Yes, inverted output
+
+[comment]
+offset = 16212
+text = Black! Reload character
+
+[comment]
+offset = 16213
+text = Inverted character?
+
+[comment]
+offset = 16215
+text = No, normal output
+
+[comment]
+offset = 16218
+text = Yes, inverted output
+
+[comment]
+offset = 16221
+text = Not used!
+
+[comment]
+offset = 16224
+text = Save character
+
+[comment]
+offset = 16225
+text = Load background flag
+
+[comment]
+offset = 16228
+text = Black?
+
+[comment]
+offset = 16229
+text = Yes!
+
+[comment]
+offset = 16231
+text = Green! Reload character
+
+[comment]
+offset = 16232
+text = Clear bits 6 and 7
+
+[comment]
+offset = 16237
+text = Black! Reload character
+
+[comment]
+offset = 16238
+text = Clear bit 7
+
+[comment]
+offset = 16243
+text = Read byte from cassette
+
+[comment]
+offset = 16246
+text = OK!
+
+[comment]
+offset = 16247
+text = Return address from stack
+
+[comment]
+offset = 16248
+text = Read error!
+
+[comment]
+offset = 16251
+text = Current background flag
+
+[comment]
+offset = 16255
+text = = chosen background?
+
+[comment]
+offset = 16259
+text = Yes, go to character output
+
+[comment]
+offset = 16262
+text = Update current background flag
+
+[comment]
+offset = 16265
+text = Load screen start address
+
+[comment]
+offset = 16268
+text = Screen size
+
+[comment]
+offset = 16271
+text = Load character
+
+[comment]
+offset = 16272
+text = Block graphics?
+
+[comment]
+offset = 16273
+text = Yes, leave unchanged
+
+[comment]
+offset = 16276
+text = Toggle bit 6 (inversion)
+
+[comment]
+offset = 16278
+text = ...and write back
+
+[comment]
+offset = 16279
+text = Screen address + 1
+
+[comment]
+offset = 16280
+text = Character counter - 1
+
+[comment]
+offset = 16283
+text = No, next character
+
+[comment]
+offset = 16285
+text = Yes, done!
+
+[comment]
+offset = 16288
+text = Load keyboard row 2
+
+[comment]
+offset = 16291
+text = CTRL key pressed?
+
+[comment]
+offset = 16293
+text = Space into A
+
+[comment]
+offset = 16295
+text = Not pressed!
+
+[comment]
+offset = 16297
+text = Set bit 6 (black background)
+
+[comment]
+offset = 16299
+text = Set background flags for black
+
+[comment]
+offset = 16305
+text = Space as cursor backup
+
+[comment]
+offset = 16308
+text = Continue initialization
+
+[comment]
+offset = 16311
+text = Unused/unprogrammed ROM space (0x00 filler) - not real code, end of actual ROM content is 0x3FB6
+
+[comment]
+offset = 16368
+text = Unprogrammed EPROM fill (0xFF) - standard end-of-ROM padding
+
 [block]
 offset = 0
 text = Initialisation of the computer
@@ -36756,5 +37550,120 @@ text = *******************************
 offset = 15596
 text = *******************************
               Table of error messages
+              *******************************
+
+[block]
+offset = 15913
+text = *******************************
+              If the buffer is empty, write a space into the buffer
+              *******************************
+
+[block]
+offset = 15927
+text = *******************************
+              Part of initialization
+              Set default color = yellow
+              *******************************
+
+[block]
+offset = 15936
+text = *******************************
+              Additional routine for reading a line (RDLINE)
+              with green background and black character display:
+              transfer data from screen to I/O buffer
+              *******************************
+
+[block]
+offset = 15978
+text = Entry point from 0x3EAF, for green background
+
+[block]
+offset = 16050
+text = *******************************
+              Invert character
+              *******************************
+
+[block]
+offset = 16062
+text = *******************************
+              Provide clear-character for the screen-clear routine
+              *******************************
+
+[block]
+offset = 16074
+text = *******************************
+              When outputting to screen, perform inversion
+              depending on the background
+              *******************************
+
+[block]
+offset = 16105
+text = *******************************
+              Test character for space (blank)
+              *******************************
+
+[block]
+offset = 16118
+text = *******************************
+              Insert space during INSERT and RUBOUT
+              *******************************
+
+[block]
+offset = 16130
+text = *******************************
+              Prepare line-clear for the roll (scroll) routines
+              *******************************
+
+[block]
+offset = 16142
+text = *******************************
+              Helper routine for cassette loading, for correctly
+              displaying messages depending on the background.
+              Called from 0x3889 (general messages in the last line)
+              *******************************
+
+[block]
+offset = 16161
+text = Called from 0x382B (output of the file identifier)
+
+[block]
+offset = 16179
+text = *******************************
+              Called from 0x3837 (output of file/program name)
+              *******************************
+
+[block]
+offset = 16196
+text = *******************************
+              Helper routine for the COPY statement
+              Called from 0x392D
+              *******************************
+
+[block]
+offset = 16224
+text = *******************************
+              Helper routine for character output on screen
+              Adjusting inversion to match the background color
+              Called from 0x3149
+              *******************************
+
+[block]
+offset = 16243
+text = *******************************
+              Helper routine for reading from cassette
+              Called from 0x369C
+              *******************************
+
+[block]
+offset = 16251
+text = *******************************
+              When a new background color is chosen, convert screen contents
+              Called from the interrupt service routine
+              *******************************
+
+[block]
+offset = 16288
+text = *******************************
+              Check whether the CTRL key is pressed during initialization
               *******************************
 

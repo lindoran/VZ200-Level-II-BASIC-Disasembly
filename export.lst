@@ -669,7 +669,7 @@
 048C  0620     .                   ld    b,0x20         ; take 1 line
 048E  3A1878   :.x                 ld    a,(0x7818)     ; check background color
 0491  B7       .                   or    a              ; 0 = green, 1 = black
-0492  CA403E   .@>                 jp    z,0x3E40       ; if green continue at 3E40H
+0492  CA403E   .@>                 jp    z,RDLINE_READ_GREEN_BG ; if green continue at 3E40H
                      ; Transferring data from screen to I/O buffer
 0495  7E       ~                   ld    a,(hl)         ; load character from screen
 0496  FE40     .@                  cp    0x40           ; graphics or inverse?
@@ -761,7 +761,7 @@
 0534  C1       .                   pop   bc             ; to start of input
 0535  F5       .                   push  af             ; save BREAK identifier
 0536  09       .                   add   hl,bc          ; Add hl,bc
-0537  C3293E   .)>                 jp    0x3E29         ; continue at 3E29H
+0537  C3293E   .)>                 jp    BUF_BLANK_IF_EMPTY ; continue at 3E29H
                      ; INPUT helper: read one line into I/O buffer
 053A  3AAF7A   :.z                 ld    a,(0x7AAF)     ; wait until text output finished.
 053D  B7       .                   or    a              ; 7AAFH contains number of characters in
@@ -7869,7 +7869,7 @@
 2EBA  D5       .                   push  de
 2EBB  E5       .                   push  hl
 2EBC  CD7D78   .}x                 call  0x787D         ; RAM expansion output
-2EBF  CD7B3F   .{?                 call  0x3F7B         ; Invert screen if necessary
+2EBF  CD7B3F   .{?                 call  BG_COLOR_CHANGE_CONVERT ; Invert screen if necessary
 2EC2  CDDC2E   ...                 call  CURSOR_BLINK   ; Output/blink cursor
 2EC5  CDFD2E   ...                 call  KBD_SCAN_ONCE  ; Query keyboard
 2EC8  F5       .                   push  af             ; Save read character
@@ -8079,7 +8079,7 @@
 302E  3E20     >                   ld    a,0x20         ; wait for double value (pause)
 3030  324178   2Ax                 ld    (0x7841),a
 3033  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor address
-3036  C3B23E   ..>                 jp    0x3EB2         ; output character inverted
+3036  C3B23E   ..>                 jp    CHAR_INVERT    ; output character inverted
                      ; Direct output of a character or keyword
 3039  213878   !8x                 ld    hl,0x7838      ; address Flag 1
 303C  CB7E     .~                  bit   7,(hl)         ; CONTROL flag set?
@@ -8141,7 +8141,7 @@
 3098  320068   2.h                 ld    (0x6800),a     ; switch to text mode
 309B  010002   ...                 ld    bc,0x0200      ; video memory for text mode
 309E  210070   !.p                 ld    hl,0x7000      ; clear (512 bytes)
-30A1  CDBE3E   ..>                 call  0x3EBE         ; clear characters
+30A1  CDBE3E   ..>                 call  CLEAR_CHAR_GET ; clear characters
 30A4  23       #                   inc   hl             ; next address
 30A5  0B       .                   dec   bc             ; counter - 1
 30A6  79       y                   ld    a,c            ; = 0? (done)
@@ -8247,7 +8247,7 @@
                      OUT_CHAR_PROCESS:
 3145  CB77     .w                  bit   6,a            ; inverted alphanumeric character?
 3147  2804     (.                  jr    z,$+6          ; no, block graphics!
-3149  C3603F   .`?                 jp    0x3F60         ; inverted representation depending
+3149  C3603F   .`?                 jp    CHAR_OUT_BG_ADJUST ; inverted representation depending
 314C  00       .                   nop                  ; on background
 314D  E68F     ..                  and   0x8F           ; clear bits 4, 5, 6
 314F  47       G                   ld    b,a            ; graphics character in B
@@ -8292,7 +8292,7 @@
 31A2  CA9232   ..2                 jp    z,OUT_SCREEN_CLS ; yes!
 31A5  FE20     .                   cp    0x20           ; ignore remaining control characters
 31A7  F8       .                   ret   m
-31A8  C3CA3E   ..>                 jp    0x3ECA         ; continue at 3ECA (supplement)
+31A8  C3CA3E   ..>                 jp    CHAR_OUT_INVERT_ADJUST ; continue at 3ECA (supplement)
 31AB  213878   !8x                 ld    hl,0x7838      ; address Flag 1
 31AE  CB4E     .N                  bit   1,(hl)         ; INVERSE flag set?
 31B0  E1       .                   pop   hl             ; clean up stack
@@ -8425,7 +8425,7 @@
 3292  210070   !.p                 ld    hl,0x7000      ; load start of screen address
 3295  222078   " x                 ld    (CURS_ADDR),hl ; in cursor address
 3298  010002   ...                 ld    bc,0x0200      ; length of text memory
-329B  CDBE3E   ..>                 call  0x3EBE         ; delete one character
+329B  CDBE3E   ..>                 call  CLEAR_CHAR_GET ; delete one character
 329E  23       #                   inc   hl             ; screen address + 1
 329F  0B       .                   dec   bc             ; length - 1
 32A0  79       y                   ld    a,c            ; at end of screen?
@@ -8466,7 +8466,7 @@
 32DA  ED42     .B                  sbc   hl,bc          ; Cursor address - column pointer = start of
 32DC  011F00   ...                 ld    bc,0x001F      ; Width of line (32 bytes - 1)
 32DF  09       .                   add   hl,bc          ; Address of the last character of the line
-32E0  CDE93E   ..>                 call  0x3EE9         ; Test last character of the line
+32E0  CDE93E   ..>                 call  CHAR_IS_BLANK_TEST ; Test last character of the line
 32E3  2014      .                  jr    nz,$+22        ; If not space, no insert possible!
 32E5  E5       .                   push  hl             ; Last character address
 32E6  D1       .                   pop   de             ; in DE
@@ -8477,7 +8477,7 @@
 32EE  91       .                   sub   c              ; Calculate remaining characters: 31 - colum
 32EF  4F       O                   ld    c,a            ; Remaining characters to shift in BC
 32F0  EDB8     ..                  lddr                 ; Shift characters right by one position
-32F2  CDF63E   ..>                 call  0x3EF6         ; Insert space at cursor position
+32F2  CDF63E   ..>                 call  INSERT_BLANK_CHAR ; Insert space at cursor position
 32F5  323C78   2<x                 ld    (0x783C),a     ; Save character at cursor position
 32F8  C9       .                   ret                  ; Done
 32F9  CDA833   ..3                 call  GET_LINE_STATUS ; Determine status of current line
@@ -8493,7 +8493,7 @@
 330B  ED42     .B                  sbc   hl,bc          ; Cursor address - column pointer = start of
 330D  013F00   .?.                 ld    bc,0x003F      ; + 63
 3310  09       .                   add   hl,bc          ; HL = end of double line
-3311  CDE93E   ..>                 call  0x3EE9         ; Is the last character empty (space)?
+3311  CDE93E   ..>                 call  CHAR_IS_BLANK_TEST ; Is the last character empty (space)?
 3314  C0       .                   ret   nz             ; No, no insert possible!
 3315  E5       .                   push  hl             ; Last character address
 3316  D1       .                   pop   de             ; in DE
@@ -8562,7 +8562,7 @@
 337C  2802     (.                  jr    z,$+4          ; If zero, no shift needed
 337E  EDB8     ..                  lddr                 ; Shift screen contents down by one line
 3380  E1       .                   pop   hl             ; Restore line start address
-3381  CD023F   ..?                 call  0x3F02         ; Get clear-screen character in A, width in 
+3381  CD023F   ..?                 call  CLRLINE_CHAR_GET ; Get clear-screen character in A, width in 
 3384  00       .                   nop   
 3385  12       .                   ld    (de),a         ; Fill new line with clear character
 3386  1B       .                   dec   de             ; Address of previous character
@@ -8630,7 +8630,7 @@
 33E4  AF       .                   xor   a
 33E5  47       G                   ld    b,a            ; Clear B
 33E6  EDB0     ..                  ldir                 ; Shift characters left by one
-33E8  CDF63E   ..>                 call  0x3EF6         ; Fill end of line with space
+33E8  CDF63E   ..>                 call  INSERT_BLANK_CHAR ; Fill end of line with space
 33EB  CD5000   .P.                 call  GET_CURSOR_CHAR ; Save character at cursor position
 33EE  C9       .                   ret                  ; Done
 33EF  3E3F     >?                  ld    a,0x3F         ; Double line width - 1
@@ -8642,7 +8642,7 @@
 33F6  212070   ! p                 ld    hl,0x7020      ; HL = start of second line (source)
 33F9  01E001   ...                 ld    bc,0x01E0      ; Count = 15 lines of 32 bytes (480 bytes)
 33FC  EDB0     ..                  ldir                 ; Scroll screen contents up by one line
-33FE  CD023F   ..?                 call  0x3F02         ; Get clear-screen character in A, width in 
+33FE  CD023F   ..?                 call  CLRLINE_CHAR_GET ; Get clear-screen character in A, width in 
 3401  00       .                   nop   
 3402  12       .                   ld    (de),a         ; Fill last line with space
 3403  13       .                   inc   de             ; Address of next character
@@ -8733,7 +8733,7 @@
                      ; ******************************************************************
                      ; * PART OF THE INITIALIZATION ROUTINE                             *
                      ; ******************************************************************
-3484  CDA03F   ..?                 call  0x3FA0         ; Check if CTRL key is pressed and set color
+3484  CDA03F   ..?                 call  CTRL_KEY_CHECK_INIT ; Check if CTRL key is pressed and set color
 3487  3E20     >                   ld    a,0x20         ; Default I/O latch byte
 3489  323B78   2;x                 ld    (OUT_LATCH),a  ; Save default latch byte
 348C  320068   2.h                 ld    (0x6800),a     ; Write default to I/O port
@@ -8746,7 +8746,7 @@
 349D  21B27A   !.z                 ld    hl,0x7AB2      ; Start address of input buffer
 34A0  22B07A   ".z                 ld    (0x7AB0),hl    ; Save input buffer pointer
 34A3  3EC9     >.                  ld    a,0xC9         ; RET instruction opcode
-34A5  C3373E   .7>                 jp    0x3E37         ; Jump to color-set routine (yellow)
+34A5  C3373E   .7>                 jp    INIT_COLOR_YELLOW ; Jump to color-set routine (yellow)
 34A8  C9       .                   ret                  ; Not used
                      ; ******** CSAVE - WRITE PROGRAM TO CASSETTE
                      CSAVE:
@@ -9008,7 +9008,7 @@
 3694  3A3978   :9x                 ld    a,(FLAG2)      ; Load Flag 2
 3697  CB5F     ._                  bit   3,a            ; VERIFY flag set?
 3699  C24237   .B7                 jp    nz,VERIFY_COMPARE ; Yes, compare against memory
-369C  CD733F   .s?                 call  0x3F73         ; Read byte from cassette
+369C  CD733F   .s?                 call  TAPE_READ_BYTE_CHECKED ; Read byte from cassette
 369F  12       .                   ld    (de),a         ; Store byte in RAM
 36A0  CD8E38   ..8                 call  TAPE_CALC_CHECKSUM ; Add byte to checksum
 36A3  13       .                   inc   de             ; Advance program address
@@ -9190,13 +9190,13 @@
 37F8  C0       .                   ret   nz             ; No, suppress output
 37F9  11E071   ..q                 ld    de,0x71E0      ; Address start of last line
 37FC  0620     .                   ld    b,0x20         ; Line length (32) as counter
-37FE  CDF63E   ..>                 call  0x3EF6         ; Fill last line with spaces
+37FE  CDF63E   ..>                 call  INSERT_BLANK_CHAR ; Fill last line with spaces
 3801  13       .                   inc   de             ; Advance screen address
 3802  10FA     ..                  djnz  $-4            ; Loop for entire line
 3804  3A4C78   :Lx                 ld    a,(0x784C)     ; Load message-output flag
 3807  B7       .                   or    a              ; Is it zero?
 3808  C0       .                   ret   nz             ; No, suppress output
-3809  CD0E3F   ..?                 call  0x3F0E         ; Print character (may invert depending on b
+3809  CD0E3F   ..?                 call  TAPE_MSG_PRINT_BG ; Print character (may invert depending on b
 380C  7E       ~                   ld    a,(hl)         ; Load text character
 380D  B7       .                   or    a              ; End of text? (Null terminator)
 380E  C8       .                   ret   z              ; Yes, finished
@@ -9218,7 +9218,7 @@
 3827  3E00     >.                  ld    a,0x00
 3829  8C       .                   adc   a,h
 382A  67       g                   ld    h,a
-382B  CD213F   .!?                 call  0x3F21         ; Print identifier character
+382B  CD213F   .!?                 call  TAPE_ID_PRINT_BG ; Print identifier character
 382E  00       .                   nop                  ; Unused
 382F  00       .                   nop                  ; Unused
 3830  12       .                   ld    (de),a         ; Print space as separator
@@ -9228,7 +9228,7 @@
 3834  7E       ~                   ld    a,(hl)         ; Load character from name
 3835  B7       .                   or    a              ; End of name?
 3836  C8       .                   ret   z              ; Yes, finished
-3837  CD333F   .3?                 call  0x3F33         ; Print character depending on background
+3837  CD333F   .3?                 call  TAPE_NAME_PRINT_BG ; Print character depending on background
 383A  13       .                   inc   de             ; Advance screen address
 383B  23       #                   inc   hl             ; Advance name pointer
 383C  18F6     ..                  jr    $-8            ; Print next character
@@ -9357,7 +9357,7 @@
 3925  F22D39   .-9                 jp    p,0x392D       ; No
 3928  CD732C   .s,                 call  PRN_GFX_CHAR   ; Yes, output block graphics character
 392B  1816     ..                  jr    $+24           ; Continue
-392D  C3443F   .D?                 jp    0x3F44         ; Output plain text character to printer
+392D  C3443F   .D?                 jp    COPY_CHAR_BG   ; Output plain text character to printer
 3930  00       .                   nop                  ; Unused
 3931  E63F     .?                  and   0x3F           ; Clear bits 6 and 7
 3933  CD5639   .V9                 call  PRN_INV_CHAR   ; Output inverted character
@@ -9968,297 +9968,304 @@
       41582045 AX E  
       52524F52 RROR  
 3E27  0D00     ..                  DEFB  0x0D,0x00      ; CR + null terminator
-3E29  7E       ~                   ld    a,(hl)
-3E2A  B7       .                   or    a
-3E2B  2007      .                  jr    nz,$+9
-3E2D  3E20     >                   ld    a,0x20
-3E2F  77       w                   ld    (hl),a
-3E30  23       #                   inc   hl
-3E31  AF       .                   xor   a
+                     ; *******************************
+                     ; If the buffer is empty, write a space into the buffer
+                     ; *******************************
+3E29  7E       ~                   ld    a,(hl)         ; Load character from buffer
+3E2A  B7       .                   or    a              ; Is it empty?
+3E2B  2007      .                  jr    nz,$+9         ; No, not empty!
+3E2D  3E20     >                   ld    a,0x20         ; Load space character
+3E2F  77       w                   ld    (hl),a         ; ...and store at start of buffer
+3E30  23       #                   inc   hl             ; End marker goes after the space
+3E31  AF       .                   xor   a              ; (= 0x00)
 3E32  77       w                   ld    (hl),a
-3E33  2B       +                   dec   hl
-3E34  2B       +                   dec   hl
-3E35  F1       .                   pop   af
-3E36  C9       .                   ret   
-3E37  327D78   2}x                 ld    (0x787D),a
-3E3A  3E10     >.                  ld    a,0x10
+3E33  2B       +                   dec   hl             ; Buffer pointer back to start
+3E34  2B       +                   dec   hl             ; Buffer pointer to the byte before the buff
+3E35  F1       .                   pop   af             ; Reload identifier
+3E36  C9       .                   ret                  ; Done!
+                     ; *******************************
+                     ; Part of initialization
+                     ; Set default color = yellow
+                     ; *******************************
+3E37  327D78   2}x                 ld    (0x787D),a     ; Interrupt RAM output = RET
+3E3A  3E10     >.                  ld    a,0x10         ; Color yellow into color identifier
 3E3C  324678   2Fx                 ld    (0x7846),a
 3E3F  C9       .                   ret   
-3E40  7E       ~                   ld    a,(hl)
-3E41  CB77     .w                  bit   6,a
-3E43  2805     (.                  jr    z,$+7
-3E45  FE80     ..                  cp    0x80
-3E47  DA5D3E   .]>                 jp    c,0x3E5D
-3E4A  C1       .                   pop   bc
-3E4B  11533E   .S>                 ld    de,0x3E53
+                     ; *******************************
+                     ; Additional routine for reading a line (RDLINE)
+                     ; with green background and black character display:
+                     ; transfer data from screen to I/O buffer
+                     ; *******************************
+3E40  7E       ~                   ld    a,(hl)         ; Load character from screen
+3E41  CB77     .w                  bit   6,a            ; Inverse character?
+3E43  2805     (.                  jr    z,$+7          ; Yes!
+3E45  FE80     ..                  cp    0x80           ; Graphics character?
+3E47  DA5D3E   .]>                 jp    c,0x3E5D       ; No!
+3E4A  C1       .                   pop   bc             ; If not INPUT, then graphics and inverse ar
+3E4B  11533E   .S>                 ld    de,0x3E53      ; Return address onto stack
 3E4E  D5       .                   push  de
 3E4F  C5       .                   push  bc
-3E50  C30205   ...                 jp    0x0502
-3E53  D8       .                   ret   c
-3E54  211A3E   !.>                 ld    hl,0x3E1A
-3E57  CDA728   ..(                 call  OUTSTR
-3E5A  C3E303   ...                 jp    RDLINE
-3E5D  FE62     .b                  cp    0x62
-3E5F  2039      9                  jr    nz,$+59
-3E61  E6BF     ..                  and   0xBF
-3E63  12       .                   ld    (de),a
-3E64  23       #                   inc   hl
-3E65  13       .                   inc   de
-3E66  05       .                   dec   b
-3E67  CAEE04   ...                 jp    z,0x04EE
-3E6A  7E       ~                   ld    a,(hl)
-3E6B  CB7F     ..                  bit   7,a
-3E6D  2006      .                  jr    nz,$+8
-3E6F  CB77     .w                  bit   6,a
-3E71  200C      .                  jr    nz,$+14
-3E73  1806     ..                  jr    $+8
-3E75  E68F     ..                  and   0x8F
-3E77  F680     ..                  or    0x80
+3E50  C30205   ...                 jp    0x0502         ; Check end-of-text marker (BREAK?)
+3E53  D8       .                   ret   c              ; BREAK! Back to BASIC
+3E54  211A3E   !.>                 ld    hl,0x3E1A      ; Address the text 'SYNTAX ERROR'
+3E57  CDA728   ..(                 call  OUTSTR         ; and output it
+3E5A  C3E303   ...                 jp    RDLINE         ; Back to line input
+3E5D  FE62     .b                  cp    0x62           ; String marker: quote-character?
+3E5F  2039      9                  jr    nz,$+59        ; No, continue
+3E61  E6BF     ..                  and   0xBF           ; Clear bit 6
+3E63  12       .                   ld    (de),a         ; Character into I/O buffer
+3E64  23       #                   inc   hl             ; Screen address + 1
+3E65  13       .                   inc   de             ; Buffer address + 1
+3E66  05       .                   dec   b              ; Character counter - 1
+3E67  CAEE04   ...                 jp    z,0x04EE       ; If 0, end transfer
+                     ; Entry point from 0x3EAF, for green background
+3E6A  7E       ~                   ld    a,(hl)         ; Load character from screen
+3E6B  CB7F     ..                  bit   7,a            ; Graphics character?
+3E6D  2006      .                  jr    nz,$+8         ; Yes!
+3E6F  CB77     .w                  bit   6,a            ; Inverted character?
+3E71  200C      .                  jr    nz,$+14        ; No!
+3E73  1806     ..                  jr    $+8            ; Yes!
+3E75  E68F     ..                  and   0x8F           ; Graphics, clear bits 4,5,6
+3E77  F680     ..                  or    0x80           ; Set bit 7
 3E79  1817     ..                  jr    $+25
-3E7B  F6C0     ..                  or    0xC0
+3E7B  F6C0     ..                  or    0xC0           ; Set bits 6 and 7
 3E7D  1813     ..                  jr    $+21
-3E7F  FE62     .b                  cp    0x62
-3E81  2009      .                  jr    nz,$+11
-3E83  E5       .                   push  hl
-3E84  213978   !9x                 ld    hl,FLAG2
-3E87  CB66     .f                  bit   4,(hl)
-3E89  E1       .                   pop   hl
-3E8A  280E     (.                  jr    z,$+16
-3E8C  CB6F     .o                  bit   5,a
-3E8E  2802     (.                  jr    z,$+4
-3E90  E6BF     ..                  and   0xBF
-3E92  12       .                   ld    (de),a
-3E93  23       #                   inc   hl
-3E94  13       .                   inc   de
-3E95  10D3     ..                  djnz  $-43
-3E97  C3EE04   ...                 jp    0x04EE
-3E9A  CB6F     .o                  bit   5,a
-3E9C  2802     (.                  jr    z,$+4
-3E9E  E6BF     ..                  and   0xBF
-3EA0  12       .                   ld    (de),a
-3EA1  23       #                   inc   hl
-3EA2  13       .                   inc   de
-3EA3  109B     ..                  djnz  $-99
-3EA5  C3EE04   ...                 jp    0x04EE
-3EA8  3A1878   :.x                 ld    a,(0x7818)
+3E7F  FE62     .b                  cp    0x62           ; Is it a quote-character?
+3E81  2009      .                  jr    nz,$+11        ; No!
+3E83  E5       .                   push  hl             ; Save HL
+3E84  213978   !9x                 ld    hl,FLAG2       ; Address Flag2
+3E87  CB66     .f                  bit   4,(hl)         ; INPUT command?
+3E89  E1       .                   pop   hl             ; Reload HL
+3E8A  280E     (.                  jr    z,$+16         ; No - from here on, graphics and inverse ar
+3E8C  CB6F     .o                  bit   5,a            ; Character in real ASCII code?
+3E8E  2802     (.                  jr    z,$+4          ; Convert, if wrong
+3E90  E6BF     ..                  and   0xBF           ; (clear bit 6 if needed)
+3E92  12       .                   ld    (de),a         ; Character into I/O buffer
+3E93  23       #                   inc   hl             ; Screen address + 1
+3E94  13       .                   inc   de             ; Buffer address + 1
+3E95  10D3     ..                  djnz  $-43           ; Counter - 1
+3E97  C3EE04   ...                 jp    0x04EE         ; = 0, then done
+3E9A  CB6F     .o                  bit   5,a            ; Character in real ASCII code?
+3E9C  2802     (.                  jr    z,$+4          ; Convert, if wrong
+3E9E  E6BF     ..                  and   0xBF           ; (clear bit 6 if needed)
+3EA0  12       .                   ld    (de),a         ; Character into I/O buffer
+3EA1  23       #                   inc   hl             ; Screen address + 1
+3EA2  13       .                   inc   de             ; Buffer address + 1
+3EA3  109B     ..                  djnz  $-99           ; Counter - 1
+3EA5  C3EE04   ...                 jp    0x04EE         ; = 0, transfer complete
+3EA8  3A1878   :.x                 ld    a,(0x7818)     ; Depending on background, branch to appropr
 3EAB  B7       .                   or    a
-3EAC  C2B804   ...                 jp    nz,0x04B8
-3EAF  C36A3E   .j>                 jp    0x3E6A
-3EB2  3A1878   :.x                 ld    a,(0x7818)
-3EB5  B7       .                   or    a
-3EB6  2003      .                  jr    nz,$+5
-3EB8  CBB6     ..                  res   6,(hl)
+3EAC  C2B804   ...                 jp    nz,0x04B8      ; Black background
+3EAF  C36A3E   .j>                 jp    RDLINE_READ_ENTRY ; Green background
+                     ; *******************************
+                     ; Invert character
+                     ; *******************************
+3EB2  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
+3EB5  B7       .                   or    a              ; Black background?
+3EB6  2003      .                  jr    nz,$+5         ; Yes!
+3EB8  CBB6     ..                  res   6,(hl)         ; Green, clear bit 6
 3EBA  C9       .                   ret   
-3EBB  CBF6     ..                  set   6,(hl)
+3EBB  CBF6     ..                  set   6,(hl)         ; Black, set bit 6
 3EBD  C9       .                   ret   
-3EBE  3A1878   :.x                 ld    a,(0x7818)
-3EC1  B7       .                   or    a
-3EC2  3E20     >                   ld    a,0x20
-3EC4  2002      .                  jr    nz,$+4
-3EC6  F640     .@                  or    0x40
-3EC8  77       w                   ld    (hl),a
+                     ; *******************************
+                     ; Provide clear-character for the screen-clear routine
+                     ; *******************************
+3EBE  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
+3EC1  B7       .                   or    a              ; Black background?
+3EC2  3E20     >                   ld    a,0x20         ; Load space character
+3EC4  2002      .                  jr    nz,$+4         ; Black, that's fine as is!
+3EC6  F640     .@                  or    0x40           ; Green, additionally set bit 6
+3EC8  77       w                   ld    (hl),a         ; Space into screen
 3EC9  C9       .                   ret   
-3ECA  F5       .                   push  af
-3ECB  3A1878   :.x                 ld    a,(0x7818)
-3ECE  B7       .                   or    a
-3ECF  2807     (.                  jr    z,$+9
-3ED1  F1       .                   pop   af
-3ED2  E63F     .?                  and   0x3F
-3ED4  E5       .                   push  hl
+                     ; *******************************
+                     ; When outputting to screen, perform inversion
+                     ; depending on the background
+                     ; *******************************
+3ECA  F5       .                   push  af             ; Save character to be output
+3ECB  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
+3ECE  B7       .                   or    a              ; Black background?
+3ECF  2807     (.                  jr    z,$+9          ; No - green!
+3ED1  F1       .                   pop   af             ; Reload character
+3ED2  E63F     .?                  and   0x3F           ; Clear bits 6 and 7
+3ED4  E5       .                   push  hl             ; Main routine inverts, if required.
 3ED5  C3AB31   ..1                 jp    0x31AB
-3ED8  F1       .                   pop   af
-3ED9  F640     .@                  or    0x40
-3EDB  E5       .                   push  hl
-3EDC  213878   !8x                 ld    hl,0x7838
-3EDF  CB4E     .N                  bit   1,(hl)
-3EE1  E1       .                   pop   hl
-3EE2  2802     (.                  jr    z,$+4
-3EE4  E6BF     ..                  and   0xBF
-3EE6  C3B531   ..1                 jp    0x31B5
-3EE9  3A1878   :.x                 ld    a,(0x7818)
-3EEC  B7       .                   or    a
-3EED  7E       ~                   ld    a,(hl)
-3EEE  2003      .                  jr    nz,$+5
-3EF0  FE60     .`                  cp    0x60
+3ED8  F1       .                   pop   af             ; Reload character
+3ED9  F640     .@                  or    0x40           ; Set bit 6
+3EDB  E5       .                   push  hl             ; Save HL
+3EDC  213878   !8x                 ld    hl,0x7838      ; Address Flag 1
+3EDF  CB4E     .N                  bit   1,(hl)         ; Invert?
+3EE1  E1       .                   pop   hl             ; Restore HL
+3EE2  2802     (.                  jr    z,$+4          ; No!
+3EE4  E6BF     ..                  and   0xBF           ; Clear bit 6
+3EE6  C3B531   ..1                 jp    0x31B5         ; Done
+                     ; *******************************
+                     ; Test character for space (blank)
+                     ; *******************************
+3EE9  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
+3EEC  B7       .                   or    a              ; Black background?
+3EED  7E       ~                   ld    a,(hl)         ; Load character
+3EEE  2003      .                  jr    nz,$+5         ; Yes, black!
+3EF0  FE60     .`                  cp    0x60           ; Check with bit 6 = 1
 3EF2  C9       .                   ret   
-3EF3  FE20     .                   cp    0x20
+3EF3  FE20     .                   cp    0x20           ; Check with bit 6 = 0
 3EF5  C9       .                   ret   
-3EF6  3A1878   :.x                 ld    a,(0x7818)
-3EF9  B7       .                   or    a
-3EFA  3E20     >                   ld    a,0x20
-3EFC  2002      .                  jr    nz,$+4
-3EFE  F640     .@                  or    0x40
-3F00  12       .                   ld    (de),a
+                     ; *******************************
+                     ; Insert space during INSERT and RUBOUT
+                     ; *******************************
+3EF6  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
+3EF9  B7       .                   or    a              ; Black?
+3EFA  3E20     >                   ld    a,0x20         ; Load space character
+3EFC  2002      .                  jr    nz,$+4         ; Yes!
+3EFE  F640     .@                  or    0x40           ; For green, set bit 6
+3F00  12       .                   ld    (de),a         ; ...into screen memory
 3F01  C9       .                   ret   
-3F02  0620     .                   ld    b,0x20
-3F04  3A1878   :.x                 ld    a,(0x7818)
-3F07  B7       .                   or    a
-3F08  3E20     >                   ld    a,0x20
-3F0A  C0       .                   ret   nz
-3F0B  F640     .@                  or    0x40
+                     ; *******************************
+                     ; Prepare line-clear for the roll (scroll) routines
+                     ; *******************************
+3F02  0620     .                   ld    b,0x20         ; Load length of a line
+3F04  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
+3F07  B7       .                   or    a              ; Black?
+3F08  3E20     >                   ld    a,0x20         ; Load space character
+3F0A  C0       .                   ret   nz             ; Yes, done!
+3F0B  F640     .@                  or    0x40           ; For green, set bit 6
 3F0D  C9       .                   ret   
-3F0E  11E071   ..q                 ld    de,0x71E0
-3F11  3A1878   :.x                 ld    a,(0x7818)
-3F14  B7       .                   or    a
-3F15  C0       .                   ret   nz
-3F16  F1       .                   pop   af
-3F17  7E       ~                   ld    a,(hl)
-3F18  B7       .                   or    a
-3F19  C8       .                   ret   z
-3F1A  CBB7     ..                  res   6,a
-3F1C  12       .                   ld    (de),a
-3F1D  13       .                   inc   de
-3F1E  23       #                   inc   hl
-3F1F  18F6     ..                  jr    $-8
-3F21  3A1878   :.x                 ld    a,(0x7818)
-3F24  B7       .                   or    a
-3F25  7E       ~                   ld    a,(hl)
-3F26  2007      .                  jr    nz,$+9
-3F28  CBF7     ..                  set   6,a
-3F2A  12       .                   ld    (de),a
-3F2B  13       .                   inc   de
-3F2C  3E7A     >z                  ld    a,0x7A
+                     ; *******************************
+                     ; Helper routine for cassette loading, for correctly
+                     ; displaying messages depending on the background.
+                     ; Called from 0x3889 (general messages in the last line)
+                     ; *******************************
+3F0E  11E071   ..q                 ld    de,0x71E0      ; Address last line
+3F11  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
+3F14  B7       .                   or    a              ; Black?
+3F15  C0       .                   ret   nz             ; Yes, no action
+3F16  F1       .                   pop   af             ; Clean up stack
+3F17  7E       ~                   ld    a,(hl)         ; Load text character
+3F18  B7       .                   or    a              ; End of text?
+3F19  C8       .                   ret   z              ; Yes, done!
+3F1A  CBB7     ..                  res   6,a            ; Clear bit 6
+3F1C  12       .                   ld    (de),a         ; Output character inverted
+3F1D  13       .                   inc   de             ; Screen address + 1
+3F1E  23       #                   inc   hl             ; Text address + 1
+3F1F  18F6     ..                  jr    $-8            ; Next byte
+                     ; Called from 0x382B (output of the file identifier)
+3F21  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
+3F24  B7       .                   or    a              ; Black?
+3F25  7E       ~                   ld    a,(hl)         ; Load identifier
+3F26  2007      .                  jr    nz,$+9         ; Yes!
+3F28  CBF7     ..                  set   6,a            ; Green, set bit 6
+3F2A  12       .                   ld    (de),a         ; Transfer into screen
+3F2B  13       .                   inc   de             ; Screen address + 1
+3F2C  3E7A     >z                  ld    a,0x7A         ; Load separator for green
 3F2E  C9       .                   ret   
-3F2F  12       .                   ld    (de),a
-3F30  3E3A     >:                  ld    a,0x3A
+3F2F  12       .                   ld    (de),a         ; Identifier onto screen (black)
+3F30  3E3A     >:                  ld    a,0x3A         ; Load separator
 3F32  C9       .                   ret   
-3F33  F5       .                   push  af
-3F34  3A1878   :.x                 ld    a,(0x7818)
-3F37  B7       .                   or    a
-3F38  2005      .                  jr    nz,$+7
-3F3A  F1       .                   pop   af
-3F3B  F640     .@                  or    0x40
-3F3D  12       .                   ld    (de),a
+                     ; *******************************
+                     ; Called from 0x3837 (output of file/program name)
+                     ; *******************************
+3F33  F5       .                   push  af             ; Save character
+3F34  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
+3F37  B7       .                   or    a              ; Black?
+3F38  2005      .                  jr    nz,$+7         ; Yes!
+3F3A  F1       .                   pop   af             ; Green! Reload character
+3F3B  F640     .@                  or    0x40           ; Set bit 6
+3F3D  12       .                   ld    (de),a         ; Output character to screen
 3F3E  C9       .                   ret   
-3F3F  F1       .                   pop   af
-3F40  E63F     .?                  and   0x3F
-3F42  12       .                   ld    (de),a
+3F3F  F1       .                   pop   af             ; Black! Reload character
+3F40  E63F     .?                  and   0x3F           ; Clear bits 6 and 7
+3F42  12       .                   ld    (de),a         ; Output character to screen
 3F43  C9       .                   ret   
-3F44  F5       .                   push  af
-3F45  3A1878   :.x                 ld    a,(0x7818)
-3F48  B7       .                   or    a
-3F49  2009      .                  jr    nz,$+11
-3F4B  F1       .                   pop   af
-3F4C  CB77     .w                  bit   6,a
-3F4E  C23839   .89                 jp    nz,0x3938
-3F51  C33139   .19                 jp    0x3931
-3F54  F1       .                   pop   af
-3F55  CB77     .w                  bit   6,a
-3F57  CA3839   .89                 jp    z,0x3938
-3F5A  C33139   .19                 jp    0x3931
-3F5D  C33139   .19                 jp    0x3931
-3F60  F5       .                   push  af
-3F61  3A1878   :.x                 ld    a,(0x7818)
-3F64  B7       .                   or    a
-3F65  2006      .                  jr    nz,$+8
-3F67  F1       .                   pop   af
-3F68  E63F     .?                  and   0x3F
+                     ; *******************************
+                     ; Helper routine for the COPY statement
+                     ; Called from 0x392D
+                     ; *******************************
+3F44  F5       .                   push  af             ; Save character
+3F45  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
+3F48  B7       .                   or    a              ; Black?
+3F49  2009      .                  jr    nz,$+11        ; Yes!
+3F4B  F1       .                   pop   af             ; Green! Reload character
+3F4C  CB77     .w                  bit   6,a            ; Inverted character?
+3F4E  C23839   .89                 jp    nz,0x3938      ; No, normal output
+3F51  C33139   .19                 jp    0x3931         ; Yes, inverted output
+3F54  F1       .                   pop   af             ; Black! Reload character
+3F55  CB77     .w                  bit   6,a            ; Inverted character?
+3F57  CA3839   .89                 jp    z,0x3938       ; No, normal output
+3F5A  C33139   .19                 jp    0x3931         ; Yes, inverted output
+3F5D  C33139   .19                 jp    0x3931         ; Not used!
+                     ; *******************************
+                     ; Helper routine for character output on screen
+                     ; Adjusting inversion to match the background color
+                     ; Called from 0x3149
+                     ; *******************************
+3F60  F5       .                   push  af             ; Save character
+3F61  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
+3F64  B7       .                   or    a              ; Black?
+3F65  2006      .                  jr    nz,$+8         ; Yes!
+3F67  F1       .                   pop   af             ; Green! Reload character
+3F68  E63F     .?                  and   0x3F           ; Clear bits 6 and 7
 3F6A  C35431   .T1                 jp    0x3154
-3F6D  F1       .                   pop   af
-3F6E  E67F     ..                  and   0x7F
+3F6D  F1       .                   pop   af             ; Black! Reload character
+3F6E  E67F     ..                  and   0x7F           ; Clear bit 7
 3F70  C35431   .T1                 jp    0x3154
-3F73  CD7537   .u7                 call  TAPE_READ_BYTE
-3F76  D0       .                   ret   nc
-3F77  E1       .                   pop   hl
-3F78  C31137   ..7                 jp    TAPE_LOAD_ERROR
-3F7B  3A1978   :.x                 ld    a,(0x7819)
+                     ; *******************************
+                     ; Helper routine for reading from cassette
+                     ; Called from 0x369C
+                     ; *******************************
+3F73  CD7537   .u7                 call  TAPE_READ_BYTE ; Read byte from cassette
+3F76  D0       .                   ret   nc             ; OK!
+3F77  E1       .                   pop   hl             ; Return address from stack
+3F78  C31137   ..7                 jp    TAPE_LOAD_ERROR ; Read error!
+                     ; *******************************
+                     ; When a new background color is chosen, convert screen contents
+                     ; Called from the interrupt service routine
+                     ; *******************************
+3F7B  3A1978   :.x                 ld    a,(0x7819)     ; Current background flag
 3F7E  47       G                   ld    b,a
-3F7F  3A1878   :.x                 ld    a,(0x7818)
+3F7F  3A1878   :.x                 ld    a,(0x7818)     ; = chosen background?
 3F82  B8       .                   cp    b
-3F83  CAE830   ..0                 jp    z,OUT_BUF_FLUSH
-3F86  321978   2.x                 ld    (0x7819),a
-3F89  210070   !.p                 ld    hl,0x7000
-3F8C  010002   ...                 ld    bc,0x0200
-3F8F  7E       ~                   ld    a,(hl)
-3F90  B7       .                   or    a
-3F91  FA973F   ..?                 jp    m,0x3F97
-3F94  EE40     .@                  xor   0x40
-3F96  77       w                   ld    (hl),a
-3F97  23       #                   inc   hl
-3F98  0B       .                   dec   bc
+3F83  CAE830   ..0                 jp    z,OUT_BUF_FLUSH ; Yes, go to character output
+3F86  321978   2.x                 ld    (0x7819),a     ; Update current background flag
+3F89  210070   !.p                 ld    hl,0x7000      ; Load screen start address
+3F8C  010002   ...                 ld    bc,0x0200      ; Screen size
+3F8F  7E       ~                   ld    a,(hl)         ; Load character
+3F90  B7       .                   or    a              ; Block graphics?
+3F91  FA973F   ..?                 jp    m,0x3F97       ; Yes, leave unchanged
+3F94  EE40     .@                  xor   0x40           ; Toggle bit 6 (inversion)
+3F96  77       w                   ld    (hl),a         ; ...and write back
+3F97  23       #                   inc   hl             ; Screen address + 1
+3F98  0B       .                   dec   bc             ; Character counter - 1
 3F99  78       x                   ld    a,b
 3F9A  B1       .                   or    c
-3F9B  20F2      .                  jr    nz,$-12
-3F9D  C3E830   ..0                 jp    OUT_BUF_FLUSH
-3FA0  3AFD68   :.h                 ld    a,(0x68FD)
-3FA3  CB57     .W                  bit   2,a
-3FA5  3E20     >                   ld    a,0x20
-3FA7  2008      .                  jr    nz,$+10
-3FA9  F640     .@                  or    0x40
-3FAB  321878   2.x                 ld    (0x7818),a
+3F9B  20F2      .                  jr    nz,$-12        ; No, next character
+3F9D  C3E830   ..0                 jp    OUT_BUF_FLUSH  ; Yes, done!
+                     ; *******************************
+                     ; Check whether the CTRL key is pressed during initialization
+                     ; *******************************
+3FA0  3AFD68   :.h                 ld    a,(0x68FD)     ; Load keyboard row 2
+3FA3  CB57     .W                  bit   2,a            ; CTRL key pressed?
+3FA5  3E20     >                   ld    a,0x20         ; Space into A
+3FA7  2008      .                  jr    nz,$+10        ; Not pressed!
+3FA9  F640     .@                  or    0x40           ; Set bit 6 (black background)
+3FAB  321878   2.x                 ld    (0x7818),a     ; Set background flags for black
 3FAE  321978   2.x                 ld    (0x7819),a
-3FB1  323C78   2<x                 ld    (0x783C),a
-3FB4  C3C901   ...                 jp    CLRSCR
-3FB7  00       .                   nop   
-3FB8  00       .                   nop   
-3FB9  00       .                   nop   
-3FBA  00       .                   nop   
-3FBB  00       .                   nop   
-3FBC  00       .                   nop   
-3FBD  00       .                   nop   
-3FBE  00       .                   nop   
-3FBF  00       .                   nop   
-3FC0  00       .                   nop   
-3FC1  00       .                   nop   
-3FC2  00       .                   nop   
-3FC3  00       .                   nop   
-3FC4  00       .                   nop   
-3FC5  00       .                   nop   
-3FC6  00       .                   nop   
-3FC7  00       .                   nop   
-3FC8  00       .                   nop   
-3FC9  00       .                   nop   
-3FCA  00       .                   nop   
-3FCB  00       .                   nop   
-3FCC  00       .                   nop   
-3FCD  00       .                   nop   
-3FCE  00       .                   nop   
-3FCF  00       .                   nop   
-3FD0  00       .                   nop   
-3FD1  00       .                   nop   
-3FD2  00       .                   nop   
-3FD3  00       .                   nop   
-3FD4  00       .                   nop   
-3FD5  00       .                   nop   
-3FD6  00       .                   nop   
-3FD7  00       .                   nop   
-3FD8  00       .                   nop   
-3FD9  00       .                   nop   
-3FDA  00       .                   nop   
-3FDB  00       .                   nop   
-3FDC  00       .                   nop   
-3FDD  00       .                   nop   
-3FDE  00       .                   nop   
-3FDF  00       .                   nop   
-3FE0  00       .                   nop   
-3FE1  00       .                   nop   
-3FE2  00       .                   nop   
-3FE3  00       .                   nop   
-3FE4  00       .                   nop   
-3FE5  00       .                   nop   
-3FE6  00       .                   nop   
-3FE7  00       .                   nop   
-3FE8  00       .                   nop   
-3FE9  00       .                   nop   
-3FEA  00       .                   nop   
-3FEB  00       .                   nop   
-3FEC  00       .                   nop   
-3FED  00       .                   nop   
-3FEE  00       .                   nop   
-3FEF  00       .                   nop   
-3FF0  FF       .                   rst   0x38
-3FF1  FF       .                   rst   0x38
-3FF2  FF       .                   rst   0x38
-3FF3  FF       .                   rst   0x38
-3FF4  FF       .                   rst   0x38
-3FF5  FF       .                   rst   0x38
-3FF6  FF       .                   rst   0x38
-3FF7  FF       .                   rst   0x38
-3FF8  FF       .                   rst   0x38
-3FF9  FF       .                   rst   0x38
-3FFA  FF       .                   rst   0x38
-3FFB  FF       .                   rst   0x38
-3FFC  FF       .                   rst   0x38
-3FFD  FF       .                   rst   0x38
-3FFE  FF       .                   rst   0x38
-3FFF  FF       .                   rst   0x38
+3FB1  323C78   2<x                 ld    (0x783C),a     ; Space as cursor backup
+3FB4  C3C901   ...                 jp    CLRSCR         ; Continue initialization
+3FB7  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ; Unused/unprogrammed ROM space (0x00 filler
+      00000000 ....  
+3FBF  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+      00000000 ....  
+3FC7  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+      00000000 ....  
+3FCF  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+      00000000 ....  
+3FD7  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+      00000000 ....  
+3FDF  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+      00000000 ....  
+3FE7  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+      00000000 ....  
+3FEF  00       .                   DEFB  0x00
+3FF0  FFFFFFFF ....                DEFB  0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF ; Unprogrammed EPROM fill (0xFF) - standard 
+      FFFFFFFF ....  
+3FF8  FFFFFFFF ....                DEFB  0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
+      FFFFFFFF ....  

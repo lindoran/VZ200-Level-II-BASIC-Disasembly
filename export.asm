@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Wed Jul  8 20:30:24 2026
+; Generated: Thu Jul  9 20:49:40 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -674,7 +674,7 @@ INPUT_LINE_READ:
               ld    b,0x20         ; take 1 line
               ld    a,(0x7818)     ; check background color
               or    a              ; 0 = green, 1 = black
-              jp    z,0x3E40       ; if green continue at 3E40H
+              jp    z,RDLINE_READ_GREEN_BG ; if green continue at 3E40H
 
 ; Transferring data from screen to I/O buffer
               ld    a,(hl)         ; load character from screen
@@ -770,7 +770,7 @@ INPUT_LINE_READ:
               pop   bc             ; to start of input
               push  af             ; save BREAK identifier
               add   hl,bc          ; Add hl,bc
-              jp    0x3E29         ; continue at 3E29H
+              jp    BUF_BLANK_IF_EMPTY ; continue at 3E29H
 
 ; INPUT helper: read one line into I/O buffer
               ld    a,(0x7AAF)     ; wait until text output finished.
@@ -8198,7 +8198,7 @@ USING_FIELD_LEN:
               push  de
               push  hl
               call  0x787D         ; RAM expansion output
-              call  0x3F7B         ; Invert screen if necessary
+              call  BG_COLOR_CHANGE_CONVERT ; Invert screen if necessary
               call  CURSOR_BLINK   ; Output/blink cursor
               call  KBD_SCAN_ONCE  ; Query keyboard
               push  af             ; Save read character
@@ -8416,7 +8416,7 @@ USING_FIELD_LEN:
               ld    a,0x20         ; wait for double value (pause)
               ld    (0x7841),a
               ld    hl,(CURS_ADDR) ; load cursor address
-              jp    0x3EB2         ; output character inverted
+              jp    CHAR_INVERT    ; output character inverted
 
 ; Direct output of a character or keyword
               ld    hl,0x7838      ; address Flag 1
@@ -8483,7 +8483,7 @@ USING_FIELD_LEN:
               ld    (0x6800),a     ; switch to text mode
               ld    bc,0x0200      ; video memory for text mode
               ld    hl,0x7000      ; clear (512 bytes)
-              call  0x3EBE         ; clear characters
+              call  CLEAR_CHAR_GET ; clear characters
               inc   hl             ; next address
               dec   bc             ; counter - 1
               ld    a,c            ; = 0? (done)
@@ -8593,7 +8593,7 @@ USING_FIELD_LEN:
 ; OUT_CHAR_PROCESS: (defined in symbols.sym)
               bit   6,a            ; inverted alphanumeric character?
               jr    z,$+6          ; no, block graphics!
-              jp    0x3F60         ; inverted representation depending
+              jp    CHAR_OUT_BG_ADJUST ; inverted representation depending
               nop                  ; on background
               and   0x8F           ; clear bits 4, 5, 6
               ld    b,a            ; graphics character in B
@@ -8638,7 +8638,7 @@ USING_FIELD_LEN:
               jp    z,OUT_SCREEN_CLS ; yes!
               cp    0x20           ; ignore remaining control characters
               ret   m
-              jp    0x3ECA         ; continue at 3ECA (supplement)
+              jp    CHAR_OUT_INVERT_ADJUST ; continue at 3ECA (supplement)
               ld    hl,0x7838      ; address Flag 1
               bit   1,(hl)         ; INVERSE flag set?
               pop   hl             ; clean up stack
@@ -8777,7 +8777,7 @@ USING_FIELD_LEN:
               ld    hl,0x7000      ; load start of screen address
               ld    (CURS_ADDR),hl ; in cursor address
               ld    bc,0x0200      ; length of text memory
-              call  0x3EBE         ; delete one character
+              call  CLEAR_CHAR_GET ; delete one character
               inc   hl             ; screen address + 1
               dec   bc             ; length - 1
               ld    a,c            ; at end of screen?
@@ -8820,7 +8820,7 @@ USING_FIELD_LEN:
               sbc   hl,bc          ; Cursor address - column pointer = start of line
               ld    bc,0x001F      ; Width of line (32 bytes - 1)
               add   hl,bc          ; Address of the last character of the line
-              call  0x3EE9         ; Test last character of the line
+              call  CHAR_IS_BLANK_TEST ; Test last character of the line
               jr    nz,$+22        ; If not space, no insert possible!
               push  hl             ; Last character address
               pop   de             ; in DE
@@ -8831,7 +8831,7 @@ USING_FIELD_LEN:
               sub   c              ; Calculate remaining characters: 31 - column
               ld    c,a            ; Remaining characters to shift in BC
               lddr                 ; Shift characters right by one position
-              call  0x3EF6         ; Insert space at cursor position
+              call  INSERT_BLANK_CHAR ; Insert space at cursor position
               ld    (0x783C),a     ; Save character at cursor position
               ret                  ; Done
               call  GET_LINE_STATUS ; Determine status of current line
@@ -8847,7 +8847,7 @@ USING_FIELD_LEN:
               sbc   hl,bc          ; Cursor address - column pointer = start of line
               ld    bc,0x003F      ; + 63
               add   hl,bc          ; HL = end of double line
-              call  0x3EE9         ; Is the last character empty (space)?
+              call  CHAR_IS_BLANK_TEST ; Is the last character empty (space)?
               ret   nz             ; No, no insert possible!
               push  hl             ; Last character address
               pop   de             ; in DE
@@ -8917,7 +8917,7 @@ USING_FIELD_LEN:
               jr    z,$+4          ; If zero, no shift needed
               lddr                 ; Shift screen contents down by one line
               pop   hl             ; Restore line start address
-              call  0x3F02         ; Get clear-screen character in A, width in B (32)
+              call  CLRLINE_CHAR_GET ; Get clear-screen character in A, width in B (32)
               nop   
               ld    (de),a         ; Fill new line with clear character
               dec   de             ; Address of previous character
@@ -8987,7 +8987,7 @@ USING_FIELD_LEN:
               xor   a
               ld    b,a            ; Clear B
               ldir                 ; Shift characters left by one
-              call  0x3EF6         ; Fill end of line with space
+              call  INSERT_BLANK_CHAR ; Fill end of line with space
               call  GET_CURSOR_CHAR ; Save character at cursor position
               ret                  ; Done
               ld    a,0x3F         ; Double line width - 1
@@ -9000,7 +9000,7 @@ USING_FIELD_LEN:
               ld    hl,0x7020      ; HL = start of second line (source)
               ld    bc,0x01E0      ; Count = 15 lines of 32 bytes (480 bytes)
               ldir                 ; Scroll screen contents up by one line
-              call  0x3F02         ; Get clear-screen character in A, width in B (32)
+              call  CLRLINE_CHAR_GET ; Get clear-screen character in A, width in B (32)
               nop   
               ld    (de),a         ; Fill last line with space
               inc   de             ; Address of next character
@@ -9095,7 +9095,7 @@ USING_FIELD_LEN:
 ; ******************************************************************
 ; * PART OF THE INITIALIZATION ROUTINE                             *
 ; ******************************************************************
-              call  0x3FA0         ; Check if CTRL key is pressed and set color
+              call  CTRL_KEY_CHECK_INIT ; Check if CTRL key is pressed and set color
               ld    a,0x20         ; Default I/O latch byte
               ld    (OUT_LATCH),a  ; Save default latch byte
               ld    (0x6800),a     ; Write default to I/O port
@@ -9108,7 +9108,7 @@ USING_FIELD_LEN:
               ld    hl,0x7AB2      ; Start address of input buffer
               ld    (0x7AB0),hl    ; Save input buffer pointer
               ld    a,0xC9         ; RET instruction opcode
-              jp    0x3E37         ; Jump to color-set routine (yellow)
+              jp    INIT_COLOR_YELLOW ; Jump to color-set routine (yellow)
               ret                  ; Not used
 
 ; ******** CSAVE - WRITE PROGRAM TO CASSETTE
@@ -9386,7 +9386,7 @@ TAPE_LOAD_COMMON:
               ld    a,(FLAG2)      ; Load Flag 2
               bit   3,a            ; VERIFY flag set?
               jp    nz,VERIFY_COMPARE ; Yes, compare against memory
-              call  0x3F73         ; Read byte from cassette
+              call  TAPE_READ_BYTE_CHECKED ; Read byte from cassette
               ld    (de),a         ; Store byte in RAM
               call  TAPE_CALC_CHECKSUM ; Add byte to checksum
               inc   de             ; Advance program address
@@ -9580,13 +9580,13 @@ TAPE_LOAD_COMMON:
               ret   nz             ; No, suppress output
               ld    de,0x71E0      ; Address start of last line
               ld    b,0x20         ; Line length (32) as counter
-              call  0x3EF6         ; Fill last line with spaces
+              call  INSERT_BLANK_CHAR ; Fill last line with spaces
               inc   de             ; Advance screen address
               djnz  $-4            ; Loop for entire line
               ld    a,(0x784C)     ; Load message-output flag
               or    a              ; Is it zero?
               ret   nz             ; No, suppress output
-              call  0x3F0E         ; Print character (may invert depending on background)
+              call  TAPE_MSG_PRINT_BG ; Print character (may invert depending on background)
               ld    a,(hl)         ; Load text character
               or    a              ; End of text? (Null terminator)
               ret   z              ; Yes, finished
@@ -9609,7 +9609,7 @@ TAPE_LOAD_COMMON:
               ld    a,0x00
               adc   a,h
               ld    h,a
-              call  0x3F21         ; Print identifier character
+              call  TAPE_ID_PRINT_BG ; Print identifier character
               nop                  ; Unused
               nop                  ; Unused
               ld    (de),a         ; Print space as separator
@@ -9619,7 +9619,7 @@ TAPE_LOAD_COMMON:
               ld    a,(hl)         ; Load character from name
               or    a              ; End of name?
               ret   z              ; Yes, finished
-              call  0x3F33         ; Print character depending on background
+              call  TAPE_NAME_PRINT_BG ; Print character depending on background
               inc   de             ; Advance screen address
               inc   hl             ; Advance name pointer
               jr    $-8            ; Print next character
@@ -9749,7 +9749,7 @@ TAPE_LOAD_COMMON:
               jp    p,0x392D       ; No
               call  PRN_GFX_CHAR   ; Yes, output block graphics character
               jr    $+24           ; Continue
-              jp    0x3F44         ; Output plain text character to printer
+              jp    COPY_CHAR_BG   ; Output plain text character to printer
               nop                  ; Unused
               and   0x3F           ; Clear bits 6 and 7
               call  PRN_INV_CHAR   ; Output inverted character
@@ -10261,297 +10261,313 @@ TAPE_LOAD_COMMON:
               DEFB  0xC4           ; 'D'+0x80 = DISK COMMAND?SYNTAX ERROR (separate CR-terminated st
               DEFM  "ISK COMMAND?SYNTAX ERROR"
               DEFB  0x0D,0x00      ; CR + null terminator
-              ld    a,(hl)
-              or    a
-              jr    nz,$+9
-              ld    a,0x20
+
+; *******************************
+; If the buffer is empty, write a space into the buffer
+; *******************************
+              ld    a,(hl)         ; Load character from buffer
+              or    a              ; Is it empty?
+              jr    nz,$+9         ; No, not empty!
+              ld    a,0x20         ; Load space character
+              ld    (hl),a         ; ...and store at start of buffer
+              inc   hl             ; End marker goes after the space
+              xor   a              ; (= 0x00)
               ld    (hl),a
-              inc   hl
-              xor   a
-              ld    (hl),a
-              dec   hl
-              dec   hl
-              pop   af
-              ret   
-              ld    (0x787D),a
-              ld    a,0x10
+              dec   hl             ; Buffer pointer back to start
+              dec   hl             ; Buffer pointer to the byte before the buffer
+              pop   af             ; Reload identifier
+              ret                  ; Done!
+
+; *******************************
+; Part of initialization
+; Set default color = yellow
+; *******************************
+              ld    (0x787D),a     ; Interrupt RAM output = RET
+              ld    a,0x10         ; Color yellow into color identifier
               ld    (0x7846),a
               ret   
-              ld    a,(hl)
-              bit   6,a
-              jr    z,$+7
-              cp    0x80
-              jp    c,0x3E5D
-              pop   bc
-              ld    de,0x3E53
+
+; *******************************
+; Additional routine for reading a line (RDLINE)
+; with green background and black character display:
+; transfer data from screen to I/O buffer
+; *******************************
+              ld    a,(hl)         ; Load character from screen
+              bit   6,a            ; Inverse character?
+              jr    z,$+7          ; Yes!
+              cp    0x80           ; Graphics character?
+              jp    c,0x3E5D       ; No!
+              pop   bc             ; If not INPUT, then graphics and inverse are only allowed in str
+              ld    de,0x3E53      ; Return address onto stack
               push  de
               push  bc
-              jp    0x0502
-              ret   c
-              ld    hl,0x3E1A
-              call  OUTSTR
-              jp    RDLINE
-              cp    0x62
-              jr    nz,$+59
-              and   0xBF
-              ld    (de),a
-              inc   hl
-              inc   de
-              dec   b
-              jp    z,0x04EE
-              ld    a,(hl)
-              bit   7,a
-              jr    nz,$+8
-              bit   6,a
-              jr    nz,$+14
-              jr    $+8
-              and   0x8F
-              or    0x80
+              jp    0x0502         ; Check end-of-text marker (BREAK?)
+              ret   c              ; BREAK! Back to BASIC
+              ld    hl,0x3E1A      ; Address the text 'SYNTAX ERROR'
+              call  OUTSTR         ; and output it
+              jp    RDLINE         ; Back to line input
+              cp    0x62           ; String marker: quote-character?
+              jr    nz,$+59        ; No, continue
+              and   0xBF           ; Clear bit 6
+              ld    (de),a         ; Character into I/O buffer
+              inc   hl             ; Screen address + 1
+              inc   de             ; Buffer address + 1
+              dec   b              ; Character counter - 1
+              jp    z,0x04EE       ; If 0, end transfer
+
+; Entry point from 0x3EAF, for green background
+              ld    a,(hl)         ; Load character from screen
+              bit   7,a            ; Graphics character?
+              jr    nz,$+8         ; Yes!
+              bit   6,a            ; Inverted character?
+              jr    nz,$+14        ; No!
+              jr    $+8            ; Yes!
+              and   0x8F           ; Graphics, clear bits 4,5,6
+              or    0x80           ; Set bit 7
               jr    $+25
-              or    0xC0
+              or    0xC0           ; Set bits 6 and 7
               jr    $+21
-              cp    0x62
-              jr    nz,$+11
-              push  hl
-              ld    hl,FLAG2
-              bit   4,(hl)
-              pop   hl
-              jr    z,$+16
-              bit   5,a
-              jr    z,$+4
-              and   0xBF
-              ld    (de),a
-              inc   hl
-              inc   de
-              djnz  $-43
-              jp    0x04EE
-              bit   5,a
-              jr    z,$+4
-              and   0xBF
-              ld    (de),a
-              inc   hl
-              inc   de
-              djnz  $-99
-              jp    0x04EE
-              ld    a,(0x7818)
+              cp    0x62           ; Is it a quote-character?
+              jr    nz,$+11        ; No!
+              push  hl             ; Save HL
+              ld    hl,FLAG2       ; Address Flag2
+              bit   4,(hl)         ; INPUT command?
+              pop   hl             ; Reload HL
+              jr    z,$+16         ; No - from here on, graphics and inverse are not allowed
+              bit   5,a            ; Character in real ASCII code?
+              jr    z,$+4          ; Convert, if wrong
+              and   0xBF           ; (clear bit 6 if needed)
+              ld    (de),a         ; Character into I/O buffer
+              inc   hl             ; Screen address + 1
+              inc   de             ; Buffer address + 1
+              djnz  $-43           ; Counter - 1
+              jp    0x04EE         ; = 0, then done
+              bit   5,a            ; Character in real ASCII code?
+              jr    z,$+4          ; Convert, if wrong
+              and   0xBF           ; (clear bit 6 if needed)
+              ld    (de),a         ; Character into I/O buffer
+              inc   hl             ; Screen address + 1
+              inc   de             ; Buffer address + 1
+              djnz  $-99           ; Counter - 1
+              jp    0x04EE         ; = 0, transfer complete
+              ld    a,(0x7818)     ; Depending on background, branch to appropriate routine
               or    a
-              jp    nz,0x04B8
-              jp    0x3E6A
-              ld    a,(0x7818)
-              or    a
-              jr    nz,$+5
-              res   6,(hl)
+              jp    nz,0x04B8      ; Black background
+              jp    RDLINE_READ_ENTRY ; Green background
+
+; *******************************
+; Invert character
+; *******************************
+              ld    a,(0x7818)     ; Load background flag
+              or    a              ; Black background?
+              jr    nz,$+5         ; Yes!
+              res   6,(hl)         ; Green, clear bit 6
               ret   
-              set   6,(hl)
+              set   6,(hl)         ; Black, set bit 6
               ret   
-              ld    a,(0x7818)
-              or    a
-              ld    a,0x20
-              jr    nz,$+4
-              or    0x40
-              ld    (hl),a
+
+; *******************************
+; Provide clear-character for the screen-clear routine
+; *******************************
+              ld    a,(0x7818)     ; Load background flag
+              or    a              ; Black background?
+              ld    a,0x20         ; Load space character
+              jr    nz,$+4         ; Black, that's fine as is!
+              or    0x40           ; Green, additionally set bit 6
+              ld    (hl),a         ; Space into screen
               ret   
-              push  af
-              ld    a,(0x7818)
-              or    a
-              jr    z,$+9
-              pop   af
-              and   0x3F
-              push  hl
+
+; *******************************
+; When outputting to screen, perform inversion
+; depending on the background
+; *******************************
+              push  af             ; Save character to be output
+              ld    a,(0x7818)     ; Load background flag
+              or    a              ; Black background?
+              jr    z,$+9          ; No - green!
+              pop   af             ; Reload character
+              and   0x3F           ; Clear bits 6 and 7
+              push  hl             ; Main routine inverts, if required.
               jp    0x31AB
-              pop   af
-              or    0x40
-              push  hl
-              ld    hl,0x7838
-              bit   1,(hl)
-              pop   hl
-              jr    z,$+4
-              and   0xBF
-              jp    0x31B5
-              ld    a,(0x7818)
-              or    a
-              ld    a,(hl)
-              jr    nz,$+5
-              cp    0x60
+              pop   af             ; Reload character
+              or    0x40           ; Set bit 6
+              push  hl             ; Save HL
+              ld    hl,0x7838      ; Address Flag 1
+              bit   1,(hl)         ; Invert?
+              pop   hl             ; Restore HL
+              jr    z,$+4          ; No!
+              and   0xBF           ; Clear bit 6
+              jp    0x31B5         ; Done
+
+; *******************************
+; Test character for space (blank)
+; *******************************
+              ld    a,(0x7818)     ; Load background flag
+              or    a              ; Black background?
+              ld    a,(hl)         ; Load character
+              jr    nz,$+5         ; Yes, black!
+              cp    0x60           ; Check with bit 6 = 1
               ret   
-              cp    0x20
+              cp    0x20           ; Check with bit 6 = 0
               ret   
-              ld    a,(0x7818)
-              or    a
-              ld    a,0x20
-              jr    nz,$+4
-              or    0x40
-              ld    (de),a
+
+; *******************************
+; Insert space during INSERT and RUBOUT
+; *******************************
+              ld    a,(0x7818)     ; Load background flag
+              or    a              ; Black?
+              ld    a,0x20         ; Load space character
+              jr    nz,$+4         ; Yes!
+              or    0x40           ; For green, set bit 6
+              ld    (de),a         ; ...into screen memory
               ret   
-              ld    b,0x20
-              ld    a,(0x7818)
-              or    a
-              ld    a,0x20
-              ret   nz
-              or    0x40
+
+; *******************************
+; Prepare line-clear for the roll (scroll) routines
+; *******************************
+              ld    b,0x20         ; Load length of a line
+              ld    a,(0x7818)     ; Load background flag
+              or    a              ; Black?
+              ld    a,0x20         ; Load space character
+              ret   nz             ; Yes, done!
+              or    0x40           ; For green, set bit 6
               ret   
-              ld    de,0x71E0
-              ld    a,(0x7818)
-              or    a
-              ret   nz
-              pop   af
-              ld    a,(hl)
-              or    a
-              ret   z
-              res   6,a
-              ld    (de),a
-              inc   de
-              inc   hl
-              jr    $-8
-              ld    a,(0x7818)
-              or    a
-              ld    a,(hl)
-              jr    nz,$+9
-              set   6,a
-              ld    (de),a
-              inc   de
-              ld    a,0x7A
+
+; *******************************
+; Helper routine for cassette loading, for correctly
+; displaying messages depending on the background.
+; Called from 0x3889 (general messages in the last line)
+; *******************************
+              ld    de,0x71E0      ; Address last line
+              ld    a,(0x7818)     ; Load background flag
+              or    a              ; Black?
+              ret   nz             ; Yes, no action
+              pop   af             ; Clean up stack
+              ld    a,(hl)         ; Load text character
+              or    a              ; End of text?
+              ret   z              ; Yes, done!
+              res   6,a            ; Clear bit 6
+              ld    (de),a         ; Output character inverted
+              inc   de             ; Screen address + 1
+              inc   hl             ; Text address + 1
+              jr    $-8            ; Next byte
+
+; Called from 0x382B (output of the file identifier)
+              ld    a,(0x7818)     ; Load background flag
+              or    a              ; Black?
+              ld    a,(hl)         ; Load identifier
+              jr    nz,$+9         ; Yes!
+              set   6,a            ; Green, set bit 6
+              ld    (de),a         ; Transfer into screen
+              inc   de             ; Screen address + 1
+              ld    a,0x7A         ; Load separator for green
               ret   
-              ld    (de),a
-              ld    a,0x3A
+              ld    (de),a         ; Identifier onto screen (black)
+              ld    a,0x3A         ; Load separator
               ret   
-              push  af
-              ld    a,(0x7818)
-              or    a
-              jr    nz,$+7
-              pop   af
-              or    0x40
-              ld    (de),a
+
+; *******************************
+; Called from 0x3837 (output of file/program name)
+; *******************************
+              push  af             ; Save character
+              ld    a,(0x7818)     ; Load background flag
+              or    a              ; Black?
+              jr    nz,$+7         ; Yes!
+              pop   af             ; Green! Reload character
+              or    0x40           ; Set bit 6
+              ld    (de),a         ; Output character to screen
               ret   
-              pop   af
-              and   0x3F
-              ld    (de),a
+              pop   af             ; Black! Reload character
+              and   0x3F           ; Clear bits 6 and 7
+              ld    (de),a         ; Output character to screen
               ret   
-              push  af
-              ld    a,(0x7818)
-              or    a
-              jr    nz,$+11
-              pop   af
-              bit   6,a
-              jp    nz,0x3938
-              jp    0x3931
-              pop   af
-              bit   6,a
-              jp    z,0x3938
-              jp    0x3931
-              jp    0x3931
-              push  af
-              ld    a,(0x7818)
-              or    a
-              jr    nz,$+8
-              pop   af
-              and   0x3F
+
+; *******************************
+; Helper routine for the COPY statement
+; Called from 0x392D
+; *******************************
+              push  af             ; Save character
+              ld    a,(0x7818)     ; Load background flag
+              or    a              ; Black?
+              jr    nz,$+11        ; Yes!
+              pop   af             ; Green! Reload character
+              bit   6,a            ; Inverted character?
+              jp    nz,0x3938      ; No, normal output
+              jp    0x3931         ; Yes, inverted output
+              pop   af             ; Black! Reload character
+              bit   6,a            ; Inverted character?
+              jp    z,0x3938       ; No, normal output
+              jp    0x3931         ; Yes, inverted output
+              jp    0x3931         ; Not used!
+
+; *******************************
+; Helper routine for character output on screen
+; Adjusting inversion to match the background color
+; Called from 0x3149
+; *******************************
+              push  af             ; Save character
+              ld    a,(0x7818)     ; Load background flag
+              or    a              ; Black?
+              jr    nz,$+8         ; Yes!
+              pop   af             ; Green! Reload character
+              and   0x3F           ; Clear bits 6 and 7
               jp    0x3154
-              pop   af
-              and   0x7F
+              pop   af             ; Black! Reload character
+              and   0x7F           ; Clear bit 7
               jp    0x3154
-              call  TAPE_READ_BYTE
-              ret   nc
-              pop   hl
-              jp    TAPE_LOAD_ERROR
-              ld    a,(0x7819)
+
+; *******************************
+; Helper routine for reading from cassette
+; Called from 0x369C
+; *******************************
+              call  TAPE_READ_BYTE ; Read byte from cassette
+              ret   nc             ; OK!
+              pop   hl             ; Return address from stack
+              jp    TAPE_LOAD_ERROR ; Read error!
+
+; *******************************
+; When a new background color is chosen, convert screen contents
+; Called from the interrupt service routine
+; *******************************
+              ld    a,(0x7819)     ; Current background flag
               ld    b,a
-              ld    a,(0x7818)
+              ld    a,(0x7818)     ; = chosen background?
               cp    b
-              jp    z,OUT_BUF_FLUSH
-              ld    (0x7819),a
-              ld    hl,0x7000
-              ld    bc,0x0200
-              ld    a,(hl)
-              or    a
-              jp    m,0x3F97
-              xor   0x40
-              ld    (hl),a
-              inc   hl
-              dec   bc
+              jp    z,OUT_BUF_FLUSH ; Yes, go to character output
+              ld    (0x7819),a     ; Update current background flag
+              ld    hl,0x7000      ; Load screen start address
+              ld    bc,0x0200      ; Screen size
+              ld    a,(hl)         ; Load character
+              or    a              ; Block graphics?
+              jp    m,0x3F97       ; Yes, leave unchanged
+              xor   0x40           ; Toggle bit 6 (inversion)
+              ld    (hl),a         ; ...and write back
+              inc   hl             ; Screen address + 1
+              dec   bc             ; Character counter - 1
               ld    a,b
               or    c
-              jr    nz,$-12
-              jp    OUT_BUF_FLUSH
-              ld    a,(0x68FD)
-              bit   2,a
-              ld    a,0x20
-              jr    nz,$+10
-              or    0x40
-              ld    (0x7818),a
+              jr    nz,$-12        ; No, next character
+              jp    OUT_BUF_FLUSH  ; Yes, done!
+
+; *******************************
+; Check whether the CTRL key is pressed during initialization
+; *******************************
+              ld    a,(0x68FD)     ; Load keyboard row 2
+              bit   2,a            ; CTRL key pressed?
+              ld    a,0x20         ; Space into A
+              jr    nz,$+10        ; Not pressed!
+              or    0x40           ; Set bit 6 (black background)
+              ld    (0x7818),a     ; Set background flags for black
               ld    (0x7819),a
-              ld    (0x783C),a
-              jp    CLRSCR
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              nop   
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
-              rst   0x38
+              ld    (0x783C),a     ; Space as cursor backup
+              jp    CLRSCR         ; Continue initialization
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ; Unused/unprogrammed ROM space (0x00 filler) - not real code, en
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+              DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+              DEFB  0x00
+              DEFB  0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF ; Unprogrammed EPROM fill (0xFF) - standard end-of-ROM padding
+              DEFB  0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
