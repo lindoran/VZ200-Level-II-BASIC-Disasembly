@@ -198,14 +198,16 @@
 0102  CDA728   ..(                 call  OUTSTR         ; Print banner string (OUTSTR)
 0105  ED56     .V                  im    1              ; Set Interrupt Mode 1
 0107  C38E06   ...                 jp    BASIC_INIT_3   ; Jump to memory expansion check (068EH)
-010A  007E23FE .~#.                DEFB  0x00,0x7E,0x23,0xFE,0x0D,0x56,0x49,0x44 ; Artifact? No caller
-      0D564944 .VID  
-0112  454F2054 EO T                DEFB  0x45,0x4F,0x20,0x54,0x45,0x43,0x48,0x4E
-      4543484E ECHN  
-011A  4F4C4F47 OLOG                DEFB  0x4F,0x4C,0x4F,0x47,0x59,0x0D,0x42,0x41
-      590D4241 Y.BA  
-0122  53494320 SIC                 DEFB  0x53,0x49,0x43,0x20,0x56,0x32,0x2E,0x30
-      56322E30 V2.0  
+010A  007E23FE .~#.                DEFB  0x00,0x7E,0x23,0xFE,0x0D ; Artifact? No caller
+      0D       .     
+010F  56494445 VIDE                DEFM  "VIDEO TECHNOLOGY"
+      4F205445 O TE  
+      43484E4F CHNO  
+      4C4F4759 LOGY  
+011F  0D       .                   DEFB  0x0D
+0120  42415349 BASI                DEFM  "BASIC V2.0"
+      43205632 C V2  
+      2E30     .0    
 012A  0D0D00   ...                 DEFB  0x0D,0x0D,0x00 ; term with 00
                      ; L3 Error Handler (?L3 ERROR)
                      ERROR_L3:
@@ -793,21 +795,19 @@
 056C  CDE303   ...                 call  RDLINE         ; read line
 056F  C9       .                   ret                  ; Return
                      ; RUN command for CRUN auto-start
-0570  52554E00 RUN.                DEFB  0x52,0x55,0x4E,0x00,0xC4 ; Data text 'RUN\00'
-      C4       .     
-                     ; Printer driver
-                     PRINTER_DRIVER:
-0575  33       3                   inc   sp             ; Increment sp
-0576  32CDA3   2..                 ld    (0xA3CD),a     ; Load (0xA3CD) from a
-0579  1A       .                   ld    a,(de)         ; Load a from (de)
-057A  CDD817   ...                 call  0x17D8         ; Call 0x17D8
-057D  CD0D19   ...                 call  OUT_HELPER_ROM ; Call 0x190D
-0580  CA5A12   .Z.                 jp    z,0x125A       ; Jump if z to 0x125A
-0583  CD491F   .I.                 call  0x1F49         ; Call 0x1F49
-0586  3818     8.                  jr    c,$+26         ; Relative jump if c to $+26
-0588  EF       .                   rst   0x28           ; Call restart vector 0x28
-0589  3A3804   :8.                 ld    a,(0x0438)     ; Load a from (0x0438)
-058C  DD79B7   .y.                 defb  0x00DD,0x0079,0x00B7 ; Data bytes 0x00DD,0x0079,0x00B7
+0570  52554E   RUN                 DEFM  "RUN"          ; Data text 'RUN\00'
+0573  00       .                   DEFB  0x00
+                     ; Dead code block, no caller next 25 bytes
+0574  C43332CD .32.                DEFB  0xC4,0x33,0x32,0xCD,0xA3,0x1A,0xCD,0xD8
+      A31ACDD8 ....  
+057C  17CD0D19 ....                DEFB  0x17,0xCD,0x0D,0x19,0xCA,0x5A,0x12,0xCD
+      CA5A12CD .Z..  
+0584  491F3818 I.8.                DEFB  0x49,0x1F,0x38,0x18,0xEF,0x3A,0x38,0x04
+      EF3A3804 .:8.  
+058C  DD       .                   DEFB  0xDD
+                     ; Printer Driver
+058D  79       y                   ld    a,c            ; Load character to be output
+058E  B7       .                   or    a              ; Is this zero?
 058F  2833     (3                  jr    z,$+53         ; yes, just determine printer status
 0591  FE0B     ..                  cp    0x0B           ; Page feed?
 0593  280A     (.                  jr    z,$+12         ; yes - execute
@@ -1014,15 +1014,22 @@
 06E5  C9       .                   ret                  ; Return
 06E6  00       .                   nop                  ; No operation
                      ; Keyboard - Device Control Block
-06E7  01F42E00 ....                DEFB  0x01,0xF4,0x2E,0x00,0x00,0x00,0x4B,0x49 ; DCB type
-      00004B49 ..KI  
+06E7  01       .                   DEFB  0x01           ; DCB type
+06E8  F42E     ..                  DEFW  0x2EF4         ; Address of the Driver
+06EA  000000   ...                 DEFB  0x00,0x00,0x00 ; stage 3 bytes
+06ED  4B49     KI                  DEFM  "KI"
                      ; Screen - Device Control Block
                      ; not used except for the cursor address.
-06EF  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x70,0x00,0x00,0x00 ; DCB type (unknown)
-      70000000 p...  
+06EF  00       .                   DEFB  0x00           ; DCB type (unknown)
+06F0  0000     ..                  DEFW  0x0000         ; Used by SET, RESET, and POINT
+06F2  0070     .p                  DEFW  0x7000         ; Cursor Pointer
+06F4  000000   ...                 DEFB  0x00,0x00,0x00
                      ; Printer - Device Control Block
-06F7  068D0543 ...C                DEFB  0x06,0x8D,0x05,0x43,0x00,0x00 ; DCB type
-      0000     ..    
+06F7  06       .                   DEFB  0x06           ; DCB type
+06F8  8D05     ..                  DEFW  0x058D         ; printer driver address
+06FA  43       C                   DEFB  0x43           ; Lines per Page+1
+06FB  00       .                   DEFB  0x00           ; line counter (next line stage 1 byte)
+06FC  00       .                   DEFB  0x00
 06FD  5052     PR                  DEFM  "PR"           ; Printer Name
 06FF  C30050   ..P                 jp    0x5000         ; not used
 0702  C7       .                   rst   0              ; not used
@@ -1192,7 +1199,7 @@
 07D4  99       .                   sbc   a,c            ; MSB Y = 0 - MSB Y
 07D5  4F       O                   ld    c,a            ; Load c from a
 07D6  C9       .                   ret   
-                     ; SINGLE PRECISION MATH ROUTINE – “SHIFTR”
+                     ; SINGLE PRECISION MATH ROUTINE - "SHIFTR"
                      ; This routine will shift the number in C/D/E right the number of times
                      ; held in Register A. The general idea is to shift right 8 places
                      ; as many times as is possible within the number of times in A,
@@ -1209,7 +1216,7 @@
 07DF  51       Q                   ld    d,c
 07E0  0E00     ..                  ld    c,0x00
 07E2  18F5     ..                  jr    $-9
-                     ; SINGLE PRECISION MATH ROUTINE – “SHFTR2”
+                     ; SINGLE PRECISION MATH ROUTINE - "SHFTR2"
                      ; This routine will shift the number in C/D/E right the number
                      ; of times held in Register A, but one byte at a time.
                      SHFTR2:
@@ -1233,13 +1240,13 @@
 07F4  1F       .                   rra   
 07F5  47       G                   ld    b,a
 07F6  18EF     ..                  jr    $-15           ; continue
-                     ; SINGLE PRECISION CONSTANT STORAGE LOCATION – “FONE”
+                     ; SINGLE PRECISION CONSTANT STORAGE LOCATION - "FONE"
                      FONE:
 07F8  00       .                   nop                  ; = 1
 07F9  00       .                   nop   
 07FA  00       .                   nop   
 07FB  81       .                   add   a,c
-                     ; SINGLE PRECISION CONSTANTS STORAGE LOCATION 2 – “LOGCN2”
+                     ; SINGLE PRECISION CONSTANTS STORAGE LOCATION 2 - "LOGCN2"
                      LOGCN2:
 07FC  03       .                   inc   bc             ; number of constants = 3
 07FD  AA       .                   xor   d
@@ -1251,7 +1258,7 @@
 0805  45       E                   ld    b,l
 0806  AA       .                   xor   d
 0807  3882     8.                  jr    c,$-124
-                     ; LEVEL II BASIC LOG ROUTINE – “FNLOG”
+                     ; LEVEL II BASIC LOG ROUTINE - "FNLOG"
                      ; Computes the natural log (base E) of the single precision value in
                      ; WRA1. The result is returned as a single precision value in WRA1.
                      FNLOG:
@@ -1281,7 +1288,7 @@
 083A  CD1607   ...                 call  FP_ADD_X_PLUS_Y ; X = X - 0.5
 083D  F1       .                   pop   af             ; exponent of argument
 083E  CD890F   ...                 call  FADD8          ; X = X + A
-                     ; SINGLE PRECISION MULTIPLICATION – “FMLT”
+                     ; SINGLE PRECISION MULTIPLICATION - "FMLT"
                      MULLN2:
 0841  013180   .1.                 ld    bc,0x8031      ; Y = LOG(2) approx. 0.693147
 0844  111872   ..r                 ld    de,0x7218
@@ -1343,7 +1350,7 @@
 0894  51       Q                   ld    d,c            ; D = C
 0895  4F       O                   ld    c,a            ; C = 0
 0896  C9       .                   ret   
-                     ; SINGLE PRECISION MATH ROUTINE – “FDIV”
+                     ; SINGLE PRECISION MATH ROUTINE - "FDIV"
                      FDIV:
 0897  CDA409   ...                 call  PUSHF          ; save value in X on stack
 089A  21D80D   !..                 ld    hl,0x0DD8      ; address constant 10
@@ -1424,7 +1431,7 @@
 0901  E1       .                   pop   hl             ; Reload dividend LSB
 0902  20C3      .                  jr    nz,$-59        ; Quotient exp. not equal 0 - continue
 0904  C3B207   ...                 jp    0x07B2         ; Exponent = 0, OVERFLOW - Error
-                     ; 0907H-0913H – DOUBLE PRECISION MATH ROUTINE – “MULDVS”
+                     ; 0907H-0913H - DOUBLE PRECISION MATH ROUTINE - "MULDVS"
                      ; This routine is to check for special cases and to add exponents for
                      ; the FMULT and FDIV routines. Registers A, B, H and L are modified.
                      MULDVS:
@@ -1515,7 +1522,7 @@
 0971  3680     6.                  ld    (hl),0x80      ; Sign = '-'
 0973  17       .                   rla                  ; Sign of converted number into carry
 0974  C36207   .b.                 jp    0x0762         ; to normalization
-                     ; LEVEL II BASIC ABS() ROUTINE – “FNABS”
+                     ; LEVEL II BASIC ABS() ROUTINE - "FNABS"
                      ; Computes the absolute value of the FAC. The result is returned
                      ; as a single precision value in the FAC.
                      FNABS:
@@ -1828,8 +1835,8 @@
 0AFE  5F       _                   ld    e,a            ; A in E
 0AFF  B7       .                   or    a              ; A = 0?
 0B00  C8       .                   ret   z              ; yes - done
-                     ; SINGLE PRECISION MATH ROUTINE – “QINT”
-                     ; This routine is a quick “Greatest Integer” function.
+                     ; SINGLE PRECISION MATH ROUTINE - "QINT"
+                     ; This routine is a quick "Greatest Integer" function.
                      ; The result of INT(FAC X) is left in BC:DE as a signed number.
                      QINT:
 0B01  E5       .                   push  hl             ; Save HL
@@ -1856,7 +1863,7 @@
 0B23  C0       .                   ret   nz             ; If not zero, return
 0B24  0B       .                   dec   bc             ; Decrement BC
 0B25  C9       .                   ret                  ; Done
-                     ; SINGLE PRECISION MATH ROUTINE – “FSUB”
+                     ; SINGLE PRECISION MATH ROUTINE - "FSUB"
                      ; Subtract the single precision value in (BC:DE) from the single
                      ; precision value in FAC X. The difference is left in FAC X.
                      FSUB:
@@ -1867,7 +1874,7 @@
 0B2E  CD8209   ...                 call  NNEG           ; Negate FAC X
 0B31  CD370B   .7.                 call  FNINT          ; Call addition
 0B34  C37B09   .{.                 jp    VNEG           ; Negate result and return
-                     ; LEVEL II BASIC INT() ROUTINE – “FNINT”
+                     ; LEVEL II BASIC INT() ROUTINE - "FNINT"
                      ; Returns the integer portion of a floating point number.
                      ; If the value is positive, the integer portion is returned.
                      ; If negative with a fractional part, it is rounded up before truncation.
@@ -1892,7 +1899,7 @@
 0B54  CD6207   .b.                 call  0x0762         ; Float the integer
 0B57  F1       .                   pop   af             ; Restore AF
 0B58  C9       .                   ret                  ; Done
-                     ; DOUBLE PRECISION INT() ROUTINE – “DINT”
+                     ; DOUBLE PRECISION INT() ROUTINE - "DINT"
                      ; Double precision INT routine. Works by adding 0.5 and truncating.
                      DINT:
 0B59  212479   !$y                 ld    hl,FAC         ; Address of FAC
@@ -1942,7 +1949,7 @@
 0BA6  23       #                   inc   hl             ; HL+1
 0BA7  28FA     (.                  jr    z,$-4          ; Loop if zero
 0BA9  C9       .                   ret                  ; Done
-                     ; INTEGER MULTIPLY ROUTINE – “UMULT”
+                     ; INTEGER MULTIPLY ROUTINE - "UMULT"
                      UMULT:
 0BAA  E5       .                   push  hl             ; Save HL
 0BAB  210000   !..                 ld    hl,START       ; HL = 0
@@ -1963,7 +1970,7 @@
 0BC4  EB       .                   ex    de,hl          ; Result to DE
 0BC5  E1       .                   pop   hl             ; Restore HL
 0BC6  C9       .                   ret                  ; Done
-                     ; INTEGER SUBTRACTION – “ISUB”
+                     ; INTEGER SUBTRACTION - "ISUB"
                      ISUB:
 0BC7  7C       |                   ld    a,h            ; A = H
 0BC8  17       .                   rla                  ; Sign to carry
@@ -1973,7 +1980,7 @@
 0BCE  79       y                   ld    a,c            ; A = C
 0BCF  98       .                   sbc   a,b            ; SBC A, B
 0BD0  1803     ..                  jr    $+5            ; Skip next instruction
-                     ; INTEGER ADDITION – “IADD”
+                     ; INTEGER ADDITION - "IADD"
                      IADD:
 0BD2  7C       |                   ld    a,h            ; A = H
 0BD3  17       .                   rla                  ; Sign to carry
@@ -1988,7 +1995,7 @@
 0BDC  0F       .                   rrca                 ; Rotate
 0BDD  AC       .                   xor   h              ; Check for overflow
 0BDE  F2990A   ...                 jp    p,0x0A99       ; Jump if no overflow
-                     ; INTEGER DIVISION – “IDIV”
+                     ; INTEGER DIVISION - "IDIV"
                      IDIV:
 0BE1  C5       .                   push  bc             ; Save BC
 0BE2  EB       .                   ex    de,hl          ; EX DE, HL
@@ -1999,7 +2006,7 @@
 0BEB  EB       .                   ex    de,hl          ; EX DE, HL
 0BEC  CD6B0C   .k.                 call  0x0C6B         ; Negate DE if needed
 0BEF  C38F0F   ...                 jp    0x0F8F         ; Done
-                     ; INTEGER DIVISION FOR ARRAYS – “IDIV2”
+                     ; INTEGER DIVISION FOR ARRAYS - "IDIV2"
                      IDIV2:
 0BF2  7C       |                   ld    a,h            ; A = H
 0BF3  B5       .                   or    l              ; OR L
@@ -3253,31 +3260,31 @@
 1364  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0xF9,0x02,0x15,0xA2 ; 10 * 10^9 (double precision)
       F90215A2 ....  
                      ; ******************************************************************
-                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDL”          *
+                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDL"          *
                      ; * A double precision constant equal to 999,999,999,999,999.95    *
                      ; ******************************************************************
 136C  FDFF9F31 ...1                DEFB  0xFD,0xFF,0x9F,0x31,0xA9,0x5F,0x63,0xB2 ; 1 * 10^15 (double precision)
       A95F63B2 ._c.  
                      ; ******************************************************************
-                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDU”          *
+                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDU"          *
                      ; * A double precision constant equal to 9,999,999,999,999,999.5   *
                      ; ******************************************************************
 1374  FEFF03BF ....                DEFB  0xFE,0xFF,0x03,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
       C91B0EB6 ....  
                      ; ******************************************************************
-                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “DHALF”           *
+                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "DHALF"           *
                      ; * A double precision constant equal to 0.5D0                     *
                      ; ******************************************************************
 137C  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80 ; 0.5 (double precision)
       00000080 ....  
                      ; ******************************************************************
-                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FFXDXM”          *
+                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FFXDXM"          *
                      ; * A double precision constant equal to 1D16                      *
                      ; ******************************************************************
 1384  000004BF ....                DEFB  0x00,0x00,0x04,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
       C91B0EB6 ....  
                      ; ******************************************************************
-                     ; * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION – “FODTBL”  *
+                     ; * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION - "FODTBL"  *
                      ; * Powers of ten table (Double Precision)                         *
                      ; ******************************************************************
 138C  0080C6A4 ....                DEFB  0x00,0x80,0xC6,0xA4,0x7E,0x8D,0x03,0x00 ; 10^16 (double precision)
@@ -3323,7 +3330,7 @@
 13F5  C1       .                   pop   bc             ; Transfer base to Y
 13F6  D1       .                   pop   de             ; Transfer base to Y
                      ; ******************************************************************
-                     ; * EXPONENTIATION FUNCTION (^) – “FNPWR”                          *
+                     ; * EXPONENTIATION FUNCTION (^) - "FNPWR"                          *
 13F7  CD5509   .U.                 call  SIGN           ; Test exponent
 13FA  78       x                   ld    a,b            ; Exponent of base in A
 13FB  283C     (<                  jr    z,$+62         ; Exponent = 0? yes, result = 1

@@ -6554,10 +6554,6 @@ offset = 1417
 text = Load a from (0x0438)
 
 [comment]
-offset = 1420
-text = Data bytes 0x00DD,0x0079,0x00B7
-
-[comment]
 offset = 1423
 text = yes, just determine printer status
 
@@ -35507,6 +35503,10 @@ offset = 1392
 text = RUN command for CRUN auto-start
 
 [block]
+offset = 1396
+text = Dead code block, no caller next 25 bytes
+
+[block]
 offset = 1397
 text = Printer driver
 
@@ -35615,7 +35615,7 @@ text = Negate mantissa Y
 
 [block]
 offset = 2007
-text = SINGLE PRECISION MATH ROUTINE – “SHIFTR”
+text = SINGLE PRECISION MATH ROUTINE - "SHIFTR"
               This routine will shift the number in C/D/E right the number of times
               held in Register A. The general idea is to shift right 8 places
               as many times as is possible within the number of times in A,
@@ -35628,31 +35628,31 @@ text = (none)
 
 [block]
 offset = 2020
-text = SINGLE PRECISION MATH ROUTINE – “SHFTR2”
+text = SINGLE PRECISION MATH ROUTINE - "SHFTR2"
               This routine will shift the number in C/D/E right the number
               of times held in Register A, but one byte at a time.
 
 [block]
 offset = 2040
-text = SINGLE PRECISION CONSTANT STORAGE LOCATION – “FONE”
+text = SINGLE PRECISION CONSTANT STORAGE LOCATION - "FONE"
 
 [block]
 offset = 2044
-text = SINGLE PRECISION CONSTANTS STORAGE LOCATION 2 – “LOGCN2”
+text = SINGLE PRECISION CONSTANTS STORAGE LOCATION 2 - "LOGCN2"
 
 [block]
 offset = 2057
-text = LEVEL II BASIC LOG ROUTINE – “FNLOG”
+text = LEVEL II BASIC LOG ROUTINE - "FNLOG"
               Computes the natural log (base E) of the single precision value in
               WRA1. The result is returned as a single precision value in WRA1.
 
 [block]
 offset = 2113
-text = SINGLE PRECISION MULTIPLICATION – “FMLT”
+text = SINGLE PRECISION MULTIPLICATION - "FMLT"
 
 [block]
 offset = 2199
-text = SINGLE PRECISION MATH ROUTINE – “FDIV”
+text = SINGLE PRECISION MATH ROUTINE - "FDIV"
 
 [block]
 offset = 2210
@@ -35668,7 +35668,7 @@ text = to skip following 2 POPs
 
 [block]
 offset = 2311
-text = 0907H-0913H – DOUBLE PRECISION MATH ROUTINE – “MULDVS”
+text = 0907H-0913H - DOUBLE PRECISION MATH ROUTINE - "MULDVS"
               This routine is to check for special cases and to add exponents for
               the FMULT and FDIV routines. Registers A, B, H and L are modified.
 
@@ -35698,7 +35698,7 @@ text = Separate entry point
 
 [block]
 offset = 2423
-text = LEVEL II BASIC ABS() ROUTINE – “FNABS”
+text = LEVEL II BASIC ABS() ROUTINE - "FNABS"
               Computes the absolute value of the FAC. The result is returned
               as a single precision value in the FAC.
 
@@ -35843,47 +35843,47 @@ text = Quick integer conversion / Rounding
 
 [block]
 offset = 2817
-text = SINGLE PRECISION MATH ROUTINE – “QINT”
-              This routine is a quick “Greatest Integer” function.
+text = SINGLE PRECISION MATH ROUTINE - "QINT"
+              This routine is a quick "Greatest Integer" function.
               The result of INT(FAC X) is left in BC:DE as a signed number.
 
 [block]
 offset = 2854
-text = SINGLE PRECISION MATH ROUTINE – “FSUB”
+text = SINGLE PRECISION MATH ROUTINE - "FSUB"
               Subtract the single precision value in (BC:DE) from the single
               precision value in FAC X. The difference is left in FAC X.
 
 [block]
 offset = 2871
-text = LEVEL II BASIC INT() ROUTINE – “FNINT”
+text = LEVEL II BASIC INT() ROUTINE - "FNINT"
               Returns the integer portion of a floating point number.
               If the value is positive, the integer portion is returned.
               If negative with a fractional part, it is rounded up before truncation.
 
 [block]
 offset = 2905
-text = DOUBLE PRECISION INT() ROUTINE – “DINT”
+text = DOUBLE PRECISION INT() ROUTINE - "DINT"
               Double precision INT routine. Works by adding 0.5 and truncating.
 
 [block]
 offset = 2986
-text = INTEGER MULTIPLY ROUTINE – “UMULT”
+text = INTEGER MULTIPLY ROUTINE - "UMULT"
 
 [block]
 offset = 3015
-text = INTEGER SUBTRACTION – “ISUB”
+text = INTEGER SUBTRACTION - "ISUB"
 
 [block]
 offset = 3026
-text = INTEGER ADDITION – “IADD”
+text = INTEGER ADDITION - "IADD"
 
 [block]
 offset = 3041
-text = INTEGER DIVISION – “IDIV”
+text = INTEGER DIVISION - "IDIV"
 
 [block]
 offset = 3058
-text = INTEGER DIVISION FOR ARRAYS – “IDIV2”
+text = INTEGER DIVISION FOR ARRAYS - "IDIV2"
 
 [block]
 offset = 3103
@@ -36151,35 +36151,35 @@ text = ******************************************************************
 [block]
 offset = 4972
 text = ******************************************************************
-              * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDL”          *
+              * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDL"          *
               * A double precision constant equal to 999,999,999,999,999.95    *
               ******************************************************************
 
 [block]
 offset = 4980
 text = ******************************************************************
-              * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDU”          *
+              * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDU"          *
               * A double precision constant equal to 9,999,999,999,999,999.5   *
               ******************************************************************
 
 [block]
 offset = 4988
 text = ******************************************************************
-              * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “DHALF”           *
+              * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "DHALF"           *
               * A double precision constant equal to 0.5D0                     *
               ******************************************************************
 
 [block]
 offset = 4996
 text = ******************************************************************
-              * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FFXDXM”          *
+              * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FFXDXM"          *
               * A double precision constant equal to 1D16                      *
               ******************************************************************
 
 [block]
 offset = 5004
 text = ******************************************************************
-              * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION – “FODTBL”  *
+              * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION - "FODTBL"  *
               * Powers of ten table (Double Precision)                         *
               ******************************************************************
 
@@ -36205,7 +36205,7 @@ text = ******************************************************************
 [block]
 offset = 5111
 text = ******************************************************************
-              * EXPONENTIATION FUNCTION (^) – “FNPWR”                          *
+              * EXPONENTIATION FUNCTION (^) - "FNPWR"                          *
 
 [block]
 offset = 5177
@@ -37666,4 +37666,50 @@ offset = 16288
 text = *******************************
               Check whether the CTRL key is pressed during initialization
               *******************************
+              
+[block]
+offset = 1421
+text = Printer Driver
+
+[comment]
+offset = 1421
+text = Load character to be output
+
+[comment]
+offset = 1422
+text = Is this zero?
+
+[comment]
+offset = 1767
+text = DCB-Typ
+
+[comment]
+offset = 1768
+text = Address of the Driver
+
+[comment]
+offset = 1770
+text = stage 3 bytes
+
+[comment]
+offset = 1776
+text = Used by SET, RESET, and POINT
+
+[comment]
+offset = 1778
+text = Cursor Pointer
+
+[comment]
+offset = 1784
+text = printer driver address
+
+[comment]
+offset = 1786
+text = Lines per Page+1
+
+[comment]
+offset = 1787
+text = line counter (next line stage 1 byte)
+
+
 

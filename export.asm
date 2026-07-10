@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Thu Jul  9 20:49:40 2026
+; Generated: Thu Jul  9 22:58:38 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -225,10 +225,10 @@ INIT_VARS_2:
               call  OUTSTR         ; Print banner string (OUTSTR)
               im    1              ; Set Interrupt Mode 1
               jp    BASIC_INIT_3   ; Jump to memory expansion check (068EH)
-              DEFB  0x00,0x7E,0x23,0xFE,0x0D,0x56,0x49,0x44 ; Artifact? No caller
-              DEFB  0x45,0x4F,0x20,0x54,0x45,0x43,0x48,0x4E
-              DEFB  0x4F,0x4C,0x4F,0x47,0x59,0x0D,0x42,0x41
-              DEFB  0x53,0x49,0x43,0x20,0x56,0x32,0x2E,0x30
+              DEFB  0x00,0x7E,0x23,0xFE,0x0D ; Artifact? No caller
+              DEFM  "VIDEO TECHNOLOGY"
+              DEFB  0x0D
+              DEFM  "BASIC V2.0"
               DEFB  0x0D,0x0D,0x00 ; term with 00
 
 ; L3 Error Handler (?L3 ERROR)
@@ -804,21 +804,18 @@ INPUT_LINE_READ:
               ret                  ; Return
 
 ; RUN command for CRUN auto-start
-              DEFB  0x52,0x55,0x4E,0x00,0xC4 ; Data text 'RUN\00'
+              DEFM  "RUN"          ; Data text 'RUN\00'
+              DEFB  0x00
 
-; Printer driver
-PRINTER_DRIVER:
-              inc   sp             ; Increment sp
-              ld    (0xA3CD),a     ; Load (0xA3CD) from a
-              ld    a,(de)         ; Load a from (de)
-              call  0x17D8         ; Call 0x17D8
-              call  OUT_HELPER_ROM ; Call 0x190D
-              jp    z,0x125A       ; Jump if z to 0x125A
-              call  0x1F49         ; Call 0x1F49
-              jr    c,$+26         ; Relative jump if c to $+26
-              rst   0x28           ; Call restart vector 0x28
-              ld    a,(0x0438)     ; Load a from (0x0438)
-              defb  0x00DD,0x0079,0x00B7 ; Data bytes 0x00DD,0x0079,0x00B7
+; Dead code block, no caller next 25 bytes
+              DEFB  0xC4,0x33,0x32,0xCD,0xA3,0x1A,0xCD,0xD8
+              DEFB  0x17,0xCD,0x0D,0x19,0xCA,0x5A,0x12,0xCD
+              DEFB  0x49,0x1F,0x38,0x18,0xEF,0x3A,0x38,0x04
+              DEFB  0xDD
+
+; Printer Driver
+              ld    a,c            ; Load character to be output
+              or    a              ; Is this zero?
               jr    z,$+53         ; yes, just determine printer status
               cp    0x0B           ; Page feed?
               jr    z,$+12         ; yes - execute
@@ -1034,14 +1031,24 @@ RAM_VECTOR_BLOCK:
               nop                  ; No operation
 
 ; Keyboard - Device Control Block
-              DEFB  0x01,0xF4,0x2E,0x00,0x00,0x00,0x4B,0x49 ; DCB type
+              DEFB  0x01           ; DCB type
+              DEFW  0x2EF4         ; Address of the Driver
+              DEFB  0x00,0x00,0x00 ; stage 3 bytes
+              DEFM  "KI"
 
 ; Screen - Device Control Block
 ; not used except for the cursor address.
-              DEFB  0x00,0x00,0x00,0x00,0x70,0x00,0x00,0x00 ; DCB type (unknown)
+              DEFB  0x00           ; DCB type (unknown)
+              DEFW  0x0000         ; Used by SET, RESET, and POINT
+              DEFW  0x7000         ; Cursor Pointer
+              DEFB  0x00,0x00,0x00
 
 ; Printer - Device Control Block
-              DEFB  0x06,0x8D,0x05,0x43,0x00,0x00 ; DCB type
+              DEFB  0x06           ; DCB type
+              DEFW  0x058D         ; printer driver address
+              DEFB  0x43           ; Lines per Page+1
+              DEFB  0x00           ; line counter (next line stage 1 byte)
+              DEFB  0x00
               DEFM  "PR"           ; Printer Name
               jp    0x5000         ; not used
               rst   0              ; not used
@@ -1224,7 +1231,7 @@ FP_ADD_X_PLUS_Y:
               ld    c,a            ; Load c from a
               ret   
 
-; SINGLE PRECISION MATH ROUTINE – “SHIFTR”
+; SINGLE PRECISION MATH ROUTINE - "SHIFTR"
 ; This routine will shift the number in C/D/E right the number of times
 ; held in Register A. The general idea is to shift right 8 places
 ; as many times as is possible within the number of times in A,
@@ -1243,7 +1250,7 @@ SHIFTR1:
               ld    c,0x00
               jr    $-9
 
-; SINGLE PRECISION MATH ROUTINE – “SHFTR2”
+; SINGLE PRECISION MATH ROUTINE - "SHFTR2"
 ; This routine will shift the number in C/D/E right the number
 ; of times held in Register A, but one byte at a time.
 SHFTR2:
@@ -1268,14 +1275,14 @@ SHFTR4:
               ld    b,a
               jr    $-15           ; continue
 
-; SINGLE PRECISION CONSTANT STORAGE LOCATION – “FONE”
+; SINGLE PRECISION CONSTANT STORAGE LOCATION - "FONE"
 FONE:
               nop                  ; = 1
               nop   
               nop   
               add   a,c
 
-; SINGLE PRECISION CONSTANTS STORAGE LOCATION 2 – “LOGCN2”
+; SINGLE PRECISION CONSTANTS STORAGE LOCATION 2 - "LOGCN2"
 LOGCN2:
               inc   bc             ; number of constants = 3
               xor   d
@@ -1288,7 +1295,7 @@ LOGCN2:
               xor   d
               jr    c,$-124
 
-; LEVEL II BASIC LOG ROUTINE – “FNLOG”
+; LEVEL II BASIC LOG ROUTINE - "FNLOG"
 ; Computes the natural log (base E) of the single precision value in
 ; WRA1. The result is returned as a single precision value in WRA1.
 FNLOG:
@@ -1319,7 +1326,7 @@ FNLOG:
               pop   af             ; exponent of argument
               call  FADD8          ; X = X + A
 
-; SINGLE PRECISION MULTIPLICATION – “FMLT”
+; SINGLE PRECISION MULTIPLICATION - "FMLT"
 MULLN2:
               ld    bc,0x8031      ; Y = LOG(2) approx. 0.693147
               ld    de,0x7218
@@ -1382,7 +1389,7 @@ FMLT2:
               ld    c,a            ; C = 0
               ret   
 
-; SINGLE PRECISION MATH ROUTINE – “FDIV”
+; SINGLE PRECISION MATH ROUTINE - "FDIV"
 FDIV:
               call  PUSHF          ; save value in X on stack
               ld    hl,0x0DD8      ; address constant 10
@@ -1467,7 +1474,7 @@ FDIV2:
               jr    nz,$-59        ; Quotient exp. not equal 0 - continue
               jp    0x07B2         ; Exponent = 0, OVERFLOW - Error
 
-; 0907H-0913H – DOUBLE PRECISION MATH ROUTINE – “MULDVS”
+; 0907H-0913H - DOUBLE PRECISION MATH ROUTINE - "MULDVS"
 ; This routine is to check for special cases and to add exponents for
 ; the FMULT and FDIV routines. Registers A, B, H and L are modified.
 MULDVS:
@@ -1565,7 +1572,7 @@ FLOAT:
               rla                  ; Sign of converted number into carry
               jp    0x0762         ; to normalization
 
-; LEVEL II BASIC ABS() ROUTINE – “FNABS”
+; LEVEL II BASIC ABS() ROUTINE - "FNABS"
 ; Computes the absolute value of the FAC. The result is returned
 ; as a single precision value in the FAC.
 FNABS:
@@ -1913,8 +1920,8 @@ UNPACK:
               or    a              ; A = 0?
               ret   z              ; yes - done
 
-; SINGLE PRECISION MATH ROUTINE – “QINT”
-; This routine is a quick “Greatest Integer” function.
+; SINGLE PRECISION MATH ROUTINE - "QINT"
+; This routine is a quick "Greatest Integer" function.
 ; The result of INT(FAC X) is left in BC:DE as a signed number.
 ; QINT: (defined in symbols.sym)
               push  hl             ; Save HL
@@ -1942,7 +1949,7 @@ UNPACK:
               dec   bc             ; Decrement BC
               ret                  ; Done
 
-; SINGLE PRECISION MATH ROUTINE – “FSUB”
+; SINGLE PRECISION MATH ROUTINE - "FSUB"
 ; Subtract the single precision value in (BC:DE) from the single
 ; precision value in FAC X. The difference is left in FAC X.
 ; FSUB: (defined in symbols.sym)
@@ -1954,7 +1961,7 @@ UNPACK:
               call  FNINT          ; Call addition
               jp    VNEG           ; Negate result and return
 
-; LEVEL II BASIC INT() ROUTINE – “FNINT”
+; LEVEL II BASIC INT() ROUTINE - "FNINT"
 ; Returns the integer portion of a floating point number.
 ; If the value is positive, the integer portion is returned.
 ; If negative with a fractional part, it is rounded up before truncation.
@@ -1980,7 +1987,7 @@ UNPACK:
               pop   af             ; Restore AF
               ret                  ; Done
 
-; DOUBLE PRECISION INT() ROUTINE – “DINT”
+; DOUBLE PRECISION INT() ROUTINE - "DINT"
 ; Double precision INT routine. Works by adding 0.5 and truncating.
 ; DINT: (defined in symbols.sym)
               ld    hl,FAC         ; Address of FAC
@@ -2031,7 +2038,7 @@ UNPACK:
               jr    z,$-4          ; Loop if zero
               ret                  ; Done
 
-; INTEGER MULTIPLY ROUTINE – “UMULT”
+; INTEGER MULTIPLY ROUTINE - "UMULT"
 ; UMULT: (defined in symbols.sym)
               push  hl             ; Save HL
               ld    hl,START       ; HL = 0
@@ -2053,7 +2060,7 @@ UNPACK:
               pop   hl             ; Restore HL
               ret                  ; Done
 
-; INTEGER SUBTRACTION – “ISUB”
+; INTEGER SUBTRACTION - "ISUB"
 ; ISUB: (defined in symbols.sym)
               ld    a,h            ; A = H
               rla                  ; Sign to carry
@@ -2064,7 +2071,7 @@ UNPACK:
               sbc   a,b            ; SBC A, B
               jr    $+5            ; Skip next instruction
 
-; INTEGER ADDITION – “IADD”
+; INTEGER ADDITION - "IADD"
 ; IADD: (defined in symbols.sym)
               ld    a,h            ; A = H
               rla                  ; Sign to carry
@@ -2080,7 +2087,7 @@ UNPACK:
               xor   h              ; Check for overflow
               jp    p,0x0A99       ; Jump if no overflow
 
-; INTEGER DIVISION – “IDIV”
+; INTEGER DIVISION - "IDIV"
 ; IDIV: (defined in symbols.sym)
               push  bc             ; Save BC
               ex    de,hl          ; EX DE, HL
@@ -2092,7 +2099,7 @@ UNPACK:
               call  0x0C6B         ; Negate DE if needed
               jp    0x0F8F         ; Done
 
-; INTEGER DIVISION FOR ARRAYS – “IDIV2”
+; INTEGER DIVISION FOR ARRAYS - "IDIV2"
 ; IDIV2: (defined in symbols.sym)
               ld    a,h            ; A = H
               or    l              ; OR L
@@ -3408,31 +3415,31 @@ INT_TO_ASCII:
               DEFB  0x00,0x00,0x00,0x00,0xF9,0x02,0x15,0xA2 ; 10 * 10^9 (double precision)
 
 ; ******************************************************************
-; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDL”          *
+; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDL"          *
 ; * A double precision constant equal to 999,999,999,999,999.95    *
 ; ******************************************************************
               DEFB  0xFD,0xFF,0x9F,0x31,0xA9,0x5F,0x63,0xB2 ; 1 * 10^15 (double precision)
 
 ; ******************************************************************
-; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FOUTDU”          *
+; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDU"          *
 ; * A double precision constant equal to 9,999,999,999,999,999.5   *
 ; ******************************************************************
               DEFB  0xFE,0xFF,0x03,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
 
 ; ******************************************************************
-; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “DHALF”           *
+; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "DHALF"           *
 ; * A double precision constant equal to 0.5D0                     *
 ; ******************************************************************
               DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80 ; 0.5 (double precision)
 
 ; ******************************************************************
-; * DOUBLE PRECISION CONSTANT STORAGE LOCATION – “FFXDXM”          *
+; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FFXDXM"          *
 ; * A double precision constant equal to 1D16                      *
 ; ******************************************************************
               DEFB  0x00,0x00,0x04,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
 
 ; ******************************************************************
-; * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION – “FODTBL”  *
+; * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION - "FODTBL"  *
 ; * Powers of ten table (Double Precision)                         *
 ; ******************************************************************
               DEFB  0x00,0x80,0xC6,0xA4,0x7E,0x8D,0x03,0x00 ; 10^16 (double precision)
@@ -3471,7 +3478,7 @@ INT_TO_ASCII:
               pop   de             ; Transfer base to Y
 
 ; ******************************************************************
-; * EXPONENTIATION FUNCTION (^) – “FNPWR”                          *
+; * EXPONENTIATION FUNCTION (^) - "FNPWR"                          *
               call  SIGN           ; Test exponent
               ld    a,b            ; Exponent of base in A
               jr    z,$+62         ; Exponent = 0? yes, result = 1
