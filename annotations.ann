@@ -15077,6 +15077,46 @@ text = Load flag
 offset = 5506
 text = Carry = 0? yes - X = -X
 
+[block]
+offset = 5515
+text = Precomputed Trigonometric Constants (pi/2, fractional scalars)
+
+[comment]
+offset = 5515
+text = = pi/2 (1.5708)
+
+[comment]
+offset = 5519
+text = = 1/4 (0.25)
+
+[block]
+offset = 5523
+text = for sine series calculation
+
+[comment]
+offset = 5523
+text = Number of Coefficients
+
+[comment]
+offset = 5524
+text =  39.7107
+
+[comment]
+offset = 5528
+text = -76.575
+
+[comment]
+offset = 5532
+text =  81.6022
+
+[comment]
+offset = 5536
+text = -41.3417
+
+[comment]
+offset = 5540
+text =   6.28319
+
 [comment]
 offset = 5509
 text = Constants for series calculation
@@ -32391,25 +32431,9 @@ text = Return
 offset = 14399
 text = Codes for tape file types (B, D, S)
 
-[comment]
+[block]
 offset = 14402
-text = Text definition 'WAITING'
-
-[comment]
-offset = 14410
-text = Text definition 'LOADING ERROR'
-
-[comment]
-offset = 14424
-text = Carriage return and null terminator
-
-[comment]
-offset = 14426
-text = Text definition 'FOUND'
-
-[comment]
-offset = 14432
-text = Text definition 'LOADING'
+text = Cassette Routine Messages
 
 [comment]
 offset = 14440

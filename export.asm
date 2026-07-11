@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Fri Jul 10 22:21:02 2026
+; Generated: Fri Jul 10 23:33:05 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -3716,10 +3716,18 @@ INT_TO_ASCII:
               call  nc,NNEG        ; Carry = 0? yes - X = -X
               ld    hl,SIN_CONST   ; Constants for series calculation
               jp    POLYN          ; Calculate series
-              DEFB  0xDB,0x0F,0x49,0x81,0x00,0x00,0x00,0x7F
-              DEFB  0x05,0xBA,0xD7,0x1E,0x86,0x64,0x26,0x99
-              DEFB  0x87,0x58,0x34,0x23,0x87,0xE0,0x5D,0xA5
-              DEFB  0x86,0xDA,0x0F,0x49,0x83
+
+; Precomputed Trigonometric Constants (pi/2, fractional scalars)
+              DEFB  0xDB,0x0F,0x49,0x81 ; = pi/2 (1.5708)
+              DEFB  0x00,0x00,0x00,0x7F ; = 1/4 (0.25)
+
+; for sine series calculation
+              DEFB  0x05           ; Number of Coefficients
+              DEFB  0xBA,0xD7,0x1E,0x86 ; 39.7107
+              DEFB  0x64,0x26,0x99,0x87 ; -76.575
+              DEFB  0x58,0x34,0x23,0x87 ; 81.6022
+              DEFB  0xE0,0x5D,0xA5,0x86 ; -41.3417
+              DEFB  0xDA,0x0F,0x49,0x83 ; 6.28319
 
 ; TAN - Function
 ; Calculates the tangent of an angle
@@ -9642,12 +9650,16 @@ TAPE_LOAD_COMMON:
               jr    $-8            ; Print next character
               ret                  ; Return
               DEFB  0x14,0x02,0x04 ; Codes for tape file types (B, D, S)
-              DEFB  0x57,0x41,0x49,0x54,0x49,0x4E,0x47,0x00 ; Text definition 'WAITING'
-              DEFB  0x0D,0x4C,0x4F,0x41,0x44,0x49,0x4E,0x47 ; Text definition 'LOADING ERROR'
-              DEFB  0x20,0x45,0x52,0x52,0x4F,0x52
-              DEFB  0x0D,0x00      ; Carriage return and null terminator
-              DEFB  0x46,0x4F,0x55,0x4E,0x44,0x00 ; Text definition 'FOUND'
-              DEFB  0x4C,0x4F,0x41,0x44,0x49,0x4E,0x47,0x00 ; Text definition 'LOADING'
+
+; Cassette Routine Messages
+              DEFM  "WAITING"
+              DEFB  0x00,0x0D
+              DEFM  "LOADING ERROR"
+              DEFB  0x0D,0x00
+              DEFM  "FOUND"
+              DEFB  0x00
+              DEFM  "LOADING"
+              DEFB  0x00
 
 ; Read start and end addresses from cassette
               call  TAPE_READ_BYTE ; Read byte

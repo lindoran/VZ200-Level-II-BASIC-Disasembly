@@ -3558,14 +3558,16 @@
 1582  D48209   ...                 call  nc,NNEG        ; Carry = 0? yes - X = -X
 1585  219315   !..                 ld    hl,SIN_CONST   ; Constants for series calculation
 1588  C39A14   ...                 jp    POLYN          ; Calculate series
-158B  DB0F4981 ..I.                DEFB  0xDB,0x0F,0x49,0x81,0x00,0x00,0x00,0x7F
-      0000007F ....  
-1593  05BAD71E ....                DEFB  0x05,0xBA,0xD7,0x1E,0x86,0x64,0x26,0x99
-      86642699 .d&.  
-159B  87583423 .X4#                DEFB  0x87,0x58,0x34,0x23,0x87,0xE0,0x5D,0xA5
-      87E05DA5 ..].  
-15A3  86DA0F49 ...I                DEFB  0x86,0xDA,0x0F,0x49,0x83
-      83       .     
+                     ; Precomputed Trigonometric Constants (pi/2, fractional scalars)
+158B  DB0F4981 ..I.                DEFB  0xDB,0x0F,0x49,0x81 ; = pi/2 (1.5708)
+158F  0000007F ....                DEFB  0x00,0x00,0x00,0x7F ; = 1/4 (0.25)
+                     ; for sine series calculation
+1593  05       .                   DEFB  0x05           ; Number of Coefficients
+1594  BAD71E86 ....                DEFB  0xBA,0xD7,0x1E,0x86 ; 39.7107
+1598  64269987 d&..                DEFB  0x64,0x26,0x99,0x87 ; -76.575
+159C  58342387 X4#.                DEFB  0x58,0x34,0x23,0x87 ; 81.6022
+15A0  E05DA586 .]..                DEFB  0xE0,0x5D,0xA5,0x86 ; -41.3417
+15A4  DA0F4983 ..I.                DEFB  0xDA,0x0F,0x49,0x83 ; 6.28319
                      ; TAN - Function
                      ; Calculates the tangent of an angle
 15A8  CDA409   ...                 call  PUSHF          ; Argument on stack
@@ -9246,17 +9248,21 @@
 383C  18F6     ..                  jr    $-8            ; Print next character
 383E  C9       .                   ret                  ; Return
 383F  140204   ...                 DEFB  0x14,0x02,0x04 ; Codes for tape file types (B, D, S)
-3842  57414954 WAIT                DEFB  0x57,0x41,0x49,0x54,0x49,0x4E,0x47,0x00 ; Text definition 'WAITING'
-      494E4700 ING.  
-384A  0D4C4F41 .LOA                DEFB  0x0D,0x4C,0x4F,0x41,0x44,0x49,0x4E,0x47 ; Text definition 'LOADING ERROR'
-      44494E47 DING  
-3852  20455252  ERR                DEFB  0x20,0x45,0x52,0x52,0x4F,0x52
-      4F52     OR    
-3858  0D00     ..                  DEFB  0x0D,0x00      ; Carriage return and null terminator
-385A  464F554E FOUN                DEFB  0x46,0x4F,0x55,0x4E,0x44,0x00 ; Text definition 'FOUND'
-      4400     D.    
-3860  4C4F4144 LOAD                DEFB  0x4C,0x4F,0x41,0x44,0x49,0x4E,0x47,0x00 ; Text definition 'LOADING'
-      494E4700 ING.  
+                     ; Cassette Routine Messages
+3842  57414954 WAIT                DEFM  "WAITING"
+      494E47   ING   
+3849  000D     ..                  DEFB  0x00,0x0D
+384B  4C4F4144 LOAD                DEFM  "LOADING ERROR"
+      494E4720 ING   
+      4552524F ERRO  
+      52       R     
+3858  0D00     ..                  DEFB  0x0D,0x00
+385A  464F554E FOUN                DEFM  "FOUND"
+      44       D     
+385F  00       .                   DEFB  0x00
+3860  4C4F4144 LOAD                DEFM  "LOADING"
+      494E47   ING   
+3867  00       .                   DEFB  0x00
                      ; Read start and end addresses from cassette
 3868  CD7537   .u7                 call  TAPE_READ_BYTE ; Read byte
 386B  D8       .                   ret   c              ; Return on read error
