@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Fri Jul 10 23:37:20 2026
+; Generated: Sat Jul 11 16:26:47 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -179,14 +179,9 @@ MEM_TEST_LOOP:
               jr    z,$-11         ; Loop back if memory exists
               jr    $+19
 
-;
-; ***********************************************************
 ; unused code in VZ200 pr. G. Wolf book
-;
 ; Symbol name from Level II listing for TRS 80  
-;
 ; TODO: Document from TRS 80 listing.
-; ***********************************************************
 MEM_SIZE_INPUT:
               call  DECZ           ; Handle memory size input
               or    a
@@ -200,9 +195,6 @@ MEM_SIZE_INPUT:
               ld    (hl),b
               jr    nz,$-48
 
-;
-; ***********************************************************
-;
 ; Set end of memory for BASIC
               dec   hl             ; address of the last byte
               ld    de,0x7C14      ; at least 1868 bytes must be free
@@ -297,10 +289,7 @@ RESET:
               call  OUTSTR         ; Print string (OUTSTR)
               jp    0x36CF         ; Jump to 36CFH
 
-;
-; *******************************************************
 ; UNUSED BYTE ARTIFACT INSIDE VZ200 ROM
-; *******************************************************
               DEFB  0xF1,0xFE,0x20,0x20,0x14,0x1A,0x13,0xFE
               DEFB  0x20,0x28,0xFA,0xFE
 
@@ -342,9 +331,7 @@ RANDOM_INIT:
               ld    (0x78AB),a     ; Store refresh value as random seed base
               ret   
 
-; *******************************
 ; Keyboard tables
-; *******************************
 ; Key codes without SHIFT
 KEYBOARD_CODES_NORMAL:
               DEFB  0x54,0x47,0x42,0x35,0x4E,0x36,0x59,0x48 ; Bit row 0
@@ -387,30 +374,24 @@ TOKEN_APPEND_PAREN:
               DEFB  0xD9,0xD8,0xF7,0xF5,0xF3,0xF8,0xF7,0xF9 ; Token row 1
               DEFB  0x9D,0xF6,0xF4,0xDE,0xE5,0xFA ; Token row 2
 
-; *******************************
 ; Printer semigraphics output table
 ; (2 bytes per character)
-; *******************************
 PRINTER_GRAPHICS_TABLE:
               DEFB  0x80,0x80,0x80,0xB8,0xB8,0x80,0xB8,0xB8 ; Char 0x80
               DEFB  0x80,0x87,0x80,0xBF,0xB8,0x87,0xB8,0xBF ; Char 0x84
               DEFB  0x87,0x80,0x87,0xB8,0xBF,0x80,0xBF,0xB8 ; Char 0x88
               DEFB  0x87,0x87,0x87,0xBF,0xBF,0x87,0xBF,0xBF ; Char 0x8C
 
-; *******************************
 ; SOUND frequency table
 ; (2-byte value per note)
-; *******************************
 SOUND_FREQ_TABLE:
               DEFW  0x0272,0x024F,0x022E,0x020E,0x01F1,0x01D5,0x01B7,0x019E ; A2-E3
               DEFW  0x0186,0x0170,0x015B,0x0148,0x0135,0x0123,0x0113,0x0103 ; F3-C#4
               DEFW  0x00F4,0x00E6,0x00D9,0x00CD,0x00C1,0x00B6,0x00AB,0x00A1 ; C#4-G4
               DEFW  0x0098,0x008F,0x0087,0x007F,0x0078,0x0070,0x006A ; A4-D5
 
-; *******************************
 ; Restore character at cursor position
 ; (part of screen output routine)
-; *******************************
 CURSOR_CHAR_RESTORE:
               ld    b,a            ; Output character in B
               ld    a,(0x783C)     ; Load character at cursor position
@@ -419,7 +400,6 @@ CURSOR_CHAR_RESTORE:
               ld    a,b            ; Restore output character in A
               ret                  ; Return
 
-; *******************************
 ; Cursor address one line back
 CURSOR_LINE_BACK:
               ld    bc,RST20_VEC   ; Line length
@@ -428,10 +408,8 @@ CURSOR_LINE_BACK:
               ld    (CURS_ADDR),hl ; Store in cursor pointer
               ret                  ; Return
 
-; *******************************
 ; SOUND duration multipliers
 ; (1 byte per input code 1-9)
-; *******************************
               DEFB  0x01,0x02,0x03,0x04,0x06,0x08,0x0C,0x10 ; A2-E3
               DEFB  0x18           ; Data bytes 0x18
 
@@ -3204,9 +3182,7 @@ DNORM_BIT_LOOP:
               jp    p,GET_10_EXP_LOOP_2 ; Yes, to 1244H
               jp    (hl)           ; No, normal return
 
-; *******************************
-; * Write zeros to buffer
-; *******************************
+; Write zeros to buffer
 WRITE_ZEROS:
               or    a              ; Count = 0?
               ret   z              ; Yes, done
@@ -3215,9 +3191,7 @@ WRITE_ZEROS:
               inc   hl             ; Buffer address + 1
               jr    $-5            ; Continue at 126AH
 
-; *******************************
-; * Write zeros with '.' and ','
-; *******************************
+; Write zeros with '.' and ','
 WRITE_ZEROS_FMT:
               jr    nz,$+6         ; Count > 0? Yes, jump
               ret   z              ; = 0?, done
@@ -3227,9 +3201,7 @@ WRITE_ZEROS_FMT:
               dec   a              ; Count - 1
               jr    $-8            ; Back
 
-; *******************************
-; * Determine '.' and ',' params
-; *******************************
+; Determine '.' and ',' params
 GET_FMT_PARAMS:
               ld    a,e            ; Number of shifts in A
               add   a,d            ; + Precision
@@ -3246,9 +3218,7 @@ GET_FMT_PARAMS:
               ld    c,a            ; No, clear ',' parameter
               ret                  ; Return
 
-; *******************************
-; * Set '.' and ','
-; *******************************
+; Set '.' and ','
 ; SET_DOT_COMMA: (defined in symbols.sym)
               dec   b              ; Decimal point position - 1
               jr    nz,$+10        ; Decimal point reached? No!
@@ -3264,9 +3234,7 @@ GET_FMT_PARAMS:
               ld    c,0x03         ; ',' parameter = 3 for next ','
               ret                  ; Done
 
-; *******************************
-; * Convert single/double prec to ASCII
-; *******************************
+; Convert single/double prec to ASCII
 FF_TO_ASCII:
               push  de             ; Save DE
               rst   0x20           ; Test type
@@ -3359,9 +3327,7 @@ FF_TO_ASCII_CONT:
               ld    a,0x04         ; 4 more digits in integer mode
               jr    $+8            ; Process
 
-; *******************************
-; * Convert integer to ASCII
-; *******************************
+; Convert integer to ASCII
 INT_TO_ASCII:
               push  de             ; Format flag on stack
               ld    de,FOITBL      ; Address constants 10000 to 1
@@ -3403,39 +3369,27 @@ INT_TO_ASCII:
               pop   de             ; Restore DE
               ret                  ; Done
 
-; ******************************************************************
-; * Constants                                                      *
-; ******************************************************************
+; Constants
               DEFB  0x00,0x00,0x00,0x00,0xF9,0x02,0x15,0xA2 ; 10 * 10^9 (double precision)
 
-; ******************************************************************
-; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDL"          *
-; * A double precision constant equal to 999,999,999,999,999.95    *
-; ******************************************************************
+; DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDL"
+; A double precision constant equal to 999,999,999,999,999.95
               DEFB  0xFD,0xFF,0x9F,0x31,0xA9,0x5F,0x63,0xB2 ; 1 * 10^15 (double precision)
 
-; ******************************************************************
-; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDU"          *
-; * A double precision constant equal to 9,999,999,999,999,999.5   *
-; ******************************************************************
+; DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDU"
+; A double precision constant equal to 9,999,999,999,999,999.5
               DEFB  0xFE,0xFF,0x03,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
 
-; ******************************************************************
-; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "DHALF"           *
-; * A double precision constant equal to 0.5D0                     *
-; ******************************************************************
+; DOUBLE PRECISION CONSTANT STORAGE LOCATION - "DHALF"
+; A double precision constant equal to 0.5D0
               DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80 ; 0.5 (double precision)
 
-; ******************************************************************
-; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FFXDXM"          *
-; * A double precision constant equal to 1D16                      *
-; ******************************************************************
+; DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FFXDXM"          
+; A double precision constant equal to 1D16                      
               DEFB  0x00,0x00,0x04,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
 
-; ******************************************************************
-; * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION - "FODTBL"  *
-; * Powers of ten table (Double Precision)                         *
-; ******************************************************************
+; DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION - "FODTBL"  
+; Powers of ten table (Double Precision)                         
               DEFB  0x00,0x80,0xC6,0xA4,0x7E,0x8D,0x03 ; =   10000000000000000
               DEFB  0x00,0x40,0x7A,0x10,0xF3,0x5A,0x00 ; =    1000000000000000
               DEFB  0x00,0xA0,0x72,0x4E,0x18,0x09,0x00 ; =     100000000000000
@@ -3454,31 +3408,26 @@ INT_TO_ASCII:
               DEFB  0x0A,0x00      ; =                                      10
               DEFB  0x01,0x00      ; =                                       1
 
-; ******************************************************************
-; * Subroutine for SQR and ATN                                     *
-; * Performs multiplication with -1                                *
-; ******************************************************************
+; Subroutine for SQR and ATN                                     
+; Performs multiplication with -1                                
               ld    hl,NNEG        ; X = -X - address in HL
               ex    (sp),hl        ; swap with return address on stack
               jp    (hl)           ; return to calling routine
 
-; ******************************************************************
-; * SQR function                                                   *
-; * Computes the square root of a number                           *
+; SQR function                                                   
+; Computes the square root of a number                           
               call  PUSHF          ; Pack argument on the stack
               ld    hl,FHALF       ; Address constant 0.5
               call  MOVFM          ; and transfer to X
               jr    $+5            ; continue at 13F5H
 
-; ******************************************************************
-; * Determine the power of a number                                *
-; * Input:  Base on the stack                                      *
+; Determine the power of a number                                
+; Input:  Base on the stack                                      
               call  FRCSNG         ; Convert exponent to single precision
               pop   bc             ; Transfer base to Y
               pop   de             ; Transfer base to Y
 
-; ******************************************************************
-; * EXPONENTIATION FUNCTION (^) - "FNPWR"                          *
+; EXPONENTIATION FUNCTION (^) - "FNPWR"  
               call  SIGN           ; Test exponent
               ld    a,b            ; Exponent of base in A
               jr    z,$+62         ; Exponent = 0? yes, result = 1
@@ -3516,9 +3465,8 @@ INT_TO_ASCII:
               pop   de             ; Load exponent into Y
               call  0x0847         ; LOG(base) * exponent
 
-; ******************************************************************
-; * EXP function                                                   *
-; * Determine the exponential function of a number                 *
+; EXP function                                                   
+; Determine the exponential function of a number                 
               call  PUSHF          ; Argument on stack
               ld    bc,0x8138      ; Constant 1.4427 in Y
               ld    de,0xAA3B      ; Constant 1.4427 in Y
@@ -3547,9 +3495,7 @@ INT_TO_ASCII:
               ld    c,d            ; Reload exponent
               jp    0x0847         ; Multiply with series result
 
-; ******************************************************************
-; * Constants for exponent series                                  *
-; ******************************************************************
+; Constants for exponent series    
               DEFB  0x08           ; 8 constants
               DEFB  0x40,0x2E,0x94,0x74 ; = -1.41316 E-04
               DEFB  0x70,0x4F,0x2E,0x77 ; =  1.32988 E-03
@@ -3560,9 +3506,8 @@ INT_TO_ASCII:
               DEFB  0x00,0x00,0x80,0x81 ; = -1
               DEFB  0x00,0x00,0x00,0x81 ; =  1
 
-; ******************************************************************
-; * Series calculation 1                                           *
-; * K1 * Z + K2 * Z^3 + K3 * Z^5                                   *
+; Series calculation 1
+; K1 * Z + K2 * Z^3 + K3 * Z^5                                   
               call  PUSHF          ; Transfer X to stack
               ld    de,0x0C32      ; Return address on stack
               push  de             ; (effects multiplication with Z at the end)
@@ -3571,12 +3516,10 @@ INT_TO_ASCII:
               call  0x0847         ; Z^2 to X
               pop   hl             ; Constant address in HL
 
-; ******************************************************************
-; * Series calculation 2                                           *
-; * K1 + K2 * Z + K3 * Z^2 + K4 * Z^3                               *
-; * Input:  Same as series calculation 1                           *
-; * Output: Same as series calculation 1                           *
-; ******************************************************************
+; Series calculation 2                                           
+; K1 + K2 * Z + K3 * Z^2 + K4 * Z^3                               
+; Input:  Same as series calculation 1 
+; Output: Same as series calculation 1                           
               call  PUSHF          ; Z on stack
               ld    a,(hl)         ; Number of constants in A
               inc   hl             ; Address of 1st constant
@@ -5943,7 +5886,6 @@ DATA_SEARCH_LOOP:
               jr    nz,$-27        ; no, continue searching
               jp    INPUT_VALUE_START ; continue reading data
 
-; *****************************************************************
 ; NEXT statement
 ; Looping in FOR-NEXT loops
               ld    de,START       ; Var. tab. address = 0 (for NEXT without variable)
@@ -7516,7 +7458,6 @@ L_R_M_SUB:
               ld    b,e            ; 2nd argument in B
               ret   
 
-; *********************************
 ; Function token on the left side of an assignment
               cp    0x7A           ; MID$ - Token
               jp    nz,SYNTAX_ERR_HANDLER ; no, SYNTAX ERROR
@@ -7536,7 +7477,6 @@ CMDOUT:
               call  0x2B0E         ; Analyze both arguments and Port number in RAM subprogram
               jp    0x7896         ; Call RAM subprogram
 
-; *********************************
 ; Evaluate expression and convert result to integer
               rst   0x10           ; Address next character
               call  0x2337         ; Evaluate expression
@@ -7548,7 +7488,6 @@ CMDOUT:
               or    a
               ret                  ; done
 
-; *********************************
 ; Analyze 2 arguments for OUT
               call  GETBYT         ; Accept port number (in A)
               ld    (0x7894),a     ; in INP and OUT subprograms
@@ -7557,7 +7496,6 @@ CMDOUT:
               DEFB  0x2C
               jr    $+3            ; Analyze value (<256) and into A
 
-; *********************************
 ; Evaluate expression, convert result to integer (<256)
               rst   0x10           ; Address next character
               call  0x2337         ; Evaluate expression
@@ -7568,15 +7506,13 @@ CMDOUT:
               ld    a,e            ; Result in A
               ret                  ; done
 
-; *********************************
 ; LLIST statement
 ; List program on printer
 CMDLLIST:
               ld    a,0x01         ; Output flag to printer
               ld    (0x789C),a
 
-; *********************************
-; LIST statement
+; LIST statement              
 ; List program on screen
 CMDLIST:
               pop   bc             ; Return address from stack
@@ -7621,7 +7557,6 @@ CMDLIST:
               call  PRINT_CR       ; Output carriage return
               jr    $-64           ; Next line
 
-; *********************************
 ; Output text string (terminated with 00)
 OUTSTR_00:
               ld    a,(hl)         ; Load character
@@ -7631,7 +7566,6 @@ OUTSTR_00:
               inc   hl             ; Text address + 1
               jr    $-7            ; Next character
 
-; *********************************
 ; Generate readable text from intermediate code
 ; Transferred from the program line into the I/O buffer.
 DETOKEN:
@@ -7685,7 +7619,6 @@ DETOKEN:
               pop   hl             ; Load program pointer again
               jr    $-56           ; Next program character
 
-; *********************************
 ; DELETE command
 ; Delete program lines
 CMDDELETE:
@@ -8137,7 +8070,6 @@ USING_FIELD_LEN:
               pop   af             ; reload AF
               ret                  ; done
 
-; ****************************************************************
 ; Output an existing line during AUTO input
               ld    h,b            ; Line address in HL
               ld    l,c
@@ -8150,7 +8082,6 @@ USING_FIELD_LEN:
               call  OUTSTR_00      ; Output line
               ret   
 
-; ****************************************************************
 ; Execute MODE statement
               rst   8              ; followed by a '(' ?
               DEFB  0x28
@@ -8189,7 +8120,6 @@ USING_FIELD_LEN:
               DEFB  0x29
               ret   
 
-; ****************************************************************
 ; Additional routine for LIST
 ; (Output of strings)
               cp    0x22           ; String start?
@@ -8209,7 +8139,6 @@ USING_FIELD_LEN:
               ret   z              ; yes, stop
               jr    $-13           ; next character in string
 
-; ****************************************************************
 ; Interrupt Service Routine
 ; (triggered every 20 ms by the video controller)
               push  af             ; Save register contents
@@ -8233,7 +8162,6 @@ USING_FIELD_LEN:
               ei                   ; Re-enable interrupts
               reti                 ; RETURN from interrupt
 
-; ****************************************************************
 ; Output / blink cursor
               ld    a,(FLAG2)      ; Load flag 2
               bit   0,a            ; Carriage return flag set?
@@ -8249,7 +8177,6 @@ USING_FIELD_LEN:
               ld    (hl),a
               ret   
 
-; ****************************************************************
 ; Read a character from the keyboard
 ; (Called via keyboard DCB)
               call  KBD_SCAN_ONCE  ; Evaluate keyboard
@@ -8258,7 +8185,6 @@ USING_FIELD_LEN:
               pop   af             ; Reload character
               ret   
 
-; ****************************************************************
 ; Evaluate keyboard once
               ld    a,(0x6800)     ; read all rows of the keyboard matrix
               or    0xC0           ; mask out columns 6 and 7
@@ -8269,7 +8195,6 @@ USING_FIELD_LEN:
               or    a              ; no ASCII character?
               jp    nz,KBD_ROLLOVER ; yes, check for multiple presses
 
-; ****************************************************************
 ; Reset flag bits
               ld    hl,0x7838      ; Address flag 1
               bit   2,(hl)         ; Function flag set?
@@ -8285,7 +8210,6 @@ USING_FIELD_LEN:
               ld    (0x7836),a
               ret   
 
-; ****************************************************************
 ; Evaluate keyboard row by row
               ld    hl,0x68FE      ; Address keyboard row 1
               ld    c,0x08         ; Row counter = 8
@@ -8823,9 +8747,7 @@ USING_FIELD_LEN:
               ld    (CURS_ADDR),hl ; save new cursor address
               ret                  ; test comment
 
-; ******************************************************************
-; * INSERT CHARACTER FUNCTION                                      *
-; ******************************************************************
+; INSERT CHARACTER FUNCTION                                      
               call  GET_LINE_STATUS ; Determine status of current line
               cp    0x81           ; Is it the first line of a double line?
               jr    z,$+51         ; Yes!
@@ -8885,9 +8807,7 @@ USING_FIELD_LEN:
               ld    (hl),a         ; Write status of 2nd line
               ret                  ; Done
 
-; ******************************************************************
-; * SCROLL SCREEN DOWN ONE LINE FROM CURSOR POSITION               *
-; ******************************************************************
+; SCROLL SCREEN DOWN ONE LINE FROM CURSOR POSITION               
               ld    hl,(CURS_ADDR) ; Load cursor address
               ld    a,h
               cp    0x71           ; Is it the last line (address >= 0x71E0)?
@@ -8961,9 +8881,7 @@ USING_FIELD_LEN:
               ld    hl,(CURS_ADDR) ; Yes, load cursor address
               jr    $-71           ; And scroll one more line down
 
-; ******************************************************************
-; * DETERMINE LINE STATUS                                          *
-; ******************************************************************
+; DETERMINE LINE STATUS                                          
               ld    a,(TTYPOS)     ; Load column pointer
               ld    c,a            ; Transfer to C
               xor   a
@@ -8986,9 +8904,7 @@ USING_FIELD_LEN:
               ld    a,(hl)         ; Load line status
               ret                  ; Done
 
-; ******************************************************************
-; * RUBOUT (DELETE) CHARACTER FUNCTION                             *
-; ******************************************************************
+; RUBOUT (DELETE) CHARACTER FUNCTION                             
               call  GET_LINE_STATUS ; Determine status of current line
               cp    0x81           ; Is it the first of a double line?
               ld    hl,(CURS_ADDR) ; Load cursor address
@@ -9012,9 +8928,7 @@ USING_FIELD_LEN:
               ld    a,0x3F         ; Double line width - 1
               jr    $-15           ; Calculate count and shift over double line
 
-; ******************************************************************
-; * SCROLL SCREEN UP ONE LINE AND CLEAR LAST LINE                  *
-; ******************************************************************
+; SCROLL SCREEN UP ONE LINE AND CLEAR LAST LINE                  
               ld    de,0x7000      ; DE = start of screen (destination)
               ld    hl,0x7020      ; HL = start of second line (source)
               ld    bc,0x01E0      ; Count = 15 lines of 32 bytes (480 bytes)
@@ -9042,18 +8956,14 @@ USING_FIELD_LEN:
               ld    hl,0x71E0      ; HL = start of last line
               ret                  ; Done
 
-; ******************************************************************
-; * SCROLL UP ONE OR TWO LINES DEPENDING ON LINE STATUS            *
-; ******************************************************************
+; SCROLL UP ONE OR TWO LINES DEPENDING ON LINE STATUS            
               ld    a,(LINE_STATUS) ; Load status of the first line
               cp    0x81           ; Is it a double line?
               call  z,SCROLL_UP_ONE_LINE ; Yes, scroll one line
               call  SCROLL_UP_ONE_LINE ; Scroll one line
               ret                  ; Done
 
-; ******************************************************************
-; * EMIT AUDIBLE BEEP ON CHARACTER INPUT                           *
-; ******************************************************************
+; EMIT AUDIBLE BEEP ON CHARACTER INPUT 
               ld    hl,FLAG2       ; Address Flag 2
               or    a              ; Character entered?
               jr    nz,$+13        ; Yes!
@@ -9079,9 +8989,7 @@ USING_FIELD_LEN:
               pop   hl             ; Restore Flag 2 address
               ret                  ; Done
 
-; ******************************************************************
-; * SOUND OUTPUT ROUTINE                                           *
-; ******************************************************************
+; SOUND OUTPUT ROUTINE 
               ld    a,(OUT_LATCH)  ; Load I/O latch byte
               ld    d,a            ; Transfer to D
               call  SOUND_PULSE    ; Emit pulse
@@ -9111,9 +9019,7 @@ USING_FIELD_LEN:
               pop   bc             ; Restore duration counter
               ret                  ; Done
 
-; ******************************************************************
-; * PART OF THE INITIALIZATION ROUTINE                             *
-; ******************************************************************
+; PART OF THE INITIALIZATION ROUTINE
               call  CTRL_KEY_CHECK_INIT ; Check if CTRL key is pressed and set color
               ld    a,0x20         ; Default I/O latch byte
               ld    (OUT_LATCH),a  ; Save default latch byte
@@ -9130,7 +9036,7 @@ USING_FIELD_LEN:
               jp    INIT_COLOR_YELLOW ; Jump to color-set routine (yellow)
               ret                  ; Not used
 
-; ******** CSAVE - WRITE PROGRAM TO CASSETTE
+; CSAVE - WRITE PROGRAM TO CASSETTE
 CSAVE:
               di                   ; Disable interrupts
               ld    c,0xF0         ; Set BASIC program identifier
@@ -9181,7 +9087,7 @@ CSAVE:
               ei                   ; Re-enable interrupts
               ret                  ; Done
 
-; ******** WRITE ONE BYTE TO CASSETTE
+; WRITE ONE BYTE TO CASSETTE
 TAPE_WRITE_BYTE:
               push  af             ; Save A
               push  bc             ; Save BC
@@ -9226,7 +9132,7 @@ TAPE_CLOCK_PULSE:
               djnz  $+0            ; Delay loop
               ret                  ; Done
 
-; ******** WRITE CASSETTE LEADER AND NAME
+; WRITE CASSETTE LEADER AND NAME
 TAPE_WRITE_LEADER_NAME:
               call  TAPE_BUFFER_NAME ; Copy program name into buffer
               ld    b,0xFF         ; Output 255 synchronization bytes
@@ -9254,7 +9160,7 @@ TAPE_WRITE_LEADER_NAME:
               djnz  $-5            ; Loop until the name is complete
               ret                  ; Done
 
-; ******** CHECK AND BUFFER PROGRAM/FILE NAME
+; CHECK AND BUFFER PROGRAM/FILE NAME
 TAPE_BUFFER_NAME:
               ld    b,0x10         ; Maximum name length is 16 chars
               ld    de,0x7A9D      ; Load start address of name buffer
@@ -9279,7 +9185,7 @@ TAPE_BUFFER_NAME:
               ld    (0x7AD6),a     ; Save name length
               ret                  ; Done
 
-; ******** PREPARE CASSETTE LOAD MESSAGES
+; PREPARE CASSETTE LOAD MESSAGES
 TAPE_PREPARE_MESSAGES:
               ld    a,(0x784C)     ; Load message-output flag
               or    a              ; Messages disabled?
@@ -9303,7 +9209,7 @@ TAPE_PREPARE_MESSAGES:
               ld    (0x7AE6),a     ; Store status for last line
               ret                  ; Done
 
-; ******** SEARCH FOR PROGRAM START ON CASSETTE
+; SEARCH FOR PROGRAM START ON CASSETTE
 TAPE_FIND_PROGRAM:
               ld    hl,0x3842      ; Load address of WAITING text
               call  TAPE_PRINT_MSG ; Output text if messages are enabled
@@ -9370,7 +9276,7 @@ TAPE_FIND_PROGRAM:
               jr    $-9            ; Check next character
               ret                  ; Not used
 
-; ******** CLOAD - READ PROGRAM FROM CASSETTE
+; CLOAD - READ PROGRAM FROM CASSETTE
 CLOAD:
               push  hl             ; Save program text pointer
               ld    hl,FLAG2       ; Address Flag 2
@@ -10065,9 +9971,7 @@ TAPE_LOAD_COMMON:
               ld    a,(TTYPOS)     ; Load cursor column position (TTYPOS)
               ret                  ; Return
 
-; *******************************
 ; Output interruption during LIST output
-; *******************************
               ld    hl,0x68EF      ; Address keyboard row 4
               bit   4,(hl)         ; SPACE key pressed?
               jr    nz,$+26        ; No!
@@ -10093,15 +9997,11 @@ TAPE_LOAD_COMMON:
               ld    hl,0x68EF      ; Address keyboard row 4
               ret                  ; Done!
 
-; *******************************
 ; When PRINT# outputs data to cassette
-; *******************************
               call  TAPE_WRITE_BYTE ; Write byte to cassette
               ret   
 
-; *******************************
 ; When PRINT# writes header to cassette
-; *******************************
               di                   ; Disable interrupts
               inc   hl             ; Program pointer + 1
               ld    c,0xF2         ; Load identifier for data
@@ -10114,9 +10014,7 @@ TAPE_LOAD_COMMON:
               DEFB  0x2C           ; Comparison literal: comma
               ret   
 
-; *******************************
 ; When INPUT# reads header and filename from cassette
-; *******************************
               di                   ; Disable interrupts
               inc   hl             ; Program pointer + 1
               call  TAPE_BUFFER_NAME ; Read in the filename
@@ -10136,9 +10034,7 @@ TAPE_LOAD_COMMON:
               pop   hl             ; Yes, restore program pointer
               ret                  ; Done!
 
-; *******************************
 ; When INPUT# reads data from cassette
-; *******************************
               call  TAPE_READ_BYTE ; Read byte from cassette
               cp    0x0D           ; End of record?
               ret   nz             ; No, return
@@ -10147,10 +10043,8 @@ TAPE_LOAD_COMMON:
               pop   af             ; Reload character
               ret                  ; Done!
 
-; *******************************
 ; Pixel table for inverse character output on the printer
 ; (5 bytes per character)
-; *******************************
               DEFB  0xC1,0xBE,0xA2,0xAE,0xB1 ; Char 0x00: '@'
               DEFB  0x83,0xED,0xEE,0xED,0x83 ; Char 0x01: 'A'
               DEFB  0x80,0xB6,0xB6,0xB6,0xC1 ; Char 0x02: 'B'
@@ -10216,7 +10110,6 @@ TAPE_LOAD_COMMON:
               DEFB  0xDE,0xDE,0xDD,0xEB,0xF7 ; Char 0x3E: '>'
               DEFB  0xFD,0xFE,0xA6,0xFA,0xFD ; Char 0x3F: '?'
 
-; *******************************
 ; Output error message
               srl   e              ; Error number / 2
               inc   e              ; + 1
@@ -10234,9 +10127,7 @@ TAPE_LOAD_COMMON:
               jp    p,0x3CE2       ; No, output byte
               ret                  ; Yes, done
 
-; *******************************
 ; Table of error messages
-; *******************************
               DEFB  0xCE           ; 'N'+0x80 = NEXT WITHOUT FOR
               DEFM  "EXT WITHOUT FOR"
               DEFB  0xD3           ; 'S'+0x80 = SYNTAX
@@ -10285,9 +10176,7 @@ TAPE_LOAD_COMMON:
               DEFM  "ISK COMMAND?SYNTAX ERROR"
               DEFB  0x0D,0x00      ; CR + null terminator
 
-; *******************************
 ; If the buffer is empty, write a space into the buffer
-; *******************************
               ld    a,(hl)         ; Load character from buffer
               or    a              ; Is it empty?
               jr    nz,$+9         ; No, not empty!
@@ -10301,20 +10190,15 @@ TAPE_LOAD_COMMON:
               pop   af             ; Reload identifier
               ret                  ; Done!
 
-; *******************************
 ; Part of initialization
-; Set default color = yellow
-; *******************************
               ld    (0x787D),a     ; Interrupt RAM output = RET
               ld    a,0x10         ; Color yellow into color identifier
               ld    (0x7846),a
               ret   
 
-; *******************************
 ; Additional routine for reading a line (RDLINE)
 ; with green background and black character display:
 ; transfer data from screen to I/O buffer
-; *******************************
               ld    a,(hl)         ; Load character from screen
               bit   6,a            ; Inverse character?
               jr    z,$+7          ; Yes!
@@ -10378,9 +10262,7 @@ TAPE_LOAD_COMMON:
               jp    nz,0x04B8      ; Black background
               jp    RDLINE_READ_ENTRY ; Green background
 
-; *******************************
 ; Invert character
-; *******************************
               ld    a,(0x7818)     ; Load background flag
               or    a              ; Black background?
               jr    nz,$+5         ; Yes!
@@ -10389,9 +10271,7 @@ TAPE_LOAD_COMMON:
               set   6,(hl)         ; Black, set bit 6
               ret   
 
-; *******************************
 ; Provide clear-character for the screen-clear routine
-; *******************************
               ld    a,(0x7818)     ; Load background flag
               or    a              ; Black background?
               ld    a,0x20         ; Load space character
@@ -10400,10 +10280,8 @@ TAPE_LOAD_COMMON:
               ld    (hl),a         ; Space into screen
               ret   
 
-; *******************************
 ; When outputting to screen, perform inversion
 ; depending on the background
-; *******************************
               push  af             ; Save character to be output
               ld    a,(0x7818)     ; Load background flag
               or    a              ; Black background?
@@ -10422,9 +10300,7 @@ TAPE_LOAD_COMMON:
               and   0xBF           ; Clear bit 6
               jp    0x31B5         ; Done
 
-; *******************************
 ; Test character for space (blank)
-; *******************************
               ld    a,(0x7818)     ; Load background flag
               or    a              ; Black background?
               ld    a,(hl)         ; Load character
@@ -10434,9 +10310,7 @@ TAPE_LOAD_COMMON:
               cp    0x20           ; Check with bit 6 = 0
               ret   
 
-; *******************************
 ; Insert space during INSERT and RUBOUT
-; *******************************
               ld    a,(0x7818)     ; Load background flag
               or    a              ; Black?
               ld    a,0x20         ; Load space character
@@ -10445,9 +10319,7 @@ TAPE_LOAD_COMMON:
               ld    (de),a         ; ...into screen memory
               ret   
 
-; *******************************
 ; Prepare line-clear for the roll (scroll) routines
-; *******************************
               ld    b,0x20         ; Load length of a line
               ld    a,(0x7818)     ; Load background flag
               or    a              ; Black?
@@ -10456,11 +10328,9 @@ TAPE_LOAD_COMMON:
               or    0x40           ; For green, set bit 6
               ret   
 
-; *******************************
 ; Helper routine for cassette loading, for correctly
 ; displaying messages depending on the background.
 ; Called from 0x3889 (general messages in the last line)
-; *******************************
               ld    de,0x71E0      ; Address last line
               ld    a,(0x7818)     ; Load background flag
               or    a              ; Black?
@@ -10489,9 +10359,7 @@ TAPE_LOAD_COMMON:
               ld    a,0x3A         ; Load separator
               ret   
 
-; *******************************
 ; Called from 0x3837 (output of file/program name)
-; *******************************
               push  af             ; Save character
               ld    a,(0x7818)     ; Load background flag
               or    a              ; Black?
@@ -10505,10 +10373,8 @@ TAPE_LOAD_COMMON:
               ld    (de),a         ; Output character to screen
               ret   
 
-; *******************************
 ; Helper routine for the COPY statement
 ; Called from 0x392D
-; *******************************
               push  af             ; Save character
               ld    a,(0x7818)     ; Load background flag
               or    a              ; Black?
@@ -10523,11 +10389,9 @@ TAPE_LOAD_COMMON:
               jp    0x3931         ; Yes, inverted output
               jp    0x3931         ; Not used!
 
-; *******************************
 ; Helper routine for character output on screen
 ; Adjusting inversion to match the background color
 ; Called from 0x3149
-; *******************************
               push  af             ; Save character
               ld    a,(0x7818)     ; Load background flag
               or    a              ; Black?
@@ -10539,19 +10403,17 @@ TAPE_LOAD_COMMON:
               and   0x7F           ; Clear bit 7
               jp    0x3154
 
-; *******************************
 ; Helper routine for reading from cassette
 ; Called from 0x369C
-; *******************************
               call  TAPE_READ_BYTE ; Read byte from cassette
               ret   nc             ; OK!
               pop   hl             ; Return address from stack
               jp    TAPE_LOAD_ERROR ; Read error!
 
-; *******************************
 ; When a new background color is chosen, convert screen contents
 ; Called from the interrupt service routine
-; *******************************
+;
+; block]
               ld    a,(0x7819)     ; Current background flag
               ld    b,a
               ld    a,(0x7818)     ; = chosen background?
@@ -10572,9 +10434,7 @@ TAPE_LOAD_COMMON:
               jr    nz,$-12        ; No, next character
               jp    OUT_BUF_FLUSH  ; Yes, done!
 
-; *******************************
 ; Check whether the CTRL key is pressed during initialization
-; *******************************
               ld    a,(0x68FD)     ; Load keyboard row 2
               bit   2,a            ; CTRL key pressed?
               ld    a,0x20         ; Space into A

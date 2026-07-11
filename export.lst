@@ -155,14 +155,9 @@
 00D1  70       p                   ld    (hl),b         ; Restore original byte
 00D2  28F3     (.                  jr    z,$-11         ; Loop back if memory exists
 00D4  1811     ..                  jr    $+19
-                     ;
-                     ; ***********************************************************
                      ; unused code in VZ200 pr. G. Wolf book
-                     ;
                      ; Symbol name from Level II listing for TRS 80  
-                     ;
                      ; TODO: Document from TRS 80 listing.
-                     ; ***********************************************************
                      MEM_SIZE_INPUT:
 00D6  CD5A1E   .Z.                 call  DECZ           ; Handle memory size input
 00D9  B7       .                   or    a
@@ -175,9 +170,6 @@
 00E3  BE       .                   cp    (hl)
 00E4  70       p                   ld    (hl),b
 00E5  20CE      .                  jr    nz,$-48
-                     ;
-                     ; ***********************************************************
-                     ;
                      ; Set end of memory for BASIC
 00E7  2B       +                   dec   hl             ; address of the last byte
 00E8  11147C   ..|                 ld    de,0x7C14      ; at least 1868 bytes must be free
@@ -274,10 +266,7 @@
 0188  218403   !..                 ld    hl,0x0384      ; Load address of 'ERROR' message
 018B  CDA728   ..(                 call  OUTSTR         ; Print string (OUTSTR)
 018E  C3CF36   ..6                 jp    0x36CF         ; Jump to 36CFH
-                     ;
-                     ; *******************************************************
                      ; UNUSED BYTE ARTIFACT INSIDE VZ200 ROM
-                     ; *******************************************************
 0191  F1FE2020 ..                  DEFB  0xF1,0xFE,0x20,0x20,0x14,0x1A,0x13,0xFE
       141A13FE ....  
 0199  2028FAFE  (..                DEFB  0x20,0x28,0xFA,0xFE
@@ -316,9 +305,7 @@
 01D3  ED5F     ._                  ld    a,r            ; Get Refresh Register R
 01D5  32AB78   2.x                 ld    (0x78AB),a     ; Store refresh value as random seed base
 01D8  C9       .                   ret   
-                     ; *******************************
                      ; Keyboard tables
-                     ; *******************************
                      ; Key codes without SHIFT
                      KEYBOARD_CODES_NORMAL:
 01D9  54474235 TGB5                DEFB  0x54,0x47,0x42,0x35,0x4E,0x36,0x59,0x48 ; Bit row 0
@@ -383,10 +370,8 @@
       F3F8F7F9 ....  
 02A9  9DF6F4DE ....                DEFB  0x9D,0xF6,0xF4,0xDE,0xE5,0xFA ; Token row 2
       E5FA     ..    
-                     ; *******************************
                      ; Printer semigraphics output table
                      ; (2 bytes per character)
-                     ; *******************************
                      PRINTER_GRAPHICS_TABLE:
 02AF  808080B8 ....                DEFB  0x80,0x80,0x80,0xB8,0xB8,0x80,0xB8,0xB8 ; Char 0x80
       B880B8B8 ....  
@@ -396,10 +381,8 @@
       BF80BFB8 ....  
 02C7  878787BF ....                DEFB  0x87,0x87,0x87,0xBF,0xBF,0x87,0xBF,0xBF ; Char 0x8C
       BF87BFBF ....  
-                     ; *******************************
                      ; SOUND frequency table
                      ; (2-byte value per note)
-                     ; *******************************
                      SOUND_FREQ_TABLE:
 02CF  72024F02 r.O.                DEFW  0x0272,0x024F,0x022E,0x020E,0x01F1,0x01D5,0x01B7,0x019E ; A2-E3
       2E020E02 ....  
@@ -417,10 +400,8 @@
       87007F00 ....  
       78007000 x.p.  
       6A00     j.    
-                     ; *******************************
                      ; Restore character at cursor position
                      ; (part of screen output routine)
-                     ; *******************************
                      CURSOR_CHAR_RESTORE:
 030D  47       G                   ld    b,a            ; Output character in B
 030E  3A3C78   :<x                 ld    a,(0x783C)     ; Load character at cursor position
@@ -428,7 +409,6 @@
 0314  77       w                   ld    (hl),a         ; Write character
 0315  78       x                   ld    a,b            ; Restore output character in A
 0316  C9       .                   ret                  ; Return
-                     ; *******************************
                      ; Cursor address one line back
                      CURSOR_LINE_BACK:
 0317  012000   . .                 ld    bc,RST20_VEC   ; Line length
@@ -436,10 +416,8 @@
 031B  ED42     .B                  sbc   hl,bc          ; Cursor address minus one line
 031D  222078   " x                 ld    (CURS_ADDR),hl ; Store in cursor pointer
 0320  C9       .                   ret                  ; Return
-                     ; *******************************
                      ; SOUND duration multipliers
                      ; (1 byte per input code 1-9)
-                     ; *******************************
 0321  01020304 ....                DEFB  0x01,0x02,0x03,0x04,0x06,0x08,0x0C,0x10 ; A2-E3
       06080C10 ....  
 0329  18       .                   DEFB  0x18           ; Data bytes 0x18
@@ -3057,9 +3035,7 @@
 1264  E1       .                   pop   hl             ; Load return address
 1265  F24412   .D.                 jp    p,GET_10_EXP_LOOP_2 ; Yes, to 1244H
 1268  E9       .                   jp    (hl)           ; No, normal return
-                     ; *******************************
-                     ; * Write zeros to buffer
-                     ; *******************************
+                     ; Write zeros to buffer
                      WRITE_ZEROS:
 1269  B7       .                   or    a              ; Count = 0?
 126A  C8       .                   ret   z              ; Yes, done
@@ -3067,9 +3043,7 @@
 126C  3630     60                  ld    (hl),0x30      ; '0' in buffer
 126E  23       #                   inc   hl             ; Buffer address + 1
 126F  18F9     ..                  jr    $-5            ; Continue at 126AH
-                     ; *******************************
-                     ; * Write zeros with '.' and ','
-                     ; *******************************
+                     ; Write zeros with '.' and ','
                      WRITE_ZEROS_FMT:
 1271  2004      .                  jr    nz,$+6         ; Count > 0? Yes, jump
 1273  C8       .                   ret   z              ; = 0?, done
@@ -3078,9 +3052,7 @@
 1279  23       #                   inc   hl             ; Buffer address + 1
 127A  3D       =                   dec   a              ; Count - 1
 127B  18F6     ..                  jr    $-8            ; Back
-                     ; *******************************
-                     ; * Determine '.' and ',' params
-                     ; *******************************
+                     ; Determine '.' and ',' params
                      GET_FMT_PARAMS:
 127D  7B       {                   ld    a,e            ; Number of shifts in A
 127E  82       .                   add   a,d            ; + Precision
@@ -3096,9 +3068,7 @@
 128E  C0       .                   ret   nz             ; Yes, OK
 128F  4F       O                   ld    c,a            ; No, clear ',' parameter
 1290  C9       .                   ret                  ; Return
-                     ; *******************************
-                     ; * Set '.' and ','
-                     ; *******************************
+                     ; Set '.' and ','
                      SET_DOT_COMMA:
 1291  05       .                   dec   b              ; Decimal point position - 1
 1292  2008      .                  jr    nz,$+10        ; Decimal point reached? No!
@@ -3113,9 +3083,7 @@
 12A0  23       #                   inc   hl             ; Buffer pointer + 1
 12A1  0E03     ..                  ld    c,0x03         ; ',' parameter = 3 for next ','
 12A3  C9       .                   ret                  ; Done
-                     ; *******************************
-                     ; * Convert single/double prec to ASCII
-                     ; *******************************
+                     ; Convert single/double prec to ASCII
                      FF_TO_ASCII:
 12A4  D5       .                   push  de             ; Save DE
 12A5  E7       .                   rst   0x20           ; Test type
@@ -3207,9 +3175,7 @@
 132A  13       .                   inc   de
 132B  3E04     >.                  ld    a,0x04         ; 4 more digits in integer mode
 132D  1806     ..                  jr    $+8            ; Process
-                     ; *******************************
-                     ; * Convert integer to ASCII
-                     ; *******************************
+                     ; Convert integer to ASCII
                      INT_TO_ASCII:
 132F  D5       .                   push  de             ; Format flag on stack
 1330  11D813   ...                 ld    de,FOITBL      ; Address constants 10000 to 1
@@ -3250,39 +3216,27 @@
 1361  77       w                   ld    (hl),a         ; Mark end of line with X'00'
 1362  D1       .                   pop   de             ; Restore DE
 1363  C9       .                   ret                  ; Done
-                     ; ******************************************************************
-                     ; * Constants                                                      *
-                     ; ******************************************************************
+                     ; Constants
 1364  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0xF9,0x02,0x15,0xA2 ; 10 * 10^9 (double precision)
       F90215A2 ....  
-                     ; ******************************************************************
-                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDL"          *
-                     ; * A double precision constant equal to 999,999,999,999,999.95    *
-                     ; ******************************************************************
+                     ; DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDL"
+                     ; A double precision constant equal to 999,999,999,999,999.95
 136C  FDFF9F31 ...1                DEFB  0xFD,0xFF,0x9F,0x31,0xA9,0x5F,0x63,0xB2 ; 1 * 10^15 (double precision)
       A95F63B2 ._c.  
-                     ; ******************************************************************
-                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDU"          *
-                     ; * A double precision constant equal to 9,999,999,999,999,999.5   *
-                     ; ******************************************************************
+                     ; DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDU"
+                     ; A double precision constant equal to 9,999,999,999,999,999.5
 1374  FEFF03BF ....                DEFB  0xFE,0xFF,0x03,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
       C91B0EB6 ....  
-                     ; ******************************************************************
-                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "DHALF"           *
-                     ; * A double precision constant equal to 0.5D0                     *
-                     ; ******************************************************************
+                     ; DOUBLE PRECISION CONSTANT STORAGE LOCATION - "DHALF"
+                     ; A double precision constant equal to 0.5D0
 137C  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80 ; 0.5 (double precision)
       00000080 ....  
-                     ; ******************************************************************
-                     ; * DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FFXDXM"          *
-                     ; * A double precision constant equal to 1D16                      *
-                     ; ******************************************************************
+                     ; DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FFXDXM"          
+                     ; A double precision constant equal to 1D16                      
 1384  000004BF ....                DEFB  0x00,0x00,0x04,0xBF,0xC9,0x1B,0x0E,0xB6 ; 1 * 10^16 (double precision)
       C91B0EB6 ....  
-                     ; ******************************************************************
-                     ; * DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION - "FODTBL"  *
-                     ; * Powers of ten table (Double Precision)                         *
-                     ; ******************************************************************
+                     ; DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION - "FODTBL"  
+                     ; Powers of ten table (Double Precision)                         
 138C  0080C6A4 ....                DEFB  0x00,0x80,0xC6,0xA4,0x7E,0x8D,0x03 ; =   10000000000000000
       7E8D03   ~..   
 1393  00407A10 .@z.                DEFB  0x00,0x40,0x7A,0x10,0xF3,0x5A,0x00 ; =    1000000000000000
@@ -3310,28 +3264,23 @@
 13DC  6400     d.                  DEFB  0x64,0x00      ; =                                     100
 13DE  0A00     ..                  DEFB  0x0A,0x00      ; =                                      10
 13E0  0100     ..                  DEFB  0x01,0x00      ; =                                       1
-                     ; ******************************************************************
-                     ; * Subroutine for SQR and ATN                                     *
-                     ; * Performs multiplication with -1                                *
-                     ; ******************************************************************
+                     ; Subroutine for SQR and ATN                                     
+                     ; Performs multiplication with -1                                
 13E2  218209   !..                 ld    hl,NNEG        ; X = -X - address in HL
 13E5  E3       .                   ex    (sp),hl        ; swap with return address on stack
 13E6  E9       .                   jp    (hl)           ; return to calling routine
-                     ; ******************************************************************
-                     ; * SQR function                                                   *
-                     ; * Computes the square root of a number                           *
+                     ; SQR function                                                   
+                     ; Computes the square root of a number                           
 13E7  CDA409   ...                 call  PUSHF          ; Pack argument on the stack
 13EA  218013   !..                 ld    hl,FHALF       ; Address constant 0.5
 13ED  CDB109   ...                 call  MOVFM          ; and transfer to X
 13F0  1803     ..                  jr    $+5            ; continue at 13F5H
-                     ; ******************************************************************
-                     ; * Determine the power of a number                                *
-                     ; * Input:  Base on the stack                                      *
+                     ; Determine the power of a number                                
+                     ; Input:  Base on the stack                                      
 13F2  CDB10A   ...                 call  FRCSNG         ; Convert exponent to single precision
 13F5  C1       .                   pop   bc             ; Transfer base to Y
 13F6  D1       .                   pop   de             ; Transfer base to Y
-                     ; ******************************************************************
-                     ; * EXPONENTIATION FUNCTION (^) - "FNPWR"                          *
+                     ; EXPONENTIATION FUNCTION (^) - "FNPWR"  
 13F7  CD5509   .U.                 call  SIGN           ; Test exponent
 13FA  78       x                   ld    a,b            ; Exponent of base in A
 13FB  283C     (<                  jr    z,$+62         ; Exponent = 0? yes, result = 1
@@ -3368,9 +3317,8 @@
 1434  C1       .                   pop   bc             ; Load exponent into Y
 1435  D1       .                   pop   de             ; Load exponent into Y
 1436  CD4708   .G.                 call  0x0847         ; LOG(base) * exponent
-                     ; ******************************************************************
-                     ; * EXP function                                                   *
-                     ; * Determine the exponential function of a number                 *
+                     ; EXP function                                                   
+                     ; Determine the exponential function of a number                 
 1439  CDA409   ...                 call  PUSHF          ; Argument on stack
 143C  013881   .8.                 ld    bc,0x8138      ; Constant 1.4427 in Y
 143F  113BAA   .;.                 ld    de,0xAA3B      ; Constant 1.4427 in Y
@@ -3398,9 +3346,7 @@
 1474  C1       .                   pop   bc             ; Reload exponent
 1475  4A       J                   ld    c,d            ; Reload exponent
 1476  C34708   .G.                 jp    0x0847         ; Multiply with series result
-                     ; ******************************************************************
-                     ; * Constants for exponent series                                  *
-                     ; ******************************************************************
+                     ; Constants for exponent series    
 1479  08       .                   DEFB  0x08           ; 8 constants
 147A  402E9474 @..t                DEFB  0x40,0x2E,0x94,0x74 ; = -1.41316 E-04
 147E  704F2E77 pO.w                DEFB  0x70,0x4F,0x2E,0x77 ; =  1.32988 E-03
@@ -3410,9 +3356,8 @@
 148E  FFFF7F7F ....                DEFB  0xFF,0xFF,0x7F,0x7F ; =  0.5
 1492  00008081 ....                DEFB  0x00,0x00,0x80,0x81 ; = -1
 1496  00000081 ....                DEFB  0x00,0x00,0x00,0x81 ; =  1
-                     ; ******************************************************************
-                     ; * Series calculation 1                                           *
-                     ; * K1 * Z + K2 * Z^3 + K3 * Z^5                                   *
+                     ; Series calculation 1
+                     ; K1 * Z + K2 * Z^3 + K3 * Z^5                                   
 149A  CDA409   ...                 call  PUSHF          ; Transfer X to stack
 149D  11320C   .2.                 ld    de,0x0C32      ; Return address on stack
 14A0  D5       .                   push  de             ; (effects multiplication with Z at the end)
@@ -3420,12 +3365,10 @@
 14A2  CDBF09   ...                 call  MOVRF          ; Transfer Z to Y
 14A5  CD4708   .G.                 call  0x0847         ; Z^2 to X
 14A8  E1       .                   pop   hl             ; Constant address in HL
-                     ; ******************************************************************
-                     ; * Series calculation 2                                           *
-                     ; * K1 + K2 * Z + K3 * Z^2 + K4 * Z^3                               *
-                     ; * Input:  Same as series calculation 1                           *
-                     ; * Output: Same as series calculation 1                           *
-                     ; ******************************************************************
+                     ; Series calculation 2                                           
+                     ; K1 + K2 * Z + K3 * Z^2 + K4 * Z^3                               
+                     ; Input:  Same as series calculation 1 
+                     ; Output: Same as series calculation 1                           
 14A9  CDA409   ...                 call  PUSHF          ; Z on stack
 14AC  7E       ~                   ld    a,(hl)         ; Number of constants in A
 14AD  23       #                   inc   hl             ; Address of 1st constant
@@ -5719,7 +5662,6 @@
 22AF  FE88     ..                  cp    0x88           ; = DATA token ?
 22B1  20E3      .                  jr    nz,$-27        ; no, continue searching
 22B3  C32D22   .-"                 jp    INPUT_VALUE_START ; continue reading data
-                     ; *****************************************************************
                      ; NEXT statement
                      ; Looping in FOR-NEXT loops
 22B6  110000   ...                 ld    de,START       ; Var. tab. address = 0 (for NEXT without va
@@ -7206,7 +7148,6 @@
 2AE4  C5       .                   push  bc             ; return address back on stack
 2AE5  43       C                   ld    b,e            ; 2nd argument in B
 2AE6  C9       .                   ret   
-                     ; *********************************
                      ; Function token on the left side of an assignment
 2AE7  FE7A     .z                  cp    0x7A           ; MID$ - Token
 2AE9  C29719   ...                 jp    nz,SYNTAX_ERR_HANDLER ; no, SYNTAX ERROR
@@ -7223,7 +7164,6 @@
                      CMDOUT:
 2AFB  CD0E2B   ..+                 call  0x2B0E         ; Analyze both arguments and Port number in 
 2AFE  C39678   ..x                 jp    0x7896         ; Call RAM subprogram
-                     ; *********************************
                      ; Evaluate expression and convert result to integer
 2B01  D7       .                   rst   0x10           ; Address next character
 2B02  CD3723   .7#                 call  0x2337         ; Evaluate expression
@@ -7234,7 +7174,6 @@
 2B0B  7A       z                   ld    a,d            ; Set flags
 2B0C  B7       .                   or    a
 2B0D  C9       .                   ret                  ; done
-                     ; *********************************
                      ; Analyze 2 arguments for OUT
 2B0E  CD1C2B   ..+                 call  GETBYT         ; Accept port number (in A)
 2B11  329478   2.x                 ld    (0x7894),a     ; in INP and OUT subprograms
@@ -7242,7 +7181,6 @@
 2B17  CF       .                   rst   8              ; followed by a comma?
 2B18  2C       ,                   DEFB  0x2C
 2B19  1801     ..                  jr    $+3            ; Analyze value (<256) and into A
-                     ; *********************************
                      ; Evaluate expression, convert result to integer (<256)
 2B1B  D7       .                   rst   0x10           ; Address next character
 2B1C  CD3723   .7#                 call  0x2337         ; Evaluate expression
@@ -7252,14 +7190,12 @@
 2B26  D7       .                   rst   0x10           ; Address next character
 2B27  7B       {                   ld    a,e            ; Result in A
 2B28  C9       .                   ret                  ; done
-                     ; *********************************
                      ; LLIST statement
                      ; List program on printer
                      CMDLLIST:
 2B29  3E01     >.                  ld    a,0x01         ; Output flag to printer
 2B2B  329C78   2.x                 ld    (0x789C),a
-                     ; *********************************
-                     ; LIST statement
+                     ; LIST statement              
                      ; List program on screen
                      CMDLIST:
 2B2E  C1       .                   pop   bc             ; Return address from stack
@@ -7303,7 +7239,6 @@
 2B6D  CD752B   .u+                 call  OUTSTR_00      ; Output text of the line
 2B70  CDFE20   ..                  call  PRINT_CR       ; Output carriage return
 2B73  18BE     ..                  jr    $-64           ; Next line
-                     ; *********************************
                      ; Output text string (terminated with 00)
                      OUTSTR_00:
 2B75  7E       ~                   ld    a,(hl)         ; Load character
@@ -7312,7 +7247,6 @@
 2B78  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH ; Output character
 2B7B  23       #                   inc   hl             ; Text address + 1
 2B7C  18F7     ..                  jr    $-7            ; Next character
-                     ; *********************************
                      ; Generate readable text from intermediate code
                      ; Transferred from the program line into the I/O buffer.
                      DETOKEN:
@@ -7365,7 +7299,6 @@
 2BC0  F2B72B   ..+                 jp    p,0x2BB7       ; No, transfer
 2BC3  E1       .                   pop   hl             ; Load program pointer again
 2BC4  18C6     ..                  jr    $-56           ; Next program character
-                     ; *********************************
                      ; DELETE command
                      ; Delete program lines
                      CMDDELETE:
@@ -7804,7 +7737,6 @@
 2E4E  C42A03   .*.                 call  nz,CHAR_OUTPUT_DISPATCH ; yes, output
 2E51  F1       .                   pop   af             ; reload AF
 2E52  C9       .                   ret                  ; done
-                     ; ****************************************************************
                      ; Output an existing line during AUTO input
 2E53  60       `                   ld    h,b            ; Line address in HL
 2E54  69       i                   ld    l,c
@@ -7816,7 +7748,6 @@
 2E5C  2AA778   *.x                 ld    hl,(IO_BUF_PTR) ; Load buffer address
 2E5F  CD752B   .u+                 call  OUTSTR_00      ; Output line
 2E62  C9       .                   ret   
-                     ; ****************************************************************
                      ; Execute MODE statement
 2E63  CF       .                   rst   8              ; followed by a '(' ?
 2E64  28       (                   DEFB  0x28
@@ -7852,7 +7783,6 @@
 2E9A  CF       .                   rst   8              ; Termination with ')' ?
 2E9B  29       )                   DEFB  0x29
 2E9C  C9       .                   ret   
-                     ; ****************************************************************
                      ; Additional routine for LIST
                      ; (Output of strings)
 2E9D  FE22     ."                  cp    0x22           ; String start?
@@ -7871,7 +7801,6 @@
 2EB4  15       .                   dec   d              ; Buffer full?
 2EB5  C8       .                   ret   z              ; yes, stop
 2EB6  18F1     ..                  jr    $-13           ; next character in string
-                     ; ****************************************************************
                      ; Interrupt Service Routine
                      ; (triggered every 20 ms by the video controller)
 2EB8  F5       .                   push  af             ; Save register contents
@@ -7894,7 +7823,6 @@
 2ED8  F1       .                   pop   af
 2ED9  FB       .                   ei                   ; Re-enable interrupts
 2EDA  ED4D     .M                  reti                 ; RETURN from interrupt
-                     ; ****************************************************************
                      ; Output / blink cursor
 2EDC  3A3978   :9x                 ld    a,(FLAG2)      ; Load flag 2
 2EDF  CB47     .G                  bit   0,a            ; Carriage return flag set?
@@ -7909,7 +7837,6 @@
 2EF1  AE       .                   xor   (hl)           ; Invert character at cursor position
 2EF2  77       w                   ld    (hl),a
 2EF3  C9       .                   ret   
-                     ; ****************************************************************
                      ; Read a character from the keyboard
                      ; (Called via keyboard DCB)
 2EF4  CDFD2E   ...                 call  KBD_SCAN_ONCE  ; Evaluate keyboard
@@ -7917,7 +7844,6 @@
 2EF8  CD0E2F   ../                 call  KBD_FLAGS_RESET ; Reset flags
 2EFB  F1       .                   pop   af             ; Reload character
 2EFC  C9       .                   ret   
-                     ; ****************************************************************
                      ; Evaluate keyboard once
 2EFD  3A0068   :.h                 ld    a,(0x6800)     ; read all rows of the keyboard matrix
 2F00  F6C0     ..                  or    0xC0           ; mask out columns 6 and 7
@@ -7927,7 +7853,6 @@
 2F07  CD282F   .(/                 call  KBD_SCAN_ROWS  ; evaluate matrix rows individually
 2F0A  B7       .                   or    a              ; no ASCII character?
 2F0B  C2D705   ...                 jp    nz,KBD_ROLLOVER ; yes, check for multiple presses
-                     ; ****************************************************************
                      ; Reset flag bits
 2F0E  213878   !8x                 ld    hl,0x7838      ; Address flag 1
 2F11  CB56     .V                  bit   2,(hl)         ; Function flag set?
@@ -7942,7 +7867,6 @@
 2F23  AF       .                   xor   a              ; Clear character buffer B1
 2F24  323678   26x                 ld    (0x7836),a
 2F27  C9       .                   ret   
-                     ; ****************************************************************
                      ; Evaluate keyboard row by row
 2F28  21FE68   !.h                 ld    hl,0x68FE      ; Address keyboard row 1
 2F2B  0E08     ..                  ld    c,0x08         ; Row counter = 8
@@ -8460,9 +8384,7 @@
 32C0  ED42     .B                  sbc   hl,bc          ; cursor address - column pointer
 32C2  222078   " x                 ld    (CURS_ADDR),hl ; save new cursor address
 32C5  C9       .                   ret                  ; test comment
-                     ; ******************************************************************
-                     ; * INSERT CHARACTER FUNCTION                                      *
-                     ; ******************************************************************
+                     ; INSERT CHARACTER FUNCTION                                      
 32C6  CDA833   ..3                 call  GET_LINE_STATUS ; Determine status of current line
 32C9  FE81     ..                  cp    0x81           ; Is it the first line of a double line?
 32CB  2831     (1                  jr    z,$+51         ; Yes!
@@ -8521,9 +8443,7 @@
 3329  AF       .                   xor   a              ; Set status of new line to 0x00 (double-lin
 332A  77       w                   ld    (hl),a         ; Write status of 2nd line
 332B  C9       .                   ret                  ; Done
-                     ; ******************************************************************
-                     ; * SCROLL SCREEN DOWN ONE LINE FROM CURSOR POSITION               *
-                     ; ******************************************************************
+                     ; SCROLL SCREEN DOWN ONE LINE FROM CURSOR POSITION               
 332C  2A2078   * x                 ld    hl,(CURS_ADDR) ; Load cursor address
 332F  7C       |                   ld    a,h
 3330  FE71     .q                  cp    0x71           ; Is it the last line (address >= 0x71E0)?
@@ -8596,9 +8516,7 @@
 33A2  C0       .                   ret   nz             ; No, done
 33A3  2A2078   * x                 ld    hl,(CURS_ADDR) ; Yes, load cursor address
 33A6  18B7     ..                  jr    $-71           ; And scroll one more line down
-                     ; ******************************************************************
-                     ; * DETERMINE LINE STATUS                                          *
-                     ; ******************************************************************
+                     ; DETERMINE LINE STATUS                                          
 33A8  3AA678   :.x                 ld    a,(TTYPOS)     ; Load column pointer
 33AB  4F       O                   ld    c,a            ; Transfer to C
 33AC  AF       .                   xor   a
@@ -8620,9 +8538,7 @@
 33C8  09       .                   add   hl,bc          ; Add line number
 33C9  7E       ~                   ld    a,(hl)         ; Load line status
 33CA  C9       .                   ret                  ; Done
-                     ; ******************************************************************
-                     ; * RUBOUT (DELETE) CHARACTER FUNCTION                             *
-                     ; ******************************************************************
+                     ; RUBOUT (DELETE) CHARACTER FUNCTION                             
 33CB  CDA833   ..3                 call  GET_LINE_STATUS ; Determine status of current line
 33CE  FE81     ..                  cp    0x81           ; Is it the first of a double line?
 33D0  2A2078   * x                 ld    hl,(CURS_ADDR) ; Load cursor address
@@ -8645,9 +8561,7 @@
 33EE  C9       .                   ret                  ; Done
 33EF  3E3F     >?                  ld    a,0x3F         ; Double line width - 1
 33F1  18EF     ..                  jr    $-15           ; Calculate count and shift over double line
-                     ; ******************************************************************
-                     ; * SCROLL SCREEN UP ONE LINE AND CLEAR LAST LINE                  *
-                     ; ******************************************************************
+                     ; SCROLL SCREEN UP ONE LINE AND CLEAR LAST LINE                  
 33F3  110070   ..p                 ld    de,0x7000      ; DE = start of screen (destination)
 33F6  212070   ! p                 ld    hl,0x7020      ; HL = start of second line (source)
 33F9  01E001   ...                 ld    bc,0x01E0      ; Count = 15 lines of 32 bytes (480 bytes)
@@ -8674,17 +8588,13 @@
 341D  32A678   2.x                 ld    (TTYPOS),a     ; Column pointer = 0
 3420  21E071   !.q                 ld    hl,0x71E0      ; HL = start of last line
 3423  C9       .                   ret                  ; Done
-                     ; ******************************************************************
-                     ; * SCROLL UP ONE OR TWO LINES DEPENDING ON LINE STATUS            *
-                     ; ******************************************************************
+                     ; SCROLL UP ONE OR TWO LINES DEPENDING ON LINE STATUS            
 3424  3AD77A   :.z                 ld    a,(LINE_STATUS) ; Load status of the first line
 3427  FE81     ..                  cp    0x81           ; Is it a double line?
 3429  CCF333   ..3                 call  z,SCROLL_UP_ONE_LINE ; Yes, scroll one line
 342C  CDF333   ..3                 call  SCROLL_UP_ONE_LINE ; Scroll one line
 342F  C9       .                   ret                  ; Done
-                     ; ******************************************************************
-                     ; * EMIT AUDIBLE BEEP ON CHARACTER INPUT                           *
-                     ; ******************************************************************
+                     ; EMIT AUDIBLE BEEP ON CHARACTER INPUT 
 3430  213978   !9x                 ld    hl,FLAG2       ; Address Flag 2
 3433  B7       .                   or    a              ; Character entered?
 3434  200B      .                  jr    nz,$+13        ; Yes!
@@ -8709,9 +8619,7 @@
 3457  CD5C34   .\4                 call  SOUND_OUT      ; Emit beep tone
 345A  E1       .                   pop   hl             ; Restore Flag 2 address
 345B  C9       .                   ret                  ; Done
-                     ; ******************************************************************
-                     ; * SOUND OUTPUT ROUTINE                                           *
-                     ; ******************************************************************
+                     ; SOUND OUTPUT ROUTINE 
 345C  3A3B78   :;x                 ld    a,(OUT_LATCH)  ; Load I/O latch byte
 345F  57       W                   ld    d,a            ; Transfer to D
 3460  CD6934   .i4                 call  SOUND_PULSE    ; Emit pulse
@@ -8740,9 +8648,7 @@
 3480  20FB      .                  jr    nz,$-3         ; Wait loop for upper half-cycle of tone
 3482  C1       .                   pop   bc             ; Restore duration counter
 3483  C9       .                   ret                  ; Done
-                     ; ******************************************************************
-                     ; * PART OF THE INITIALIZATION ROUTINE                             *
-                     ; ******************************************************************
+                     ; PART OF THE INITIALIZATION ROUTINE
 3484  CDA03F   ..?                 call  CTRL_KEY_CHECK_INIT ; Check if CTRL key is pressed and set color
 3487  3E20     >                   ld    a,0x20         ; Default I/O latch byte
 3489  323B78   2;x                 ld    (OUT_LATCH),a  ; Save default latch byte
@@ -8758,7 +8664,7 @@
 34A3  3EC9     >.                  ld    a,0xC9         ; RET instruction opcode
 34A5  C3373E   .7>                 jp    INIT_COLOR_YELLOW ; Jump to color-set routine (yellow)
 34A8  C9       .                   ret                  ; Not used
-                     ; ******** CSAVE - WRITE PROGRAM TO CASSETTE
+                     ; CSAVE - WRITE PROGRAM TO CASSETTE
                      CSAVE:
 34A9  F3       .                   di                   ; Disable interrupts
 34AA  0EF0     ..                  ld    c,0xF0         ; Set BASIC program identifier
@@ -8808,7 +8714,7 @@
 350E  E1       .                   pop   hl             ; Restore program text pointer
 350F  FB       .                   ei                   ; Re-enable interrupts
 3510  C9       .                   ret                  ; Done
-                     ; ******** WRITE ONE BYTE TO CASSETTE
+                     ; WRITE ONE BYTE TO CASSETTE
                      TAPE_WRITE_BYTE:
 3511  F5       .                   push  af             ; Save A
 3512  C5       .                   push  bc             ; Save BC
@@ -8850,7 +8756,7 @@
 3553  064C     .L                  ld    b,0x4C         ; Pause about 277 us
 3555  10FE     ..                  djnz  $+0            ; Delay loop
 3557  C9       .                   ret                  ; Done
-                     ; ******** WRITE CASSETTE LEADER AND NAME
+                     ; WRITE CASSETTE LEADER AND NAME
                      TAPE_WRITE_LEADER_NAME:
 3558  CD8C35   ..5                 call  TAPE_BUFFER_NAME ; Copy program name into buffer
 355B  06FF     ..                  ld    b,0xFF         ; Output 255 synchronization bytes
@@ -8877,7 +8783,7 @@
 3586  CD1135   ..5                 call  TAPE_WRITE_BYTE ; Write character to cassette
 3589  10F9     ..                  djnz  $-5            ; Loop until the name is complete
 358B  C9       .                   ret                  ; Done
-                     ; ******** CHECK AND BUFFER PROGRAM/FILE NAME
+                     ; CHECK AND BUFFER PROGRAM/FILE NAME
                      TAPE_BUFFER_NAME:
 358C  0610     ..                  ld    b,0x10         ; Maximum name length is 16 chars
 358E  119D7A   ..z                 ld    de,0x7A9D      ; Load start address of name buffer
@@ -8901,7 +8807,7 @@
 35AC  90       .                   sub   b              ; Calculate actual name length
 35AD  32D67A   2.z                 ld    (0x7AD6),a     ; Save name length
 35B0  C9       .                   ret                  ; Done
-                     ; ******** PREPARE CASSETTE LOAD MESSAGES
+                     ; PREPARE CASSETTE LOAD MESSAGES
                      TAPE_PREPARE_MESSAGES:
 35B1  3A4C78   :Lx                 ld    a,(0x784C)     ; Load message-output flag
 35B4  B7       .                   or    a              ; Messages disabled?
@@ -8924,7 +8830,7 @@
 35DA  32E57A   2.z                 ld    (0x7AE5),a     ; Store status for previous line
 35DD  32E67A   2.z                 ld    (0x7AE6),a     ; Store status for last line
 35E0  C9       .                   ret                  ; Done
-                     ; ******** SEARCH FOR PROGRAM START ON CASSETTE
+                     ; SEARCH FOR PROGRAM START ON CASSETTE
                      TAPE_FIND_PROGRAM:
 35E1  214238   !B8                 ld    hl,0x3842      ; Load address of WAITING text
 35E4  CDF437   ..7                 call  TAPE_PRINT_MSG ; Output text if messages are enabled
@@ -8984,7 +8890,7 @@
 3652  13       .                   inc   de             ; Advance requested-name pointer
 3653  18F5     ..                  jr    $-9            ; Check next character
 3655  C9       .                   ret                  ; Not used
-                     ; ******** CLOAD - READ PROGRAM FROM CASSETTE
+                     ; CLOAD - READ PROGRAM FROM CASSETTE
                      CLOAD:
 3656  E5       .                   push  hl             ; Save program text pointer
 3657  213978   !9x                 ld    hl,FLAG2       ; Address Flag 2
@@ -9650,9 +9556,7 @@
 3B20  C0       .                   ret   nz             ; No, return
 3B21  3AA678   :.x                 ld    a,(TTYPOS)     ; Load cursor column position (TTYPOS)
 3B24  C9       .                   ret                  ; Return
-                     ; *******************************
                      ; Output interruption during LIST output
-                     ; *******************************
 3B25  21EF68   !.h                 ld    hl,0x68EF      ; Address keyboard row 4
 3B28  CB66     .f                  bit   4,(hl)         ; SPACE key pressed?
 3B2A  2018      .                  jr    nz,$+26        ; No!
@@ -9676,14 +9580,10 @@
 3B4E  20FB      .                  jr    nz,$-3         ; No, keep counting
 3B50  21EF68   !.h                 ld    hl,0x68EF      ; Address keyboard row 4
 3B53  C9       .                   ret                  ; Done!
-                     ; *******************************
                      ; When PRINT# outputs data to cassette
-                     ; *******************************
 3B54  CD1135   ..5                 call  TAPE_WRITE_BYTE ; Write byte to cassette
 3B57  C9       .                   ret   
-                     ; *******************************
                      ; When PRINT# writes header to cassette
-                     ; *******************************
 3B58  F3       .                   di                   ; Disable interrupts
 3B59  23       #                   inc   hl             ; Program pointer + 1
 3B5A  0EF2     ..                  ld    c,0xF2         ; Load identifier for data
@@ -9695,9 +9595,7 @@
 3B65  CF       .                   rst   8              ; Is that followed by a comma?
 3B66  2C       ,                   DEFB  0x2C           ; Comparison literal: comma
 3B67  C9       .                   ret   
-                     ; *******************************
                      ; When INPUT# reads header and filename from cassette
-                     ; *******************************
 3B68  F3       .                   di                   ; Disable interrupts
 3B69  23       #                   inc   hl             ; Program pointer + 1
 3B6A  CD8C35   ..5                 call  TAPE_BUFFER_NAME ; Read in the filename
@@ -9716,9 +9614,7 @@
 3B84  20F6      .                  jr    nz,$-8         ; No, keep searching
 3B86  E1       .                   pop   hl             ; Yes, restore program pointer
 3B87  C9       .                   ret                  ; Done!
-                     ; *******************************
                      ; When INPUT# reads data from cassette
-                     ; *******************************
 3B88  CD7537   .u7                 call  TAPE_READ_BYTE ; Read byte from cassette
 3B8B  FE0D     ..                  cp    0x0D           ; End of record?
 3B8D  C0       .                   ret   nz             ; No, return
@@ -9726,10 +9622,8 @@
 3B8F  CDF920   ..                  call  PRINT_BOL_CHECK ; Output CR/LF
 3B92  F1       .                   pop   af             ; Reload character
 3B93  C9       .                   ret                  ; Done!
-                     ; *******************************
                      ; Pixel table for inverse character output on the printer
                      ; (5 bytes per character)
-                     ; *******************************
 3B94  C1BEA2AE ....                DEFB  0xC1,0xBE,0xA2,0xAE,0xB1 ; Char 0x00: '@'
       B1       .     
 3B99  83EDEEED ....                DEFB  0x83,0xED,0xEE,0xED,0x83 ; Char 0x01: 'A'
@@ -9858,7 +9752,6 @@
       F7       .     
 3CCF  FDFEA6FA ....                DEFB  0xFD,0xFE,0xA6,0xFA,0xFD ; Char 0x3F: '?'
       FD       .     
-                     ; *******************************
                      ; Output error message
 3CD4  CB3B     .;                  srl   e              ; Error number / 2
 3CD6  1C       .                   inc   e              ; + 1
@@ -9875,9 +9768,7 @@
 3CE7  B7       .                   or    a              ; New message?
 3CE8  F2E23C   ..<                 jp    p,0x3CE2       ; No, output byte
 3CEB  C9       .                   ret                  ; Yes, done
-                     ; *******************************
                      ; Table of error messages
-                     ; *******************************
 3CEC  CE       .                   DEFB  0xCE           ; 'N'+0x80 = NEXT WITHOUT FOR
 3CED  45585420 EXT                 DEFM  "EXT WITHOUT FOR"
       57495448 WITH  
@@ -9982,9 +9873,7 @@
       41582045 AX E  
       52524F52 RROR  
 3E27  0D00     ..                  DEFB  0x0D,0x00      ; CR + null terminator
-                     ; *******************************
                      ; If the buffer is empty, write a space into the buffer
-                     ; *******************************
 3E29  7E       ~                   ld    a,(hl)         ; Load character from buffer
 3E2A  B7       .                   or    a              ; Is it empty?
 3E2B  2007      .                  jr    nz,$+9         ; No, not empty!
@@ -9997,19 +9886,14 @@
 3E34  2B       +                   dec   hl             ; Buffer pointer to the byte before the buff
 3E35  F1       .                   pop   af             ; Reload identifier
 3E36  C9       .                   ret                  ; Done!
-                     ; *******************************
                      ; Part of initialization
-                     ; Set default color = yellow
-                     ; *******************************
 3E37  327D78   2}x                 ld    (0x787D),a     ; Interrupt RAM output = RET
 3E3A  3E10     >.                  ld    a,0x10         ; Color yellow into color identifier
 3E3C  324678   2Fx                 ld    (0x7846),a
 3E3F  C9       .                   ret   
-                     ; *******************************
                      ; Additional routine for reading a line (RDLINE)
                      ; with green background and black character display:
                      ; transfer data from screen to I/O buffer
-                     ; *******************************
 3E40  7E       ~                   ld    a,(hl)         ; Load character from screen
 3E41  CB77     .w                  bit   6,a            ; Inverse character?
 3E43  2805     (.                  jr    z,$+7          ; Yes!
@@ -10071,9 +9955,7 @@
 3EAB  B7       .                   or    a
 3EAC  C2B804   ...                 jp    nz,0x04B8      ; Black background
 3EAF  C36A3E   .j>                 jp    RDLINE_READ_ENTRY ; Green background
-                     ; *******************************
                      ; Invert character
-                     ; *******************************
 3EB2  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
 3EB5  B7       .                   or    a              ; Black background?
 3EB6  2003      .                  jr    nz,$+5         ; Yes!
@@ -10081,9 +9963,7 @@
 3EBA  C9       .                   ret   
 3EBB  CBF6     ..                  set   6,(hl)         ; Black, set bit 6
 3EBD  C9       .                   ret   
-                     ; *******************************
                      ; Provide clear-character for the screen-clear routine
-                     ; *******************************
 3EBE  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
 3EC1  B7       .                   or    a              ; Black background?
 3EC2  3E20     >                   ld    a,0x20         ; Load space character
@@ -10091,10 +9971,8 @@
 3EC6  F640     .@                  or    0x40           ; Green, additionally set bit 6
 3EC8  77       w                   ld    (hl),a         ; Space into screen
 3EC9  C9       .                   ret   
-                     ; *******************************
                      ; When outputting to screen, perform inversion
                      ; depending on the background
-                     ; *******************************
 3ECA  F5       .                   push  af             ; Save character to be output
 3ECB  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
 3ECE  B7       .                   or    a              ; Black background?
@@ -10112,9 +9990,7 @@
 3EE2  2802     (.                  jr    z,$+4          ; No!
 3EE4  E6BF     ..                  and   0xBF           ; Clear bit 6
 3EE6  C3B531   ..1                 jp    0x31B5         ; Done
-                     ; *******************************
                      ; Test character for space (blank)
-                     ; *******************************
 3EE9  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
 3EEC  B7       .                   or    a              ; Black background?
 3EED  7E       ~                   ld    a,(hl)         ; Load character
@@ -10123,9 +9999,7 @@
 3EF2  C9       .                   ret   
 3EF3  FE20     .                   cp    0x20           ; Check with bit 6 = 0
 3EF5  C9       .                   ret   
-                     ; *******************************
                      ; Insert space during INSERT and RUBOUT
-                     ; *******************************
 3EF6  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
 3EF9  B7       .                   or    a              ; Black?
 3EFA  3E20     >                   ld    a,0x20         ; Load space character
@@ -10133,9 +10007,7 @@
 3EFE  F640     .@                  or    0x40           ; For green, set bit 6
 3F00  12       .                   ld    (de),a         ; ...into screen memory
 3F01  C9       .                   ret   
-                     ; *******************************
                      ; Prepare line-clear for the roll (scroll) routines
-                     ; *******************************
 3F02  0620     .                   ld    b,0x20         ; Load length of a line
 3F04  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
 3F07  B7       .                   or    a              ; Black?
@@ -10143,11 +10015,9 @@
 3F0A  C0       .                   ret   nz             ; Yes, done!
 3F0B  F640     .@                  or    0x40           ; For green, set bit 6
 3F0D  C9       .                   ret   
-                     ; *******************************
                      ; Helper routine for cassette loading, for correctly
                      ; displaying messages depending on the background.
                      ; Called from 0x3889 (general messages in the last line)
-                     ; *******************************
 3F0E  11E071   ..q                 ld    de,0x71E0      ; Address last line
 3F11  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
 3F14  B7       .                   or    a              ; Black?
@@ -10174,9 +10044,7 @@
 3F2F  12       .                   ld    (de),a         ; Identifier onto screen (black)
 3F30  3E3A     >:                  ld    a,0x3A         ; Load separator
 3F32  C9       .                   ret   
-                     ; *******************************
                      ; Called from 0x3837 (output of file/program name)
-                     ; *******************************
 3F33  F5       .                   push  af             ; Save character
 3F34  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
 3F37  B7       .                   or    a              ; Black?
@@ -10189,10 +10057,8 @@
 3F40  E63F     .?                  and   0x3F           ; Clear bits 6 and 7
 3F42  12       .                   ld    (de),a         ; Output character to screen
 3F43  C9       .                   ret   
-                     ; *******************************
                      ; Helper routine for the COPY statement
                      ; Called from 0x392D
-                     ; *******************************
 3F44  F5       .                   push  af             ; Save character
 3F45  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
 3F48  B7       .                   or    a              ; Black?
@@ -10206,11 +10072,9 @@
 3F57  CA3839   .89                 jp    z,0x3938       ; No, normal output
 3F5A  C33139   .19                 jp    0x3931         ; Yes, inverted output
 3F5D  C33139   .19                 jp    0x3931         ; Not used!
-                     ; *******************************
                      ; Helper routine for character output on screen
                      ; Adjusting inversion to match the background color
                      ; Called from 0x3149
-                     ; *******************************
 3F60  F5       .                   push  af             ; Save character
 3F61  3A1878   :.x                 ld    a,(0x7818)     ; Load background flag
 3F64  B7       .                   or    a              ; Black?
@@ -10221,18 +10085,16 @@
 3F6D  F1       .                   pop   af             ; Black! Reload character
 3F6E  E67F     ..                  and   0x7F           ; Clear bit 7
 3F70  C35431   .T1                 jp    0x3154
-                     ; *******************************
                      ; Helper routine for reading from cassette
                      ; Called from 0x369C
-                     ; *******************************
 3F73  CD7537   .u7                 call  TAPE_READ_BYTE ; Read byte from cassette
 3F76  D0       .                   ret   nc             ; OK!
 3F77  E1       .                   pop   hl             ; Return address from stack
 3F78  C31137   ..7                 jp    TAPE_LOAD_ERROR ; Read error!
-                     ; *******************************
                      ; When a new background color is chosen, convert screen contents
                      ; Called from the interrupt service routine
-                     ; *******************************
+                     ;
+                     ; block]
 3F7B  3A1978   :.x                 ld    a,(0x7819)     ; Current background flag
 3F7E  47       G                   ld    b,a
 3F7F  3A1878   :.x                 ld    a,(0x7818)     ; = chosen background?
@@ -10252,9 +10114,7 @@
 3F9A  B1       .                   or    c
 3F9B  20F2      .                  jr    nz,$-12        ; No, next character
 3F9D  C3E830   ..0                 jp    OUT_BUF_FLUSH  ; Yes, done!
-                     ; *******************************
                      ; Check whether the CTRL key is pressed during initialization
-                     ; *******************************
 3FA0  3AFD68   :.h                 ld    a,(0x68FD)     ; Load keyboard row 2
 3FA3  CB57     .W                  bit   2,a            ; CTRL key pressed?
 3FA5  3E20     >                   ld    a,0x20         ; Space into A
