@@ -26,6 +26,26 @@ type = DATA_BYTE
 
 [region]
 offset = 266
+end = 270
+type = DATA_BYTE
+
+[region]
+offset = 271
+end = 286
+type = DATA_STRING
+
+[region]
+offset = 287
+end = 287
+type = DATA_BYTE
+
+[region]
+offset = 288
+end = 297
+type = DATA_STRING
+
+[region]
+offset = 298
 end = 300
 type = DATA_BYTE
 
@@ -91,18 +111,83 @@ type = DATA_BYTE
 
 [region]
 offset = 1392
-end = 1396
+end = 1394
+type = DATA_STRING
+
+[region]
+offset = 1395
+end = 1395
+type = DATA_BYTE
+
+[region]
+offset = 1396
+end = 1420
 type = DATA_BYTE
 
 [region]
 offset = 1767
-end = 1788
+end = 1767
+type = DATA_BYTE
+
+[region]
+offset = 1768
+end = 1769
+type = DATA_WORD
+
+[region]
+offset = 1770
+end = 1772
 type = DATA_BYTE
 
 [region]
 offset = 1773
 end = 1774
 type = DATA_STRING
+
+[region]
+offset = 1775
+end = 1775
+type = DATA_BYTE
+
+[region]
+offset = 1776
+end = 1777
+type = DATA_WORD
+
+[region]
+offset = 1778
+end = 1779
+type = DATA_WORD
+
+[region]
+offset = 1780
+end = 1782
+type = DATA_BYTE
+
+[region]
+offset = 1783
+end = 1783
+type = DATA_BYTE
+
+[region]
+offset = 1784
+end = 1785
+type = DATA_WORD
+
+[region]
+offset = 1786
+end = 1786
+type = DATA_BYTE
+
+[region]
+offset = 1787
+end = 1787
+type = DATA_BYTE
+
+[region]
+offset = 1788
+end = 1788
+type = DATA_BYTE
 
 [region]
 offset = 1789
@@ -146,11 +231,136 @@ type = DATA_BYTE
 
 [region]
 offset = 4964
+end = 5003
+type = DATA_BYTE
+
+[region]
+offset = 5004
+end = 5010
+type = DATA_BYTE
+
+[region]
+offset = 5011
+end = 5017
+type = DATA_BYTE
+
+[region]
+offset = 5018
+end = 5024
+type = DATA_BYTE
+
+[region]
+offset = 5025
+end = 5031
+type = DATA_BYTE
+
+[region]
+offset = 5032
+end = 5038
+type = DATA_BYTE
+
+[region]
+offset = 5039
+end = 5045
+type = DATA_BYTE
+
+[region]
+offset = 5046
+end = 5052
+type = DATA_BYTE
+
+[region]
+offset = 5053
+end = 5059
+type = DATA_BYTE
+
+[region]
+offset = 5060
+end = 5066
+type = DATA_BYTE
+
+[region]
+offset = 5067
+end = 5073
+type = DATA_BYTE
+
+[region]
+offset = 5074
+end = 5076
+type = DATA_BYTE
+
+[region]
+offset = 5077
+end = 5079
+type = DATA_BYTE
+
+[region]
+offset = 5080
+end = 5081
+type = DATA_BYTE
+
+[region]
+offset = 5082
+end = 5083
+type = DATA_BYTE
+
+[region]
+offset = 5084
+end = 5085
+type = DATA_BYTE
+
+[region]
+offset = 5086
+end = 5087
+type = DATA_BYTE
+
+[region]
+offset = 5088
 end = 5089
 type = DATA_BYTE
 
 [region]
 offset = 5241
+end = 5241
+type = DATA_BYTE
+
+[region]
+offset = 5242
+end = 5245
+type = DATA_BYTE
+
+[region]
+offset = 5246
+end = 5249
+type = DATA_BYTE
+
+[region]
+offset = 5250
+end = 5253
+type = DATA_BYTE
+
+[region]
+offset = 5254
+end = 5257
+type = DATA_BYTE
+
+[region]
+offset = 5258
+end = 5261
+type = DATA_BYTE
+
+[region]
+offset = 5262
+end = 5265
+type = DATA_BYTE
+
+[region]
+offset = 5266
+end = 5269
+type = DATA_BYTE
+
+[region]
+offset = 5270
 end = 5273
 type = DATA_BYTE
 
@@ -161,6 +371,41 @@ type = DATA_BYTE
 
 [region]
 offset = 5515
+end = 5518
+type = DATA_BYTE
+
+[region]
+offset = 5519
+end = 5522
+type = DATA_BYTE
+
+[region]
+offset = 5523
+end = 5523
+type = DATA_BYTE
+
+[region]
+offset = 5524
+end = 5527
+type = DATA_BYTE
+
+[region]
+offset = 5528
+end = 5531
+type = DATA_BYTE
+
+[region]
+offset = 5532
+end = 5535
+type = DATA_BYTE
+
+[region]
+offset = 5536
+end = 5539
+type = DATA_BYTE
+
+[region]
+offset = 5540
 end = 5543
 type = DATA_BYTE
 
@@ -1961,13 +2206,18 @@ type = DATA_BYTE
 
 [region]
 offset = 14402
-end = 14409
+end = 14408
+type = DATA_STRING
+
+[region]
+offset = 14409
+end = 14410
 type = DATA_BYTE
 
 [region]
-offset = 14410
+offset = 14411
 end = 14423
-type = DATA_BYTE
+type = DATA_STRING
 
 [region]
 offset = 14424
@@ -1976,11 +2226,21 @@ type = DATA_BYTE
 
 [region]
 offset = 14426
+end = 14430
+type = DATA_STRING
+
+[region]
+offset = 14431
 end = 14431
 type = DATA_BYTE
 
 [region]
 offset = 14432
+end = 14438
+type = DATA_STRING
+
+[region]
+offset = 14439
 end = 14439
 type = DATA_BYTE
 
@@ -2720,10 +2980,6 @@ name = DCB_DISPATCH
 [label]
 offset = 995
 name = INPUT_LINE_READ
-
-[label]
-offset = 1397
-name = PRINTER_DRIVER
 
 [label]
 offset = 1481
@@ -6514,44 +6770,12 @@ offset = 1392
 text = Data text 'RUN\00'
 
 [comment]
-offset = 1397
-text = Increment sp
+offset = 1421
+text = Load character to be output
 
 [comment]
-offset = 1398
-text = Load (0xA3CD) from a
-
-[comment]
-offset = 1401
-text = Load a from (de)
-
-[comment]
-offset = 1402
-text = Call 0x17D8
-
-[comment]
-offset = 1405
-text = Call 0x190D
-
-[comment]
-offset = 1408
-text = Jump if z to 0x125A
-
-[comment]
-offset = 1411
-text = Call 0x1F49
-
-[comment]
-offset = 1414
-text = Relative jump if c to $+26
-
-[comment]
-offset = 1416
-text = Call restart vector 0x28
-
-[comment]
-offset = 1417
-text = Load a from (0x0438)
+offset = 1422
+text = Is this zero?
 
 [comment]
 offset = 1423
@@ -7274,12 +7498,40 @@ offset = 1767
 text = DCB type
 
 [comment]
+offset = 1768
+text = Address of the Driver
+
+[comment]
+offset = 1770
+text = stage 3 bytes
+
+[comment]
 offset = 1775
 text = DCB type (unknown)
 
 [comment]
+offset = 1776
+text = Used by SET, RESET, and POINT
+
+[comment]
+offset = 1778
+text = Cursor Pointer
+
+[comment]
 offset = 1783
 text = DCB type
+
+[comment]
+offset = 1784
+text = printer driver address
+
+[comment]
+offset = 1786
+text = Lines per Page+1
+
+[comment]
+offset = 1787
+text = line counter (next line stage 1 byte)
 
 [comment]
 offset = 1789
@@ -15077,9 +15329,13 @@ text = Load flag
 offset = 5506
 text = Carry = 0? yes - X = -X
 
-[block]
-offset = 5515
-text = Precomputed Trigonometric Constants (pi/2, fractional scalars)
+[comment]
+offset = 5509
+text = Constants for series calculation
+
+[comment]
+offset = 5512
+text = Calculate series
 
 [comment]
 offset = 5515
@@ -15089,17 +15345,13 @@ text = = pi/2 (1.5708)
 offset = 5519
 text = = 1/4 (0.25)
 
-[block]
-offset = 5523
-text = for sine series calculation
-
 [comment]
 offset = 5523
 text = Number of Coefficients
 
 [comment]
 offset = 5524
-text =  39.7107
+text = 39.7107
 
 [comment]
 offset = 5528
@@ -15107,7 +15359,7 @@ text = -76.575
 
 [comment]
 offset = 5532
-text =  81.6022
+text = 81.6022
 
 [comment]
 offset = 5536
@@ -15115,15 +15367,7 @@ text = -41.3417
 
 [comment]
 offset = 5540
-text =   6.28319
-
-[comment]
-offset = 5509
-text = Constants for series calculation
-
-[comment]
-offset = 5512
-text = Calculate series
+text = 6.28319
 
 [comment]
 offset = 5544
@@ -32431,10 +32675,6 @@ text = Return
 offset = 14399
 text = Codes for tape file types (B, D, S)
 
-[block]
-offset = 14402
-text = Cassette Routine Messages
-
 [comment]
 offset = 14440
 text = Read byte
@@ -35319,7 +35559,6 @@ text = Unprogrammed EPROM fill (0xFF) - standard end-of-ROM padding
 offset = 0
 text = Initialisation of the computer
 
-
 [block]
 offset = 11
 text = 
@@ -35405,8 +35644,8 @@ text = Initialisation of the DOS exits with RET (RAM: 79A6H)
 [block]
 offset = 168
 text = End of BASIC init
-Unused code block / timing delay? falls into next segment
-possbile removed block from TRS-80?
+              Unused code block / timing delay? falls into next segment
+              possbile removed block from TRS-80?
 
 [block]
 offset = 190
@@ -35419,8 +35658,8 @@ text = Memory test (memory size check)
 [block]
 offset = 214
 text = unused code in VZ200 pr. G. Wolf book
-Symbol name from Level II listing for TRS 80  
-TODO: Document from TRS 80 listing.
+              Symbol name from Level II listing for TRS 80  
+              TODO: Document from TRS 80 listing.
 
 [block]
 offset = 231
@@ -35442,7 +35681,7 @@ text = Set cursor to 7839H and reset bit 3
 [block]
 offset = 401
 text = UNUSED BYTE ARTIFACT INSIDE VZ200 ROM
-       
+
 [block]
 offset = 413
 text = Parameter / Coordinate Parsing (for Graphics?)
@@ -35458,7 +35697,7 @@ text = RANDOM statement seed initialization
 [block]
 offset = 473
 text = Keyboard tables
-Key codes without SHIFT
+              Key codes without SHIFT
 
 [block]
 offset = 521
@@ -35479,17 +35718,17 @@ text = Tokens that append '(' on output
 [block]
 offset = 687
 text = Printer semigraphics output table
-(2 bytes per character)
+              (2 bytes per character)
 
 [block]
 offset = 719
 text = SOUND frequency table
-(2-byte value per note)
+              (2-byte value per note)
 
 [block]
 offset = 781
 text = Restore character at cursor position
-(part of screen output routine)
+              (part of screen output routine)
 
 [block]
 offset = 791
@@ -35498,8 +35737,8 @@ text = Cursor address one line back
 [block]
 offset = 801
 text = SOUND duration multipliers
-(1 byte per input code 1-9)
-       
+              (1 byte per input code 1-9)
+
 [block]
 offset = 810
 text = Output character to screen, printer or cassette.
@@ -35511,7 +35750,7 @@ text = Output a character to the screen
 [block]
 offset = 840
 text = Determine cursor position in line
-not used on LASER 110-310
+              not used on LASER 110-310
 
 [block]
 offset = 856
@@ -35528,7 +35767,7 @@ text = OK and error message of the VERIFY command
 [block]
 offset = 907
 text = Output flag to screen.
-CR on printer, if not at start of line
+              CR on printer, if not at start of line
 
 [block]
 offset = 916
@@ -35592,8 +35831,8 @@ offset = 1396
 text = Dead code block, no caller next 25 bytes
 
 [block]
-offset = 1397
-text = Printer driver
+offset = 1421
+text = Printer Driver
 
 [block]
 offset = 1481
@@ -36194,71 +36433,70 @@ text = Test if number is large (>= 1E6 or 1D16)
 [block]
 offset = 4713
 text = Write zeros to buffer
-       
+
 [block]
 offset = 4721
-text =  Write zeros with '.' and ','
-       
+text = Write zeros with '.' and ','
+
 [block]
 offset = 4733
-text =  Determine '.' and ',' params
-       
+text = Determine '.' and ',' params
+
 [block]
 offset = 4753
-text =  Set '.' and ','
-       
+text = Set '.' and ','
+
 [block]
 offset = 4772
-text =  Convert single/double prec to ASCII
-       
+text = Convert single/double prec to ASCII
+
 [block]
 offset = 4911
-text =  Convert integer to ASCII
-       
+text = Convert integer to ASCII
+
 [block]
 offset = 4964
-text =  Constants
+text = Constants
 
 [block]
 offset = 4972
 text = DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDL"
-A double precision constant equal to 999,999,999,999,999.95
+              A double precision constant equal to 999,999,999,999,999.95
 
 [block]
 offset = 4980
-text =DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDU"
-A double precision constant equal to 9,999,999,999,999,999.5
+text = DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FOUTDU"
+              A double precision constant equal to 9,999,999,999,999,999.5
 
 [block]
 offset = 4988
 text = DOUBLE PRECISION CONSTANT STORAGE LOCATION - "DHALF"
-A double precision constant equal to 0.5D0
-          
+              A double precision constant equal to 0.5D0
+
 [block]
 offset = 4996
 text = DOUBLE PRECISION CONSTANT STORAGE LOCATION - "FFXDXM"          
-A double precision constant equal to 1D16                      
+              A double precision constant equal to 1D16                      
 
 [block]
 offset = 5004
 text = DOUBLE PRECISION INTEGER CONSTANT STORAGE LOCATION - "FODTBL"  
-Powers of ten table (Double Precision)                         
+              Powers of ten table (Double Precision)                         
 
 [block]
 offset = 5090
 text = Subroutine for SQR and ATN                                     
-Performs multiplication with -1                                
+              Performs multiplication with -1                                
 
 [block]
 offset = 5095
 text = SQR function                                                   
-Computes the square root of a number                           
+              Computes the square root of a number                           
 
 [block]
 offset = 5106
 text = Determine the power of a number                                
-Input:  Base on the stack                                      
-              
+              Input:  Base on the stack                                      
 
 [block]
 offset = 5111
@@ -36267,7 +36505,7 @@ text = EXPONENTIATION FUNCTION (^) - "FNPWR"
 [block]
 offset = 5177
 text = EXP function                                                   
-Determine the exponential function of a number                 
+              Determine the exponential function of a number                 
 
 [block]
 offset = 5241
@@ -36276,14 +36514,14 @@ text = Constants for exponent series
 [block]
 offset = 5274
 text = Series calculation 1
-K1 * Z + K2 * Z^3 + K3 * Z^5                                   
+              K1 * Z + K2 * Z^3 + K3 * Z^5                                   
 
 [block]
 offset = 5289
 text = Series calculation 2                                           
-K1 + K2 * Z + K3 * Z^2 + K4 * Z^3                               
-Input:  Same as series calculation 1 
-Output: Same as series calculation 1                           
+              K1 + K2 * Z + K3 * Z^2 + K4 * Z^3                               
+              Input:  Same as series calculation 1 
+              Output: Same as series calculation 1                           
 
 [block]
 offset = 5321
@@ -36307,6 +36545,14 @@ text = SIN - Function
 [block]
 offset = 5475
 text = Transform interval (0..1) to interval (-0.25 ... 0.25)
+
+[block]
+offset = 5515
+text = Precomputed Trigonometric Constants (pi/2, fractional scalars)
+
+[block]
+offset = 5523
+text = for sine series calculation
 
 [block]
 offset = 5544
@@ -36694,7 +36940,7 @@ text = Search for next DATA statement
 [block]
 offset = 8886
 text = NEXT statement
-Looping in FOR-NEXT loops
+              Looping in FOR-NEXT loops
 
 [block]
 offset = 8916
@@ -37085,12 +37331,12 @@ text = Evaluate expression, convert result to integer (<256)
 [block]
 offset = 11049
 text = LLIST statement
-List program on printer
+              List program on printer
 
 [block]
 offset = 11054
 text = LIST statement              
-List program on screen
+              List program on screen
 
 [block]
 offset = 11125
@@ -37099,12 +37345,12 @@ text = Output text string (terminated with 00)
 [block]
 offset = 11134
 text = Generate readable text from intermediate code
-Transferred from the program line into the I/O buffer.
+              Transferred from the program line into the I/O buffer.
 
 [block]
 offset = 11206
 text = DELETE command
-Delete program lines
+              Delete program lines
 
 [block]
 offset = 11253
@@ -37176,12 +37422,12 @@ text = Set MODE (0)
 [block]
 offset = 11933
 text = Additional routine for LIST
-(Output of strings)
+              (Output of strings)
 
 [block]
 offset = 11960
 text = Interrupt Service Routine
-(triggered every 20 ms by the video controller)
+              (triggered every 20 ms by the video controller)
 
 [block]
 offset = 11996
@@ -37190,7 +37436,7 @@ text = Output / blink cursor
 [block]
 offset = 12020
 text = Read a character from the keyboard
-(Called via keyboard DCB)
+              (Called via keyboard DCB)
 
 [block]
 offset = 12029
@@ -37293,11 +37539,11 @@ text = SCROLL SCREEN DOWN ONE LINE FROM CURSOR POSITION
 [block]
 offset = 13224
 text = DETERMINE LINE STATUS                                          
-       
+
 [block]
 offset = 13259
 text = RUBOUT (DELETE) CHARACTER FUNCTION                             
-       
+
 [block]
 offset = 13299
 text = SCROLL SCREEN UP ONE LINE AND CLEAR LAST LINE                  
@@ -37305,7 +37551,7 @@ text = SCROLL SCREEN UP ONE LINE AND CLEAR LAST LINE
 [block]
 offset = 13348
 text = SCROLL UP ONE OR TWO LINES DEPENDING ON LINE STATUS            
-       
+
 [block]
 offset = 13360
 text = EMIT AUDIBLE BEEP ON CHARACTER INPUT 
@@ -37439,6 +37685,10 @@ offset = 14356
 text = Print program/file identifier and name
 
 [block]
+offset = 14402
+text = Cassette Routine Messages
+
+[block]
 offset = 14440
 text = Read start and end addresses from cassette
 
@@ -37517,7 +37767,7 @@ text = If output buffer is empty, load cursor column position
 [block]
 offset = 15141
 text = Output interruption during LIST output
-       
+
 [block]
 offset = 15176
 text = Debounce key
@@ -37529,7 +37779,7 @@ text = When PRINT# outputs data to cassette
 [block]
 offset = 15192
 text = When PRINT# writes header to cassette
-       
+
 [block]
 offset = 15208
 text = When INPUT# reads header and filename from cassette
@@ -37537,11 +37787,11 @@ text = When INPUT# reads header and filename from cassette
 [block]
 offset = 15240
 text = When INPUT# reads data from cassette
-       
+
 [block]
 offset = 15252
 text = Pixel table for inverse character output on the printer
-(5 bytes per character)
+              (5 bytes per character)
 
 [block]
 offset = 15572
@@ -37554,17 +37804,16 @@ text = Table of error messages
 [block]
 offset = 15913
 text = If the buffer is empty, write a space into the buffer
-       
+
 [block]
 offset = 15927
 text = Part of initialization
-Set default color = yellow
 
 [block]
 offset = 15936
 text = Additional routine for reading a line (RDLINE)
-with green background and black character display:
-transfer data from screen to I/O buffer
+              with green background and black character display:
+              transfer data from screen to I/O buffer
 
 [block]
 offset = 15978
@@ -37573,33 +37822,33 @@ text = Entry point from 0x3EAF, for green background
 [block]
 offset = 16050
 text = Invert character
-       
+
 [block]
 offset = 16062
-text =  Provide clear-character for the screen-clear routine
-       
+text = Provide clear-character for the screen-clear routine
+
 [block]
 offset = 16074
 text = When outputting to screen, perform inversion
-depending on the background
+              depending on the background
 
 [block]
 offset = 16105
 text = Test character for space (blank)
-       
+
 [block]
 offset = 16118
 text = Insert space during INSERT and RUBOUT
-       
+
 [block]
 offset = 16130
 text = Prepare line-clear for the roll (scroll) routines
-      
+
 [block]
 offset = 16142
 text = Helper routine for cassette loading, for correctly
-displaying messages depending on the background.
-Called from 0x3889 (general messages in the last line)
+              displaying messages depending on the background.
+              Called from 0x3889 (general messages in the last line)
 
 [block]
 offset = 16161
@@ -37608,75 +37857,31 @@ text = Called from 0x382B (output of the file identifier)
 [block]
 offset = 16179
 text = Called from 0x3837 (output of file/program name)
-        
+
 [block]
 offset = 16196
 text = Helper routine for the COPY statement
-Called from 0x392D
+              Called from 0x392D
 
 [block]
 offset = 16224
 text = Helper routine for character output on screen
-Adjusting inversion to match the background color
-Called from 0x3149
+              Adjusting inversion to match the background color
+              Called from 0x3149
 
 [block]
 offset = 16243
 text = Helper routine for reading from cassette
-Called from 0x369C
+              Called from 0x369C
 
 [block]
 offset = 16251
 text = When a new background color is chosen, convert screen contents
-Called from the interrupt service routine
+              Called from the interrupt service routine
+              
+              block]
 
-block]
+[block]
 offset = 16288
 text = Check whether the CTRL key is pressed during initialization
-             
-[block]
-offset = 1421
-text = Printer Driver
-
-[comment]
-offset = 1421
-text = Load character to be output
-
-[comment]
-offset = 1422
-text = Is this zero?
-
-[comment]
-offset = 1767
-text = DCB-Typ
-
-[comment]
-offset = 1768
-text = Address of the Driver
-
-[comment]
-offset = 1770
-text = stage 3 bytes
-
-[comment]
-offset = 1776
-text = Used by SET, RESET, and POINT
-
-[comment]
-offset = 1778
-text = Cursor Pointer
-
-[comment]
-offset = 1784
-text = printer driver address
-
-[comment]
-offset = 1786
-text = Lines per Page+1
-
-[comment]
-offset = 1787
-text = line counter (next line stage 1 byte)
-
-
 

@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Sat Jul 11 16:26:47 2026
+; Generated: Sat Jul 11 17:33:19 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -319,7 +319,7 @@ RESET:
               ret                  ; Return
 
 ; Clear Screen and Home Cursor
-; CLRSCR_HOME: (defined in symbols.sym)
+CLRSCR_HOME:
               ld    a,0x1C         ; Clear screen (1CH)
               call  SCREEN_OUT_CHAR
               ld    a,0x1F         ; Move cursor home (1FH)
@@ -2970,7 +2970,7 @@ DNORM_BIT_LOOP:
 ; Generate formatted string of single or double precision numbers
               push  hl             ; Buffer pointer on stack
               rra                  ; Exponent output?
-              jp    c,PUSTR_EXP    ; yes!
+              jp    c,PUSTR_EXP_FLOAT ; yes!
               jr    z,$+22         ; for single precision => jump
               ld    de,FFXDXM      ; Address constant 1D16
               call  0x0A49         ; Value >= 1D16?
@@ -5733,7 +5733,7 @@ PRINT_BOL_CHECK:
               pop   hl             ; load program pointer
               ret                  ; continue at 21DBH
               push  hl             ; program pointer on stack
-              call  PROMPT_RD      ; print '?' and read line into I/O buffer
+              call  PROMPT         ; print '?' and read line into I/O buffer
               pop   bc             ; program pointer in BC
               jp    c,CMD_END_INPUT ; BREAK? ja - jump
               inc   hl             ; buffer pointer to 1st character
@@ -5780,7 +5780,7 @@ INPUT_EMPTY_BUFFER:
 INPUT_PROMPT_AGAIN:
               ld    a,0x3F         ; Keyboard: output '?'
               call  CHAR_OUTPUT_DISPATCH ; Tastatur: '?' ausgeben
-              call  PROMPT_RD      ; Re-enter with '??'
+              call  PROMPT         ; Re-enter with '??'
               pop   de             ; Load var. tab. address
               pop   bc             ; Program pointer in BC
               jp    c,CMD_END_INPUT ; BREAK? yes - jump
@@ -5818,7 +5818,7 @@ INPUT_STRING_PROC:
               ld    hl,INPUT_VALUE_NEXT ; Return address in HL
               ex    (sp),hl        ; swap with var. tab. adr. on stack
               push  de             ; Buffer pointer on stack
-              jp    LET_ENTRY_2    ; Jump to LET and then 225AH
+              jp    LET_VAR_PTR_LOAD ; Jump to LET and then 225AH
 
 ; Take number into X
 INPUT_VALUE_NUMERIC:
