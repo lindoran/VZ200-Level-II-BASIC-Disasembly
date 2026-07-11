@@ -1,5 +1,5 @@
 ; z80bench export — .
-; Generated: Fri Jul 10 23:33:05 2026
+; Generated: Fri Jul 10 23:37:20 2026
 ; Assembler: z88dk/z80asm
 
         INCLUDE "symbols.sym"
@@ -12,9 +12,6 @@
               xor   a              ; Clear A (color index 0)
               ld    (0x6800),a     ; Set background color (black)
               jp    BASIC_INIT_1   ; Jump to RESET part 1 (at 0674H)
-
-;
-; *****************************************************************
 ; RST08_VEC: (defined in symbols.sym)
               jp    0x7800         ; RST 08H: Jump to RAM hook at 7800H (SYNCHR)
 
@@ -146,18 +143,15 @@ INIT_EXIT_LOOP:
               inc   hl
               djnz  $-5            ; Loop for 21 entries
 
-; End of BASIC initialisation
+; End of BASIC init
+; Unused code block / timing delay? falls into next segment
+; possbile removed block from TRS-80?
 INIT_BASIC_FINISH:
               ld    hl,0x7AE8      ; Load start of user RAM (7AE8H)
               ld    (hl),b         ; Initialize it to zero
               ld    sp,0x79F8      ; Set temporary stack pointer (79F8H)
               call  0x1B8F         ; Initialize stack and variables (STKINI)
               call  CLRSCR         ; Clear screen and home cursor (CLRSCR)
-
-;
-; ************************************************************************
-; Unused code block / timing delay? falls into next segment
-; possbile removed block from TRS-80?
               DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
               DEFB  0x00
 

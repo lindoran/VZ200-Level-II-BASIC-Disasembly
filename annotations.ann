@@ -35319,10 +35319,6 @@ text = Unprogrammed EPROM fill (0xFF) - standard end-of-ROM padding
 offset = 0
 text = Initialisation of the computer
 
-[block]
-offset = 8
-text = 
-              *****************************************************************
 
 [block]
 offset = 11
@@ -35408,14 +35404,9 @@ text = Initialisation of the DOS exits with RET (RAM: 79A6H)
 
 [block]
 offset = 168
-text = End of BASIC initialisation
-
-[block]
-offset = 181
-text = 
-              ************************************************************************
-              Unused code block / timing delay? falls into next segment
-              possbile removed block from TRS-80?
+text = End of BASIC init
+Unused code block / timing delay? falls into next segment
+possbile removed block from TRS-80?
 
 [block]
 offset = 190

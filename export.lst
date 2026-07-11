@@ -9,8 +9,6 @@
 0001  AF       .                   xor   a              ; Clear A (color index 0)
 0002  320068   2.h                 ld    (0x6800),a     ; Set background color (black)
 0005  C37406   .t.                 jp    BASIC_INIT_1   ; Jump to RESET part 1 (at 0674H)
-                     ;
-                     ; *****************************************************************
                      RST08_VEC:
 0008  C30078   ..x                 jp    0x7800         ; RST 08H: Jump to RAM hook at 7800H (SYNCHR
                      ;
@@ -123,17 +121,15 @@
 00A4  23       #                   inc   hl
 00A5  23       #                   inc   hl
 00A6  10F9     ..                  djnz  $-5            ; Loop for 21 entries
-                     ; End of BASIC initialisation
+                     ; End of BASIC init
+                     ; Unused code block / timing delay? falls into next segment
+                     ; possbile removed block from TRS-80?
                      INIT_BASIC_FINISH:
 00A8  21E87A   !.z                 ld    hl,0x7AE8      ; Load start of user RAM (7AE8H)
 00AB  70       p                   ld    (hl),b         ; Initialize it to zero
 00AC  31F879   1.y                 ld    sp,0x79F8      ; Set temporary stack pointer (79F8H)
 00AF  CD8F1B   ...                 call  0x1B8F         ; Initialize stack and variables (STKINI)
 00B2  CDC901   ...                 call  CLRSCR         ; Clear screen and home cursor (CLRSCR)
-                     ;
-                     ; ************************************************************************
-                     ; Unused code block / timing delay? falls into next segment
-                     ; possbile removed block from TRS-80?
 00B5  00000000 ....                DEFB  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
       00000000 ....  
 00BD  00       .                   DEFB  0x00
