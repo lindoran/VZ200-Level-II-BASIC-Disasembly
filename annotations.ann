@@ -14263,11 +14263,71 @@ text = 1 * 10^16 (double precision)
 
 [comment]
 offset = 5004
-text = 10^16 (double precision)
+text = =   10000000000000000
+
+[comment]
+offset = 5011
+text = =    1000000000000000
+
+[comment]
+offset = 5018
+text = =     100000000000000
+
+[comment]
+offset = 5025
+text = =      10000000000000
+
+[comment]
+offset = 5032
+text = =       1000000000000
+
+[comment]
+offset = 5039
+text = =        100000000000
+
+[comment]
+offset = 5046
+text = =         10000000000
+
+[comment]
+offset = 5053
+text = =          1000000000
 
 [comment]
 offset = 5060
-text = 10^8 (double precision)
+text = =           100000000
+
+[comment]
+offset = 5067
+text = =            10000000
+
+[comment]
+offset = 5074
+text = =                                 1000000
+
+[comment]
+offset = 5077
+text = =                                  100000
+
+[comment]
+offset = 5080
+text = =                                   10000
+
+[comment]
+offset = 5082
+text = =                                    1000
+
+[comment]
+offset = 5084
+text = =                                     100
+
+[comment]
+offset = 5086
+text = =                                      10
+
+[comment]
+offset = 5088
+text = =                                       1
 
 [comment]
 offset = 5090
@@ -14564,6 +14624,38 @@ text = Multiply with series result
 [comment]
 offset = 5241
 text = 8 constants
+
+[comment]
+offset = 5242
+text = = -1.41316 E-04
+
+[comment]
+offset = 5246
+text = =  1.32988 E-03
+
+[comment]
+offset = 5250
+text = = -8.30136 E-03
+
+[comment]
+offset = 5254
+text = =  0.0416574
+
+[comment]
+offset = 5258
+text = = -0.166665
+
+[comment]
+offset = 5262
+text = =  0.5
+
+[comment]
+offset = 5266
+text = = -1
+
+[comment]
+offset = 5270
+text = =  1
 
 [comment]
 offset = 5274
