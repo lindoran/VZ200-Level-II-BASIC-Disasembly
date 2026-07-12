@@ -24,7 +24,7 @@
                      GET_CHAR_DCB:
 0013  C5       .                   push  bc             ; Save BC
 0014  0601     ..                  ld    b,0x01         ; Set B for DCB check
-0016  182E     ..                  jr    $+48           ; to DCB call routine
+0016  182E     ..                  jr    DCB_CALL       ; to DCB call routine
                      ; Restart 18
                      RST18_VEC:
 0018  C30678   ..x                 jp    0x7806         ; Jump via RAM vector 7806H to address 1C90H
@@ -32,13 +32,13 @@
                      PUT_CHAR_DCB:
 001B  C5       .                   push  bc             ; Save BC
 001C  0602     ..                  ld    b,0x02         ; Set B for DCB check
-001E  1826     .&                  jr    $+40           ; to DCB call routine
+001E  1826     .&                  jr    DCB_CALL       ; to DCB call routine
                      ; Restart 20
                      RST20_VEC:
 0020  C30978   ..x                 jp    0x7809         ; Jump via RAM vector 7809H to address 25D9H
 0023  C5       .                   push  bc             ; not used
 0024  0604     ..                  ld    b,0x04
-0026  181E     ..                  jr    $+32
+0026  181E     ..                  jr    DCB_CALL
                      ; Restart 28
                      RST28_VEC:
 0028  C30C78   ..x                 jp    0x780C         ; Jump to RAM vector 780CH
@@ -47,7 +47,7 @@
                      ; pressed.
                      KBD_QUERY:
 002B  111578   ..x                 ld    de,0x7815      ; Load DCB address for keyboard
-002E  18E3     ..                  jr    $-27           ; continue at 13H
+002E  18E3     ..                  jr    GET_CHAR_DCB   ; continue at 13H
                      ; Restart 30
                      RST30_VEC:
 0030  C30F78   ..x                 jp    0x780F         ; Jump to RAM vector 780FH
@@ -55,7 +55,7 @@
                      ; Not used on LASER 110-310.
                      SCR_OUT_DCB:
 0033  111D78   ..x                 ld    de,0x781D      ; Load DCB address
-0036  18E3     ..                  jr    $-27           ; continue at 1BH
+0036  18E3     ..                  jr    PUT_CHAR_DCB   ; continue at 1BH
                      ; Restart 38 - Interrupt vector for IM1
                      RST38_VEC:
 0038  C3B82E   ...                 jp    ISR_TIMER      ; to Interrupt Service Routine
@@ -63,7 +63,7 @@
                      ; Reg. A must contain the character to be output
                      PRN_OUT_DCB:
 003B  112578   .%x                 ld    de,0x7825      ; Load DCB address
-003E  18DB     ..                  jr    $-35           ; continue at 1BH
+003E  18DB     ..                  jr    PUT_CHAR_DCB   ; continue at 1BH
 0040  C3FD2E   ...                 jp    KBD_SCAN_ONCE  ; to keyboard read routine
 0043  C9       .                   ret                  ; not used
 0044  0000     ..                  DEFB  0x00,0x00      ; unused
@@ -76,7 +76,7 @@
 0049  CD2B00   .+.                 call  KBD_QUERY      ; Evaluate keyboard
 004C  B7       .                   or    a              ; Key pressed?
 004D  C0       .                   ret   nz             ; Yes, return
-004E  18F9     ..                  jr    $-5            ; no, wait
+004E  18F9     ..                  jr    KBD_WAIT       ; no, wait
                      ; Save character from cursor position
                      GET_CURSOR_CHAR:
 0050  2A2078   * x                 ld    hl,(CURS_ADDR) ; Load cursor address
@@ -89,7 +89,7 @@
 0060  0B       .                   dec   bc
 0061  78       x                   ld    a,b            ; B = 0?
 0062  B1       .                   or    c              ; C = 0?
-0063  20FB      .                  jr    nz,$-3         ; No, continue loop
+0063  20FB      .                  jr    nz,DELAY_LOOP  ; No, continue loop
 0065  C9       .                   ret                  ; Yes, return
                      ; Interupt vector for 'Non maskable interrupts'
                      NMI_VEC:
@@ -127,7 +127,7 @@
 009A  23       #                   inc   hl             ; Increment RAM pointer
 009B  72       r                   ld    (hl),d         ; High byte of L3 handler
 009C  23       #                   inc   hl             ; Increment RAM pointer
-009D  10F7     ..                  djnz  $-7            ; Loop for 28 entries
+009D  10F7     ..                  djnz  INIT_DOS_LOOP  ; Loop for 28 entries
                      ; Initialisation of the DOS exits with RET (RAM: 79A6H)
                      INIT_DOS_EXITS:
 009F  0615     ..                  ld    b,0x15         ; 21 DOS exits to initialize
@@ -136,7 +136,7 @@
 00A3  23       #                   inc   hl             ; Advance 3 bytes (unused JP slot)
 00A4  23       #                   inc   hl
 00A5  23       #                   inc   hl
-00A6  10F9     ..                  djnz  $-5            ; Loop for 21 entries
+00A6  10F9     ..                  djnz  INIT_EXIT_LOOP ; Loop for 21 entries
                      ; End of BASIC init
                      ; Unused code block / timing delay? falls into next segment
                      ; possbile removed block from TRS-80?
@@ -151,10 +151,10 @@
 00BD  00       .                   DEFB  0x00
                      ; Skip memory test
                      SKIP_MEM_TEST:
-00BE  1804     ..                  jr    $+6            ; Jump to memory test routine
+00BE  1804     ..                  jr    MEM_TEST       ; Jump to memory test routine
 00C0  D7       .                   rst   0x10
 00C1  B7       .                   or    a
-00C2  2012      .                  jr    nz,$+20
+00C2  2012      .                  jr    nz,MEM_SIZE_INPUT
                      ; Memory test (memory size check)
                      MEM_TEST:
 00C4  214C7B   !L{                 ld    hl,0x7B4C      ; Start of RAM check (7B4CH)
@@ -169,7 +169,7 @@
 00CF  77       w                   ld    (hl),a         ; Write to memory
 00D0  BE       .                   cp    (hl)           ; Check if it was stored correctly
 00D1  70       p                   ld    (hl),b         ; Restore original byte
-00D2  28F3     (.                  jr    z,$-11         ; Loop back if memory exists
+00D2  28F3     (.                  jr    z,MEM_TEST_LOOP ; Loop back if memory exists
 00D4  1811     ..                  jr    $+19
                      ; unused code in VZ200 pr. G. Wolf book
                      ; Symbol name from Level II listing for TRS 80  
@@ -230,7 +230,7 @@
 0138  3E01     >.                  ld    a,0x01         ; A = 1 (RESET flag)
 013A  F5       .                   push  af             ; Save command flag (POINT/SET/RESET)
 013B  CF       .                   rst   8              ; Expect '(' (RST 08H)
-013C  28CD     (.                  jr    z,$-49         ; JR Z, 010BH (GETBYT?)
+013C  28CD     (.                  jr    z,CHRGOT       ; JR Z, 010BH (GETBYT?)
 013E  1C       .                   inc   e              ; INC E
 013F  2B       +                   dec   hl             ; DEC HL
 0140  FE80     ..                  cp    0x80           ; X < 128?
@@ -448,7 +448,7 @@
 0333  79       y                   ld    a,c            ; character back to A
 0334  C1       .                   pop   bc             ; restore BC
 0335  FA543B   .T;                 jp    m,TAPE_CMD_WRITE ; Cassette? yes - continue at 3B54H
-0338  2062      b                  jr    nz,$+100       ; Printer? yes - to printer output
+0338  2062      b                  jr    nz,PRINTER_OUT_CHAR ; Printer? yes - to printer output
                      ; Output a character to the screen
                      SCREEN_OUT_CHAR:
 033A  D5       .                   push  de             ; save registers
@@ -1035,7 +1035,7 @@
                      FP_ADD_HALF:
 0708  218013   !..                 ld    hl,FHALF       ; address of constant 0.5
 070B  CDC209   ...                 call  MOVRM          ; load constant into Y then add to X
-070E  1806     ..                  jr    $+8            ; jump to addition
+070E  1806     ..                  jr    FP_ADD_X_PLUS_Y ; jump to addition
                      FP_SUB_HALF:
 0710  CDC209   ...                 call  MOVRM          ; load constant into Y
                      FP_SUB_Y_MINUS_X:
@@ -1131,7 +1131,7 @@
 078E  212479   !$y                 ld    hl,FAC         ; address X exponent
 0791  86       .                   add   a,(hl)         ; Exp. X + number of shifts
 0792  77       w                   ld    (hl),a         ; = Exp. X. Underflow?
-0793  30E3     0.                  jr    nc,$-27        ; yes! X=0 and back
+0793  30E3     0.                  jr    nc,FA_ZERO     ; yes! X=0 and back
 0795  C8       .                   ret   z              ; number of shifts = Exp. X? back!
                      ; Finalize result: round and copy Y to X
 0796  78       x                   ld    a,b            ; load LSB Y
@@ -1203,12 +1203,12 @@
                      SHIFTR1:
 07D9  D608     ..                  sub   0x08           ; shift 8 or more places?
                      ; (none)
-07DB  3807     8.                  jr    c,$+9          ; no!
+07DB  3807     8.                  jr    c,SHFTR2       ; no!
 07DD  43       C                   ld    b,e            ; shift Y right by one byte
 07DE  5A       Z                   ld    e,d
 07DF  51       Q                   ld    d,c
 07E0  0E00     ..                  ld    c,0x00
-07E2  18F5     ..                  jr    $-9
+07E2  18F5     ..                  jr    SHIFTR1
                      ; SINGLE PRECISION MATH ROUTINE - "SHFTR2"
                      ; This routine will shift the number in C/D/E right the number
                      ; of times held in Register A, but one byte at a time.
@@ -1232,7 +1232,7 @@
 07F3  78       x                   ld    a,b            ; LSB Y one bit right
 07F4  1F       .                   rra   
 07F5  47       G                   ld    b,a
-07F6  18EF     ..                  jr    $-15           ; continue
+07F6  18EF     ..                  jr    SHFTR3         ; continue
                      ; SINGLE PRECISION CONSTANT STORAGE LOCATION - "FONE"
                      FONE:
 07F8  00       .                   nop                  ; = 1
@@ -1417,12 +1417,12 @@
 08F7  79       y                   ld    a,c            ; is the result still 0?
 08F8  B2       .                   or    d
 08F9  B3       .                   or    e
-08FA  20CB      .                  jr    nz,$-51        ; no - continue
+08FA  20CB      .                  jr    nz,FDIV1       ; no - continue
 08FC  E5       .                   push  hl             ; Save dividend LSB
 08FD  212479   !$y                 ld    hl,FAC         ; Address quotient exponent
 0900  35       5                   dec   (hl)           ; - 1
 0901  E1       .                   pop   hl             ; Reload dividend LSB
-0902  20C3      .                  jr    nz,$-59        ; Quotient exp. not equal 0 - continue
+0902  20C3      .                  jr    nz,FDIV1       ; Quotient exp. not equal 0 - continue
 0904  C3B207   ...                 jp    0x07B2         ; Exponent = 0, OVERFLOW - Error
                      ; 0907H-0913H - DOUBLE PRECISION MATH ROUTINE - "MULDVS"
                      ; This routine is to check for special cases and to add exponents for
@@ -1442,7 +1442,7 @@
                      MULDIV:
 0914  78       x                   ld    a,b            ; Exponent Y loaded
 0915  B7       .                   or    a              ; 0? (i.e. Y = 0)
-0916  281F     (.                  jr    z,$+33         ; yes, return to main program immediately
+0916  281F     (.                  jr    z,MULDV2       ; yes, return to main program immediately
 0918  7D       }                   ld    a,l            ; Load flag
 0919  212479   !$y                 ld    hl,FAC         ; Address Exp. X
 091C  AE       .                   xor   (hl)           ; Combine with flag
@@ -1558,7 +1558,7 @@
 099F  B5       .                   or    l
 09A0  C8       .                   ret   z              ; yes - done
 09A1  7C       |                   ld    a,h            ; no - MSB in A
-09A2  18BB     ..                  jr    $-67           ; continue at 0x095F
+09A2  18BB     ..                  jr    ICOMPS         ; continue at 0x095F
                      ; Transport numbers of different types
                      ; From FAC X to stack (single precision)
                      PUSHF:
@@ -1602,7 +1602,7 @@
                      MOVMF:
 09CB  112179   .!y                 ld    de,FACLO       ; X-address in DE
 09CE  0604     ..                  ld    b,0x04         ; Number of bytes for single precision
-09D0  1805     ..                  jr    $+7            ; continue at 0x09D7
+09D0  1805     ..                  jr    MOVE1          ; continue at 0x09D7
                      ; Transfer any type from (HL) to (DE)
                      MOVVFM:
 09D2  EB       .                   ex    de,hl          ; Swap destination and source address
@@ -1617,7 +1617,7 @@
 09D9  13       .                   inc   de             ; Addresses + 1
 09DA  23       #                   inc   hl
 09DB  05       .                   dec   b              ; Counter - 1
-09DC  20F9      .                  jr    nz,$-5         ; > 0? yes - back
+09DC  20F9      .                  jr    nz,MOVE1       ; > 0? yes - back
 09DE  C9       .                   ret                  ; done
                      ; Processing of signs for real numbers
                      UNPACK:
@@ -1769,7 +1769,7 @@
 0A8E  3A2479   :$y                 ld    a,(FAC)        ; FAC exponent
 0A91  FE90     ..                  cp    0x90           ; > 16 bits?
                      CONIS2:
-0A93  300E     0.                  jr    nc,$+16        ; yes - check if -32768
+0A93  300E     0.                  jr    nc,INT         ; yes - check if -32768
 0A95  CDFB0A   ...                 call  DROUND         ; Convert to integer
 0A98  EB       .                   ex    de,hl          ; HL = integer
 0A99  D1       .                   pop   de             ; Balance stack
@@ -1891,8 +1891,8 @@
                      FNINT:
 0B37  E7       .                   rst   0x20           ; Check current number type
 0B38  F8       .                   ret   m              ; Already integer? Return
-0B39  301E     0.                  jr    nc,$+32        ; If double, go to DINT
-0B3B  28B9     (.                  jr    z,$-69         ; If string, Type Mismatch error
+0B39  301E     0.                  jr    nc,DINT        ; If double, go to DINT
+0B3B  28B9     (.                  jr    z,TMERR        ; If string, Type Mismatch error
 0B3D  CD8E0A   ...                 call  CONIS          ; Check if fits in integer
 0B40  212479   !$y                 ld    hl,FAC         ; FAC address
 0B43  7E       ~                   ld    a,(hl)         ; Get exponent
@@ -2036,7 +2036,7 @@
 0C08  29       )                   add   hl,hl
 0C09  EB       .                   ex    de,hl
                      IMULT_NEXT:
-0C0A  3004     0.                  jr    nc,$+6         ; no, no addition
+0C0A  3004     0.                  jr    nc,IMULT_LOOP_END ; no, no addition
 0C0C  09       .                   add   hl,bc          ; yes, result + 2nd factor
 0C0D  DA260C   .&.                 jp    c,0x0C26       ; on overflow, special routine
                      IMULT_LOOP_END:
@@ -2054,7 +2054,7 @@
                      IMULT_NEG:
 0C1F  EE80     ..                  xor   0x80           ; Result = 32768 ?
 0C21  B5       .                   or    l
-0C22  2813     (.                  jr    z,$+21         ; yes!
+0C22  2813     (.                  jr    z,IMULT_CHECK_SIGN ; yes!
 0C24  EB       .                   ex    de,hl          ; 1st factor in HL
                      IMULT_LD_BC_TRICK:
 0C25  01       .                   DEFB  0x01           ; Dummy instruction
@@ -2134,7 +2134,7 @@
 0C85  CAF409   ...                 jp    z,VMOVFA       ; yes, Y to X as result
 0C88  90       .                   sub   b              ; exponent X >= exponent Y ?
                      DADD_SWAP:
-0C89  3016     0.                  jr    nc,$+24        ; yes
+0C89  3016     0.                  jr    nc,DADD_CHECK_EXP ; yes
 0C8B  2F       /                   cpl                  ; no, invert exponent diff.
 0C8C  3C       <                   inc   a
 0C8D  F5       .                   push  af             ; and save on stack
@@ -2150,7 +2150,7 @@
 0C97  1B       .                   dec   de             ; address pointer - 1
 0C98  2B       +                   dec   hl
 0C99  0D       .                   dec   c              ; done ?
-0C9A  20F6      .                  jr    nz,$-8         ; no, next byte
+0C9A  20F6      .                  jr    nz,DADD_SWAP_LOOP ; no, next byte
 0C9C  E1       .                   pop   hl
 0C9D  46       F                   ld    b,(hl)         ; exponent Y in B
 0C9E  2B       +                   dec   hl             ; address MSB Y in HL
@@ -2202,11 +2202,11 @@
 0CE7  7A       z                   ld    a,d
 0CE8  23       #                   inc   hl             ; increment address
 0CE9  0D       .                   dec   c              ; done ?
-0CEA  20F9      .                  jr    nz,$-5         ; no, continue
+0CEA  20F9      .                  jr    nz,DNORM_SHIFT_LOOP ; no, continue
 0CEC  78       x                   ld    a,b            ; shift counter - 8
 0CED  D608     ..                  sub   0x08
 0CEF  FEC0     ..                  cp    0xC0           ; 40 shifts? (X = 0)
-0CF1  20E6      .                  jr    nz,$-24        ; no, continue
+0CF1  20E6      .                  jr    nz,DNORM_LOOP  ; no, continue
 0CF3  C37807   .x.                 jp    FA_ZERO        ; yes, X = 0, done!
                      DNORM_BIT_LOOP:
 0CF6  05       .                   dec   b              ; shifts - 1
@@ -2216,7 +2216,7 @@
 0CFE  F2F60C   ...                 jp    p,DNORM_BIT_LOOP ; no, continue
 0D01  78       x                   ld    a,b            ; number of shifts = 0 ?
 0D02  B7       .                   or    a              ; A = 0 ?
-0D03  2809     (.                  jr    z,$+11         ; yes, to the end
+0D03  2809     (.                  jr    z,DROUND_DP    ; yes, to the end
 0D05  212479   !$y                 ld    hl,FAC         ; address exponent X
 0D08  86       .                   add   a,(hl)         ; new exponent = old exponent + number of sh
 0D09  77       w                   ld    (hl),a         ; back to X
@@ -2297,7 +2297,7 @@
 0D69  71       q                   ld    (hl),c         ; Store MSB
 0D6A  E5       .                   push  hl             ; MSB address on stack
 0D6B  D608     ..                  sub   0x08           ; More than 8 shifts?
-0D6D  380E     8.                  jr    c,$+16         ; No!
+0D6D  380E     8.                  jr    c,DSHFR3       ; No!
 0D6F  E1       .                   pop   hl             ; Address back from stack
 0D70  E5       .                   push  hl             ; and back on stack
 0D71  110008   ...                 ld    de,0x0800      ; Byte counter = 8 (D), Clear temporary stor
@@ -2324,7 +2324,7 @@
 0D8A  2B       +                   dec   hl             ; Address pointer - 1
 0D8B  1D       .                   dec   e              ; Byte counter - 1
 0D8C  20F9      .                  jr    nz,$-5         ; Done? No, back
-0D8E  18F0     ..                  jr    $-14           ; Next bit shift
+0D8E  18F0     ..                  jr    DSHFR4         ; Next bit shift
                      ; Shift X Register Right by 1 Bit
                      DXSHFT:
 0D90  212379   !#y                 ld    hl,FAC_SIGN    ; Address MSB of X
@@ -2478,7 +2478,7 @@
 0E7A  F5       .                   push  af             ; Flag on stack
 0E7B  CA830E   ...                 jp    z,FINC         ; yes, next character
 0E7E  FE2B     .+                  cp    0x2B           ; '+' ?
-0E80  2801     (.                  jr    z,$+3          ; yes, next character
+0E80  2801     (.                  jr    z,FINC         ; yes, next character
 0E82  2B       +                   dec   hl             ; no sign, address pointer - 1
                      FINC:
 0E83  D7       .                   rst   0x10           ; followed by a digit?
@@ -2617,7 +2617,7 @@
 0F37  2A2179   *!y                 ld    hl,(FACLO)     ; Load value from X
 0F3A  11CD0C   ...                 ld    de,0x0CCD      ; > = 3277 ? (i.e. 10 * X >= 32770)
 0F3D  DF       .                   rst   0x18           ; Compare with HL
-0F3E  3019     0.                  jr    nc,$+27        ; yes, convert to single precision
+0F3E  3019     0.                  jr    nc,FINDG2      ; yes, convert to single precision
 0F40  54       T                   ld    d,h            ; Multiply number by 10
 0F41  5D       ]                   ld    e,l
 0F42  29       )                   add   hl,hl          ; * 2
@@ -2642,7 +2642,7 @@
 0F59  CDCC0A   ...                 call  INEG           ; convert HL to single precision
 0F5C  37       7                   scf                  ; ignore in jump instruction
                      FINDGV:
-0F5D  3018     0.                  jr    nc,$+26        ; double precision? yes-jump!
+0F5D  3018     0.                  jr    nc,FINDGD      ; double precision? yes-jump!
                      ; Single precision number
 0F5F  017494   .t.                 ld    bc,0x9474      ; Constant 1E6 in Y
 0F62  110024   ..$                 ld    de,0x2400
@@ -2810,7 +2810,7 @@
 106C  FE2E     ..                  cp    0x2E           ; '.' before the last zero?
 106E  C4C909   ...                 call  nz,INXHRT      ; no! buffer pointer + 1
 1071  F1       .                   pop   af             ; Load exponent. = 0?
-1072  281F     (.                  jr    z,$+33         ; yes, no exponent in buffer
+1072  281F     (.                  jr    z,FOUFRV_END   ; yes, no exponent in buffer
 1074  F5       .                   push  af             ; Exponent back on stack
 1075  E7       .                   rst   0x20           ; Test type, Carry=1 for single precision
 1076  3E22     >"                  ld    a,0x22         ; Load 'D' / 2
@@ -2881,9 +2881,9 @@
 10D3  C8       .                   ret   z              ; yes, done
 10D4  7E       ~                   ld    a,(hl)         ; Load character
 10D5  FE20     .                   cp    0x20           ; = ' '?
-10D7  28F4     (.                  jr    z,$-10         ; yes, continue
+10D7  28F4     (.                  jr    z,PUSTR_LOOP_CONT ; yes, continue
 10D9  FE2A     .*                  cp    0x2A           ; = '*'?
-10DB  28F0     (.                  jr    z,$-14         ; yes, continue
+10DB  28F0     (.                  jr    z,PUSTR_LOOP_CONT ; yes, continue
 10DD  2B       +                   dec   hl             ; Buffer pointer - 1
 10DE  E5       .                   push  hl             ; and onto stack
                      PUSTR_STACK_CHAR:
@@ -2899,23 +2899,23 @@
 10ED  C8       .                   ret   z              ; yes, continue
 10EE  C1       .                   pop   bc             ; Remove return address again
 10EF  FE30     .0                  cp    0x30           ; = '0'?
-10F1  200F      .                  jr    nz,$+17        ; no, field overflow
+10F1  200F      .                  jr    nz,PUSTR_OVERFLOW ; no, field overflow
 10F3  23       #                   inc   hl             ; Buffer pointer + 1 (behind '.')
 10F4  D7       .                   rst   0x10           ; next character. = digit?
-10F5  300B     0.                  jr    nc,$+13        ; no, field overflow
+10F5  300B     0.                  jr    nc,PUSTR_OVERFLOW ; no, field overflow
 10F7  2B       +                   dec   hl             ; Buffer pointer to '.'
 10F8  01       .                   DEFB  0x01           ; LD BC,772B Dummy instruction
                      PUSTR_LOOP_NEXT:
 10F9  2B       +                   dec   hl
 10FA  77       w                   ld    (hl),a
 10FB  F1       .                   pop   af             ; Get character from stack
-10FC  28FB     (.                  jr    z,$-3          ; last character? no-to 10F9H
+10FC  28FB     (.                  jr    z,PUSTR_LOOP_NEXT ; last character? no-to 10F9H
 10FE  C1       .                   pop   bc             ; Get buffer pointer from stack
 10FF  C3CE10   ...                 jp    PUSTR_LOOP     ; continue at 10CEH
                      ; Field overflow
                      PUSTR_OVERFLOW:
 1102  F1       .                   pop   af             ; Get character from stack
-1103  28FD     (.                  jr    z,$-1          ; last character?
+1103  28FD     (.                  jr    z,PUSTR_OVERFLOW ; last character?
 1105  E1       .                   pop   hl             ; Reload buffer pointer
 1106  3625     6%                  ld    (hl),0x25      ; '%' for field overflow before number
 1108  C9       .                   ret                  ; Return
@@ -2924,7 +2924,7 @@
 1109  E5       .                   push  hl             ; Buffer pointer on stack
 110A  1F       .                   rra                  ; Exponent output?
 110B  DAAA11   ...                 jp    c,PUSTR_EXP_FLOAT ; yes!
-110E  2814     (.                  jr    z,$+22         ; for single precision => jump
+110E  2814     (.                  jr    z,PUSTR_SINGLE ; for single precision => jump
 1110  118413   ...                 ld    de,FFXDXM      ; Address constant 1D16
 1113  CD490A   .I.                 call  0x0A49         ; Value >= 1D16?
 1116  1610     ..                  ld    d,0x10         ; Precision (16 places) in D
@@ -3110,7 +3110,7 @@
 1229  014391   .C.                 ld    bc,0x9143      ; Constant 100000 in Y
 122C  11F94F   ..O                 ld    de,0x4FF9      ; Load DE with 4FF9H
 122F  CD0C0A   ...                 call  FCOMP          ; Value > 100000?
-1232  1806     ..                  jr    $+8            ; Continue at 123AH
+1232  1806     ..                  jr    GET_10_EXP_LOOP ; Continue at 123AH
                      GET_10_EXP_DBL:
 1234  116C13   .l.                 ld    de,FOUTDL      ; Address constant 1D15
 1237  CD490A   .I.                 call  0x0A49         ; Value >= 1D15?
@@ -3231,7 +3231,7 @@
 12E1  E5       .                   push  hl             ; Save buffer pointer
 12E2  211D79   !.y                 ld    hl,0x791D
 12E5  CDB109   ...                 call  MOVFM          ; Rest (< 1D6) with single precision in X
-12E8  180C     ..                  jr    $+14           ; Continue with single precision
+12E8  180C     ..                  jr    FF_TO_ASCII_CONT ; Continue with single precision
 12EA  C5       .                   push  bc             ; Parameters for '.' and ',' on stack
 12EB  E5       .                   push  hl             ; Buffer pointer on stack
 12EC  CD0807   ...                 call  FP_ADD_HALF    ; Number + 0.5 for rounding
@@ -4316,7 +4316,7 @@
 1970  6F       o                   ld    l,a
 1971  3EFF     >.                  ld    a,0xFF
 1973  9C       .                   sbc   a,h
-1974  3804     8.                  jr    c,$+6          ; yes, OUT OF MEMORY - Error
+1974  3804     8.                  jr    c,ERROR_ENTRY  ; yes, OUT OF MEMORY - Error
 1976  67       g                   ld    h,a
 1977  39       9                   add   hl,sp          ; HL + 4A >= SP ?
 1978  E1       .                   pop   hl             ; Restore HL
@@ -4324,7 +4324,7 @@
                      ; Preparation and output of error messages
                      ERROR_ENTRY:
 197A  1E0C     ..                  ld    e,0x0C         ; Error code in E
-197C  1824     .$                  jr    $+38           ; to message output
+197C  1824     .$                  jr    ERROR_HANDLER  ; to message output
                      IMPLICIT_END:
 197E  2AA278   *.x                 ld    hl,(0x78A2)    ; Load line number
 1981  7C       |                   ld    a,h            ; in direct mode? (=FFFF)
@@ -4334,7 +4334,7 @@
 1986  3AF278   :.x                 ld    a,(0x78F2)     ; Trap flag set?
 1989  B7       .                   or    a
 198A  1E22     ."                  ld    e,0x22         ; NO RESUME - Load error code
-198C  2014      .                  jr    nz,$+22        ; yes, to message output
+198C  2014      .                  jr    nz,ERROR_HANDLER ; yes, to message output
 198E  C3C11D   ...                 jp    0x1DC1         ; Jump to END
                      SYNTAX_ERR_DATA:
 1991  2ADA78   *.x                 ld    hl,(DATA_LINE_NUM) ; last DATA line
@@ -4438,7 +4438,7 @@
 1A36  22A278   ".x                 ld    (0x78A2),hl
 1A39  3AE178   :.x                 ld    a,(0x78E1)     ; AUTO function enabled?
 1A3C  B7       .                   or    a
-1A3D  283A     (:                  jr    z,$+60         ; no, normal input
+1A3D  283A     (:                  jr    z,NORMAL_INPUT ; no, normal input
                      ; Program input under AUTO function
                      AUTO_COMMAND:
 1A3F  2AE278   *.x                 ld    hl,(0x78E2)    ; load next AUTO line number
@@ -4456,7 +4456,7 @@
 1A58  3006     0.                  jr    nc,$+8         ; no BREAK, continue normally
 1A5A  AF       .                   xor   a              ; clear AUTO flag
 1A5B  32E178   2.x                 ld    (0x78E1),a
-1A5E  18B9     ..                  jr    $-69           ; back to main loop
+1A5E  18B9     ..                  jr    MAIN_LOOP      ; back to main loop
 1A60  2AE478   *.x                 ld    hl,(0x78E4)    ; load AUTO increment
 1A63  19       .                   add   hl,de          ; add to AUTO line number
 1A64  38F4     8.                  jr    c,$-10         ; overflow, leave AUTO mode
@@ -4571,7 +4571,7 @@
 1B0B  73       s                   ld    (hl),e         ; Address of next line as line pointer
 1B0C  23       #                   inc   hl             ; store it
 1B0D  72       r                   ld    (hl),d
-1B0E  18EC     ..                  jr    $-18           ; next line
+1B0E  18EC     ..                  jr    RENEW_LINE_PTRS ; next line
                      ; Analyze arguments for LIST command
                      LIST_ARGS:
 1B10  110000   ...                 ld    de,START       ; set 1st line number = 0
@@ -4708,7 +4708,7 @@
 1BE8  CA5B1C   .[.                 jp    z,0x1C5B       ; yes! transfer to intermediate code
 1BEB  7E       ~                   ld    a,(hl)         ; load character again
 1BEC  FE30     .0                  cp    0x30           ; character < '0' ?
-1BEE  3805     8.                  jr    c,$+7          ; yes, check for keywords
+1BEE  3805     8.                  jr    c,CRUNCH       ; yes, check for keywords
 1BF0  FE3C     .<                  cp    0x3C           ; character < '<' ?
 1BF2  DA5B1C   .[.                 jp    c,0x1C5B       ; yes, accept directly
                      ; Check text for valid BASIC keyword
@@ -4924,7 +4924,7 @@
 1D28  ED73E878 .s.x                ld    (0x78E8),sp    ; save stack pointer
 1D2C  7E       ~                   ld    a,(hl)         ; load character
 1D2D  FE3A     .:                  cp    0x3A           ; ':''? (multiple statements in line)
-1D2F  2829     ()                  jr    z,$+43         ; yes!
+1D2F  2829     ()                  jr    z,EXEC         ; yes!
 1D31  B7       .                   or    a              ; line end ?
 1D32  C29719   ...                 jp    nz,SYNTAX_ERR_HANDLER ; no, SYNTAX ERROR
 1D35  23       #                   inc   hl             ; program end?
@@ -5285,13 +5285,13 @@
 1F12  C8       .                   ret   z              ; yes, done
 1F13  23       #                   inc   hl             ; Program pointer + 1
 1F14  FE22     ."                  cp    0x22           ; = opening quote?
-1F16  28F3     (.                  jr    z,$-11         ; yes, swap delimiters
+1F16  28F3     (.                  jr    z,ELSE_SWAP    ; yes, swap delimiters
 1F18  D68F     ..                  sub   0x8F           ; IF token?
-1F1A  20F2      .                  jr    nz,$-12        ; no, continue
+1F1A  20F2      .                  jr    nz,ELSE_LOOP   ; no, continue
 1F1C  B8       .                   cp    b              ; if not in string or after
 1F1D  8A       .                   adc   a,d            ; nesting counter + 1
 1F1E  57       W                   ld    d,a
-1F1F  18ED     ..                  jr    $-17
+1F1F  18ED     ..                  jr    ELSE_LOOP
                      ; LET Statement
                      CMD_LET:
 1F21  CD0D26   ..&                 call  VARPTR_FIND_OR_CREATE ; Search for variable in table
@@ -5311,7 +5311,7 @@
 1F35  CD1928   ..(                 call  CONVRT         ; Convert result of expression to
 1F38  CD030A   ...                 call  VDFACS         ; X address in DE
 1F3B  E5       .                   push  hl             ; Addr. of variable table on stack
-1F3C  2028      (                  jr    nz,$+42        ; Jump if not string
+1F3C  2028      (                  jr    nz,LET_EXIT    ; Jump if not string
                      LET_STRING:
 1F3E  2A2179   *!y                 ld    hl,(FACLO)     ; Load string pointer from X reg
 1F41  E5       .                   push  hl             ; and on stack
@@ -5321,14 +5321,14 @@
 1F45  56       V                   ld    d,(hl)
 1F46  2AA478   *.x                 ld    hl,(PRGEND)    ; String not in program text or
 1F49  DF       .                   rst   0x18
-1F4A  300E     0.                  jr    nc,$+16        ; yes, string in string space
+1F4A  300E     0.                  jr    nc,LET_STRING_MOVE ; yes, string in string space
 1F4C  2AA078   *.x                 ld    hl,(STKTOP)    ; String in program text?
 1F4F  DF       .                   rst   0x18
 1F50  D1       .                   pop   de             ; Load string pointer
-1F51  300F     0.                  jr    nc,$+17        ; yes, string not in string space!
+1F51  300F     0.                  jr    nc,LET_STRING_EXIT ; yes, string not in string space!
 1F53  2AF978   *.x                 ld    hl,(0x78F9)    ; does string pointer point to var. tab.?
 1F56  DF       .                   rst   0x18
-1F57  3009     0.                  jr    nc,$+11        ; no, string not in string space.
+1F57  3009     0.                  jr    nc,LET_STRING_EXIT ; no, string not in string space.
 1F59  3E       >                   DEFB  0x3E           ; LD A, 0D1H dummy instruction
                      LET_STRING_MOVE:
 1F5A  D1       .                   pop   de             ; Load string pointer
@@ -5346,7 +5346,7 @@
                      ; ON Statement
                      CMD_ON:
 1F6C  FE9E     ..                  cp    0x9E           ; followed by an ERROR token?
-1F6E  2025      %                  jr    nz,$+39        ; no!
+1F6E  2025      %                  jr    nz,ON_GOTO_GOSUB ; no!
                      ON_ERROR:
 1F70  D7       .                   rst   0x10           ; address next character
 1F71  CF       .                   rst   8              ; is it a GOTO token?
@@ -5354,7 +5354,7 @@
 1F73  CD5A1E   .Z.                 call  DECZ           ; Decode line number
 1F76  7A       z                   ld    a,d            ; = 0?
 1F77  B3       .                   or    e              ; (turn off error handling)
-1F78  2809     (.                  jr    z,$+11         ; yes!
+1F78  2809     (.                  jr    z,ON_ERROR_SET ; yes!
 1F7A  CD2A1B   .*.                 call  0x1B2A         ; Search for line in program text
 1F7D  50       P                   ld    d,b            ; Line address in DE
 1F7E  59       Y                   ld    e,c
@@ -5389,7 +5389,7 @@
 1FA7  CD5B1E   .[.                 call  0x1E5B         ; Decode line number
 1FAA  FE2C     .,                  cp    0x2C           ; followed by a comma?
 1FAC  C0       .                   ret   nz             ; no, continue program with the next
-1FAD  18F3     ..                  jr    $-11           ; next line number
+1FAD  18F3     ..                  jr    ON_LOOP        ; next line number
                      ; RESUME Statement
                      CMD_RESUME:
 1FAF  11F278   ..x                 ld    de,0x78F2      ; Address TRAP flag
@@ -5401,7 +5401,7 @@
 1FBB  12       .                   ld    (de),a         ; Clear TRAP flag
 1FBC  7E       ~                   ld    a,(hl)         ; Load character
 1FBD  FE87     ..                  cp    0x87           ; = NEXT token?
-1FBF  280C     (.                  jr    z,$+14         ; yes! RESUME NEXT
+1FBF  280C     (.                  jr    z,RESUME_NEXT  ; yes! RESUME NEXT
 1FC1  CD5A1E   .Z.                 call  DECZ           ; Decode line number
 1FC4  C0       .                   ret   nz             ; more characters? yes-error
 1FC5  7A       z                   ld    a,d            ; line number = 0?
@@ -5489,7 +5489,7 @@
 2048  E5       .                   push  hl             ; and on stack
 2049  CD9409   ...                 call  VSIGN          ; result = 0? (not fulfilled!)
 204C  E1       .                   pop   hl             ; load program pointer
-204D  2807     (.                  jr    z,$+9          ; yes, to ELSE execution
+204D  2807     (.                  jr    z,IF_ELSE      ; yes, to ELSE execution
                      IF_THEN:
 204F  D7       .                   rst   0x10           ; next character
 2050  DAC21E   ...                 jp    c,GOTO         ; digit? yes-execute jump
@@ -5504,7 +5504,7 @@
 2060  20F6      .                  jr    nz,$-8         ; no, continue searching
 2062  15       .                   dec   d              ; correct ELSE?
 2063  20F3      .                  jr    nz,$-11        ; no, continue searching
-2065  18E8     ..                  jr    $-22           ; yes, continue like THEN
+2065  18E8     ..                  jr    IF_THEN        ; yes, continue like THEN
                      ; LPRINT Statement
                      CMD_LPRINT:
 2067  3E01     >.                  ld    a,0x01         ; output flag = printer
@@ -5514,7 +5514,7 @@
                      CMD_PRINT:
 206F  CDCA79   ..y                 call  0x79CA         ; RAM expansion output
 2072  FE40     .@                  cp    0x40           ; PRINT @ ?
-2074  2019      .                  jr    nz,$+27        ; no!
+2074  2019      .                  jr    nz,PRINT_HASH  ; no!
                      PRINT_AT:
 2076  CD012B   ..+                 call  0x2B01         ; evaluate position expression
 2079  FE02     ..                  cp    0x02           ; position > 511?
@@ -5531,7 +5531,7 @@
 208E  2C       ,                   DEFB  0x2C
                      PRINT_HASH:
 208F  FE23     .#                  cp    0x23           ; cassette output?
-2091  2008      .                  jr    nz,$+10        ; no, continue
+2091  2008      .                  jr    nz,PRINT_LOOP  ; no, continue
 2093  CD583B   .X;                 call  TAPE_CMD_WRITE_HEADER ; write lead-in to cassette
 2096  3E80     >.                  ld    a,0x80         ; output flag on cassette
 2098  329C78   2.x                 ld    (0x789C),a
@@ -5553,7 +5553,7 @@
 20B9  CD3723   .7#                 call  0x2337         ; evaluate expression
 20BC  E5       .                   push  hl             ; program pointer on stack
 20BD  E7       .                   rst   0x20           ; test data type
-20BE  2832     (2                  jr    z,$+52         ; string? yes, jump
+20BE  2832     (2                  jr    z,PRINT_VAL    ; string? yes, jump
 20C0  CDBD0F   ...                 call  PUSTR_UNFORM_INIT ; convert num. values to string
 20C3  CD6528   .e(                 call  STRFDESC       ; string in intermediate storage and X
 20C6  CDCD79   ..y                 call  0x79CD         ; RAM expansion output
@@ -5600,7 +5600,7 @@
 210F  F21921   ..!                 jp    p,0x2119       ; printer? ja!
 2112  3E2C     >,                  ld    a,0x2C         ; record comma on cassette
 2114  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH ; and output
-2117  184B     .K                  jr    $+77           ; continue at 2164H
+2117  184B     .K                  jr    PRINT_NEXT     ; continue at 2164H
 2119  2808     (.                  jr    z,$+10         ; screen? ja - jump
 211B  3A9B78   :.x                 ld    a,(0x789B)     ; print head position in line
 211E  FE70     .p                  cp    0x70           ; = 112?
@@ -5610,7 +5610,7 @@
 2127  3AAE7A   :.z                 ld    a,(0x7AAE)     ; load cursor position in line
 212A  B8       .                   cp    b              ; < last TAB position?
 212B  D4FE20   ..                  call  nc,PRINT_CR    ; no, output Carriage Return
-212E  3034     04                  jr    nc,$+54        ; and continue
+212E  3034     04                  jr    nc,PRINT_NEXT  ; and continue
 2130  D610     ..                  sub   0x10           ; cursor position - 16 to < 0
 2132  30FC     0.                  jr    nc,$-2
 2134  2F       /                   cpl                  ; one's complement
@@ -5634,7 +5634,7 @@
 2153  3AA678   :.x                 ld    a,(TTYPOS)     ; load cursor position
 2156  2F       /                   cpl                  ; one's complement
 2157  83       .                   add   a,e            ; + TAB value
-2158  300A     0.                  jr    nc,$+12        ; already reached or exceeded?
+2158  300A     0.                  jr    nc,PRINT_NEXT  ; already reached or exceeded?
 215A  3C       <                   inc   a              ; + 1
 215B  47       G                   ld    b,a            ; number of spaces to output
 215C  3E20     >                   ld    a,0x20         ; load space code
@@ -5684,7 +5684,7 @@
 21A1  D623     .#                  sub   0x23           ; read from cassette?
 21A3  32A978   2.x                 ld    (0x78A9),a     ; difference as INPUT flag (0=cass)
 21A6  7E       ~                   ld    a,(hl)         ; load character
-21A7  2020                         jr    nz,$+34        ; no cassette!
+21A7  2020                         jr    nz,INPUT_KEYBOARD ; no cassette!
                      ; Read from Cassette
                      INPUT_CASSETTE:
 21A9  CD683B   .h;                 call  TAPE_CMD_SEARCH ; search file on cassette
@@ -5729,7 +5729,7 @@
 21E7  C5       .                   push  bc             ; program pointer back to 1st character
 21E8  CA041F   ...                 jp    z,CMD_DATA_SKIP ; no text, skip INPUT instruction
 21EB  362C     6,                  ld    (hl),0x2C      ; set comma before first character
-21ED  1805     ..                  jr    $+7            ; continue at 21F4H
+21ED  1805     ..                  jr    DATA_FLAG_CLEAR ; continue at 21F4H
                      ; READ Statement
                      CMD_READ:
 21EF  E5       .                   push  hl             ; program pointer on stack
@@ -5740,7 +5740,7 @@
 21F4  AF       .                   xor   a              ; clear DATA flag (Redefinition of 21F4H)
 21F5  32DE78   2.x                 ld    (USING_BUF),a  ; save DATA flag
 21F8  E3       .                   ex    (sp),hl        ; buffer/DATA pointer on stack
-21F9  1802     ..                  jr    $+4            ; continue at 21FDH
+21F9  1802     ..                  jr    INPUT_READ_LOOP ; continue at 21FDH
                      ; Next Variable
                      READ_NEXT_VAR:
 21FB  CF       .                   rst   8              ; follows a comma?
@@ -5751,7 +5751,7 @@
 2201  D5       .                   push  de             ; Var. tab. address in DE
 2202  7E       ~                   ld    a,(hl)         ; Load character from buffer
 2203  FE2C     .,                  cp    0x2C           ; = comma ?
-2205  2826     (&                  jr    z,$+40         ; yes, continue
+2205  2826     (&                  jr    z,INPUT_VALUE_START ; yes, continue
                      ; Buffer empty (no ',')
                      INPUT_EMPTY_BUFFER:
 2207  3ADE78   :.x                 ld    a,(USING_BUF)  ; DATA flag set ?
@@ -5780,14 +5780,14 @@
 222D  CDDC79   ..y                 call  HOOK_INPUT_VALUE ; RAM expansion output
 2230  E7       .                   rst   0x20           ; Test type of variable
 2231  F5       .                   push  af             ; Save type flag
-2232  2019      .                  jr    nz,$+27        ; numeric? yes, jump
+2232  2019      .                  jr    nz,INPUT_VALUE_NUMERIC ; numeric? yes, jump
                      ; Accept string
                      INPUT_VALUE_STRING:
 2234  D7       .                   rst   0x10           ; Buffer pointer to next character
 2235  57       W                   ld    d,a            ; as delimiter in D and B
 2236  47       G                   ld    b,a
 2237  FE22     ."                  cp    0x22           ; Quotation mark ?
-2239  2805     (.                  jr    z,$+7          ; yes, use '\
+2239  2805     (.                  jr    z,INPUT_STRING_PROC ; yes, use '\
 223B  163A     .:                  ld    d,0x3A         ; no, ':' and ',' as delimiters
 223D  062C     .,                  ld    b,0x2C
 223F  2B       +                   dec   hl             ; Buffer pointer back 1 byte
@@ -5848,7 +5848,7 @@
                      DATA_FIND_STMT_END:
 2296  CD051F   ...                 call  CMD_DATA       ; Search for end of statement
 2299  B7       .                   or    a              ; = end of line ?
-229A  2012      .                  jr    nz,$+20        ; no!
+229A  2012      .                  jr    nz,DATA_SEARCH_LOOP ; no!
 229C  23       #                   inc   hl             ; yes, end of program ?
 229D  7E       ~                   ld    a,(hl)         ; (Line pointer = 0000)
 229E  23       #                   inc   hl
@@ -5865,7 +5865,7 @@
                      DATA_SEARCH_LOOP:
 22AE  D7       .                   rst   0x10           ; Next character from program text
 22AF  FE88     ..                  cp    0x88           ; = DATA token ?
-22B1  20E3      .                  jr    nz,$-27        ; no, continue searching
+22B1  20E3      .                  jr    nz,DATA_FIND_STMT_END ; no, continue searching
 22B3  C32D22   .-"                 jp    INPUT_VALUE_START ; continue reading data
                      ; NEXT statement
                      ; Looping in FOR-NEXT loops
@@ -5937,7 +5937,7 @@
 2314  C1       .                   pop   bc             ; load increment flag
 2315  90       .                   sub   b              ; Link comparison result with increment flag
 2316  CDC209   ...                 call  MOVRM          ; Load line number and starting pointer into
-2319  2809     (.                  jr    z,$+11         ; Loop ended? yes - jump
+2319  2809     (.                  jr    z,NEXT_LOOP_FINISHED ; Loop ended? yes - jump
 231B  EB       .                   ex    de,hl          ; Line number in HL
 231C  22A278   ".x                 ld    (0x78A2),hl    ; Store as current line number
 231F  69       i                   ld    l,c            ; Starting pointer of the line in HL
@@ -5970,9 +5970,9 @@
 234A  7E       ~                   ld    a,(hl)         ; Next character from program
 234B  1600     ..                  ld    d,0x00         ; Set operator code = 0
 234D  D6D4     ..                  sub   0xD4           ; Comparison operator? ( > = < )
-234F  3813     8.                  jr    c,$+21         ; no!
+234F  3813     8.                  jr    c,EVAL_EXPR_CHK_COMP ; no!
 2351  FE03     ..                  cp    0x03           ; (Token D4, D5 and D6)
-2353  300F     0.                  jr    nc,$+17        ; no!
+2353  300F     0.                  jr    nc,EVAL_EXPR_CHK_COMP ; no!
 2355  FE01     ..                  cp    0x01           ; Set Carry for '>'
 2357  17       .                   rla                  ; Shift 1 bit left ( > = 1, = = 2, < = 4 )
 2358  AA       .                   xor   d              ; Set corresponding bit in operator code
@@ -6093,7 +6093,7 @@
 2408  32B078   2.x                 ld    (0x78B0),a
 240B  78       x                   ld    a,b            ; type in A
 240C  FE08     ..                  cp    0x08           ; 1st operand double precision?
-240E  2828     ((                  jr    z,$+42         ; yes!
+240E  2828     ((                  jr    z,OP1_DOUBLE   ; yes!
 2410  3AAF78   :.x                 ld    a,(VALTYP)     ; load type of 2nd operand
 2413  FE08     ..                  cp    0x08           ; is double precision?
 2415  CA6024   .`$                 jp    z,OP2_DOUBLE   ; yes!
@@ -6190,7 +6190,7 @@
 24A8  CD3D1E   .=.                 call  ISLET          ; letter?
 24AB  D24025   .@%                 jp    nc,0x2540      ; yes, variable value in expression
 24AE  FECD     ..                  cp    0xCD           ; '+' sign?
-24B0  28ED     (.                  jr    z,$-17         ; yes, ignore
+24B0  28ED     (.                  jr    z,EVAL_OPERAND ; yes, ignore
 24B2  FE2E     ..                  cp    0x2E           ; character = '.' ?
 24B4  CA6C0E   .l.                 jp    z,STR_TO_NUM   ; yes, number to X, done
 24B7  FECE     ..                  cp    0xCE           ; '-' sign?
@@ -6202,7 +6202,7 @@
 24C6  FE26     .&                  cp    0x26           ; '&' ?
 24C8  CA9479   ..y                 jp    z,0x7994       ; yes, to RAM expansion output
 24CB  FEC3     ..                  cp    0xC3           ; ERR token?
-24CD  200A      .                  jr    nz,$+12        ; no, continue
+24CD  200A      .                  jr    nz,ERL_FUNC    ; no, continue
                      ; ERR function
                      ERR_FUNC:
 24CF  D7       .                   rst   0x10           ; results in the last error code
@@ -6214,7 +6214,7 @@
                      ; ERL function
                      ERL_FUNC:
 24D9  FEC2     ..                  cp    0xC2           ; is ERL token?
-24DB  200A      .                  jr    nz,$+12        ; no, continue
+24DB  200A      .                  jr    nz,VARPTR_CHK  ; no, continue
 24DD  D7       .                   rst   0x10           ; address next character
 24DE  E5       .                   push  hl             ; program pointer on stack
 24DF  2AEA78   *.x                 ld    hl,(0x78EA)    ; load last error line number
@@ -6452,7 +6452,7 @@
 261A  D7       .                   rst   0x10           ; load next character
 261B  3805     8.                  jr    c,$+7          ; Digit ? yes-jump
 261D  CD3D1E   .=.                 call  ISLET          ; Letter?
-2620  3809     8.                  jr    c,$+11         ; no, name only 1 letter
+2620  3809     8.                  jr    c,GET_VAR_TYPE ; no, name only 1 letter
 2622  4F       O                   ld    c,a            ; 2nd character in C
 2623  D7       .                   rst   0x10           ; load next character
 2624  38FD     8.                  jr    c,$-1          ; Digit? yes-skip
@@ -6512,7 +6512,7 @@
 266E  2AFB78   *.x                 ld    hl,(ARYTAB)    ; load end of variable table
 2671  DF       .                   rst   0x18           ; Addresses equal?
 2672  E1       .                   pop   hl             ; type code in H
-2673  2819     (.                  jr    z,$+27         ; yes, variable not found
+2673  2819     (.                  jr    z,VAR_NOT_FOUND ; yes, variable not found
 2675  1A       .                   ld    a,(de)         ; load type from variable table
 2676  6F       o                   ld    l,a            ; = type of variable being sought ?
 2677  BC       .                   cp    h              ; no, next variable
@@ -6541,11 +6541,11 @@
 2692  D5       .                   push  de             ; end address of Var.Tab. on stack
 2693  11F124   ..$                 ld    de,0x24F1      ; return address = 24F1H?
 2696  DF       .                   rst   0x18           ; (from VARPTR)
-2697  2836     (6                  jr    z,$+56         ; yes, continue at 26CFH
+2697  2836     (6                  jr    z,VARPTR_NOT_FOUND ; yes, continue at 26CFH
 2699  114325   .C%                 ld    de,0x2543      ; return address = 2543H?
 269C  DF       .                   rst   0x18           ; (from expression analysis)
 269D  D1       .                   pop   de             ; reload Var.Tab. end address
-269E  2835     (5                  jr    z,$+55         ; yes, continue at 26D5H
+269E  2835     (5                  jr    z,EXPR_VAR_NOT_FOUND ; yes, continue at 26D5H
                      ; Set up new variable
                      CREATE_NEW_VAR:
 26A0  F1       .                   pop   af             ; load type
@@ -6644,7 +6644,7 @@
 2714  EB       .                   ex    de,hl          ; Swap addresses
 2715  DF       .                   rst   0x18           ; Addresses equal?
 2716  3AAF78   :.x                 ld    a,(VALTYP)     ; Load type
-2719  2827     ('                  jr    z,$+41         ; Yes, matrix not found!
+2719  2827     ('                  jr    z,ARYINI       ; Yes, matrix not found!
 271B  BE       .                   cp    (hl)           ; Type = with table entry?
 271C  23       #                   inc   hl             ; Table address + 1
 271D  2008      .                  jr    nz,$+10        ; No, next table entry
@@ -6968,7 +6968,7 @@
 28CE  09       .                   add   hl,bc          ; String space pointer - length
 28CF  23       #                   inc   hl             ; + 1 (result correction)
 28D0  DF       .                   rst   0x18           ; Start of the string space - 1?
-28D1  3807     8.                  jr    c,$+9          ; yes, pack string space
+28D1  3807     8.                  jr    c,GARBAG       ; yes, pack string space
 28D3  22D678   ".x                 ld    (FRETOP),hl    ; Store new string space pointer
 28D6  23       #                   inc   hl             ; + 1 = string address in string area
 28D7  EB       .                   ex    de,hl          ; transfer to DE
@@ -7030,7 +7030,7 @@
 292F  E5       .                   push  hl             ; Table address on stack
 2930  09       .                   add   hl,bc          ; + Matrix length = start of next matrix
 2931  FE03     ..                  cp    0x03           ; String matrix?
-2933  20EB      .                  jr    nz,$-19        ; no, next matrix
+2933  20EB      .                  jr    nz,FIND_HI_STR_ARY ; no, next matrix
 2935  22D878   ".x                 ld    (FMT_FLAG),hl  ; Save address of next matrix
 2938  E1       .                   pop   hl             ; Load DIM counter address
 2939  4E       N                   ld    c,(hl)         ; Load DIM counter
@@ -7400,7 +7400,7 @@
 2B14  329778   2.x                 ld    (0x7897),a
 2B17  CF       .                   rst   8              ; followed by a comma?
 2B18  2C       ,                   DEFB  0x2C
-2B19  1801     ..                  jr    $+3            ; Analyze value (<256) and into A
+2B19  1801     ..                  jr    GETBYT         ; Analyze value (<256) and into A
                      ; Evaluate expression, convert result to integer (<256)
 2B1B  D7       .                   rst   0x10           ; Address next character
                      GETBYT:
@@ -7467,7 +7467,7 @@
 2B77  C8       .                   ret   z              ; Yes, finished!
 2B78  CD2A03   .*.                 call  CHAR_OUTPUT_DISPATCH ; Output character
 2B7B  23       #                   inc   hl             ; Text address + 1
-2B7C  18F7     ..                  jr    $-7            ; Next character
+2B7C  18F7     ..                  jr    OUTSTR_00      ; Next character
                      ; Generate readable text from intermediate code
                      ; Transferred from the program line into the I/O buffer.
                      DETOKEN:
@@ -7572,7 +7572,7 @@
 2C11  F5       .                   push  af             ; on stack
 2C12  3AD27A   :.z                 ld    a,(SOUND_NOTE_VALUE) ; Load note value
 2C15  B7       .                   or    a              ; = 0?
-2C16  2840     (@                  jr    z,$+66         ; yes, pause
+2C16  2840     (@                  jr    z,SOUND_PAUSE  ; yes, pause
 2C18  3D       =                   dec   a              ; Note value - 1
 2C19  CB27     .'                  sla   a              ; * 2
 2C1B  4F       O                   ld    c,a            ; in BC = offset for frequency table
@@ -7746,7 +7746,7 @@
 2D0C  FE21     .!                  cp    0x21           ; Numeric character?
 2D0E  CA142E   ...                 jp    z,USING_STRING ; yes, print 1st character of strings
 2D11  FE23     .#                  cp    0x23           ; Numeric character?
-2D13  2837     (7                  jr    z,$+57         ; yes, analyze numeric field
+2D13  2837     (7                  jr    z,USING_NUM_FIELD ; yes, analyze numeric field
 2D15  05       .                   dec   b              ; String length - 1
 2D16  CAFE2D   ..-                 jp    z,USING_FORMAT_END ; = 0? Yes, end of string!
 2D19  FE2B     .+                  cp    0x2B           ; = '+' ?
@@ -7756,9 +7756,9 @@
 2D20  7E       ~                   ld    a,(hl)         ; Load character
 2D21  23       #                   inc   hl             ; String pointer + 1
 2D22  FE2E     ..                  cp    0x2E           ; Point?
-2D24  2840     (@                  jr    z,$+66         ; yes, determine decimal places
+2D24  2840     (@                  jr    z,USING_DEC_PLACES ; yes, determine decimal places
 2D26  FE25     .%                  cp    0x25           ; = '%' ?
-2D28  28BD     (.                  jr    z,$-65         ; yes, string formatting
+2D28  28BD     (.                  jr    z,USING_FIELD_LEN ; yes, string formatting
 2D2A  BE       .                   cp    (hl)           ; = next character?
 2D2B  20D0      .                  jr    nz,$-46        ; no, continue
 2D2D  FE24     .$                  cp    0x24           ; 2 Dollar signs?
@@ -7786,19 +7786,19 @@
 2D4C  1C       .                   inc   e              ; numeric field length + 1
 2D4D  0E00     ..                  ld    c,0x00         ; Number of decimal places = 0
 2D4F  05       .                   dec   b              ; String length - 1
-2D50  2847     (G                  jr    z,$+73         ; = 0? Yes, format string evaluated
+2D50  2847     (G                  jr    z,USING_NUM_FORMAT ; = 0? Yes, format string evaluated
 2D52  7E       ~                   ld    a,(hl)         ; Load character
 2D53  23       #                   inc   hl             ; String pointer + 1
 2D54  FE2E     ..                  cp    0x2E           ; Point?
-2D56  2818     (.                  jr    z,$+26         ; yes, determine number of decimal places
+2D56  2818     (.                  jr    z,USING_DEC_LOOP ; yes, determine number of decimal places
 2D58  FE23     .#                  cp    0x23           ; Numeric character?
-2D5A  28F0     (.                  jr    z,$-14         ; yes, continue evaluating numeric field
+2D5A  28F0     (.                  jr    z,USING_NUM_FIELD ; yes, continue evaluating numeric field
 2D5C  FE2C     .,                  cp    0x2C           ; Comma?
-2D5E  201A      .                  jr    nz,$+28        ; no, evaluate numeric field parameter
+2D5E  201A      .                  jr    nz,USING_NUM_PARAMS ; no, evaluate numeric field parameter
 2D60  7A       z                   ld    a,d            ; Bit 6 of Format-Flags for ',' = 1
 2D61  F640     .@                  or    0x40
 2D63  57       W                   ld    d,a
-2D64  18E6     ..                  jr    $-24           ; continue at 2D4CH
+2D64  18E6     ..                  jr    USING_NUM_FIELD ; continue at 2D4CH
                      ; Determine number of decimal places
                      USING_DEC_PLACES:
 2D66  7E       ~                   ld    a,(hl)         ; Load character
@@ -7810,11 +7810,11 @@
                      USING_DEC_LOOP:
 2D70  0C       .                   inc   c              ; Counter for decimal places + 1
 2D71  05       .                   dec   b              ; String length - 1
-2D72  2825     (%                  jr    z,$+39         ; = 0? Yes, end of string!
+2D72  2825     (%                  jr    z,USING_NUM_FORMAT ; = 0? Yes, end of string!
 2D74  7E       ~                   ld    a,(hl)         ; Load character
 2D75  23       #                   inc   hl             ; String pointer + 1
 2D76  FE23     .#                  cp    0x23           ; Numeric character?
-2D78  28F6     (.                  jr    z,$-8          ; yes!
+2D78  28F6     (.                  jr    z,USING_DEC_LOOP ; yes!
                      ; Evaluate numeric field end parameter
                      USING_NUM_PARAMS:
 2D7A  D5       .                   push  de             ; Format-Flag on stack
@@ -7987,9 +7987,9 @@
 2E64  28       (                   DEFB  0x28
 2E65  CD1C2B   ..+                 call  GETBYT         ; Evaluate operand in parentheses
 2E68  B7       .                   or    a              ; MODE (0) ?
-2E69  2812     (.                  jr    z,$+20         ; yes, jump
+2E69  2812     (.                  jr    z,MODE_0_SET   ; yes, jump
 2E6B  3D       =                   dec   a              ; - 1
-2E6C  2803     (.                  jr    z,$+5          ; = 0? yes, MODE (1)!
+2E6C  2803     (.                  jr    z,MODE_1_SET   ; = 0? yes, MODE (1)!
 2E6E  C34A1E   .J.                 jp    0x1E4A         ; no, FUNCTION CODE - Error
                      ; Set MODE (1)
                      MODE_1_SET:
@@ -7997,7 +7997,7 @@
 2E73  3A3B78   :;x                 ld    a,(OUT_LATCH)  ; Load output latch byte
 2E76  F608     ..                  or    0x08           ; Set bit 3
 2E78  323B78   2;x                 ld    (OUT_LATCH),a  ; and save back
-2E7B  180A     ..                  jr    $+12           ; continue at 2E87H
+2E7B  180A     ..                  jr    MODE_SCREEN_CLEAR ; continue at 2E87H
                      ; Set MODE (0)
                      MODE_0_SET:
 2E7D  1620     .                   ld    d,0x20         ; Clear character = blank
@@ -8091,7 +8091,7 @@
 2F00  F6C0     ..                  or    0xC0           ; mask out columns 6 and 7
 2F02  2F       /                   cpl                  ; invert A register
 2F03  FE00     ..                  cp    0x00           ; if = 0, no key pressed
-2F05  2807     (.                  jr    z,$+9          ; yes! then clear all flags
+2F05  2807     (.                  jr    z,KBD_FLAGS_RESET ; yes! then clear all flags
 2F07  CD282F   .(/                 call  KBD_SCAN_ROWS  ; evaluate matrix rows individually
 2F0A  B7       .                   or    a              ; no ASCII character?
 2F0B  C2D705   ...                 jp    nz,KBD_ROLLOVER ; yes, check for multiple presses
@@ -8127,7 +8127,7 @@
 2F3E  21DF68   !.h                 ld    hl,0x68DF      ; Address keyboard row 6
 2F41  7E       ~                   ld    a,(hl)         ; Load row content
 2F42  CB57     .W                  bit   2,a            ; '-' key pressed?
-2F44  2810     (.                  jr    z,$+18         ; yes!
+2F44  2810     (.                  jr    z,KBD_SCAN_BIT_LOOP ; yes!
 2F46  CB05     ..                  rlc   l              ; Address keyboard row 7
 2F48  7E       ~                   ld    a,(hl)         ; Load row content
 2F49  CB57     .W                  bit   2,a            ; RETURN key?
@@ -8290,7 +8290,7 @@
 305E  0616     ..                  ld    b,0x16         ; Number of table elements
 3060  219902   !..                 ld    hl,TOKEN_APPEND_PAREN ; Starting address of the table
 3063  BE       .                   cp    (hl)           ; Token = table entry?
-3064  2816     (.                  jr    z,$+24         ; yes, jump
+3064  2816     (.                  jr    z,OUT_APPEND_PAREN ; yes, jump
 3066  23       #                   inc   hl             ; address pointer + 1
 3067  10FA     ..                  djnz  $-4            ; next table entry
                      ; not in table, special handling 'DEF'
@@ -8396,7 +8396,7 @@
 3109  B7       .                   or    a              ; character to be output = 0?
 310A  2804     (.                  jr    z,$+6          ; yes, CR from RDLINE!
 310C  FE0D     ..                  cp    0x0D           ; is it a Carriage Return?
-310E  204A      J                  jr    nz,$+76        ; no, output character
+310E  204A      J                  jr    nz,OUT_CHAR_BIT7_CHECK ; no, output character
 3110  F5       .                   push  af             ; save character
 3111  2A2078   * x                 ld    hl,(CURS_ADDR) ; load cursor address
 3114  3AA678   :.x                 ld    a,(TTYPOS)     ; load column pointer
@@ -8440,7 +8440,7 @@
 3150  3A4678   :Fx                 ld    a,(0x7846)     ; load color code
 3153  B0       .                   or    b              ; combine with graphics character
 3154  47       G                   ld    b,a            ; character in B
-3155  185F     ._                  jr    $+97           ; and output
+3155  185F     ._                  jr    OUT_SCREEN_RAW ; and output
                      OUT_CHAR_RESTORE_2:
 3157  CD0D03   ...                 call  CURSOR_CHAR_RESTORE ; restore character at cursor position
                      OUT_CHAR_BIT7_CHECK:
@@ -8991,7 +8991,7 @@
 3516  67       g                   ld    h,a            ; H = byte to output
 3517  CD4235   .B5                 call  TAPE_CLOCK_PULSE ; Output clock pulse
 351A  CB04     ..                  rlc   h              ; Rotate next bit into carry
-351C  300D     0.                  jr    nc,$+15        ; Carry clear means output a 0 bit
+351C  300D     0.                  jr    nc,TAPE_WRITE_ZERO_BIT ; Carry clear means output a 0 bit
 351E  CD4235   .B5                 call  TAPE_CLOCK_PULSE ; Output first pulse of a 1 bit
 3521  CD4235   .B5                 call  TAPE_CLOCK_PULSE ; Output second pulse of a 1 bit
 3524  2D       -                   dec   l              ; Decrement bit counter
@@ -9798,7 +9798,7 @@
 3AD2  3F       ?                   ccf                  ; Complement Carry (clear it)
 3AD3  C0       .                   ret   nz             ; Return if not CR
 3AD4  3E0A     >.                  ld    a,0x0A         ; Send line feed (0x0A)
-3AD6  18E2     ..                  jr    $-28           ; Output LF to printer
+3AD6  18E2     ..                  jr    PRN_CHAR_OUT   ; Output LF to printer
                      ; Output character - handle block graphics or inverted
 3AD8  CB77     .w                  bit   6,a            ; Is bit 6 set? (inverted character)
 3ADA  CA732C   .s,                 jp    z,PRN_GFX_CHAR ; No, it is block graphics - output via PRN_
@@ -10247,7 +10247,7 @@
 3E92  12       .                   ld    (de),a         ; Character into I/O buffer
 3E93  23       #                   inc   hl             ; Screen address + 1
 3E94  13       .                   inc   de             ; Buffer address + 1
-3E95  10D3     ..                  djnz  $-43           ; Counter - 1
+3E95  10D3     ..                  djnz  RDLINE_READ_ENTRY ; Counter - 1
 3E97  C3EE04   ...                 jp    0x04EE         ; = 0, then done
 3E9A  CB6F     .o                  bit   5,a            ; Character in real ASCII code?
 3E9C  2802     (.                  jr    z,$+4          ; Convert, if wrong
@@ -10255,7 +10255,7 @@
 3EA0  12       .                   ld    (de),a         ; Character into I/O buffer
 3EA1  23       #                   inc   hl             ; Screen address + 1
 3EA2  13       .                   inc   de             ; Buffer address + 1
-3EA3  109B     ..                  djnz  $-99           ; Counter - 1
+3EA3  109B     ..                  djnz  RDLINE_READ_GREEN_BG ; Counter - 1
 3EA5  C3EE04   ...                 jp    0x04EE         ; = 0, transfer complete
 3EA8  3A1878   :.x                 ld    a,(0x7818)     ; Depending on background, branch to appropr
 3EAB  B7       .                   or    a
