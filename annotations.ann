@@ -2838,6 +2838,70 @@ offset = 8
 name = RST08_VEC
 
 [label]
+offset = 11
+name = ROMRET
+
+[label]
+offset = 16
+name = RST10_VEC
+
+[label]
+offset = 19
+name = GET_CHAR_DCB
+
+[label]
+offset = 24
+name = RST18_VEC
+
+[label]
+offset = 27
+name = PUT_CHAR_DCB
+
+[label]
+offset = 32
+name = RST20_VEC
+
+[label]
+offset = 40
+name = RST28_VEC
+
+[label]
+offset = 43
+name = KBD_QUERY
+
+[label]
+offset = 48
+name = RST30_VEC
+
+[label]
+offset = 51
+name = SCR_OUT_DCB
+
+[label]
+offset = 56
+name = RST38_VEC
+
+[label]
+offset = 59
+name = PRN_OUT_DCB
+
+[label]
+offset = 70
+name = DCB_CALL
+
+[label]
+offset = 73
+name = KBD_WAIT
+
+[label]
+offset = 80
+name = GET_CURSOR_CHAR
+
+[label]
+offset = 96
+name = DELAY_LOOP
+
+[label]
 offset = 102
 name = NMI_VEC
 
@@ -2907,7 +2971,7 @@ name = RESET
 
 [label]
 offset = 457
-name = CLRSCR_HOME
+name = CLRSCR
 
 [label]
 offset = 467
@@ -2950,6 +3014,10 @@ offset = 791
 name = CURSOR_LINE_BACK
 
 [label]
+offset = 801
+name = SOUND_DURATION_MULT
+
+[label]
 offset = 810
 name = CHAR_OUTPUT_DISPATCH
 
@@ -2966,6 +3034,10 @@ offset = 856
 name = KBD_QUERY_WRAP
 
 [label]
+offset = 865
+name = SOUND_TIME_VALUES
+
+[label]
 offset = 907
 name = OUTPUT_SCREEN_SELECT
 
@@ -2979,7 +3051,7 @@ name = DCB_DISPATCH
 
 [label]
 offset = 995
-name = INPUT_LINE_READ
+name = RDLINE
 
 [label]
 offset = 1481
@@ -3020,6 +3092,10 @@ name = FP_SUB_Y_MINUS_X
 [label]
 offset = 1814
 name = FP_ADD_X_PLUS_Y
+
+[label]
+offset = 1912
+name = FA_ZERO
 
 [label]
 offset = 1960
@@ -3107,7 +3183,7 @@ name = MULDVA
 
 [label]
 offset = 2324
-name = MULDV
+name = MULDIV
 
 [label]
 offset = 2338
@@ -3282,20 +3358,88 @@ offset = 2617
 name = DCOMP
 
 [label]
+offset = 2620
+name = DCOMPS
+
+[label]
+offset = 2624
+name = SIGNS_2
+
+[label]
+offset = 2639
+name = XDCOMP
+
+[label]
+offset = 2644
+name = SIGN_X
+
+[label]
+offset = 2647
+name = FCOMPS
+
+[label]
+offset = 2676
+name = DCOMP1
+
+[label]
 offset = 2687
 name = FRCINT
+
+[label]
+offset = 2698
+name = OVERR
+
+[label]
+offset = 2702
+name = CONIS
+
+[label]
+offset = 2707
+name = CONIS2
 
 [label]
 offset = 2714
 name = MAKINT
 
 [label]
+offset = 2717
+name = VALINT
+
+[label]
+offset = 2719
+name = CONISD
+
+[label]
 offset = 2723
 name = INT
 
 [label]
+offset = 2737
+name = FRCSNG
+
+[label]
+offset = 2745
+name = CONSD
+
+[label]
 offset = 2764
 name = INEG
+
+[label]
+offset = 2779
+name = FRCDBL
+
+[label]
+offset = 2787
+name = CONDS
+
+[label]
+offset = 2796
+name = VALDBL
+
+[label]
+offset = 2804
+name = CHKSTR
 
 [label]
 offset = 2806
@@ -3450,6 +3594,286 @@ offset = 3318
 name = DNORM_BIT_LOOP
 
 [label]
+offset = 3342
+name = DROUND_DP
+
+[label]
+offset = 3360
+name = DROUNA
+
+[label]
+offset = 3379
+name = DADDAA
+
+[label]
+offset = 3397
+name = DADDAS
+
+[label]
+offset = 3415
+name = DNEGR
+
+[label]
+offset = 3433
+name = DSHFTR
+
+[label]
+offset = 3453
+name = DSHFR3
+
+[label]
+offset = 3456
+name = DSHFR4
+
+[label]
+offset = 3472
+name = DXSHFT
+
+[label]
+offset = 3479
+name = DLSHFT
+
+[label]
+offset = 3489
+name = DMULT
+
+[label]
+offset = 3548
+name = DDIV10
+
+[label]
+offset = 3557
+name = DDIV
+
+[label]
+offset = 3641
+name = DMULDV
+
+[label]
+offset = 3661
+name = DMUL10
+
+[label]
+offset = 3685
+name = STR_TO_DOUBLE
+
+[label]
+offset = 3692
+name = STR_TO_NUM
+
+[label]
+offset = 3715
+name = FINC
+
+[label]
+offset = 3747
+name = FINEX
+
+[label]
+offset = 3773
+name = FINEC
+
+[label]
+offset = 3812
+name = STR_TO_NUM_DP
+
+[label]
+offset = 3822
+name = FININT
+
+[label]
+offset = 3829
+name = FINDBF
+
+[label]
+offset = 3830
+name = FINSNF
+
+[label]
+offset = 3835
+name = FINFRC
+
+[label]
+offset = 3850
+name = FINMUL
+
+[label]
+offset = 3864
+name = FINDIV
+
+[label]
+offset = 3881
+name = FINDIG
+
+[label]
+offset = 3927
+name = FINDG1
+
+[label]
+offset = 3929
+name = FINDG2
+
+[label]
+offset = 3933
+name = FINDGV
+
+[label]
+offset = 3956
+name = FINDG3
+
+[label]
+offset = 3959
+name = FINDGD
+
+[label]
+offset = 3977
+name = FADD8
+
+[label]
+offset = 3988
+name = FINEDG
+
+[label]
+offset = 4007
+name = INPRT
+
+[label]
+offset = 4015
+name = LINPRT
+
+[label]
+offset = 4029
+name = PUSTR_UNFORM_INIT
+
+[label]
+offset = 4030
+name = PUFOUT
+
+[label]
+offset = 4079
+name = INT_TO_STR
+
+[label]
+offset = 4085
+name = PUSTR_BITS_2_5
+
+[label]
+offset = 4148
+name = FOUINI
+
+[label]
+offset = 4157
+name = FOUFRV
+
+[label]
+offset = 4229
+name = FOUFRV_POS
+
+[label]
+offset = 4243
+name = FOUFRV_END
+
+[label]
+offset = 4250
+name = PUSTR_FORM
+
+[label]
+offset = 4258
+name = PUSTR_INT
+
+[label]
+offset = 4288
+name = PUSTR_REST
+
+[label]
+offset = 4301
+name = PUSTR_LOOP_CONT
+
+[label]
+offset = 4302
+name = PUSTR_LOOP
+
+[label]
+offset = 4319
+name = PUSTR_STACK_CHAR
+
+[label]
+offset = 4345
+name = PUSTR_LOOP_NEXT
+
+[label]
+offset = 4354
+name = PUSTR_OVERFLOW
+
+[label]
+offset = 4361
+name = PUSTR_VAL
+
+[label]
+offset = 4379
+name = PUSTR_OVERFLOW_STR
+
+[label]
+offset = 4388
+name = PUSTR_SINGLE
+
+[label]
+offset = 4413
+name = PUSTR_NO_DECIMAL
+
+[label]
+offset = 4439
+name = PUSTR_HAS_DECIMAL
+
+[label]
+offset = 4479
+name = PUSTR_ONLY_DECIMAL
+
+[label]
+offset = 4515
+name = PUSTR_EXP_INT
+
+[label]
+offset = 4522
+name = PUSTR_EXP_FLOAT
+
+[label]
+offset = 4560
+name = PUSTR_ROUND_LOOP
+
+[label]
+offset = 4574
+name = PUSTR_ROUND_DONE
+
+[label]
+offset = 4609
+name = GET_10_EXP
+
+[label]
+offset = 4613
+name = GET_10_EXP_SINGLE
+
+[label]
+offset = 4642
+name = GET_10_EXP_START
+
+[label]
+offset = 4660
+name = GET_10_EXP_DBL
+
+[label]
+offset = 4666
+name = GET_10_EXP_LOOP
+
+[label]
+offset = 4676
+name = GET_10_EXP_LOOP_2
+
+[label]
+offset = 4687
+name = GET_10_EXP_TEST
+
+[label]
 offset = 4713
 name = WRITE_ZEROS
 
@@ -3467,7 +3891,7 @@ name = SET_DOT_COMMA
 
 [label]
 offset = 4772
-name = FF_TO_ASCII
+name = FAC_TO_STR
 
 [label]
 offset = 4854
@@ -3476,6 +3900,114 @@ name = FF_TO_ASCII_CONT
 [label]
 offset = 4911
 name = INT_TO_ASCII
+
+[label]
+offset = 4964
+name = TENTEN
+
+[label]
+offset = 4972
+name = FOUTDL
+
+[label]
+offset = 4980
+name = FOUTDU
+
+[label]
+offset = 4988
+name = DHALF
+
+[label]
+offset = 4996
+name = FFXDXM
+
+[label]
+offset = 5004
+name = FODTBL
+
+[label]
+offset = 5074
+name = FOSTBL
+
+[label]
+offset = 5080
+name = FOITBL
+
+[label]
+offset = 5088
+name = GETADR
+
+[label]
+offset = 5090
+name = GETADR_ENTRY_2
+
+[label]
+offset = 5095
+name = FNSQR
+
+[label]
+offset = 5111
+name = FNPWR
+
+[label]
+offset = 5241
+name = EXP_CONSTANTS
+
+[label]
+offset = 5274
+name = POLYN
+
+[label]
+offset = 5321
+name = FNRND
+
+[label]
+offset = 5360
+name = RND0
+
+[label]
+offset = 5370
+name = RND00
+
+[label]
+offset = 5372
+name = RND01
+
+[label]
+offset = 5398
+name = RND02
+
+[label]
+offset = 5441
+name = FNCOS
+
+[label]
+offset = 5447
+name = FNSIN
+
+[label]
+offset = 5515
+name = PI2
+
+[label]
+offset = 5519
+name = F025
+
+[label]
+offset = 5523
+name = SIN_CONST
+
+[label]
+offset = 5544
+name = FNTAN
+
+[label]
+offset = 5565
+name = FNATN
+
+[label]
+offset = 5603
+name = ATN_CONST
 
 [label]
 offset = 5712
@@ -4071,7 +4603,7 @@ name = DIV_ZERO_ERR_HANDLER
 
 [label]
 offset = 6557
-name = NEXT_WITHOUT_FOR_ERR_HANDLER
+name = NEXT_WITHOUT_FOR_ERR
 
 [label]
 offset = 6560
@@ -4082,12 +4614,216 @@ offset = 6562
 name = ERROR_HANDLER
 
 [label]
+offset = 6571
+name = ERROR_HANDLER_RESUME
+
+[label]
+offset = 6654
+name = ERROR_PRINT
+
+[label]
+offset = 6680
+name = MAIN_LOOP_ENTRY
+
+[label]
+offset = 6681
+name = MAIN_LOOP
+
+[label]
+offset = 6707
+name = MAIN_LOOP_READY
+
+[label]
+offset = 6719
+name = AUTO_COMMAND
+
+[label]
+offset = 6777
+name = NORMAL_INPUT
+
+[label]
+offset = 6904
+name = RENEW_LINE_PTRS_ALL
+
+[label]
+offset = 6908
+name = RENEW_LINE_PTRS
+
+[label]
+offset = 6928
+name = LIST_ARGS
+
+[label]
+offset = 6956
+name = FNDLIN
+
+[label]
+offset = 6985
+name = CMD_NEW
+
+[label]
+offset = 7005
+name = VRESET
+
+[label]
+offset = 7091
+name = PROMPT
+
+[label]
+offset = 7104
+name = STOKEN
+
+[label]
+offset = 7157
+name = CRUNCH
+
+[label]
+offset = 7229
+name = NOTRES
+
+[label]
+offset = 7312
+name = DCOMPR
+
+[label]
+offset = 7318
+name = SYNCHR
+
+[label]
+offset = 7329
+name = FOR
+
+[label]
+offset = 7454
+name = NEWSTT
+
+[label]
+offset = 7514
+name = EXEC
+
+[label]
+offset = 7520
+name = EXEC_GOTO
+
+[label]
+offset = 7544
+name = CHRGTR
+
+[label]
+offset = 7569
+name = RESTORE
+
+[label]
+offset = 7579
+name = ISCNTC
+
+[label]
+offset = 7598
+name = END
+
+[label]
+offset = 7614
+name = CMD_END_INPUT
+
+[label]
+offset = 7652
+name = CONT
+
+[label]
+offset = 7671
+name = TRON
+
+[label]
+offset = 7672
+name = TROFF
+
+[label]
+offset = 7680
+name = DEFSTR
+
+[label]
+offset = 7683
+name = DEFINT
+
+[label]
+offset = 7686
+name = DEFSNG
+
+[label]
+offset = 7689
+name = DEFDBL
+
+[label]
+offset = 7741
+name = ISLET
+
+[label]
+offset = 7749
+name = GETVAL
+
+[label]
+offset = 7759
+name = VAL
+
+[label]
+offset = 7770
+name = DECZ
+
+[label]
+offset = 7802
+name = CLEAR
+
+[label]
+offset = 7843
+name = RUN
+
+[label]
+offset = 7857
+name = GOSUB
+
+[label]
+offset = 7874
+name = GOTO
+
+[label]
+offset = 7877
+name = GOTO_CONTINUE
+
+[label]
+offset = 7897
+name = ERR_UNDEFINED_STATEMENT
+
+[label]
+offset = 7902
+name = CMD_RETURN
+
+[label]
+offset = 7940
+name = CMD_DATA_SKIP
+
+[label]
+offset = 7941
+name = CMD_DATA
+
+[label]
+offset = 7943
+name = CMD_ELSE
+
+[label]
 offset = 7947
 name = ELSE_SWAP
 
 [label]
 offset = 7950
 name = ELSE_LOOP
+
+[label]
+offset = 7969
+name = CMD_LET
+
+[label]
+offset = 7987
+name = LET_VAR_PTR_LOAD
 
 [label]
 offset = 7998
@@ -4104,6 +4840,10 @@ name = LET_STRING_EXIT
 [label]
 offset = 8038
 name = LET_EXIT
+
+[label]
+offset = 8044
+name = CMD_ON
 
 [label]
 offset = 8048
@@ -4126,8 +4866,28 @@ offset = 8098
 name = ON_LOOP
 
 [label]
+offset = 8111
+name = CMD_RESUME
+
+[label]
 offset = 8141
 name = RESUME_NEXT
+
+[label]
+offset = 8180
+name = CMD_ERROR
+
+[label]
+offset = 8195
+name = ERROR_UNPRINTABLE
+
+[label]
+offset = 8200
+name = CMD_AUTO
+
+[label]
+offset = 8249
+name = CMD_IF
 
 [label]
 offset = 8271
@@ -4136,6 +4896,14 @@ name = IF_THEN
 [label]
 offset = 8278
 name = IF_ELSE
+
+[label]
+offset = 8295
+name = CMD_LPRINT
+
+[label]
+offset = 8303
+name = CMD_PRINT
 
 [label]
 offset = 8310
@@ -4158,8 +4926,56 @@ offset = 8441
 name = PRINT_BOL_CHECK
 
 [label]
+offset = 8446
+name = PRINT_CR
+
+[label]
+offset = 8456
+name = PRINT_COMMA
+
+[label]
+offset = 8503
+name = PRINT_TAB
+
+[label]
+offset = 8548
+name = PRINT_NEXT
+
+[label]
+offset = 8553
+name = PRINT_FINAL
+
+[label]
+offset = 8568
+name = REDO_TEXT
+
+[label]
+offset = 8575
+name = INPUT_REDO
+
+[label]
+offset = 8602
+name = CMD_INPUT
+
+[label]
+offset = 8617
+name = INPUT_CASSETTE
+
+[label]
+offset = 8649
+name = INPUT_KEYBOARD
+
+[label]
+offset = 8687
+name = CMD_READ
+
+[label]
 offset = 8692
 name = DATA_FLAG_CLEAR
+
+[label]
+offset = 8699
+name = READ_NEXT_VAR
 
 [label]
 offset = 8701
@@ -4198,12 +5014,24 @@ offset = 8809
 name = INPUT_EXTRA_CHECK
 
 [label]
+offset = 8838
+name = EXTRA_IGNORED_TEXT
+
+[label]
 offset = 8854
 name = DATA_FIND_STMT_END
 
 [label]
 offset = 8878
 name = DATA_SEARCH_LOOP
+
+[label]
+offset = 8886
+name = CMD_NEXT
+
+[label]
+offset = 8916
+name = NEXT_VARIABLE_PROC
 
 [label]
 offset = 8938
@@ -4270,6 +5098,10 @@ offset = 9360
 name = INT_DIV
 
 [label]
+offset = 9375
+name = EVAL_OPERAND
+
+[label]
 offset = 9423
 name = ERR_FUNC
 
@@ -4288,6 +5120,46 @@ name = VARPTR_FUNC
 [label]
 offset = 9454
 name = GET_VAR_ADDR
+
+[label]
+offset = 9731
+name = DIM_NEXT_ARG
+
+[label]
+offset = 9741
+name = VARPTR_FIND_OR_CREATE
+
+[label]
+offset = 9745
+name = GET_VAR_NAME
+
+[label]
+offset = 9771
+name = GET_VAR_TYPE
+
+[label]
+offset = 9793
+name = GET_TYPE_FROM_TABLE
+
+[label]
+offset = 9814
+name = SEARCH_VAR_TABLE
+
+[label]
+offset = 9870
+name = VAR_NOT_FOUND
+
+[label]
+offset = 9888
+name = CREATE_NEW_VAR
+
+[label]
+offset = 9935
+name = VARPTR_NOT_FOUND
+
+[label]
+offset = 9941
+name = EXPR_VAR_NOT_FOUND
 
 [label]
 offset = 9961
@@ -4342,12 +5214,20 @@ offset = 10341
 name = STRFDESC
 
 [label]
+offset = 10345
+name = STR_TO_FAC
+
+[label]
 offset = 10401
 name = STCPERR
 
 [label]
 offset = 10406
 name = STROUT
+
+[label]
+offset = 10407
+name = OUTSTR
 
 [label]
 offset = 10431
@@ -4442,6 +5322,10 @@ offset = 11003
 name = CMDOUT
 
 [label]
+offset = 11036
+name = GETBYT
+
+[label]
 offset = 11049
 name = CMDLLIST
 
@@ -4460,6 +5344,10 @@ name = DETOKEN
 [label]
 offset = 11206
 name = CMDDELETE
+
+[label]
+offset = 11236
+name = DELLIN
 
 [label]
 offset = 11253
@@ -4488,6 +5376,126 @@ name = PRINUS
 [label]
 offset = 11495
 name = USING_FIELD_LEN
+
+[label]
+offset = 11596
+name = USING_NUM_FIELD
+
+[label]
+offset = 11622
+name = USING_DEC_PLACES
+
+[label]
+offset = 11632
+name = USING_DEC_LOOP
+
+[label]
+offset = 11642
+name = USING_NUM_PARAMS
+
+[label]
+offset = 11671
+name = USING_NUM_EXIT
+
+[label]
+offset = 11673
+name = USING_NUM_FORMAT
+
+[label]
+offset = 11774
+name = USING_FORMAT_END
+
+[label]
+offset = 11796
+name = USING_STRING
+
+[label]
+offset = 11799
+name = USING_STRING_PCT
+
+[label]
+offset = 11849
+name = USING_PLUS_CHECK
+
+[label]
+offset = 11859
+name = AUTO_LINE_OUT
+
+[label]
+offset = 11875
+name = MODE_CMD
+
+[label]
+offset = 11889
+name = MODE_1_SET
+
+[label]
+offset = 11901
+name = MODE_0_SET
+
+[label]
+offset = 11911
+name = MODE_SCREEN_CLEAR
+
+[label]
+offset = 11933
+name = LIST_STRING_OUT
+
+[label]
+offset = 11960
+name = ISR_TIMER
+
+[label]
+offset = 11996
+name = CURSOR_BLINK
+
+[label]
+offset = 12020
+name = KBD_READ_CHAR
+
+[label]
+offset = 12029
+name = KBD_SCAN_ONCE
+
+[label]
+offset = 12046
+name = KBD_FLAGS_RESET
+
+[label]
+offset = 12072
+name = KBD_SCAN_ROWS
+
+[label]
+offset = 12118
+name = KBD_SCAN_BIT_LOOP
+
+[label]
+offset = 12131
+name = KBD_CALC_OFFSET
+
+[label]
+offset = 12150
+name = KBD_LOAD_TABLE
+
+[label]
+offset = 12247
+name = KBD_REPEAT
+
+[label]
+offset = 12315
+name = ECHO_CHAR
+
+[label]
+offset = 12345
+name = DIRECT_OUT_CHAR_TOKEN
+
+[label]
+offset = 12382
+name = CHECK_APPEND_PAREN
+
+[label]
+offset = 12393
+name = DEF_SPECIAL_PROC
 
 [label]
 offset = 12412
@@ -4534,6 +5542,70 @@ offset = 12735
 name = OUT_CURSOR_ADVANCE
 
 [label]
+offset = 12839
+name = OUT_CURSOR_DEC
+
+[label]
+offset = 12883
+name = OUT_CURSOR_UP
+
+[label]
+offset = 12909
+name = OUT_CURSOR_DOWN
+
+[label]
+offset = 12935
+name = OUT_CURSOR_HOME
+
+[label]
+offset = 12946
+name = OUT_SCREEN_CLS
+
+[label]
+offset = 12980
+name = OUT_CURSOR_SOL
+
+[label]
+offset = 12998
+name = INSERT_CHAR
+
+[label]
+offset = 13100
+name = SCROLL_DOWN_FROM_CURSOR
+
+[label]
+offset = 13224
+name = GET_LINE_STATUS
+
+[label]
+offset = 13259
+name = RUBOUT_CHAR
+
+[label]
+offset = 13299
+name = SCROLL_UP_ONE_LINE
+
+[label]
+offset = 13348
+name = SCROLL_UP_BY_STATUS
+
+[label]
+offset = 13360
+name = KEY_BEEP
+
+[label]
+offset = 13404
+name = SOUND_OUT
+
+[label]
+offset = 13417
+name = SOUND_PULSE
+
+[label]
+offset = 13444
+name = INIT_IO_LATCH_AND_BUFFERS
+
+[label]
 offset = 13481
 name = CSAVE
 
@@ -4572,6 +5644,214 @@ name = CLOAD
 [label]
 offset = 13919
 name = TAPE_LOAD_COMMON
+
+[label]
+offset = 14097
+name = TAPE_LOAD_ERROR
+
+[label]
+offset = 14126
+name = CMD_CRUN
+
+[label]
+offset = 14136
+name = CMD_VERIFY
+
+[label]
+offset = 14146
+name = VERIFY_COMPARE
+
+[label]
+offset = 14197
+name = TAPE_READ_BYTE
+
+[label]
+offset = 14223
+name = TAPE_READ_BIT
+
+[label]
+offset = 14324
+name = TAPE_PRINT_MSG
+
+[label]
+offset = 14356
+name = TAPE_PRINT_NAME
+
+[label]
+offset = 14440
+name = TAPE_READ_ADDRS
+
+[label]
+offset = 14478
+name = TAPE_CALC_CHECKSUM
+
+[label]
+offset = 14493
+name = CMD_COLOR
+
+[label]
+offset = 14567
+name = POINT_HELPER
+
+[label]
+offset = 14595
+name = SET_RESET_HELPER
+
+[label]
+offset = 14610
+name = CMD_COPY
+
+[label]
+offset = 14678
+name = PRN_INV_CHAR
+
+[label]
+offset = 14734
+name = COPY_GFX
+
+[label]
+offset = 14954
+name = COPY_CARRY_SET
+
+[label]
+offset = 14963
+name = PRN_OUTPUT_BUF
+
+[label]
+offset = 14981
+name = PRN_OUTPUT_BUF_BYTE
+
+[label]
+offset = 15034
+name = PRN_CHAR_OUT
+
+[label]
+offset = 15074
+name = PRN_CR_LF
+
+[label]
+offset = 15080
+name = CHECK_BREAK
+
+[label]
+offset = 15096
+name = CHECK_BREAK_STOP
+
+[label]
+offset = 15116
+name = WAIT_OUTPUT_EMPTY
+
+[label]
+offset = 15132
+name = GET_TTYPOS
+
+[label]
+offset = 15141
+name = LIST_PAUSE_CHECK
+
+[label]
+offset = 15176
+name = DEBOUNCE_DELAY
+
+[label]
+offset = 15188
+name = TAPE_CMD_WRITE
+
+[label]
+offset = 15192
+name = TAPE_CMD_WRITE_HEADER
+
+[label]
+offset = 15208
+name = TAPE_CMD_SEARCH
+
+[label]
+offset = 15240
+name = TAPE_READ_1_BYTE
+
+[label]
+offset = 15252
+name = PRN_GFX_FONT
+
+[label]
+offset = 15572
+name = ERROR_MSG_OUTPUT
+
+[label]
+offset = 15596
+name = ERROR_MSG_TABLE
+
+[label]
+offset = 15913
+name = BUF_BLANK_IF_EMPTY
+
+[label]
+offset = 15927
+name = INIT_COLOR_YELLOW
+
+[label]
+offset = 15936
+name = RDLINE_READ_GREEN_BG
+
+[label]
+offset = 15978
+name = RDLINE_READ_ENTRY
+
+[label]
+offset = 16050
+name = CHAR_INVERT
+
+[label]
+offset = 16062
+name = CLEAR_CHAR_GET
+
+[label]
+offset = 16074
+name = CHAR_OUT_INVERT_ADJUST
+
+[label]
+offset = 16105
+name = CHAR_IS_BLANK_TEST
+
+[label]
+offset = 16118
+name = INSERT_BLANK_CHAR
+
+[label]
+offset = 16130
+name = CLRLINE_CHAR_GET
+
+[label]
+offset = 16142
+name = TAPE_MSG_PRINT_BG
+
+[label]
+offset = 16161
+name = TAPE_ID_PRINT_BG
+
+[label]
+offset = 16179
+name = TAPE_NAME_PRINT_BG
+
+[label]
+offset = 16196
+name = COPY_CHAR_BG
+
+[label]
+offset = 16224
+name = CHAR_OUT_BG_ADJUST
+
+[label]
+offset = 16243
+name = TAPE_READ_BYTE_CHECKED
+
+[label]
+offset = 16251
+name = BG_COLOR_CHANGE_CONVERT
+
+[label]
+offset = 16288
+name = CTRL_KEY_CHECK_INIT
 
 [comment]
 offset = 0
